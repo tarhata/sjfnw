@@ -2,7 +2,7 @@ from django import forms
 import models, datetime
 
 class LoginForm(forms.Form):
-	username = forms.EmailField()
+	email = forms.EmailField()
 	password = forms.CharField(widget=forms.PasswordInput())
 
 class RegisterForm(forms.Form):

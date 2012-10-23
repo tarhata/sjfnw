@@ -6,15 +6,15 @@
 		<tr>
 			<td style="padding-top:0px;padding-right:10px">
 				LOGIN<br>
-				{{printout}}
+				{%if printout%}<ul class="errorlist">{{printout}}</ul>{%endif%}
 				<form method="post" action="/org/login/">
 					<table id="login_table">
 					<tr>
-						<td colspan="2">{{ form.username.errors }}</td>
+						<td colspan="2">{{ form.email.errors }}</td>
 					</tr>
 					<tr>
-              <td>{{ form.username.label }}</td>
-							<td>{{ form.username }}</td>
+              <td>{{ form.email.label }}</td>
+							<td>{{ form.email }}</td>
 					</tr>
 					<tr>
 						<td colspan="2">{{ form.password.errors }}</td>

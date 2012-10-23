@@ -24,18 +24,18 @@ def OrgLogin(request):
   error_msg=''
   if request.method=='POST':
     form = LoginForm(request.POST)
-    username = request.POST['username'].lower()
+    email = request.POST['email'].lower()
     password = request.POST['password']
-    user = authenticate(username=username, password=password)
+    user = authenticate(username=email, password=password)
     if user is not None:
       if user.is_active:
         login(request, user)
         return redirect(OrgHome)
       else:
         error_msg='Your account is inactive. Please contact an administrator.'
-        logging.warning('Inactive org account tried to log in, username: ' + username)
+        logging.warning('Inactive org account tried to log in, username: ' + email)
     else:
-      error_msg ="Your username and password didn't match. Please try again."
+      error_msg ="Your password didn't match. Please try again."
   else:
     form = LoginForm()
   register = RegisterForm()
@@ -50,27 +50,27 @@ def OrgRegister(request): #update - uses old try/catch instead of filters
     org = request.POST['organization']
     if register.is_valid():
       #check org already registered
-      if models.Grantee.objects.filter(name=org):
+      if models.Grantee.objects.filter(name=org) or models.Grantee.objects.filter(email=username_email):
         error_msg = 'That organization is already registered. Log in instead.'
         logging.warning(org + 'tried to re-register under ' + username_email)
       else:
         if not User.objects.filter(username=username_email):
           created = User.objects.create_user(username_email, username_email, password)
           logging.info('Created new User ' + username_email)
-        orgg = models.Grantee(name=org, email=username_email)
-        orgg.save()
-        logging.info('Created new org ' + org)
         user = authenticate(username_email=username_email, password=password)
         if user:
           if user.is_active:
             login(request, user)
+            orgg = models.Grantee(name=org, email=username_email)
+            orgg.save()
+            logging.info('Created new org ' + org)
             return redirect(OrgHome)
           else:
             error_msg='Your account is not active.  Please contact an administrator.'
             logging.error('Inactive acct right after registration, account: ' + username_email)
         else:
           logging.error('Password not working right after registration, account:  ' + username_email)
-          error_msg='Registered.  Please log in.'
+          error_msg="Your password didn't match.  Try again."
           register = RegisterForm()
   else:
     register = RegisterForm()
@@ -118,11 +118,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     return redirect('/org/nr')
   
   #check cycle exists
-  try:  
-    cycle = models.GrantCycle.objects.get(pk=cycle_id)
-  except models.GrantCycle.DoesNotExist:
-    logging.warning('Tried to apply to nonexistent cycle, id '+str(cycle_id))
-    return redirect('/org') #replace this with an error msg probably
+  cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
   
   #check whether cycle is open
   if cycle.is_open()==False: 
