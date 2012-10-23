@@ -189,7 +189,7 @@ class GrantApplication(models.Model):
     (80, 'Grant Paid'),
     (90, 'Closed'),
   )
-  screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
+  screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10, blank = True, null=True)
   scoring_bonus_poc = models.BooleanField(default=False, verbose_name='Scoring bonus for POC-led?')
   scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity?')
   

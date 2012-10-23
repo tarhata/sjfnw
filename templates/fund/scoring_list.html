@@ -1,4 +1,7 @@
 {% extends 'fund/blocks.html' %}
+<head>
+	<link href="index.css" type="text/css" rel="stylesheet" />
+</head>
 
 {% block progress %}
 <div id="progress_container">
@@ -9,6 +12,31 @@
 
 {% block content %}
 
-<!-- content goes here -->
+<div>
+	Pending
+	<ul>
+	{% for grant in unreviewed_grants %}
+		<li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
+	{% endfor %}
+	 </ul>
+</div>
+
+<div>
+	In Process
+	<ul>
+	{% for grant in review_in_progress_grants %}
+		<li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
+	{% endfor %}
+	 </ul>
+</div>
+
+<div>
+	Submitted
+	<ul>
+	{% for grant in reviewed_grants %}
+		<li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
+	{% endfor %}
+	 </ul>
+</div>
 
 {% endblock %}

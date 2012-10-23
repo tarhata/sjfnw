@@ -201,6 +201,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       mod = ''
     dict['organization'] = grantee
     dict['grant_cycle'] = cycle
+    dict['screening_status'] = 10
     form = models.GrantApplicationForm(initial=dict)
   
   #file upload prep

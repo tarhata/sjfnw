@@ -16,6 +16,8 @@ import json as simplejson
 import grants.models
 from fund.decorators import approved_membership
 from fund.forms import *
+#from scoring.models import ApplicationRating
+import scoring.models
 
 #LOGIN & REGISTRATION
 def FundLogin(request):
@@ -64,7 +66,7 @@ def Register(request):
           membership.save()
           member.current = membership.pk
           member.save()      
-          logging.info('Registration - membership in ' + giv + ' created')
+          logging.info('Registration - membership in ' + str(giv) + ' created')
         user = authenticate(username=username, password=password)
         if user:
           if user.is_active:
@@ -242,12 +244,36 @@ def ScoringList(request):
   #base
   header = project.title
   
+
   #additional code here!
+  #this is where you want a try catch to see if any grant applications within grant-list (bring in)
+  #have a grant application rating 
+  grant_list = grants.models.GrantApplication.objects.filter(grant_cycle = membership.giving_project.grant_cycle)
+  logging.info("grant list:" + str(grant_list))
   
-  return render_to_response('fund/info.html', {'3active':'true', 'header':header,
+  unreviewed_grants = []
+  reviewed_grants = []
+  review_in_progress_grants = []
+  for grant in grant_list:
+	try: 
+	  review = scoring.models.ApplicationRating.objects.get(application = grant, membership = membership)
+	  if review.submitted:
+		reviewed_grants.append(grant)
+	  else: 
+		review_in_progress_grants.append(grant)
+	except scoring.models.ApplicationRating.DoesNotExist:
+	  unreviewed_grants.append(grant)
+
+
+
+  return render_to_response('fund/scoring_list.html', {'3active':'true', 'header':header,
                                                 'news':news, 'events':events,
                                                 'member':member, 'steps':steps,
-                                                'membership':membership})
+                                                'membership':membership, 
+												'grant_list':grant_list, 												
+												'unreviewed_grants':unreviewed_grants, 
+												'reviewed_list':reviewed_grants, 
+												'review_in_progress':review_in_progress_grants})
 
 #ERROR & HELP PAGES
 @login_required(login_url='/fund/login/')
