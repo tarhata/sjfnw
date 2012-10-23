@@ -1,7 +1,6 @@
 import datetime
 from django.db import models
 from django.forms import ModelForm, Textarea
-from django.forms.widgets import RadioSelect, CheckboxSelectMultiple
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.core.validators import MaxLengthValidator

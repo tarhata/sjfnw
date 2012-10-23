@@ -48,11 +48,7 @@ gp_year.short_description = 'Year'
 
 class GPAdmin(admin.ModelAdmin):
   list_display = ('title', gp_year)
-  fieldsets = 
-    (None, {'fields': ('title', 'fund_goal', 'fundraising_deadline', 'calendar', 'grant_cycle', 'pre_approved')}),
-    ('Resources', {'classes': ('collapse',),
-                    'fields': (('r1title', 'r1link'), ('r2title', 'r2link'), ('r3title', 'r3link'), ('r4title', 'r4link'), ('r5title', 'r5link'), ('r6title', 'r6link'), ('r7title', 'r7link'), ('r8title', 'r8link'), ('r9title', 'r9link'), ('r10title', 'r10link'))})
-    )
+  fieldsets = (None, {'fields': ('title', 'fund_goal', 'fundraising_deadline', 'calendar', 'grant_cycle', 'pre_approved')}), ('Resources', {'classes': ('collapse',), 'fields': (('r1title', 'r1link'), ('r2title', 'r2link'), ('r3title', 'r3link'), ('r4title', 'r4link'), ('r5title', 'r5link'), ('r6title', 'r6link'), ('r7title', 'r7link'), ('r8title', 'r8link'), ('r9title', 'r9link'), ('r10title', 'r10link'))})
 
 class DonorAdmin(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'pledged', 'gifted')

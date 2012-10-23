@@ -44,6 +44,7 @@ urlpatterns = patterns('',
     (r'^mail/drafts/', 'grants.views.DraftWarning'),
 
 ## GRANTS - APPLICATION VIEWS ##
+
     (r'^grants/view/(?P<app_id>\d+)/$', 'grants.views.view_app'),
     (r'^grants/download/(?P<filename>.*)$', 'grants.views.download_handler'),
     
@@ -74,18 +75,13 @@ urlpatterns = patterns('',
     (r'^grants/csv/grant_application/(?P<grant_application_id>\d+)/$',
         'grants.search.csv_show_grant_application'),
 
-    #Reporting URLs should start with /grants
-
 ## SCORING ##
-	(r'^scoring/projectlist/', 'scoring.views.all_giving_projects'),
-	(r'^scoring/projectsummary/(?P<project_id>\d+)/$', 'scoring.views.specific_project_admin'),
-    (r'^scoring/reading/(?P<app_id>\d+)/$', 'scoring.views.read_grant'),
-    #Scoring URLs should start with /scoring
 
-    
+    (r'^scoring/projectlist/', 'scoring.views.all_giving_projects'),
+    (r'^scoring/projectsummary/(?P<project_id>\d+)/$', 'scoring.views.specific_project_admin'),
+    (r'^scoring/reading/(?P<app_id>\d+)/$', 'scoring.views.read_grant'),
     (r'scoring/save$', 'scoring.views.Save'),
 
-    
 ## FUNDRAISING ##
     
     #login, logout, registration
