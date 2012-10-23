@@ -6,11 +6,7 @@ from django.core.urlresolvers import reverse
 from django.core import serializers
 from django.http import HttpResponse
 from django.utils import simplejson
-import json
-import csv
-import datetime
-import logging
-import string
+import json, csv, datetime, logging, string
 from models import *
 from django.template.defaultfilters import slugify
 from django.db.models.loading import get_model
@@ -20,27 +16,19 @@ NO_EXIST_OBJECT = {
   "message": "Couldn't find Object"
 }
 
-def search(request):
-    return render_to_response('grants/grant_application/search.html', context_instance=RequestContext(request))
+def search(request): #grants/grant_application/search
+    return render_to_response('grants/grant_application/search.html')
 
-def results(request):
+def results(request): #grants/grant_application/results
     grant_applications = search_grant_applications(request.REQUEST)
-    template = loader.get_template('grants/grant_application/results.html')
     url = request.get_full_path()
     url = string.replace(url, "grants/", "grants/csv/")
-    context  = Context({'grant_applications': grant_applications, 'csv' : url})
-    return HttpResponse(template.render(context))
+    return render_to_response('grants/grant_application/results.html', {'grant_applications': grant_applications, 'csv' : url})
 
-
-def show(request, grant_application_id):
+def show(request, grant_application_id): #grants/grant_application/<grant_application_id>/
     grant_application = GrantApplication.objects.get(id=grant_application_id)
     grantee  = grant_application.organization
-    template = loader.get_template('grants/grant_application/show.html')
-    context  = Context({
-        'grant_application': grant_application,
-        'grantee': grantee,
-    })
-    return HttpResponse(template.render(context))
+    return render_to_response('grants/grant_application/show.html', {'grant_application': grant_application, 'grantee': grantee })
 
 # These Endpoints return serialized json
 def api_grant_applications(request):
@@ -85,7 +73,6 @@ def csv_grant_applications(request):
     except GrantApplication.DoesNotExist:
         return HttpResponse(json.dumps(NO_EXIST_OBJECT))
     return export(grant_application)
-
 
 # Export as csv
 def export(qs, fields=None):

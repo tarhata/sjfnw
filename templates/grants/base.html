@@ -20,9 +20,12 @@
 		<table id="org_footer"><tr>
 			<td style="width:50%;"><a href="/org/support">support</a></td>
 			<td style="width:5%;"></td>
-			<td style="width:45%;text-align:right;">{% if request.user.is_authenticated %}
-				{{request.user.email}} | <a href="/logout">log out</a>
-				{% elif not register %}<a href="/org/login">log in</a>{% endif %}</td>
+			<td style="width:45%;text-align:right;">
+			{% if grantee %}
+				{{grantee.email}} | <a href="/logout">log out</a>
+			{% elif user.is_authenticated %}
+				{{user.email}} | <a href="/logout">log out</a>
+			{% elif not register %}<a href="/org/login">log in</a>{% endif %}</td>
 		</tr></table>
 	</div>
 </body>

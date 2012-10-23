@@ -21,7 +21,7 @@ from django.conf import settings
 
 #ORG VIEWS
 def OrgLogin(request):
-  printout=''
+  error_msg=''
   if request.method=='POST':
     form = LoginForm(request.POST)
     username = request.POST['username'].lower()
@@ -32,51 +32,50 @@ def OrgLogin(request):
         login(request, user)
         return redirect(OrgHome)
       else:
-        printout='Your account is inactive. Please contact an administrator.'
+        error_msg='Your account is inactive. Please contact an administrator.'
         logging.warning('Inactive org account tried to log in, username: ' + username)
     else:
-      printout ="Your username and password didn't match. Please try again."
+      error_msg ="Your username and password didn't match. Please try again."
   else:
     form = LoginForm()
   register = RegisterForm()
-  return render_to_response('grants/org_login.html', {'form':form, 'register':register, 'printout':printout})
+  return render_to_response('grants/org_login.html', {'form':form, 'register':register, 'printout':error_msg})
 
 def OrgRegister(request): #update - uses old try/catch instead of filters
-  rprintout=''
+  error_msg=''
   if request.method=='POST':
     register = RegisterForm(request.POST)
-    username = request.POST['email'].lower()
+    username_email = request.POST['email'].lower()
     password = request.POST['password']
     org = request.POST['organization']
     if register.is_valid():
       #check org already registered
-      try:
-        copy = models.Grantee.objects.get(name=org)
-        rprintout = 'That organization is already registered. Log in instead.'
-        logging.warning(org + 'tried to re-register under ' + username)
-      except models.Grantee.DoesNotExist:
-        try:
-          created = User.objects.create_user(username, username, password)
-          orgg = models.Grantee(name=org, email=username)
-          orgg.save()
-          logging.info('Created new user ' + username + ', new org ' + org)
-          user = authenticate(username=username, password=password)
-          if user:
-            if user.is_active:
-              login(request, user)
-              return redirect(OrgHome)
-            else:
-              rprintout='Your account is not active.  Please contact an administrator.'
-              logging.error('Inactive acct right after registration, account: ' + username)
+      if models.Grantee.objects.filter(name=org):
+        error_msg = 'That organization is already registered. Log in instead.'
+        logging.warning(org + 'tried to re-register under ' + username_email)
+      else:
+        if not User.objects.filter(username=username_email):
+          created = User.objects.create_user(username_email, username_email, password)
+          logging.info('Created new User ' + username_email)
+        orgg = models.Grantee(name=org, email=username_email)
+        orgg.save()
+        logging.info('Created new org ' + org)
+        user = authenticate(username_email=username_email, password=password)
+        if user:
+          if user.is_active:
+            login(request, user)
+            return redirect(OrgHome)
           else:
-            logging.error('Password not working right after registration, account:  ' + username)
-        except IntegrityError:
-          rprintout = 'That email is already registered.'
-          logging.error('Email already registered right after registration, ' + username)      
+            error_msg='Your account is not active.  Please contact an administrator.'
+            logging.error('Inactive acct right after registration, account: ' + username_email)
+        else:
+          logging.error('Password not working right after registration, account:  ' + username_email)
+          error_msg='Registered.  Please log in.'
+          register = RegisterForm()
   else:
     register = RegisterForm()
   form = LoginForm()
-  return render_to_response('grants/org_login.html', {'form':form, 'register':register, 'rprintout':rprintout})
+  return render_to_response('grants/org_login.html', {'form':form, 'register':register, 'rprintout':error_msg})
 
 @login_required(login_url='/org/login/')
 def OrgHome(request): # /org
