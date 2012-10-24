@@ -71,15 +71,15 @@ TIME_ZONE = 'America/Los_Angeles'
 #settings to try to make error reporting happen
 SERVER_EMAIL = 'sjfnwads@gmail.com'
 DEFAULT_FROM_EMAIL = 'sjfnwads@gmail.com'
-ADMINS = (('Aisa', 'sjfnwads@gmail.com'),)
+ADMINS = (('Aisa', 'sjfnwads@gmail.com'), ('Baisa', 'aisapatino@gmail.com'))
 
 DEFAULT_FILE_STORAGE = 'djangoappengine.storage.BlobstoreStorage'
 SERVE_FILE_BACKEND = 'djangoappengine.storage.serve_file'
 
-#FILE_UPLOAD_HANDLERS = (
-    #'grants.views.AppUploadHandler', #custom attempt
-#    'djangoappengine.storage.BlobstoreFileUploadHandler',
-#  )
+"""FILE_UPLOAD_HANDLERS = (
+    'grants.views.AppUploadHandler', #custom attempt
+    'djangoappengine.storage.BlobstoreFileUploadHandler',
+  ) """
 
 ### CUSTOM SETTINGS
 

@@ -151,7 +151,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       application.file1_type = str(application.file1).split('.')[-1]
       application.file1_name = str(application.submission_time)+str(application.organization)+'.'+application.file1_type
       application.file1_name = application.file1_name.replace(' ', '')
-      if application.file2:
+      """if application.file2:
         application.file2_type = str(application.file2).split('.')[-1]
         application.file2_name = str(application.submission_time.year)+str(application.organization)+'2.'+application.file2_type
         application.file2_name = application.file2_name.replace(' ', '')
@@ -162,7 +162,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       if application.fiscal_letter:
         application.fiscal_letter_type = str(application.fiscal_letter).split('.')[-1]
         application.fiscal_letter_name = str(application.submission_time.year)+str(application.organization)+'FiscalLetter.'+application.fiscal_letter_type
-        application.fiscal_letter_name = application.fiscal_letter_name.replace(' ', '')
+        application.fiscal_letter_name = application.fiscal_letter_name.replace(' ', '') """
       application.save()
       logging.info("Application form saved, file1: " + str(application.file1))
       #update org profile
@@ -192,7 +192,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       dict = simplejson.loads(saved.contents)
       mod = saved.modified
     except models.SavedGrantApplication.DoesNotExist:
-      dict = model_to_dict(grantee) #simplejson.loads(grantee.profile_json)
+      dict = model_to_dict(grantee)
       mod = ''
     dict['organization'] = grantee
     dict['grant_cycle'] = cycle
@@ -206,7 +206,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
   logging.info('Upload prepped, url: ' + upload_url)
   
   return render_to_response('grants/org_app.html',
-  {'grantee':grantee, 'form': form, 'cycle':cycle, 'upload_url': upload_url, 'texts':texts, 'saved':mod, 'cycleid':cycle_id}  )
+  {'grantee':grantee, 'form': form, 'cycle':cycle, 'upload_url': upload_url, 'texts':texts, 'saved':mod}  )
 
 def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   try:

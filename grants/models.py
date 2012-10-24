@@ -1,3 +1,6 @@
+﻿#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import datetime
 from django.db import models
 from django.forms import ModelForm, Textarea
@@ -91,7 +94,10 @@ class SavedGrantApplication(models.Model):
   
   def __unicode__(self):
     return self.organization.name + ' saved draft id ' + str(self.pk)
-  
+
+class WordLimitValidator(MaxLengthValidator):
+  message = 'Please limit this response to %(limit_value)s words or less.'
+
 class GrantApplication(models.Model):
   """ Submitted grant application """
   
@@ -154,11 +160,11 @@ class GrantApplication(models.Model):
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
   
   #narrative
-  narrative1 = models.TextField(validators=[MaxLengthValidator(300)], verbose_name="<b>Describe your organization's mission, history and major accomplishments.</b>")
-  narrative2 = models.TextField(validators=[MaxLengthValidator(300)], verbose_name="<b>Describe your constituency.</b> Be specific about demographics like race, class, gender, ethnicity, age, sexual orientation and people with disabilities. How does your organization involve and remain accountable to the communities most directly impacted by the issues your organization addresses?")
-  narrative3 = models.TextField(validators=[MaxLengthValidator(300)], verbose_name='<b>Describe your request:</b> <ol type="a"><li>What problems, needs or issues will your work address?  How will your work change the underlying or "root" causes of the problem?</li><li>Please provide a timeline for your request. List goals, objectives and specific activities/strategies for the one-year duration of your grant. Make sure that your objectives are clear and measurable.</ol>')
-  narrative4 = models.TextField(validators=[MaxLengthValidator(300)], verbose_name="<b>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change, and explain the impact.</b> Be specific about the purposes of these collaborations and your organization's role in them. If your collaborations cross issue or constituency lines, please explain how this will help build a broad, unified, and winning progressive movement. Provide names and contact information for two people who are familiar with your organization's role in these collaborations so we can contact them for more information.")
-  narrative5 = models.TextField(validators=[MaxLengthValidator(300)], verbose_name="<b>Describe how your work promotes diversity and addresses inequality, oppression and discrimination, both in your organization and in the larger society.</b>  Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression.  If you are a primarily white-led organization, also describe how you work as an ally to communities of color. Be as specific as possible, and list at least one organization led by people of color that we can contact as a reference for your racial justice work. While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to winning racial justice.")
+  narrative1 = models.TextField(validators=[WordLimitValidator(300)], verbose_name="Describe your organization's mission, history and major accomplishments.")
+  narrative2 = models.TextField(validators=[WordLimitValidator(150)], verbose_name='Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ol type="a"><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ol>')
+  narrative3 = models.TextField(validators=[WordLimitValidator(450)], verbose_name='Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ol type="a"><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ol>')
+  narrative4 = models.TextField(validators=[WordLimitValidator(300)], verbose_name='Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ol type="a"><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organizations role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li><li>Provide <u>names and contact information</u> for two people who are familiar with your organizations role in these collaborations so we can contact them for more information.</li></ol>') #5 in doc --end of retyped
+  narrative5 = models.TextField(validators=[WordLimitValidator(300)], verbose_name="<b>Describe how your work promotes diversity and addresses inequality, oppression and discrimination, both in your organization and in the larger society.</b>  Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression.  If you are a primarily white-led organization, also describe how you work as an ally to communities of color. Be as specific as possible, and list at least one organization led by people of color that we can contact as a reference for your racial justice work. While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to winning racial justice.")
   narrative6 = models.TextField(null=True, blank=True)
   
   #files

@@ -16,7 +16,6 @@ import json as simplejson
 import grants.models
 from fund.decorators import approved_membership
 from fund.forms import *
-#from scoring.models import ApplicationRating
 import scoring.models
 
 #LOGIN & REGISTRATION
