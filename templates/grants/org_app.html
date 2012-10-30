@@ -55,6 +55,14 @@ function charLimitDisplay(area, limit){
 
 $(document).ready(function() {
 	window.setTimeout("autoSave()", 30000);
+	$('.char_counter').each(function(index) {
+    //get id, strip _counter
+		//select ele by id
+		//run it using content of original
+		var id = this.id.replace("_counter","");
+		var limit = parseInt(this.innerHTML);
+		charLimitDisplay(id, limit);
+	});
 });
 </script>
 {%endblock%}
@@ -127,8 +135,7 @@ $(document).ready(function() {
       <td>{{form.founded.label}}{{form.founded}}</td>
     </tr>   
     <tr>
-      <td colspan="2">{{form.mission.label}}{{form.mission.errors}}{{form.mission}}
-      <div class="char_counter" id="mission_counter">300</div> characters remaining</td>
+      <td colspan="2">{{form.mission.label}}{{form.mission.errors}}{{form.mission}}</td>
     </tr>
       
     <tr>
@@ -224,27 +231,33 @@ $(document).ready(function() {
   
    <p>1. {%if texts.narrative1 %}{{texts.narrative1|safe}}{%else%}
 		{{form.narrative1.label|safe}}{%endif%}
-		{{form.narrative1.errors}}{{form.narrative1}}</p>
+		{{form.narrative1.errors}}{{form.narrative1}}
+		<div class="char_counter" id="narrative1_counter">300</div></p>
    <br>
    <p>2. {%if texts.narrative2 %}{{texts.narrative2|safe}}{%else%}
    {{form.narrative2.label|safe}}{%endif%}
-   {{form.narrative2.errors}}{{form.narrative2}}</p>
+   {{form.narrative2.errors}}{{form.narrative2}}
+	 <div class="char_counter" id="narrative2_counter">300</div></p>
    <br>
    <p>3.
 		{%if texts.narrative3 %}{{texts.narrative3|safe}}
 		{%else%}{{form.narrative3.label|safe}}{%endif%}
-   {{form.narrative3.errors}}{{form.narrative3}}</p>
+   {{form.narrative3.errors}}{{form.narrative3}}
+	 <div class="char_counter" id="narrative3_counter">300</div></p>
    <br>
    <p>4 {%if texts.narrative4 %}{{texts.narrative4|safe}}{%else%}
    {{form.narrative4.label|safe}}{%endif%}
-   {{form.narrative4.errors}}{{form.narrative4}}</p>
+   {{form.narrative4.errors}}{{form.narrative4}}
+	 <div class="char_counter" id="narrative4_counter">300</div></p>
    <br>
    <p>5. {%if texts.narrative5 %}{{texts.narrative5|safe}}{%else%}
    {{form.narrative5.label|safe}}{%endif%}
    {{form.narrative5.errors}}
-   {{form.narrative5}}</p>
+   {{form.narrative5}}
+	 <div class="char_counter" id="narrative5_counter">300</div></p>
    <br>
-   <p>{%if texts.narrative6 %}{{texts.narrative6|safe}}{{form.narrative6.errors}}<br>{{form.narrative6}}</p>{%endif%}
+   <p>{%if texts.narrative6 %}{{texts.narrative6|safe}}{{form.narrative6.errors}}<br>{{form.narrative6}}
+	 <div class="char_counter" id="narrative6_counter">500</div></p>{%endif%}
   
     <h4>Budget, grant funding sources and diversity chart</h4>
 	Upload as one file or multiple files.<br><br>
