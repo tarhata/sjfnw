@@ -37,6 +37,7 @@ def serve_file(request, file, save_as, content_type, **kwargs):
     else:
         raise ValueError("The provided file can't be served via the "
                          "Google App Engine Blobstore.")
+                         
     response = HttpResponse(content_type=content_type)
     response[BLOB_KEY_HEADER] = str(blobkey)
     response['Accept-Ranges'] = 'bytes'
@@ -59,6 +60,7 @@ class BlobstoreStorage(Storage):
         return BlobstoreFile(name, mode, self)
 
     def _save(self, name, content):
+    
         name = name.replace('\\', '/')
         logging.info('.BlobstoreStorage_save on ' + name)
         if hasattr(content, 'file') and hasattr(content.file, 'blobstore_info'):
@@ -80,6 +82,7 @@ class BlobstoreStorage(Storage):
             files.finalize(file_name)
 
             data = files.blobstore.get_blob_key(file_name)
+ 
         else:
             raise ValueError("The App Engine storage backend only supports "
                              "BlobstoreFile instances or File instances.")
@@ -90,6 +93,8 @@ class BlobstoreStorage(Storage):
                 logging.info('data is blobinfo, storing its key')
                 data = data.key()
             logging.info('returning ' + name.lstrip('/') + ' containing ' + str(data))
+            #import pdb; pdb.set_trace()
+  
             return '%s/%s' % (data, name.lstrip('/'))
         else:
             raise ValueError("The App Engine Blobstore only supports "
@@ -157,8 +162,10 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
     """
 
     def new_file(self, *args, **kwargs):
+        import pdb; pdb.set_trace() 
         super(BlobstoreFileUploadHandler, self).new_file(*args, **kwargs)
-        blobkey = self.content_type_extra.get('blob-key')
+        
+        blobkey = None # self.content_type_extra.get('blob-key')
         self.active = blobkey is not None
         if self.active:
             self.blobkey = BlobKey(blobkey)

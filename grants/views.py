@@ -18,6 +18,7 @@ from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 from django.core.files.uploadhandler import FileUploadHandler
 from django.conf import settings
+from djangoappengine import storage
 
 #ORG VIEWS
 def OrgLogin(request):
@@ -151,7 +152,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       application.file1_type = str(application.file1).split('.')[-1]
       application.file1_name = str(application.submission_time)+str(application.organization)+'.'+application.file1_type
       application.file1_name = application.file1_name.replace(' ', '')
-      """if application.file2:
+      if application.file2:
         application.file2_type = str(application.file2).split('.')[-1]
         application.file2_name = str(application.submission_time.year)+str(application.organization)+'2.'+application.file2_type
         application.file2_name = application.file2_name.replace(' ', '')
@@ -162,7 +163,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       if application.fiscal_letter:
         application.fiscal_letter_type = str(application.fiscal_letter).split('.')[-1]
         application.fiscal_letter_name = str(application.submission_time.year)+str(application.organization)+'FiscalLetter.'+application.fiscal_letter_type
-        application.fiscal_letter_name = application.fiscal_letter_name.replace(' ', '') """
+        application.fiscal_letter_name = application.fiscal_letter_name.replace(' ', '')
       application.save()
       logging.info("Application form saved, file1: " + str(application.file1))
       #update org profile
@@ -267,7 +268,37 @@ def download_handler(request, filename):
   except models.GrantApplication.DoesNotExist:
     logging.warning('Grant app not found')
     raise Http404
-  return serve_file(request, upload.file1)
+  #import pdb; pdb.set_trace()
+  
+  #blobinfo_key = str(upload.file1).split('/', 1)[0]
+  #blobinfo = blobstore.BlobReader(blobinfo_key).readlines()
+  
+  #blobinfo_dict =  dict([l.split(': ', 1) for l in blobinfo if l.strip()])
+  #creation_time = blobinfo_dict['X-AppEngine-Upload-Creation'].strip()
+  #logging.info(creation_time)
+  
+  #for b in  blobstore.BlobInfo.all():    
+  #  if str(b.creation) == creation_time:
+  #    return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
+  #raise Http404('How could this possibly have gone wrong?')
+  
+  
+  """
+  if b.key() == "tQcX6YOnvYIehiMThLMdBOrKCVNOiPdHUtD2KMAbaVWNEdlV29Vn0UcAbp7v6dGR":
+    print "".join(b.open().readlines())
+
+    creation_time =  dict([l.split(': ', 1) for l in b.open().readlines() if l.strip()])['X-AppEngine-Upload-Creation']
+  #break
+
+  for b in  blobstore.BlobInfo.all():
+    print b.creation, creation_time
+    #if b.creation == creation_time:
+    #  print "win"
+    
+  # blob_reader = blobstore.BlobReader()
+"""
+
+  return storage.serve_file(request, upload.file1, None, None)
   
 #REPORTING
 

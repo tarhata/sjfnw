@@ -45,7 +45,12 @@ function autoSave(){
 
 function charLimitDisplay(area, limit){
 	var counter = document.getElementById(area.name + '_counter');
-	counter.innerHTML = limit - area.value.length;
+	var diff = limit - area.value.length;
+  if (diff > 0) {
+    counter.innerHTML = diff + ' characters remaining.';
+  } else {
+    counter.innerHTML = diff + ' characters over the limit.';
+  } 
 }
 
 $(document).ready(function() {

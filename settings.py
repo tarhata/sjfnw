@@ -73,13 +73,16 @@ SERVER_EMAIL = 'sjfnwads@gmail.com'
 DEFAULT_FROM_EMAIL = 'sjfnwads@gmail.com'
 ADMINS = (('Aisa', 'sjfnwads@gmail.com'), ('Baisa', 'aisapatino@gmail.com'))
 
+PREPARE_UPLOAD_BACKEND = 'djangoappengine.storage.prepare_upload'
 DEFAULT_FILE_STORAGE = 'djangoappengine.storage.BlobstoreStorage'
 SERVE_FILE_BACKEND = 'djangoappengine.storage.serve_file'
+FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024
 
-"""FILE_UPLOAD_HANDLERS = (
-    'grants.views.AppUploadHandler', #custom attempt
+FILE_UPLOAD_HANDLERS = (
+    #'grants.views.AppUploadHandler', #custom attempt
     'djangoappengine.storage.BlobstoreFileUploadHandler',
-  ) """
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+  ) 
 
 ### CUSTOM SETTINGS
 
