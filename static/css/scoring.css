@@ -1,0 +1,69 @@
+﻿
+div#notes, div#grader{
+  float:right;
+  border-radius: 10px;
+  position: fixed;
+  right:0px; 
+  border: solid gray 15px;
+  width:350px;
+}
+
+div#notes{
+   width: 370px;
+   top: 10px;
+   height: auto;
+}
+div#grader{
+	background-color: #8F8F8F;
+	width: 350px;
+	top:0;
+	padding: 10px;
+	bottom: 0px;
+	height: 100%;
+	min-height: 10px;
+}
+
+div#grader li{
+  display:inline;
+  font-size:10pt;
+}
+
+div#grader>form>label {
+  font-size: 14pt;
+	font-family:"Arial", sans-serif;
+}
+
+button#collapse_sidebar, button#expand_sidebar{
+  position:fixed;
+	top:15px;
+	width:50px;
+	border: 0px;
+	border-radius:200px;
+}
+
+
+button#collapse_sidebar{
+  right:385px;
+  background: -webkit-gradient(linear, 0 0, 0 100%, from( #8B0E04), to(#bf6464));
+  background: -moz-linear-gradient(top,  #8B0E04, #bf6464);
+}
+
+button#expand_sidebar{
+  right:0px;
+  background: -webkit-gradient(linear, 0 0, 0 100%, from(#C07205), to(#dfed63));
+  background: -moz-linear-gradient(top, #C07205, #dfed63);
+}
+
+/*All elements with hid are hidden.*/
+.hid {
+  display: none;
+}
+
+div#sexybody{
+    width:60%;
+    
+}
+.qq {
+  margin-left:25%
+}
+

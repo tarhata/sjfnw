@@ -1,0 +1,99 @@
+﻿/* --- GRANT --- */
+
+div#nav_menu  {
+	text-align:center;
+	margin-bottom:20px;
+}
+
+img#logo {
+	display:inline;
+	margin-left:20px;
+	margin-right:20px;
+}
+
+div#org_wrapper {
+	width:725px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+table#org_footer {
+	width:100%;
+	font-size:1em;
+}
+
+/* application form */
+div.formwrapper {
+	width:725px;
+	display:table;
+	/*border:1px solid;*/
+	border-color:#CCC;
+}
+
+div#autosaved {
+	display:inline
+}
+
+div#last_saved {
+	font-style:italic;
+}
+/** add sep for grants w/margin-top:10px; */
+ul.errorlist, ul.errorlist li {
+	list-style-type: none;
+	font-style:italic;
+	color:red;
+	margin:0 0 0 0;
+	vertical-align:bottom;
+	padding:2px;
+}
+
+div.label {
+	display:inline;
+	font-weight:bold;
+}
+
+table#application_form {
+	width:100%;
+}
+
+table#application_form td{
+	border:1px;
+	border-color:black;
+	width:360px;
+}
+
+input#id_contact_person, input#id_previous_grants {
+	width:300px;
+}
+
+input#id_ein {
+	width:100px;
+}
+
+div.formwrapper input, div.formwrapper select {
+	margin-left:8px;
+}
+
+textarea {
+	width:98%;
+}
+
+div.info_box {
+	width:80%;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+div.narrative_q {
+  padding-top:2em;
+  padding-bottom:2em;
+}
+
+span.char_counter_ok, span.char_counter_over {
+  float:right;
+  padding-right:2%; /* to match text boxes */
+}
+
+span.char_counter_over {
+	color:red;
+}

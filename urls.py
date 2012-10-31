@@ -82,6 +82,7 @@ urlpatterns = patterns('',
     (r'^scoring/projectsummary/(?P<project_id>\d+)/$', 'scoring.views.specific_project_admin'),
     (r'^scoring/reading/(?P<app_id>\d+)/$', 'scoring.views.read_grant'),
     (r'scoring/save$', 'scoring.views.Save'),
+    # (r'^fund/scoring', 'fund.views.ScoringList') --located under main pages
 
 ## FUNDRAISING ##
     
@@ -104,7 +105,7 @@ urlpatterns = patterns('',
     #main pages
     (r'^fund/$', 'fund.views.Home'),
     (r'^fund/gp', 'fund.views.News'),
-    (r'^fund/apps', 'fund.views.ScoringList'),
+    (r'^fund/scoring', 'fund.views.ScoringList'),
     
     #forms - contacts
     (r'^fund/add$', 'fund.views.AddDonor'),

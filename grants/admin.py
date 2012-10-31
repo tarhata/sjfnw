@@ -13,7 +13,7 @@ import logging
       ## GRANTS ##
 
 class GrantAppAdmin(admin.ModelAdmin):
-  fields = ('screening_status', 'grant_cycle', 'scoring_bonus_poc', 'scoring_bonus_geo', 'file1', 'file1_name', 'file1_type')
+  fields = ('screening_status', 'grant_cycle', 'scoring_bonus_poc', 'scoring_bonus_geo')
   list_display = ('organization', 'submission_time', 'screening_status')  
 
 class DraftAdmin(admin.ModelAdmin):
