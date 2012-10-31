@@ -149,17 +149,10 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     if form.is_valid():
       logging.info("Application form valid")
       application = form.save() #save as GrantApp object
-      application.file1_type = str(application.file1).split('.')[-1]
+      """might need a name storage field?
       application.file1_name = str(application.submission_time)+str(application.organization)+'.'+application.file1_type
       application.file1_name = application.file1_name.replace(' ', '')
-      if application.file2:
-        application.file2_type = str(application.file2).split('.')[-1]
-        application.file2_name = str(application.submission_time.year)+str(application.organization)+'2.'+application.file2_type
-        application.file2_name = application.file2_name.replace(' ', '')
-      if application.file3:
-        application.file3_type = str(application.file3).split('.')[-1]
-        application.file3_name = str(application.submission_time.year)+str(application.organization)+'3.'+application.file3_type
-        application.file3_name = application.file3_name.replace(' ', '')
+      """
       if application.fiscal_letter:
         application.fiscal_letter_type = str(application.fiscal_letter).split('.')[-1]
         application.fiscal_letter_name = str(application.submission_time.year)+str(application.organization)+'FiscalLetter.'+application.fiscal_letter_type
@@ -201,7 +194,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     form = models.GrantApplicationForm(initial=dict)
   
   #file upload prep
-  view_url = reverse('grants.views.Apply', args=(cycle_id,)) #current url
+  #view_url = reverse('grants.views.Apply', args=(cycle_id,)) #current url
   #upload_url, blah = prepare_upload(request, view_url)
   upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
   logging.info('Upload prepped, url: ' + upload_url)
@@ -223,13 +216,25 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   
   if request.method == 'POST':
     
-    #get or create saved json, update it #TO DO clean this up
+    #get or create saved json, update it
     dict = simplejson.dumps(request.POST)
     saved, cr = models.SavedGrantApplication.objects.get_or_create(organization=grantee, grant_cycle=cycle)
     saved.contents = dict
-    saved.files = request.POST
     saved.save()
     
+    return HttpResponse("")
+
+def AutoSaveFile(request, cycle_id):
+  try:
+    grantee = models.Grantee.objects.get(email=request.user.username)
+  except models.Grantee.DoesNotExist:
+    logging.error('Grantee not found on file autosave. Email = ' + request.user.username)
+    return HttpResponse("Error")
+  
+  if request.method == 'POST':
+    
+    saved, cr = models.SavedGrantApplication.objects.get_or_create(organization=grantee, grant_cycle=cycle)
+    #get file off the request and save it
     return HttpResponse("")
 
 def DiscardDraft(request, cycle_id):
@@ -296,7 +301,7 @@ def download_handler(request, filename):
     #  print "win"
     
   # blob_reader = blobstore.BlobReader()
-"""
+  """
 
   return storage.serve_file(request, upload.file1, None, None)
   

@@ -90,7 +90,7 @@ class SavedGrantApplication(models.Model):
   grant_cycle = models.ForeignKey(GrantCycle)
   modified = models.DateTimeField(auto_now=True)
   contents = models.TextField()
-  files = models.TextField()
+  file1 = models.FileField(upload_to='draft/', max_length=255)
   
   def __unicode__(self):
     return self.organization.name + ' saved draft id ' + str(self.pk)
@@ -169,14 +169,6 @@ class GrantApplication(models.Model):
   
   #files
   file1 = models.FileField(upload_to='up/', max_length=255)
-  file1_name = models.CharField(max_length=255, null=True,blank=True)
-  file1_type = models.CharField(max_length=4, null=True,blank=True)
-  file2 = models.FileField(upload_to='up/', null=True,blank=True)
-  file2_name = models.CharField(max_length=255, null=True,blank=True)
-  file2_type = models.CharField(max_length=4, null=True,blank=True)
-  file3 = models.FileField(upload_to='up/', null=True,blank=True)
-  file3_name = models.CharField(max_length=255, null=True,blank=True)
-  file3_type = models.CharField(max_length=4, null=True,blank=True)
 
   fiscal_letter = models.FileField(upload_to='uploads/%Y/', null=True,blank=True)
   fiscal_letter_name = models.CharField(max_length=255, null=True,blank=True)

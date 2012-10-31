@@ -43,6 +43,20 @@ function autoSave(){
 	window.setTimeout("autoSave()", 30000);
 }
 
+function autoSaveFile(){
+  $.ajax({
+		url:"/apply/"+{{cycle.pk}}+"/upload-file/",
+		type:"POST",
+		data:$('form').serialize(), //update
+		success:function(){
+			document.getElementById('file_status').innerHTML='File uploaded';
+		},
+		error:function(jqXHR, textStatus, errorThrown){
+			document.getElementById('file_status').innerHTML=textStatus+' '+errorThrown;
+		},
+	});
+}
+
 function charLimitDisplay(area, limit){
 	var counter = document.getElementById(area.name + '_counter');
 	var diff = limit - area.value.length;
@@ -123,11 +137,11 @@ $(document).ready(function() {
     
     <tr>
       <td><h4>Organization information</h4></td>
-    <tr>
+    </tr>
     
     <tr>
       <td colspan="2">{{form.status.errors}}{{form.status.label}}{{form.status}}</td>
-    <tr> 
+    </tr> 
     <tr>
       <td>{{form.ein.errors}}</td>
       <td>{{form.founded.errors}}</td>
@@ -142,7 +156,7 @@ $(document).ready(function() {
       
     <tr>
       <td><h4>Grant and budget information</h4></td>
-    <tr>
+    </tr>
     
     <tr>
       <td colspan="2">{{form.contact_person.errors}}</td>
@@ -176,8 +190,8 @@ $(document).ready(function() {
       <td colspan="2">{{form.previous_grants.label}} {{form.previous_grants}} </td>
     </tr>
     <tr>
-      <td colspan="2">{{form.grant_request.label}}{{form.grant_request.errors}}{{form.grant_request}}</td><
-    /tr>
+      <td colspan="2">{{form.grant_request.label}}{{form.grant_request.errors}}{{form.grant_request}}</td>
+    </tr>
     <tr>
       <td>{{form.amount_requested.errors}}</td><td>{{form.support_type.errors}}</td>
     </tr>
@@ -196,7 +210,7 @@ $(document).ready(function() {
 
     <tr>
       <td><h4>Fiscal sponsor information (if applicable)</h4></td>
-    <tr>
+    </tr>
 
     <tr>
       <td>{{form.fiscal_org.errors}}</td>
@@ -241,9 +255,8 @@ $(document).ready(function() {
    {{form.narrative2.errors}}{{form.narrative2}}
 	 <span class="char_counter" id="narrative2_counter">900</span></div>
 
-   <div class="narrative_q">3.
-		{%if texts.narrative3 %}{{texts.narrative3|safe}}
-		{%else%}{{form.narrative3.label|safe}}{%endif%}
+   <div class="narrative_q">3. {%if texts.narrative3 %}{{texts.narrative3|safe}}{%else%}
+   {{form.narrative3.label|safe}}{%endif%}
    {{form.narrative3.errors}}{{form.narrative3}}
 	 <span class="char_counter" id="narrative3_counter">2700</span></div>
    
@@ -264,9 +277,11 @@ $(document).ready(function() {
   
     <h4>Budget, grant funding sources and diversity chart</h4>
 	Upload as one file or multiple files.<br><br>
-  {{form.file1.errors}}{{form.file1}}<br>
-  <!--{{form.file2.errors}}{{form.file2}}<br>
-  {{form.file2.errors}}{{form.file2}}<br>
+  {{form.file1.errors}}
+  {{form.file1}}<span id="file_status"></span>
+  <br>
+  <!--
+  
   <h4>Fiscal sponsor letter (if applicable)</h4>
   If you are using a fiscal sponsor, please provide a letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund's mission.<br><br>
   
