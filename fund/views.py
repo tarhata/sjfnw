@@ -184,7 +184,7 @@ def Home(request):
     membership.save()
   
   return render_to_response('fund/page_personal.html', {
-                            'homeactive':'true',
+                            '1active':'true',
                             'header':header,
                             'donors': donor_list,
                             'count':count,
@@ -198,28 +198,26 @@ def Home(request):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def News(request):
+def ProjectPage(request):
 
   membership = request.membership
   member = membership.member
+  project = membership.giving_project
   
   #blocks
-  news = models.NewsItem.objects.filter(project=membership.giving_project).order_by('-date')
+  news = models.NewsItem.objects.filter(project=project).order_by('-date')
   steps = models.Step.objects.filter(donor__membership=membership, complete=False).order_by('date')[:3]
-  events = models.Event.objects.filter(project=membership.giving_project, date__gt=timezone.now()).order_by('date')[:3]
+  events = models.Event.objects.filter(project=project, date__gt=timezone.now()).order_by('date')[:3]
   
   #base
   header = membership.giving_project.title
-  
-  #info specific
-  allevents = models.Event.objects.filter(project=project)
   
   #TODO has to be a better way to do this...
   resources = {project.r1title:project.r1link, project.r2title:project.r2link, project.r3title:project.r3link, project.r4title:project.r4link, project.r5title:project.r5link, project.r6title:project.r6link, project.r7title:project.r7link, project.r8title:project.r8link, project.r9title:project.r9link, project.r10title:project.r10link}
   if len(resources)==1: #just nulls
     resources = None
  
-  return render_to_response('fund/page_project.html', {'newsactive':'true',
+  return render_to_response('fund/page_project.html', {'2active':'true',
                                                'header':header,
                                                'news':news,
                                                'events':events,
