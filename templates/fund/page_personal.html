@@ -3,7 +3,7 @@
 {% block script %}
 <script type="text/javascript">
 
-function toggle(a, b) {
+function toggle(a, b) { //shows a, hides b
   var e=document.getElementById(a);
   var f=document.getElementById(b);
   if(!e)return true;
@@ -15,20 +15,6 @@ function toggle(a, b) {
 	f.style.border="0px solid"
   }
   return true;
-}
-
-function toggleAsk() {
-	var e=document.getElementById('_pledge');
-	var f=document.getElementById('_gift');
-	if(!e)return true;
-	if(e.style.display=="none"){
-		e.style.display="block"
-		f.style.display="block"
-	} else {
-		e.style.display="none"
-		f.style.display="none"
-	}
-	return true;
 }
 
 function datepicker() {
@@ -86,18 +72,18 @@ $.ajax({
 	data:$('#addmult').serialize(),
 	success:function(data, textStatus, jqXHR){
 		if (jqXHR.responseText=="success") {
-			loadView('/fund/stepmult', 'add_mult');
+			loadView('/fund/stepmult', 'adddonor');
 		} else {
-			document.getElementById('add_mult').innerHTML=jqXHR.responseText;
+			document.getElementById('adddonor').innerHTML=jqXHR.responseText;
 		}
 	},
 	error:function(jqXHR, textStatus, errorThrown){
-		document.getElementById('add_mult').innerHTML="Error! "+textStatus+' '+errorThrown;
+		document.getElementById('adddonor').innerHTML="Error! "+textStatus+' '+errorThrown;
 	},
 });
 }
 
-function cloneMore(selector, type) {
+function cloneMore(selector, type) { //adds a row to the multiple contacts form
 	var newElement = $(selector).clone(true);
 	var total = $('#id_' + type + '-TOTAL_FORMS').val();
 	newElement.find(':input').each(function() {
@@ -111,10 +97,10 @@ function cloneMore(selector, type) {
 	});
 	total++;
 	$('#id_' + type + '-TOTAL_FORMS').val(total);
-	$(selector).after(newElement); /* only copies last row, not incl error row. but error row will load when form reloads */
+	$(selector).after(newElement); // only copies last row, not incl error row. but error row will load when form reloads
 }
 
-function suggestFill(source, target) {
+function suggestFill(source, target) { //fills input with the selected step
 	var text = source.innerHTML;
 	if (target) {
 		document.getElementById(target).value=text;
@@ -124,8 +110,8 @@ function suggestFill(source, target) {
 }
 
 var div;
-function showSuggestions(inp) {
-	if (div) { div.style.display="none"; }
+function showSuggestions(inp) { //shows suggested steps
+	if (div) { div.style.display="none"; } //hides prior set
 	var patt = new RegExp('\\d');
 	var num = patt.exec(inp);
 	div = document.getElementById('suggest_'+num);
@@ -167,9 +153,8 @@ function showSuggestions(inp) {
 <b>YOUR CONTACTS</b>
 {% if donors %} <!--only show if mass add won't be showing -->
 	<div class="edit_done">[<a onclick="loadView('/fund/add', 'adddonor')">add contact</a>]</div>
+  <div class="donors" id="adddonor"></div><!--forms for adding contacts go here when requested-->
 {% endif %}
-
-<div class="donors" id="adddonor"></div>
 
 {% for donor in donors %}
 	<div class="donor indent" id="donor-{{donor.pk}}">
@@ -241,8 +226,10 @@ function showSuggestions(inp) {
 	</div> <!-- ends donor -->
 
 {% empty %} <!--no contacts yet -->
-	<p>You don't have any contacts yet!  Use the form below to add people.  You'll be able to add, change or remove contacts at any time.</p>
+<div class="donors" id="adddonor">
+  <p>You don't have any contacts yet!  Get started by adding some.  You'll be able to add, change or remove contacts at any time.</p>
 	{% include 'fund/add_mult.html' %}
+</div>
 {% endfor %} <!--ends contacts check-->
 
 {% endblock %}

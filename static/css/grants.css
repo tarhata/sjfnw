@@ -37,15 +37,6 @@ div#autosaved {
 div#last_saved {
 	font-style:italic;
 }
-/** add sep for grants w/margin-top:10px; */
-ul.errorlist, ul.errorlist li {
-	list-style-type: none;
-	font-style:italic;
-	color:red;
-	margin:0 0 0 0;
-	vertical-align:bottom;
-	padding:2px;
-}
 
 div.label {
 	display:inline;

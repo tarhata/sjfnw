@@ -56,7 +56,6 @@ class MassStep(forms.Form):
   
 class StepDoneForm(forms.Form):
   asked = forms.BooleanField(required=False)
-  #widget=forms.CheckboxInput(attrs={'onclick':'toggleAsk()'}))
   pledged_amount = forms.IntegerField(required=False)
   #share = forms.BooleanField(required=False, initial=True)
   next_step = forms.CharField(max_length=100, required=False)

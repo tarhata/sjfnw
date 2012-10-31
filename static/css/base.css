@@ -51,7 +51,7 @@ text-decoration: underline;
 a:active {
 }
 
-/* ---SHARED LOGIN--- */
+/* ---SHARED --- */
 
 div#login_wrapper{
 	display:table;
@@ -65,4 +65,14 @@ div#login_wrapper{
 	margin-left:auto;
 	margin-right:auto;
 	vertical-align:top;
+}
+
+/** add sep for grants w/margin-top:10px; */
+ul.errorlist, ul.errorlist li {
+	list-style-type: none;
+	font-style:italic;
+	color:red;
+	margin:0 0 0 0;
+	vertical-align:bottom;
+	padding:2px;
 }
