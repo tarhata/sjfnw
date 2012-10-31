@@ -183,7 +183,7 @@ def Home(request):
     membership.notifications=''
     membership.save()
   
-  return render_to_response('fund/home.html', {
+  return render_to_response('fund/page_personal.html', {
                             'homeactive':'true',
                             'header':header,
                             'donors': donor_list,
@@ -219,7 +219,7 @@ def News(request):
   if len(resources)==1: #just nulls
     resources = None
  
-  return render_to_response('fund/news.html', {'newsactive':'true',
+  return render_to_response('fund/page_project.html', {'newsactive':'true',
                                                'header':header,
                                                'news':news,
                                                'events':events,

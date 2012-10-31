@@ -104,7 +104,7 @@ urlpatterns = patterns('',
     
     #main pages
     (r'^fund/$', 'fund.views.Home'),
-    (r'^fund/gp', 'fund.views.News'),
+    (r'^fund/gp', 'fund.views.ProjectPage'),
     (r'^fund/scoring', 'fund.views.ScoringList'),
     
     #forms - contacts
