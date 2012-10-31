@@ -1,8 +1,0 @@
-local:
-
-live:
-
-alter table grants_grantapplication add column scoring_bonus_geo tinyint(1);
-alter table grants_grantapplication add column scoring_bonus_poc tinyint(1);
-alter table grants_grantee add column mission_statement longtext;
-alter table fund_givingproject add column pre_approved longtext;
