@@ -4,7 +4,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 
-function confirmation() {
+function confirmation() { //confirmation window before discarding a draft
 	var conf = confirm("Discard this draft?  It cannot be recovered.")
 	if (conf){
 		window.location = "/apply/"+{{cycle.pk}}+"/DELETE"
@@ -47,21 +47,23 @@ function charLimitDisplay(area, limit){
 	var counter = document.getElementById(area.name + '_counter');
 	var diff = limit - area.value.length;
   if (diff > 0) {
-    counter.innerHTML = diff + ' characters remaining.';
+    counter.innerHTML = diff + ' characters remaining';
+    counter.className = 'char_counter_ok';
   } else {
-    counter.innerHTML = diff + ' characters over the limit.';
+    counter.innerHTML = -diff + ' characters over the limit';
+    counter.className = 'char_counter_over';
   } 
 }
 
 $(document).ready(function() {
+  //start autosave timer
 	window.setTimeout("autoSave()", 30000);
+  //update character limit counts
 	$('.char_counter').each(function(index) {
-    //get id, strip _counter
-		//select ele by id
-		//run it using content of original
-		var id = this.id.replace("_counter","");
+		var id = "id_" + this.id.replace("_counter","");
+    var area = document.getElementById(id);
 		var limit = parseInt(this.innerHTML);
-		charLimitDisplay(id, limit);
+		charLimitDisplay(area, limit);
 	});
 });
 </script>
@@ -229,35 +231,36 @@ $(document).ready(function() {
 		Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan.  	Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process.
 	{%endif%}
   
-   <p>1. {%if texts.narrative1 %}{{texts.narrative1|safe}}{%else%}
+   <div class="narrative_q">1. {%if texts.narrative1 %}{{texts.narrative1|safe}}{%else%}
 		{{form.narrative1.label|safe}}{%endif%}
 		{{form.narrative1.errors}}{{form.narrative1}}
-		<div class="char_counter" id="narrative1_counter">300</div></p>
-   <br>
-   <p>2. {%if texts.narrative2 %}{{texts.narrative2|safe}}{%else%}
+		<span class="char_counter" id="narrative1_counter">1800</span></div>
+
+   <div class="narrative_q">2. {%if texts.narrative2 %}{{texts.narrative2|safe}}{%else%}
    {{form.narrative2.label|safe}}{%endif%}
    {{form.narrative2.errors}}{{form.narrative2}}
-	 <div class="char_counter" id="narrative2_counter">300</div></p>
-   <br>
-   <p>3.
+	 <span class="char_counter" id="narrative2_counter">900</span></div>
+
+   <div class="narrative_q">3.
 		{%if texts.narrative3 %}{{texts.narrative3|safe}}
 		{%else%}{{form.narrative3.label|safe}}{%endif%}
    {{form.narrative3.errors}}{{form.narrative3}}
-	 <div class="char_counter" id="narrative3_counter">300</div></p>
-   <br>
-   <p>4 {%if texts.narrative4 %}{{texts.narrative4|safe}}{%else%}
+	 <span class="char_counter" id="narrative3_counter">2700</span></div>
+   
+   <div class="narrative_q">4 {%if texts.narrative4 %}{{texts.narrative4|safe}}{%else%}
    {{form.narrative4.label|safe}}{%endif%}
    {{form.narrative4.errors}}{{form.narrative4}}
-	 <div class="char_counter" id="narrative4_counter">300</div></p>
-   <br>
-   <p>5. {%if texts.narrative5 %}{{texts.narrative5|safe}}{%else%}
+	 <span class="char_counter" id="narrative4_counter">1800</span></div>
+
+   <div class="narrative_q">5. {%if texts.narrative5 %}{{texts.narrative5|safe}}{%else%}
    {{form.narrative5.label|safe}}{%endif%}
    {{form.narrative5.errors}}
    {{form.narrative5}}
-	 <div class="char_counter" id="narrative5_counter">300</div></p>
-   <br>
-   <p>{%if texts.narrative6 %}{{texts.narrative6|safe}}{{form.narrative6.errors}}<br>{{form.narrative6}}
-	 <div class="char_counter" id="narrative6_counter">500</div></p>{%endif%}
+	 <span class="char_counter" id="narrative5_counter">1800</span></div>
+
+   <div class="narrative_q">{%if texts.narrative6 %}{{texts.narrative6|safe}}{{form.narrative6.errors}}
+   {{form.narrative6}}
+	 <span class="char_counter" id="narrative6_counter">1800</span></div>{%endif%}
   
     <h4>Budget, grant funding sources and diversity chart</h4>
 	Upload as one file or multiple files.<br><br>

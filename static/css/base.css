@@ -412,8 +412,18 @@ div.info_box {
 	margin-right:auto;
 }
 
-div.char_counter {
-	display:inline;
+div.narrative_q {
+  padding-top:2em;
+  padding-bottom:2em;
+}
+
+span.char_counter_ok, span.char_counter_over {
+  float:right;
+  padding-right:2%; /* to match text boxes */
+}
+
+span.char_counter_over {
+	color:red;
 }
 
 /* TO ORGANIZE */
