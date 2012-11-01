@@ -1,13 +1,19 @@
 from fund.models import *
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import logging
+
+""" signals needed:
+membership save - if approval added, send email
+user save - if is_staff, add to group?
+
+"""
 
 # staff
 def approve(modeladmin, request, queryset):
@@ -92,6 +98,7 @@ class StepAdv(admin.ModelAdmin):
   list_display = ('description', 'donor', 'date', 'complete')
 
 advanced_admin.register(User, UserAdmin)
+advanced_admin.register(Group)
 advanced_admin.register(Member, MemberAdvanced)
 advanced_admin.register(Donor, DonorAdvanced)
 advanced_admin.register(Membership, MembershipAdvanced)
