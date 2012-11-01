@@ -1,6 +1,8 @@
 from django import forms
 import models, datetime
 from django.utils import timezone
+import logging
+from django.core.validators import MaxValueValidator
 
 class LoginForm(forms.Form):
   email = forms.EmailField()
@@ -20,12 +22,26 @@ class NewDonor(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
   lastname = forms.CharField(max_length=100, required=False, label='Last name')
   amount = forms.IntegerField(label='*Estimated donation ($)')
-  likelihood = forms.IntegerField(label='*Estimated likelihood (%)')
+  likelihood = forms.IntegerField(label='*Estimated likelihood (%)', validators=[MaxValueValidator(100)])
   phone = forms.CharField(max_length=15,required=False)
   email = forms.EmailField(required=False)
 
   step_date = forms.DateField(required=False, label='Date', widget=forms.DateInput(attrs={'class':'datePicker', 'readonly':'true'}, format='%Y-%m-%d'))
   step_desc = forms.CharField(required=False, max_length=255, label='Description')
+  
+  def clean(self): #step should be both empty or both entered
+    logging.info("clean called on newdonor")
+    cleaned_data = super(NewDonor, self).clean()
+    date = cleaned_data.get("step_date")
+    desc = cleaned_data.get("step_desc")
+    msg = "This field is required."
+    if date and not desc:
+      self._errors["step_desc"] = self.error_class([msg])
+      del cleaned_data["step_desc"]
+    elif desc and not date:
+      self._errors["step_date"] = self.error_class([msg])
+      del cleaned_data["step_date"]
+    return cleaned_data
 
 class MassDonor(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
@@ -38,7 +54,7 @@ class MassStep(forms.Form):
   description = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'onfocus':'showSuggestions(this.id)'}))
   donor = forms.ModelChoiceField(queryset=models.Donor.objects.all(), widget=forms.HiddenInput())
   
-  def clean(self):
+  def clean(self): #only require date or desc if the other is entered for that donor
     cleaned_data = super(MassStep, self).clean()
     date = cleaned_data.get("date")
     desc = cleaned_data.get("description")

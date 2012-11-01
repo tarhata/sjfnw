@@ -96,7 +96,7 @@ class SavedGrantApplication(models.Model):
     return self.organization.name + ' saved draft id ' + str(self.pk)
 
 class WordLimitValidator(MaxLengthValidator):
-  message = 'Please limit this response to %(limit_value)s words or less.'
+  message = 'Please limit this response to %(limit_value)s characters or less.'
 
 class GrantApplication(models.Model):
   """ Submitted grant application """

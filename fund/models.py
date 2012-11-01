@@ -4,7 +4,8 @@ from django.forms import ModelForm
 import datetime
 from grants.models import GrantCycle
 from django.utils import timezone
-
+from django.core.validators import MaxValueValidator
+ 
 class GivingProject(models.Model):
   title = models.CharField(max_length=255)
 
@@ -105,7 +106,7 @@ class Membership(models.Model): #relationship b/n member and gp
   notifications = models.TextField(default='', blank=True)
   
   def __unicode__(self):
-    return str(self.member)+', '+str(self.giving_project)
+    return unicode(self.member)+', '+unicode(self.giving_project)
     
   def has_overdue(self):
     donors = self.donor_set.all()
@@ -161,7 +162,7 @@ class Donor(models.Model):
   )
   privacy = models.CharField(max_length=2, choices=PRIVACY_CHOICES, default='SH')
   amount = models.PositiveIntegerField(verbose_name='*Amount to ask ($)')
-  likelihood = models.PositiveIntegerField(verbose_name='*Estimated likelihood (%)')
+  likelihood = models.PositiveIntegerField(verbose_name='*Estimated likelihood (%)', validators=[MaxValueValidator(100)])
   talked = models.BooleanField(default=False)
   asked = models.BooleanField(default=False)
   pledged = models.PositiveIntegerField(blank=True, null=True)

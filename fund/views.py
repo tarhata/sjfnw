@@ -103,7 +103,7 @@ def Registered(request):
   
   proj = ship.giving_project
   if proj.pre_approved:
-    app_list = [email.strip() for email in proj.pre_approved.split(',')]
+    app_list = [email.strip().lower() for email in proj.pre_approved.split(',')]
     logging.info('Checking pre-approval for ' + request.user.username + ' in ' + str(proj) + ', list: ' + proj.pre_approved)
     if ship.member.email in app_list:
       ship.approved = True
@@ -166,7 +166,6 @@ def Home(request):
   #blocks
   news = models.NewsItem.objects.filter(project=membership.giving_project).order_by('-date')
   steps = models.Step.objects.filter(donor__membership=membership, complete=False).order_by('date')[:3]
-  events = models.Event.objects.filter(project=membership.giving_project, date__gt=timezone.now()).order_by('date')[:3]
   
   #base
   header = membership.giving_project.title
@@ -190,7 +189,6 @@ def Home(request):
                             'count':count,
                             'member':member,
                             'news':news,
-                            'events':events,
                             'steps':steps,
                             'membership':membership,
                             'notif':notif,
@@ -207,7 +205,6 @@ def ProjectPage(request):
   #blocks
   news = models.NewsItem.objects.filter(project=project).order_by('-date')
   steps = models.Step.objects.filter(donor__membership=membership, complete=False).order_by('date')[:3]
-  events = models.Event.objects.filter(project=project, date__gt=timezone.now()).order_by('date')[:3]
   
   #base
   header = membership.giving_project.title
@@ -220,7 +217,6 @@ def ProjectPage(request):
   return render_to_response('fund/page_project.html', {'2active':'true',
                                                'header':header,
                                                'news':news,
-                                               'events':events,
                                                'member':member,
                                                'steps':steps,
                                                'membership':membership})
@@ -236,7 +232,6 @@ def ScoringList(request):
   #blocks
   news = models.NewsItem.objects.filter(project=project).order_by('-date')
   steps = models.Step.objects.filter(donor__membership=membership, complete=False).order_by('date')[:3]
-  events = models.Event.objects.filter(project=project, date__gt=timezone.now()).order_by('date')[:3]
   
   #base
   header = project.title
@@ -264,7 +259,7 @@ def ScoringList(request):
 
 
   return render_to_response('fund/scoring_list.html', {'3active':'true', 'header':header,
-                                                'news':news, 'events':events,
+                                                'news':news,
                                                 'member':member, 'steps':steps,
                                                 'membership':membership, 
 												'grant_list':grant_list, 												
