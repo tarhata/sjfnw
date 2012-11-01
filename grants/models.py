@@ -93,7 +93,7 @@ class SavedGrantApplication(models.Model):
   file1 = models.FileField(upload_to='draft/', max_length=255)
   
   def __unicode__(self):
-    return self.organization.name + ' saved draft id ' + str(self.pk)
+    return self.organization.name + ' saved draft id ' + unicode(self.pk)
 
 class WordLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'

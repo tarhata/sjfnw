@@ -40,7 +40,7 @@ class GivingProject(models.Model):
   grant_cycle = models.ForeignKey(GrantCycle, null=True, blank=True)
 
   def __unicode__(self):
-    return self.title+' '+str(self.fundraising_deadline.year)
+    return self.title+' '+unicode(self.fundraising_deadline.year)
 
   def talked(self):
     return Donor.objects.filter(membership__giving_project=self, talked=True).count()
@@ -221,7 +221,7 @@ class Step(models.Model):
   complete = models.BooleanField(default=False)
 
   def __unicode__(self):
-    return self.date.strftime('%m/%d/%y')+' '+self.description
+    return unicode(self.date.strftime('%m/%d/%y'))+' '+self.description
     
 class StepForm(ModelForm):
   formfield_callback = make_custom_datefield #date input

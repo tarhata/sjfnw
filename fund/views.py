@@ -178,6 +178,8 @@ def Home(request):
   notif = membership.notifications
   ContactFormset = formset_factory(MassDonor, extra=5)
   formset = ContactFormset()
+  # donor.next_step_cached = 
+
   if notif != '': #only show a notification once
     membership.notifications=''
     membership.save()
