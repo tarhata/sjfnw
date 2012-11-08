@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include
 from django.views.generic.simple import direct_to_template
+from admin import advanced_admin
 from django.contrib import admin
-from grants.admin import advanced_admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 import grants, fund
 

@@ -187,7 +187,8 @@ def Home(request):
     membership.notifications=''
     membership.save()
   
-  logging.info(connection.queries)
+  if settings.DEBUG==True:
+    logging.info(connection.queries)
   
   return render_to_response('fund/page_personal.html', {
                             '1active':'true',

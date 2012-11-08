@@ -1,4 +1,5 @@
-from fund.models import *
+﻿from fund.models import *
+from grants.models import *
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User, Group
@@ -9,13 +10,21 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import logging
 
+    ## GENERAL ##
+
+#admin.site.unregister(User) have to make contrib/auth/admin.py load first..
+
+# advanced
+logging.info('Creating adv_ad')
+advanced_admin = AdminSite(name='advanced')
+
+    ## FUND ##
+
 """ signals needed:
 membership save - if approval added, send email
 user save - if is_staff, add to group?
-
 """
 
-# staff
 def approve(modeladmin, request, queryset):
   subject, from_email = 'Membership Approved', settings.APP_SEND_EMAIL
   logging.info('Approval button pressed; looking through queryset')
@@ -82,16 +91,6 @@ class NewsAdmin(admin.ModelAdmin):
   list_display = ('short', 'date', 'project')
   list_filter = ('project',)
 
-#admin.site.unregister(User) have to make contrib/auth/admin.py load first..
-admin.site.register(GivingProject, GPAdmin)
-admin.site.register(Membership, MembershipAdmin)
-admin.site.register(NewsItem, NewsAdmin)
-admin.site.register(Event, EventAdmin)
-admin.site.register(Donor, DonorAdmin)
-
-# advanced
-advanced_admin = AdminSite(name='advanced')
-
 class DonorAdvanced(admin.ModelAdmin):
   list_display = ('__unicode__', 'membership', 'asked', 'pledged', 'gifted')
   list_filter = ('asked', 'membership__giving_project')
@@ -106,14 +105,37 @@ class MemberAdvanced(admin.ModelAdmin):
   list_display = ('__unicode__', 'email')
   search_fields = ['first_name', 'last_name', 'email']
 
-def step_memberhip(obj):
+def step_membership(obj):
   return obj.donor.membership
 
 class StepAdv(admin.ModelAdmin):
   list_display = ('description', 'donor', step_membership, 'date', 'complete')
 
+      ## GRANTS ##
+
+class GrantAppAdmin(admin.ModelAdmin):
+  fields = ('screening_status', 'grant_cycle', 'scoring_bonus_poc', 'scoring_bonus_geo')
+  list_display = ('organization', 'submission_time', 'screening_status')  
+
+class DraftAdmin(admin.ModelAdmin):
+  list_display = ('organization', 'grant_cycle', 'modified')
+
+class GranteeAdmin(admin.ModelAdmin):
+  list_display = ('name', 'email',)
+  list_editable = ('email',)
+
+
+logging.info('Registering to default admin')
+admin.site.register(GivingProject, GPAdmin)
+admin.site.register(Membership, MembershipAdmin)
+admin.site.register(NewsItem, NewsAdmin)
+admin.site.register(Event, EventAdmin)
+admin.site.register(Donor, DonorAdmin)
+
+logging.info('Registering to advanced')  
 advanced_admin.register(User, UserAdmin)
 advanced_admin.register(Group)
+
 advanced_admin.register(Member, MemberAdvanced)
 advanced_admin.register(Donor, DonorAdvanced)
 advanced_admin.register(Membership, MembershipAdvanced)
@@ -121,3 +143,9 @@ advanced_admin.register(GivingProject, GPAdmin)
 advanced_admin.register(NewsItem, NewsAdmin)
 advanced_admin.register(Event, EventAdmin)
 advanced_admin.register(Step, StepAdv)
+
+advanced_admin.register(GrantCycle)
+advanced_admin.register(NarrativeText)
+advanced_admin.register(Grantee, GranteeAdmin)
+advanced_admin.register(GrantApplication, GrantAppAdmin)
+advanced_admin.register(SavedGrantApplication, DraftAdmin)
