@@ -48,6 +48,15 @@ class MembershipAdmin(admin.ModelAdmin): #todo add overdue steps filter
   list_filter = ('approved', 'leader', 'giving_project')
   readonly_fields = ('member', 'giving_project', 'last_activity', 'emailed', 'approved')
 
+class MembershipInline(admin.TabularInline):
+  model = Membership
+  readonly_fields = ('member',)
+  fieldsets = (None, {
+                'classes': ('collapse',),
+                'fields': ('member', 'approved', 'leader',)
+              }),
+  extra = 1
+
 def gp_year(obj):
   return obj.fundraising_deadline.year
 gp_year.short_description = 'Year'
@@ -55,6 +64,9 @@ gp_year.short_description = 'Year'
 class GPAdmin(admin.ModelAdmin):
   list_display = ('title', gp_year)
   fieldsets = (None, {'fields': ('title', 'fund_goal', 'fundraising_deadline', 'calendar', 'grant_cycle', 'pre_approved')}), ('Resources', {'classes': ('collapse',), 'fields': (('r1title', 'r1link'), ('r2title', 'r2link'), ('r3title', 'r3link'), ('r4title', 'r4link'), ('r5title', 'r5link'), ('r6title', 'r6link'), ('r7title', 'r7link'), ('r8title', 'r8link'), ('r9title', 'r9link'), ('r10title', 'r10link'))})
+  inlines = [
+        MembershipInline,
+    ]
 
 class DonorAdmin(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'pledged', 'gifted')
@@ -94,8 +106,11 @@ class MemberAdvanced(admin.ModelAdmin):
   list_display = ('__unicode__', 'email')
   search_fields = ['first_name', 'last_name', 'email']
 
+def step_memberhip(obj):
+  return obj.donor.membership
+
 class StepAdv(admin.ModelAdmin):
-  list_display = ('description', 'donor', 'date', 'complete')
+  list_display = ('description', 'donor', step_membership, 'date', 'complete')
 
 advanced_admin.register(User, UserAdmin)
 advanced_admin.register(Group)
@@ -105,4 +120,4 @@ advanced_admin.register(Membership, MembershipAdvanced)
 advanced_admin.register(GivingProject, GPAdmin)
 advanced_admin.register(NewsItem, NewsAdmin)
 advanced_admin.register(Event, EventAdmin)
-advanced_admin.register(Step)
+advanced_admin.register(Step, StepAdv)

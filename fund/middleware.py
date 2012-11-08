@@ -32,13 +32,13 @@ class MembershipMiddleware(object):
         request.membership=None
         
         try:
-          member = models.Member.objects.get(email=request.user.username)
+          member = models.Member.objects.get(email=request.user.username) #q3
         except models.Member.DoesNotExist: #no member object
           logging.warning('Custom middleware: No member object with email of '+request.user.username)
           return None
         
         try:
-          membership = models.Membership.objects.get(member = member, pk=member.current)
+          membership = models.Membership.objects.select_related().get(member = member, pk=member.current) #q4
           request.membership_status=3
           request.membership = membership
         except models.Membership.DoesNotExist: #current is wrong

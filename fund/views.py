@@ -1,7 +1,7 @@
 from django import http, template, forms
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.db import IntegrityError
+from django.db import IntegrityError, connection
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
@@ -159,21 +159,24 @@ def SetCurrent(request, ship_id):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def Home(request):
-
+  
+  logging.info(connection.queries)
+  
   membership = request.membership
   member = membership.member
   
   #blocks
   news = models.NewsItem.objects.filter(project=membership.giving_project).order_by('-date')
   steps = models.Step.objects.filter(donor__membership=membership, complete=False).order_by('date')[:3]
+  # news & step queries not actually evaluated yet?
   
   #base
   header = membership.giving_project.title
   
   #home code
   donors = membership.donor_set.all()
-  donor_list = list(donors)
-  donor_list.sort(key = lambda donor: donor.get_next_date())
+  donor_list = list(donors) #q7
+  donor_list.sort(key = lambda donor: donor.get_next_date()) #q for each
   count = donors.count
   notif = membership.notifications
   ContactFormset = formset_factory(MassDonor, extra=5)
@@ -183,6 +186,8 @@ def Home(request):
   if notif != '': #only show a notification once
     membership.notifications=''
     membership.save()
+  
+  logging.info(connection.queries)
   
   return render_to_response('fund/page_personal.html', {
                             '1active':'true',
@@ -590,7 +595,8 @@ def EmailOverdue(request):
   for ship in ships:
     user = ship.member
     if ship.has_overdue()>0 and ship.emailed<=limit:
-      to = user.email #TODO direct links w/multi gp
+      logging.info(user.email + ' has overdue step(s), emailing.')
+      to = user.email
       steps = models.Step.objects.filter(donor__membership=ship, date__lt=today, complete=False)
       html_content = render_to_string('fund/email_overdue.html', {'login_url':settings.APP_BASE_URL+'fund/login', 'ship':ship, 'steps':steps, 'base_url':settings.APP_BASE_URL})
       text_content = strip_tags(html_content)
