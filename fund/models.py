@@ -8,7 +8,7 @@ from django.core.validators import MaxValueValidator
  
 class GivingProject(models.Model):
   title = models.CharField(max_length=255)
-  #is_public = models.BooleanField(default=True)
+  public = models.BooleanField(default=True)
   
   #fundraising
   fundraising_deadline = models.DateField(help_text='Members will stop receiving reminder emails at this date.')
