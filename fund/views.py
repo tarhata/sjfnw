@@ -368,7 +368,6 @@ def StatsSingle(request, gp_id):
 def AddDonor(request):
 
   membership = request.membership
-  action='/fund/add'
   
   if request.method=='POST':
     form = NewDonor(request.POST)
@@ -377,14 +376,16 @@ def AddDonor(request):
       donor.save()
       membership.last_activity = timezone.now()
       membership.save()
+      logging.info('New donor added (membership=' + membership.pk + ', donor=' + donor.pk + ')')
       if request.POST['step_date'] and request.POST['step_desc']:
-        step = models.Step(date = request.POST.get('step_date'), description = request.POST['step_desc'], donor = donor)
+        step = models.Step(date = request.POST['step_date'], description = request.POST['step_desc'], donor = donor)
         step.save()
+        logging.info('Step created with donor')
       return HttpResponse("success")
   else:
     form = NewDonor()
 
-  return render_to_response('fund/add_contact.html', {'form':form, 'action':action})
+  return render_to_response('fund/add_contact.html', {'form':form, 'action':'/fund/add'})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -486,27 +487,27 @@ def AddStep(request, donor_id):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def AddMultStep(request):  
-  initiald = []
-  dlist = []
+  initiald = [] #list of dicts for form initial
+  dlist = [] #list of donors for zipping to formset
   size = 0
   for donor in request.membership.donor_set.all():
-    if not donor.get_next_step():
+    if not donor.get_next_step(): #query for each donor, ouch
       initiald.append({'donor': donor})
       dlist.append(donor)
       size = size +1
   StepFormSet = formset_factory(MassStep, extra=0)
   if request.method=='POST':
     formset = StepFormSet(request.POST)
-    logging.info('Multiple steps - posted: ' + str(request.POST))
+    logging.debug('Multiple steps - posted: ' + str(request.POST))
     if formset.is_valid():
-      logging.info('Multiple steps - is_valid passed, cycling through forms')
+      logging.debug('Multiple steps - is_valid passed, cycling through forms')
       for form in formset.cleaned_data:
         if form:
           step = models.Step(donor = form['donor'], date = form['date'], description = form['description'])
           step.save()
           logging.info('Multiple steps - step created')
         else:
-          logging.info('Multiple steps - blank form')
+          logging.debug('Multiple steps - blank form')
       return HttpResponse("success")
   else:
     formset = StepFormSet(initial=initiald)
