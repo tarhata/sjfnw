@@ -121,6 +121,8 @@ div#notifications {
 }
 
 div.donor {
+  border: 2px solid;
+  border-color:#FFF;
 	border-radius:2px;
 }
 
