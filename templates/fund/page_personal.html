@@ -123,9 +123,9 @@ function showSuggestions(inp) { //shows suggested steps
 
 {% block progress %}
 <div id="progress_container">
-<div id="progress_bar" style="width:{{membership.bar_width}}%">
+<div id="progress_bar" style="width:{{progress.bar}}%">
 </div></div>
-<div id="progress_desc">You've asked {{membership.asked}} p{{membership.asked|pluralize:"erson,eople"}} so far</div>
+<div id="progress_desc">You've asked {{progress.asked}} p{{progress.asked|pluralize:"erson,eople"}} so far</div>
 
 {% endblock %}
 
@@ -139,13 +139,13 @@ function showSuggestions(inp) { //shows suggested steps
 <table style="width:100%;">
 <tr>
 	<td style="width:50%;">
-	{{count}} contacts<br>
-	{{membership.talked}} talked to<br>
-	{{membership.asked}} asked<br></td>
+	{{progress.contacts}} contacts<br>
+	{{progress.talked}} talked to<br>
+	{{progress.asked}} asked<br></td>
 	<td>
-	${{membership.estimated}} estimated fundraising<br>
-	${{membership.pledged}} pledged<br>
-	${{membership.gifted}} gifted<br>
+	${{progress.estimated}} estimated fundraising<br>
+	${{progress.pledged}} pledged<br>
+	${{progress.gifted}} gifted<br>
 	</td>
 </tr></table>
 </div>
@@ -156,59 +156,59 @@ function showSuggestions(inp) { //shows suggested steps
   <div class="donors" id="adddonor"></div><!--forms for adding contacts go here when requested-->
 {% endif %}
 
-{% for donor in donors %}
-	<div class="donor indent" id="donor-{{donor.pk}}">
-		<a class="{%if donor.pledged != None%}pledged{%endif%}" onclick="toggle('details-{{donor.pk}}', 'donor-{{donor.pk}}')"><b>{{donor.firstname}} {{donor.lastname}}</b></a>
+{% for dict in donor_list %}
+	<div class="donor indent" id="donor-{{dict.donor.pk}}">
+		<a class="{%if dict.donor.pledged != None%}pledged{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{donor.lastname}}</b></a>
 		<br>
-		{% if donor.get_next_step %}
-			<div id="{{donor.pk}}-nextstep">{%if donor.has_overdue%}<div title="This step's goal date has passed! Edit or complete it" style="display:inline;"><div class="overdue_step">! </div>{{donor.get_next_step}}</div>{% else %} {{donor.get_next_step}}{%endif%}
-			<div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{donor.pk}}/{{donor.get_next_step.pk}}', '{{donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{donor.pk}}/{{donor.get_next_step.pk}}/done', '{{donor.pk}}-nextstep')">complete</a>]</div>
+		{% if dict.next_step %}
+			<div id="{{dict.donor.pk}}-nextstep">{%if dict.overdue%}<div title="This step's goal date has passed! Edit or complete it" style="display:inline;"><div class="overdue_step">! </div>{{dict.next_step}}</div>{% else %}{{dict.next_step}}{%endif%}
+			<div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{donor.get_next_step.pk}}', '{{dict.donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}/done', '{{dict.donor.pk}}-nextstep')">complete</a>]</div>
 			</div>
 		{% else %}
-			<div id="{{donor.pk}}-addstep">
-			{% if donor.pledged == None %}
-				No next step. <a onclick="loadView('/fund/{{donor.pk}}/step', '{{donor.pk}}-addstep')">Add one.</a>
+			<div id="{{dict.donor.pk}}-addstep">
+			{% if dict.donor.pledged == None %}
+				No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
 			{% else %}
 				<img src="/static/images/check.png"/>Asked.
 			{% endif %}
 			</div>
 		{% endif %}
 
-		<div class="donor_details indent" id="details-{{donor.pk}}" style="display:none;">
+		<div class="donor_details indent" id="details-{{dict.donor.pk}}" style="display:none;">
 	
 		<table>
 		
-			{% if donor.gifted %}
-				<tr><td>Donated:</td><td>${{donor.gifted}}</td></tr>
+			{% if dict.donor.gifted %}
+				<tr><td>Donated:</td><td>${{dict.donor.gifted}}</td></tr>
 			{% else %}
-				{%if donor.pledged%}
-					{% if donor.pledged > 0 %}
-						<tr><td>Pledged:</td><td>${{donor.pledged}}</td></tr>
+				{%if dict.donor.pledged%}
+					{% if dict.donor.pledged > 0 %}
+						<tr><td>Pledged:</td><td>${{dict.donor.pledged}}</td></tr>
 					{% else %}
 						<tr><td colspan="2">Declined to donate.</td></tr>
 					{% endif %}
 				{% else %}
-					{% if donor.asked %}
+					{% if dict.donor.asked %}
 						<tr><td colspan="2">Asked; awaiting reply.</td></tr>
 					{% endif %}
-					<tr><td>Amount to ask:</td><td>${{donor.amount}}</td></tr>
-					<tr><td>Likelihood:</td><td>{{donor.likelihood}}%</td></tr>
+					<tr><td>Amount to ask:</td><td>${{dict.donor.amount}}</td></tr>
+					<tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
 				{% endif %}
 			{% endif %}
 			
 			<tr>
-				<td>{% if donor.email or donor.phone %}Contact info:</td>
-				<td>{{donor.email|default:""}} {{donor.phone|default:""}}{%endif%}</td>
+				<td>{% if dict.donor.email or dict.donor.phone %}Contact info:</td>
+				<td>{{dict.donor.email|default:""}} {{dict.donor.phone|default:""}}{%endif%}</td>
 			</tr>
 			<tr><td colspan="2"> </td></tr>
 			
-			{% if donor.get_steps %}
+			{% if dict.complete_steps %}
 				<tr>
-					<td>Completed steps:{% if donor.pledged != None and not donor.get_next_step %}<br>
-					[<a onclick="loadView('/fund/{{donor.pk}}/step', '{{donor.pk}}-addstep')">add step</a>]{% endif %}
+					<td>Completed steps:{% if dict.donor.pledged != None and not dict.next_step %}<br>
+					[<a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">add step</a>]{% endif %}
 					</td>
 					<td>
-						{% for step in donor.get_steps %}
+						{% for step in dict.complete_steps %}
 							{{step.date|date:"n/d/y"}}: {{step.description}}<br>
 						{% endfor %}
 					</td>
@@ -218,8 +218,8 @@ function showSuggestions(inp) { //shows suggested steps
 		</table>
 		<br>
 		
-		<div class="donor_delete" id="delete-{{donor.pk}}">
-			[<a onclick="loadView('/fund/{{donor.pk}}/edit', 'donor-{{donor.pk}}')">edit contact</a>] [<a onclick="loadView('/fund/{{donor.pk}}/delete', 'delete-{{donor.pk}}')">remove contact</a>]
+		<div class="donor_delete" id="delete-{{dict.donor.pk}}">
+			[<a onclick="loadView('/fund/{{dict.donor.pk}}/edit', 'donor-{{dict.donor.pk}}')">edit contact</a>] [<a onclick="loadView('/fund/{{dict.donor.pk}}/delete', 'delete-{{dict.donor.pk}}')">remove contact</a>]
 		</div>
 		
 	</div> <!-- ends donor_details -->
@@ -230,6 +230,7 @@ function showSuggestions(inp) { //shows suggested steps
   <p>You don't have any contacts yet!  Get started by adding some.  You'll be able to add, change or remove contacts at any time.</p>
 	{% include 'fund/add_mult.html' %}
 </div>
+
 {% endfor %} <!--ends contacts check-->
 
 {% endblock %}

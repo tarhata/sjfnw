@@ -159,48 +159,70 @@ def SetCurrent(request, ship_id):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def Home(request):
-  
-  logging.info(connection.queries)
-  
+
   membership = request.membership
   member = membership.member
-  
-  #blocks
+
   news = models.NewsItem.objects.filter(project=membership.giving_project).order_by('-date')
-  steps = models.Step.objects.filter(donor__membership=membership, complete=False).order_by('date')[:3]
-  # news & step queries not actually evaluated yet?
-  
-  #base
+  steps = models.Step.objects.filter(donor__membership=membership, complete=False).order_by('date')[:2]
+
   header = membership.giving_project.title
+
+  donors = list(membership.donor_set.all())
+  progress = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0, 'pledged':0, 'gifted':0} 
+  donor_data = {}
+  empty_date = datetime.date(1970,1,1)
+  for donor in donors:
+    donor_data[donor.pk] = {'donor':donor, 'complete_steps':{}, 'next_step':False, 'next_date':empty_date, 'overdue':False}
+    progress['estimated'] += donor.amount*(donor.likelihood*.01)
+    if donor.talked:
+      progress['talked'] += 1
+    if donor.asked:
+      progress['asked'] += 1
+    if donor.pledged:
+      progress['pledged'] += donor.pledged
+    if donor.gifted:
+      progress['gifted'] += donor.gifted
+  progress['estimated'] = int(progress['estimated'])
+  progress['bar'] = 100*progress['asked']/progress['contacts']
+    
+  step_list = list(models.Step.objects.filter(donor__membership=membership))
+  #split steps into complete & not, attach to donors
+  for step in step_list:
+    if step.complete:
+      donor_data[step.donor_id]['complete_steps'].append(step)
+    else:
+      donor_data[step.donor_id]['next_step'] = step
+      donor_data[step.donor_id]['next_date'] = step.date
+      if step.date < datetime.date.today():
+        donor_data[step.donor_id]['overdue'] = True
   
-  #home code
-  donors = membership.donor_set.all()
-  donor_list = list(donors) #q7
-  donor_list.sort(key = lambda donor: donor.get_next_date()) #q for each
-  count = donors.count
+  #converts outer dict to list and sorts it
+  donor_list = donor_data.values()
+  donor_list.sort(key = lambda donor: donor['next_step'], reverse = True)  
+  
   notif = membership.notifications
   ContactFormset = formset_factory(MassDonor, extra=5)
   formset = ContactFormset()
-  # donor.next_step_cached = 
 
   if notif != '': #only show a notification once
     membership.notifications=''
     membership.save()
+
+  resp = render_to_response('fund/page_personal.html', 
+  {'1active':'true',
+  'header':header,
+  'donor_list': donor_list,
+  'progress':progress,
+  'member':member,
+  'news':news,
+  'steps':steps,
+  'membership':membership,
+  'notif':notif,
+  'formset':formset})
   
-  if settings.DEBUG==True:
-    logging.info(connection.queries)
-  
-  return render_to_response('fund/page_personal.html', {
-                            '1active':'true',
-                            'header':header,
-                            'donors': donor_list,
-                            'count':count,
-                            'member':member,
-                            'news':news,
-                            'steps':steps,
-                            'membership':membership,
-                            'notif':notif,
-                            'formset':formset})
+  logging.debug(connection.queries)
+  return resp
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -222,12 +244,13 @@ def ProjectPage(request):
   if len(resources)==1: #just nulls
     resources = None
  
-  return render_to_response('fund/page_project.html', {'2active':'true',
-                                               'header':header,
-                                               'news':news,
-                                               'member':member,
-                                               'steps':steps,
-                                               'membership':membership})
+  return render_to_response('fund/page_project.html', 
+  {'2active':'true',
+  'header':header,
+  'news':news,
+  'member':member,
+  'steps':steps,
+  'membership':membership})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -244,7 +267,6 @@ def ScoringList(request):
   #base
   header = project.title
   
-
   #additional code here!
   #this is where you want a try catch to see if any grant applications within grant-list (bring in)
   #have a grant application rating 
@@ -264,16 +286,16 @@ def ScoringList(request):
 	except scoring.models.ApplicationRating.DoesNotExist:
 	  unreviewed_grants.append(grant)
 
-
-
-  return render_to_response('fund/scoring_list.html', {'3active':'true', 'header':header,
-                                                'news':news,
-                                                'member':member, 'steps':steps,
-                                                'membership':membership, 
-												'grant_list':grant_list, 												
-												'unreviewed_grants':unreviewed_grants, 
-												'reviewed_list':reviewed_grants, 
-												'review_in_progress':review_in_progress_grants})
+  return render_to_response('fund/scoring_list.html',
+  {'3active':'true', 
+  'header':header,
+  'news':news,
+  'member':member, 'steps':steps,
+  'membership':membership, 
+  'grant_list':grant_list, 												
+  'unreviewed_grants':unreviewed_grants, 
+  'reviewed_list':reviewed_grants, 
+  'review_in_progress':review_in_progress_grants})
 
 #ERROR & HELP PAGES
 @login_required(login_url='/fund/login/')

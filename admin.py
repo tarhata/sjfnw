@@ -110,6 +110,7 @@ def step_membership(obj):
 
 class StepAdv(admin.ModelAdmin):
   list_display = ('description', 'donor', step_membership, 'date', 'complete')
+  list_filter = ('complete',)
 
       ## GRANTS ##
 
@@ -124,15 +125,14 @@ class GranteeAdmin(admin.ModelAdmin):
   list_display = ('name', 'email',)
   list_editable = ('email',)
 
-
-logging.info('Registering to default admin')
+#default
 admin.site.register(GivingProject, GPAdmin)
 admin.site.register(Membership, MembershipAdmin)
 admin.site.register(NewsItem, NewsAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Donor, DonorAdmin)
 
-logging.info('Registering to advanced')  
+#advanced 
 advanced_admin.register(User, UserAdmin)
 advanced_admin.register(Group)
 

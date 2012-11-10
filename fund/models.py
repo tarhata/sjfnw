@@ -60,16 +60,6 @@ class GivingProject(models.Model):
         pledged = pledged + donor.pledged
     return pledged
 
-  def bar_width(self):
-    if self.fund_goal>0:
-      pl = self.pledged()
-      if pl>self.fund_goal:
-        return 100
-      else:
-        return 100*pl/self.fund_goal
-    else:
-      return 0
-
   def gifted(self):
     donors = Donor.objects.filter(membership__giving_project=self, gifted__gt=0)
     gifted = 0
@@ -109,7 +99,7 @@ class Membership(models.Model): #relationship b/n member and gp
   def __unicode__(self):
     return unicode(self.member)+', '+unicode(self.giving_project)
     
-  def has_overdue(self):
+  def has_overdue(self): #remove
     donors = self.donor_set.all()
     overdue = 0
     day = datetime.timedelta(days=1)
@@ -118,19 +108,10 @@ class Membership(models.Model): #relationship b/n member and gp
         overdue = overdue+1
     return overdue
 
-  def talked(self):
-    return self.donor_set.filter(talked=True).count()
-
-  def asked(self):
+  def asked(self): #remove
     return self.donor_set.filter(asked=True).count()
-
-  def bar_width(self):
-    if self.donor_set.count()>0:
-      return 100*self.asked()/self.donor_set.count()
-    else:
-      return 0
         
-  def pledged(self):
+  def pledged(self): #remove
     donors = self.donor_set.all()
     amt = 0
     for donor in donors:
@@ -138,14 +119,14 @@ class Membership(models.Model): #relationship b/n member and gp
         amt = amt + donor.pledged
     return amt
   
-  def gifted(self):
+  def gifted(self): #remove
     donors = self.donor_set.all()
     amt = 0
     for donor in donors:
       amt = amt + donor.gifted
     return amt
 
-  def estimated(self):
+  def estimated(self): #remove
     estimated = 0
     donors = self.donor_set.all()
     for donor in donors:
