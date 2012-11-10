@@ -164,14 +164,12 @@ def Home(request):
   member = membership.member
 
   news = models.NewsItem.objects.filter(project=membership.giving_project).order_by('-date')
-  steps = models.Step.objects.filter(donor__membership=membership, complete=False).order_by('date')[:2]
-
   header = membership.giving_project.title
 
   donors = list(membership.donor_set.all())
   progress = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0, 'pledged':0, 'gifted':0} 
   donor_data = {}
-  empty_date = datetime.date(1970,1,1)
+  empty_date = datetime.date(2500,1,1)
   for donor in donors:
     donor_data[donor.pk] = {'donor':donor, 'complete_steps':{}, 'next_step':False, 'next_date':empty_date, 'overdue':False}
     progress['estimated'] += donor.amount*(donor.likelihood*.01)
@@ -187,19 +185,19 @@ def Home(request):
   progress['bar'] = 100*progress['asked']/progress['contacts']
     
   step_list = list(models.Step.objects.filter(donor__membership=membership))
-  #split steps into complete & not, attach to donors
-  for step in step_list:
+  upcoming_steps = []
+  for step in step_list: #split steps into complete & not, attach to donors
     if step.complete:
       donor_data[step.donor_id]['complete_steps'].append(step)
     else:
+      upcoming_steps.append(step)
       donor_data[step.donor_id]['next_step'] = step
       donor_data[step.donor_id]['next_date'] = step.date
       if step.date < datetime.date.today():
         donor_data[step.donor_id]['overdue'] = True
-  
-  #converts outer dict to list and sorts it
-  donor_list = donor_data.values()
-  donor_list.sort(key = lambda donor: donor['next_step'], reverse = True)  
+  upcoming_steps.sort(key = lambda step: step.date)
+  donor_list = donor_data.values() #convert outer dict to list and sort it
+  donor_list.sort(key = lambda donor: donor['next_date'])  
   
   notif = membership.notifications
   ContactFormset = formset_factory(MassDonor, extra=5)
@@ -216,7 +214,7 @@ def Home(request):
   'progress':progress,
   'member':member,
   'news':news,
-  'steps':steps,
+  'steps':upcoming_steps,
   'membership':membership,
   'notif':notif,
   'formset':formset})
@@ -458,8 +456,8 @@ def AddStep(request, donor_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
-    logging.warning('Single step - tried to add step to nonexistent donor.')
-    return redirect(Home) #ADDERROR
+    logging.error('Single step - tried to add step to nonexistent donor.')
+    return redirect(Home)
     
   action='/fund/'+donor_id+'/step'
   ajax = request.is_ajax()
@@ -468,13 +466,15 @@ def AddStep(request, donor_id):
   
   if request.method == 'POST':
     form = models.StepForm(request.POST)
+    has_step = donor.get_next_step()
     logging.info('Single step - POST: ' + str(request.POST))
-    if form.is_valid() and not donor.get_next_step(): #ADDERROR
-      logging.info('Single step - form valid')
+    if has_step:
+      logging.error('Donor already has an incomplete step: ' + str(has_step))
+    elif form.is_valid():
       step = form.save(commit = False)
       step.donor = donor
       step.save()
-      logging.info('Single step - step saved')
+      logging.info('Single step - form valid, step saved')
       request.membership.last_activity = timezone.now()
       request.membership.save()
       return HttpResponse("success")

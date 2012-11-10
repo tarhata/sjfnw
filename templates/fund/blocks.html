@@ -3,7 +3,7 @@
 <div id="block_container">
 	<div class="top_block{%if 1active %} active_block{% endif %}" id="personal_block" style="margin-right:14px;" onclick="location.href='/fund';">
 		<div class="block_header">Personal</div>
-		{% for step in steps %}
+		{% for step in steps|slice:"2" %}
 			<div class="block-item">
         {{step.date|date:"n/d/y"}} {{step.donor.firstname}}<br>
         {{step.description}}
