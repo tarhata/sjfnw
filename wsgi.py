@@ -2,14 +2,15 @@ import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 
+import logging
 import django.core.signals
 from django.core.wsgi import get_wsgi_application
-import django.dispatch.dispatcher
+from django.core.signals import got_request_exception
 
 def log_exception(*args, **kwds):
-    logging.exception('Exception in request:')
+  logging.exception('Exception in request:')
 
-#Log errors.
-django.dispatch.dispatcher.connect(log_exception, django.core.signals.got_request_exception)
+# Log errors.
+got_request_exception.connect(log_exception)
 
 application = get_wsgi_application()
