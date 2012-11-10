@@ -154,7 +154,7 @@ def SetCurrent(request, ship_id):
   member.save()
   
   return redirect(Home)
-  
+
 # MAIN VIEWS
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -171,7 +171,7 @@ def Home(request):
   donor_data = {}
   empty_date = datetime.date(2500,1,1)
   for donor in donors:
-    donor_data[donor.pk] = {'donor':donor, 'complete_steps':{}, 'next_step':False, 'next_date':empty_date, 'overdue':False}
+    donor_data[donor.pk] = {'donor':donor, 'complete_steps':[], 'next_step':False, 'next_date':empty_date, 'overdue':False}
     progress['estimated'] += donor.amount*(donor.likelihood*.01)
     if donor.talked:
       progress['talked'] += 1
