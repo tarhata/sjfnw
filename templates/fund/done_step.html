@@ -13,7 +13,7 @@
 <form id = "done_step" method="post" action="{{action}}">
 	<br>
 	{% if not donor.pledged %}
-		Enter any that took place:<br>
+		Update contact status:<br>
 		<table class="form asked">
 		{% if not donor.asked %}
 			<tr>
@@ -22,13 +22,16 @@
 				<td></td>
 			</tr>
 		{%endif%}
-		{% if not donor.pledged %}
+      <tr>
+				<th>Response:</th>
+				<td>{{form.reply}}</td>
+				<td>{{form.reply.errors}}</td>
+			</tr>
 			<tr id="_pledge">
 				<th>Pledged:</th>
 				<td>{{form.pledged_amount}}</td>
 				<td>{{form.pledged_amount.errors}}</td>
 			</tr>
-		{%endif%}
 		</table>
 	{%else%}
 		Step completed.<br>
