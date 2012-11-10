@@ -9,8 +9,7 @@ import django.dispatch.dispatcher
 def log_exception(*args, **kwds):
     logging.exception('Exception in request:')
 
-# Log errors.
-#django.dispatch.dispatcher.connect(
-    #log_exception, django.core.signals.got_request_exception)
+#Log errors.
+django.dispatch.dispatcher.connect(log_exception, django.core.signals.got_request_exception)
 
 application = get_wsgi_application()
