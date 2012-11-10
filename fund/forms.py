@@ -72,7 +72,8 @@ class MassStep(forms.Form):
   
 class StepDoneForm(forms.Form):
   asked = forms.BooleanField(required=False)
+  reply = forms.ChoiceField(choices=((1, 'Pledged'), (2, 'Unsure'), (3, 'Declined')), initial=2)
   pledged_amount = forms.IntegerField(required=False)
-  #share = forms.BooleanField(required=False, initial=True)
+  notes = forms.CharField(max_length=255)
   next_step = forms.CharField(max_length=100, required=False)
   next_step_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker', 'readonly':'true'}, format='%m/%d/%Y'))
