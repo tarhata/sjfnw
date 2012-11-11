@@ -2,6 +2,7 @@ from django import http, template, forms
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.db import IntegrityError, connection
+from django.db.models import Sum, Count, Avg, Min, Max
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
@@ -172,16 +173,16 @@ def Home(request):
   empty_date = datetime.date(2500,1,1)
   for donor in donors:
     donor_data[donor.pk] = {'donor':donor, 'complete_steps':[], 'next_step':False, 'next_date':empty_date, 'overdue':False}
-    progress['estimated'] += donor.amount*(donor.likelihood*.01)
+    progress['estimated'] += donor.estimated()
     if donor.talked:
       progress['talked'] += 1
     if donor.asked:
       progress['asked'] += 1
     if donor.pledged:
       progress['pledged'] += donor.pledged
+      donor_data[donor.pk]['next_date'] = datetime.date(2700,1,1)
     if donor.gifted:
       progress['gifted'] += donor.gifted
-  progress['estimated'] = int(progress['estimated'])
   progress['bar'] = 100*progress['asked']/progress['contacts']
     
   step_list = list(models.Step.objects.filter(donor__membership=membership))
@@ -230,12 +231,26 @@ def ProjectPage(request):
   member = membership.member
   project = membership.giving_project
   
+  project_progress = {'contacts':0, 'talked':0, 'asked':0, 'estimated':0, 'pledged':0, 'gifted':0}
+  donors = list(models.Donor.objects.filter(membership__giving_project=project))
+  project_progress['contacts'] = len(donors)
+  for donor in donors:
+    project_progress['estimated'] += donor.estimated()
+    if donor.talked:
+      project_progress['talked'] += 1
+    if donor.asked:
+      project_progress['asked'] += 1
+    if donor.pledged:
+      project_progress['pledged'] += donor.pledged
+    if donor.gifted:
+      project_progress['gifted'] += donor.gifted
+  project_progress['bar_width'] =   int(100*project_progress['pledged']/project.fund_goal)
   #blocks
   news = models.NewsItem.objects.filter(project=project).order_by('-date')
-  steps = models.Step.objects.filter(donor__membership=membership, complete=False).order_by('date')[:3]
+  steps = models.Step.objects.select_related('donor').filter(donor__membership=membership, complete=False).order_by('date')[:2]
   
   #base
-  header = membership.giving_project.title
+  header = project.title
   
   #TODO has to be a better way to do this...
   resources = {project.r1title:project.r1link, project.r2title:project.r2link, project.r3title:project.r3link, project.r4title:project.r4link, project.r5title:project.r5link, project.r6title:project.r6link, project.r7title:project.r7link, project.r8title:project.r8link, project.r9title:project.r9link, project.r10title:project.r10link}
@@ -248,7 +263,8 @@ def ProjectPage(request):
   'news':news,
   'member':member,
   'steps':steps,
-  'membership':membership})
+  'membership':membership,
+  'project_progress':project_progress})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()

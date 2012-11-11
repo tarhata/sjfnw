@@ -42,37 +42,6 @@ class GivingProject(models.Model):
 
   def __unicode__(self):
     return self.title+' '+unicode(self.fundraising_deadline.year)
-
-  def talked(self):
-    return Donor.objects.filter(membership__giving_project=self, talked=True).count()
-
-  def asked(self):
-    return Donor.objects.filter(membership__giving_project=self, asked=True).count()
-
-  def contacts(self):
-    return Donor.objects.filter(membership__giving_project=self).count()
-
-  def pledged(self):
-    donors = Donor.objects.filter(membership__giving_project=self)
-    pledged = 0
-    for donor in donors:
-      if donor.pledged:
-        pledged = pledged + donor.pledged
-    return pledged
-
-  def gifted(self):
-    donors = Donor.objects.filter(membership__giving_project=self, gifted__gt=0)
-    gifted = 0
-    for donor in donors:
-      gifted = gifted + donor.gifted()
-    return gifted
-
-  def estimated(self):
-    estimated = 0
-    donors = Donor.objects.filter(membership__giving_project=self)
-    for donor in donors:
-      estimated = estimated + donor.amount*donor.likelihood/100
-    return estimated
     
 class Member(models.Model):
   email = models.CharField(max_length=255)
@@ -156,22 +125,15 @@ class Donor(models.Model):
   def __unicode__(self):
     return self.firstname+' '+self.lastname
   
+  def estimated(self):
+    return int(self.amount*self.likelihood*.01)
+  
   def get_next_step(self):
     step = Step.objects.filter(donor=self, complete=False)
     if step:
       return step[0]
     else:
       return None
-  
-  def get_next_date(self): #used to sort donors
-    step = Step.objects.filter(donor=self, complete=False)
-    
-    if step: #next step - top
-      return step[0].date
-    elif self.pledged: # 'done' - all the way to bottom
-      return timezone.now().date()+datetime.timedelta(weeks=100)
-    else: #no step, not done - middle
-      return timezone.now().date()+datetime.timedelta(weeks=70)
     
   def get_steps(self): #used in expanded view
     return Step.objects.filter(donor=self).filter(complete=True).order_by('date')

@@ -3,9 +3,9 @@
 {% block progress %}
 
 <div id="progress_container">
-<div id="progress_bar" style="width:{{membership.giving_project.bar_width}}%">
+<div id="progress_bar" style="width:{{project_progress.bar_width}}%">
 </div></div>
-<div id="progress_desc">The giving project has raised ${{membership.giving_project.pledged}} so far</div>
+<div id="progress_desc">The giving project has raised ${{project_progress.pledged}} so far</div>
 
 {% endblock %}
 
@@ -16,14 +16,14 @@
 	Fundraising goal: ${{membership.giving_project.fund_goal}}<br><br>
 	<table width="100%"><tr>
 		<td style="width:50%;">
-			{{membership.giving_project.contacts}} contacts<br>
-			{{membership.giving_project.talked}} talked to<br>
-			{{membership.giving_project.asked}} asked<br>
+			{{project_progress.contacts}} contacts<br>
+			{{project_progress.talked}} talked to<br>
+			{{project_progress.asked}} asked<br>
 		</td>
 		<td>
-			${{membership.giving_project.estimated}} estimated fundraising<br>
-			${{membership.giving_project.pledged}} pledged<br>
-			${{membership.giving_project.gifted}} gifted<br>
+			${{project_progress.estimated}} estimated fundraising<br>
+			${{project_progress.pledged}} pledged<br>
+			${{project_progress.gifted}} gifted<br>
 		</td>
 	</tr></table>
 </div>
