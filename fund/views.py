@@ -208,7 +208,7 @@ def Home(request):
     membership.notifications=''
     membership.save()
 
-  resp = render_to_response('fund/page_personal.html', 
+  return render_to_response('fund/page_personal.html', 
   {'1active':'true',
   'header':header,
   'donor_list': donor_list,
@@ -219,9 +219,6 @@ def Home(request):
   'membership':membership,
   'notif':notif,
   'formset':formset})
-  
-  logging.debug(connection.queries)
-  return resp
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
