@@ -423,7 +423,9 @@ def EditDonor(request, donor_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
-    return redirect(Home) #ADDERROR
+    logging.error('Tried to edit a nonexist donor. User: ' + str(request.membership) + ', id given: '
+     + str(donor_id))
+    return redirect(Home)
     
   action='/fund/'+str(donor_id)+'/edit'
   ajax = request.is_ajax()
