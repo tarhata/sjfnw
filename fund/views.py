@@ -53,20 +53,20 @@ def Register(request):
       else:
         created = User.objects.create_user(username, username, password)
         created.save()
-        
         fn = request.POST['first_name']
         ln = request.POST['last_name']
         gp = request.POST['giving_project']
-        member = models.Member(first_name=fn, last_name=ln, email=username)
-        member.save()
-        logging.info('Registration - user and member objects created for '+username)
+        member, cr = models.Member.get_or_create(email=username, defaults = {'first_name':fn, 'last_name':ln})
+        if cr:
+          logging.info('Registration - user and member objects created for '+username)
+        else:
+          logging.info(username + ' registered as User, Member object already existed')
         if gp:
           giv = models.GivingProject.objects.get(pk=gp)
-          membership = models.Membership(member = member, giving_project = giv)
-          membership.save()
+          membership, crs = models.Membership.get_or_create(member = member, giving_project = giv)
           member.current = membership.pk
           member.save()      
-          logging.info('Registration - membership in ' + str(giv) + ' created')
+          logging.info('Registration - membership in ' + str(giv) + ' or marked as current')
         user = authenticate(username=username, password=password)
         if user:
           if user.is_active:
