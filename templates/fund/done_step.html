@@ -1,35 +1,15 @@
-{%if not ajax%}
-	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-	"http://www.w3.org/TR/html4/loose.dtd">
-	<html>
-	<head>
-		<title>SJF Fundraising</title>
-		<link rel="stylesheet" type="text/css" href="/static/css/base.css" media="Screen"/>
-		<link rel="stylesheet" type="text/css" href="/static/css/mobile.css" media="handheld"/>
-		<meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=2.0, user-scalable=yes" />
-	</head>
-	Completing a step for {{donor}}: {{donor.get_next_step}}<br><br>
-{% endif %}
 <form id = "done_step" method="post" action="{{action}}">
 	<br>
 	{% if not donor.pledged %}
-		Update contact status:<br>
+		Contact status:<br>
 		<table class="form asked">
-		{% if not donor.asked %}
 			<tr>
-				<th>Asked:</th>
-				<td>{{form.asked}}</td>
-				<td></td>
-			</tr>
-		{%endif%}
-      <tr>
-				<th>Response:</th>
-				<td>{{form.reply}}</td>
-				<td>{{form.reply.errors}}</td>
+				<th>Asked: {{form.asked}}</th>
+				<td colspan="2">Response: {{form.reply}}</td>
 			</tr>
 			<tr id="_pledge">
 				<th>Pledged:</th>
-				<td>{{form.pledged_amount}}</td>
+				<td>${{form.pledged_amount}}</td>
 				<td>{{form.pledged_amount.errors}}</td>
 			</tr>
       <tr>

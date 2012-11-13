@@ -107,7 +107,7 @@ table.form th {
 	font-weight:normal;
 	text-align:right;
 	padding-right:5px;
-  padding-bottom:3px;
+  padding-bottom:5px;
 	vertical-align:bottom;
 }
 
@@ -152,10 +152,6 @@ div.overdue_step {
 
 table.asked {
 	width:290px;
-}
-
-table.asked th{
-	width:60px;
 }
 
 div.donor_details table {
