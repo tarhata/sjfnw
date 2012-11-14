@@ -1,45 +1,49 @@
-<form id = "done_step" method="post" action="{{action}}">
-	<br>
-	{% if not donor.pledged %}
-		Contact status:<br>
-		<table class="form asked">
-			<tr>
-				<th>Asked: {{form.asked}}</th>
-				<td colspan="2">Response: {{form.reply}}</td>
-			</tr>
-			<tr id="_pledge">
-				<th>Pledged:</th>
-				<td>${{form.pledged_amount}}</td>
-				<td>{{form.pledged_amount.errors}}</td>
-			</tr>
-      <tr>
-				<th>Notes:</th>
-				<td>{{form.notes}}</td>
-				<td>{{form.notes.errors}}</td>
-			</tr>
-		</table>
-	{%else%}
-		Step completed.<br>
-	{%endif%}
-	<br>
-	Plan a next step (optional):<br>
-	<table class="form">
-		<tr>
-			<th>Date:</th>
-			<td>{{form.next_step_date}}</td>
-			<td>{{form.next_step_date.errors}}</td>
-		</tr>
-		<tr>
-			<th>Description:</th>
-			<td>{{form.next_step}}</td>
-			<td>{{form.next_step.errors}}</td>
-		</tr>
-	</table>
-	{% if not ajax %}
-		<input type="submit" value="Save"/>
-</form>
-	{% else %}
-</form>
-<button onclick="Submit('{{action}}', '#done_step', '{{donor.pk}}-nextstep')">Save</button>
-	{% endif %}
-<button onclick="location.href='/fund/'">Cancel</button>
+<table><tr>
+  <td>
+    <form id = "done_step" method="post" action="{{action}}">
+      <br>
+      {% if not donor.pledged %}
+        Contact status:<br>
+        <table class="form asked">
+          <tr>
+            <th>Asked: {{form.asked}}</th>
+            <td colspan="2">Response: {{form.reply}}</td>
+          </tr>
+          <tr id="_pledge">
+            <th>Pledged:</th>
+            <td>${{form.pledged_amount}}</td>
+            <td>{{form.pledged_amount.errors}}</td>
+          </tr>
+          <tr>
+            <th>Notes:</th>
+            <td>{{form.notes}}</td>
+            <td>{{form.notes.errors}}</td>
+          </tr>
+        </table>
+      {%else%}
+        Step completed.<br>
+      {%endif%}
+      <br>
+      Plan a next step (optional):<br>
+      <table class="form">
+        <tr>
+          <th>Date:</th>
+          <td>{{form.next_step_date}}</td>
+          <td>{{form.next_step_date.errors}}</td>
+        </tr>
+        <tr>
+          <th>Description:</th>
+          <td>{{form.next_step}}</td>
+          <td>{{form.next_step.errors}}</td>
+        </tr>
+      </table>
+    </form>
+    <button onclick="Submit('{{action}}', '#done_step', '{{donor.pk}}-nextstep')">Save</button>
+    <button onclick="location.href='/fund/'">Cancel</button>
+  </td>
+  <td style="vertical-align:bottom;">
+    <div align="center" style="margin-bottom:15px;">
+      {% include 'fund/suggested_steps.html' with target="id_next_step"%}
+    </div>
+  </td>
+</tr></table>

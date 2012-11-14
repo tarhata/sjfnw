@@ -200,14 +200,33 @@ def Home(request):
   donor_list = donor_data.values() #convert outer dict to list and sort it
   donor_list.sort(key = lambda donor: donor['next_date'])  
   
+  suggested = membership.giving_project.suggested_steps.splitlines()
+  suggested = filter(None, suggested) #move this to the admin save
+  
   notif = membership.notifications
-  ContactFormset = formset_factory(MassDonor, extra=5)
-  formset = ContactFormset()
-
   if notif != '': #only show a notification once
     membership.notifications=''
     membership.save()
 
+  ContactFormset = formset_factory(MassDonor, extra=5)
+  formset = ContactFormset()
+  
+  logging.debug(request.GET.dict())
+  step = request.GET.get('step')
+  logging.debug(step)
+  donor = request.GET.get('d')
+  logging.debug(donor)
+  type = request.GET.get('t')
+  logging.debug(type)
+  if step and donor and type:
+    load = '/fund/'+donor+'/'+step
+    if type=="complete":
+      load += '/done'
+    loadto = donor + '-nextstep'
+  else:
+    load = ''
+    loadto = ''
+  
   return render_to_response('fund/page_personal.html', 
   {'1active':'true',
   'header':header,
@@ -218,7 +237,10 @@ def Home(request):
   'steps':upcoming_steps,
   'membership':membership,
   'notif':notif,
-  'formset':formset})
+  'suggested':suggested,
+  'formset':formset,
+  'load':load,
+  'loadto':loadto})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -381,6 +403,7 @@ def StatsSingle(request, gp_id):
 def AddDonor(request):
 
   membership = request.membership
+  suggested = membership.giving_project.suggested_steps.splitlines()
   
   if request.method=='POST':
     form = NewDonor(request.POST)
@@ -398,7 +421,7 @@ def AddDonor(request):
   else:
     form = NewDonor()
 
-  return render_to_response('fund/add_contact.html', {'form':form, 'action':'/fund/add'})
+  return render_to_response('fund/add_contact.html', {'form':form, 'action':'/fund/add', 'suggested':suggested})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -467,10 +490,13 @@ def DeleteDonor(request, donor_id):
 @approved_membership()
 def AddStep(request, donor_id):
   
-  logging.info('Single step - start of view.  User: ' + str(request.membership.member) + ', donor id: ' + str(donor_id))
+  membership = request.membership
+  suggested = membership.giving_project.suggested_steps.splitlines()
+  
+  logging.info('Single step - start of view.  User: ' + str(membership.member) + ', donor id: ' + str(donor_id))
   
   try:
-    donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
+    donor = models.Donor.objects.get(pk=donor_id, membership=membership)
   except models.Donor.DoesNotExist:
     logging.error('Single step - tried to add step to nonexistent donor.')
     return redirect(Home)
@@ -491,13 +517,13 @@ def AddStep(request, donor_id):
       step.donor = donor
       step.save()
       logging.info('Single step - form valid, step saved')
-      request.membership.last_activity = timezone.now()
-      request.membership.save()
+      membership.last_activity = timezone.now()
+      membership.save()
       return HttpResponse("success")
   else: 
     form = models.StepForm()
     
-  return render_to_response('fund/add_step.html', {'donor': donor, 'form': form, 'action':action, 'ajax':ajax, 'divid':divid, 'formid':formid})
+  return render_to_response('fund/add_step.html', {'donor': donor, 'form': form, 'action':action, 'ajax':ajax, 'divid':divid, 'formid':formid, 'suggested':suggested})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -505,7 +531,10 @@ def AddMultStep(request):
   initiald = [] #list of dicts for form initial
   dlist = [] #list of donors for zipping to formset
   size = 0
-  for donor in request.membership.donor_set.all():
+  membership = request.membership
+  suggested = membership.giving_project.suggested_steps.splitlines()
+  
+  for donor in membership.donor_set.all():
     if not donor.get_next_step(): #query for each donor, ouch
       initiald.append({'donor': donor})
       dlist.append(donor)
@@ -528,7 +557,7 @@ def AddMultStep(request):
     formset = StepFormSet(initial=initiald)
     logging.info('Multiple steps - loading initial formset, size ' + str(size) + ': ' +str(dlist))
   fd = zip(formset, dlist)
-  return render_to_response('fund/add_mult_step.html', {'size':size, 'formset':formset, 'fd':fd, 'multi':True})
+  return render_to_response('fund/add_mult_step.html', {'size':size, 'formset':formset, 'fd':fd, 'multi':True, 'suggested':suggested})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -571,7 +600,8 @@ def DoneStep(request, donor_id, step_id):
   
   ajax = request.is_ajax()
   membership = request.membership
-
+  suggested = membership.giving_project.suggested_steps.splitlines()
+  
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=membership)
   except models.Donor.DoesNotExist:
@@ -622,7 +652,7 @@ def DoneStep(request, donor_id, step_id):
   else:
     form = StepDoneForm()
     
-  return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'ajax':request.is_ajax()})
+  return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'ajax':request.is_ajax(), 'suggested':suggested})
 
 #CRON EMAILS
 def EmailOverdue(request):

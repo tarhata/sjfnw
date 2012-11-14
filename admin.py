@@ -10,20 +10,13 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import logging
 
-    ## GENERAL ##
-
-#admin.site.unregister(User) have to make contrib/auth/admin.py load first..
-
-# advanced
-logging.info('Creating adv_ad')
-advanced_admin = AdminSite(name='advanced')
-
-    ## FUND ##
+## FUND
 
 """ signals needed:
-membership save - if approval added, send email
-user save - if is_staff, add to group?
-"""
+  membership save - if approval added, send email
+  user save - if is_staff, add to group?
+  gp save - remove blank lines in s_steps
+  """
 
 def approve(modeladmin, request, queryset):
   subject, from_email = 'Membership Approved', settings.APP_SEND_EMAIL
@@ -72,10 +65,10 @@ gp_year.short_description = 'Year'
 
 class GPAdmin(admin.ModelAdmin):
   list_display = ('title', gp_year)
-  fieldsets = (None, {'fields': ('title', 'fund_goal', 'fundraising_deadline', 'calendar', 'grant_cycle', 'pre_approved')}), ('Resources', {'classes': ('collapse',), 'fields': (('r1title', 'r1link'), ('r2title', 'r2link'), ('r3title', 'r3link'), ('r4title', 'r4link'), ('r5title', 'r5link'), ('r6title', 'r6link'), ('r7title', 'r7link'), ('r8title', 'r8link'), ('r9title', 'r9link'), ('r10title', 'r10link'))})
+  fieldsets = (None, {'fields': ('title', 'fund_goal', 'fundraising_deadline', 'calendar', 'grant_cycle', 'pre_approved', 'suggested_steps')}), ('Resources', {'classes': ('collapse',), 'fields': (('r1title', 'r1link'), ('r2title', 'r2link'), ('r3title', 'r3link'), ('r4title', 'r4link'), ('r5title', 'r5link'), ('r6title', 'r6link'), ('r7title', 'r7link'), ('r8title', 'r8link'), ('r9title', 'r9link'), ('r10title', 'r10link'))})
   inlines = [
-        MembershipInline,
-    ]
+    MembershipInline,
+  ]
 
 class DonorAdmin(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'pledged', 'gifted')
@@ -112,7 +105,7 @@ class StepAdv(admin.ModelAdmin):
   list_display = ('description', 'donor', step_membership, 'date', 'complete')
   list_filter = ('complete',)
 
-      ## GRANTS ##
+## GRANTS
 
 class GrantAppAdmin(admin.ModelAdmin):
   fields = ('screening_status', 'grant_cycle', 'scoring_bonus_poc', 'scoring_bonus_geo')
@@ -125,14 +118,19 @@ class GranteeAdmin(admin.ModelAdmin):
   list_display = ('name', 'email',)
   list_editable = ('email',)
 
+## ADMIN SITES
+
 #default
+#admin.site.unregister(User) # have to make contrib/auth/admin.py load first..
 admin.site.register(GivingProject, GPAdmin)
 admin.site.register(Membership, MembershipAdmin)
 admin.site.register(NewsItem, NewsAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Donor, DonorAdmin)
 
-#advanced 
+#advanced
+advanced_admin = AdminSite(name='advanced')
+
 advanced_admin.register(User, UserAdmin)
 advanced_admin.register(Group)
 

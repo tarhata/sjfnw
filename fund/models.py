@@ -14,6 +14,7 @@ class GivingProject(models.Model):
   fundraising_deadline = models.DateField(help_text='Members will stop receiving reminder emails at this date.')
   fund_goal = models.PositiveIntegerField(default=0)
   pre_approved = models.TextField(null=True, blank=True, help_text='List of member emails, separated by commas.  Anyone who registers using an email on this list will have their account automatically approved.  Emails are removed from the list once they have registered.  IMPORTANT: Any syntax error can make this feature stop working; in that case memberships will default to requiring manual approval by an administrator.') #remove null from all char
+  suggested_steps = models.TextField(default='Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank', help_text='Displayed to users when they add a step.  Put each step on a new line')
   
   calendar = models.CharField(max_length=255, null=True, blank=True, help_text= 'Calendar ID of a google calendar (not the whole embed text)')
   r1title = models.CharField(verbose_name='Resource title', max_length=255, null=True, blank=True)
