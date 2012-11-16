@@ -130,17 +130,17 @@ class Donor(models.Model):
     return int(self.amount*self.likelihood*.01)
   
   def get_next_step(self):
-    step = Step.objects.filter(donor=self, complete=False)
+    step = Step.objects.filter(donor=self, completed__isnull=True)
     if step:
       return step[0]
     else:
       return None
     
   def get_steps(self): #used in expanded view
-    return Step.objects.filter(donor=self).filter(complete=True).order_by('date')
+    return Step.objects.filter(donor=self).filter(completed__isnull=False).order_by('date')
   
   def has_overdue(self):
-    steps = Step.objects.filter(donor=self, complete=False)
+    steps = Step.objects.filter(donor=self, completed__isnull=True)
     for step in steps:
       if step.date < timezone.now().date():
         return timezone.now().date()-step.date
@@ -160,10 +160,11 @@ class DonorForm(ModelForm): #used to edit, creation uses custom form
     fields = ('firstname', 'lastname', 'amount', 'likelihood', 'phone', 'email', 'asked', 'pledged')
 
 class Step(models.Model):  
+  created = models.DateTimeField(auto_now=True)
   date = models.DateField(verbose_name='Date')
   description = models.CharField(max_length=255, verbose_name='Description')
   donor = models.ForeignKey(Donor)
-  complete = models.BooleanField(default=False)
+  completed = models.DateTimeField(null=True)
 
   def __unicode__(self):
     return unicode(self.date.strftime('%m/%d/%y'))+' '+self.description
@@ -173,11 +174,15 @@ class StepForm(ModelForm):
   
   class Meta:
     model = Step
-    exclude = ('donor', 'complete')
+    exclude = ('donor', 'completed')
     
 class NewsItem(models.Model):
-  date = models.DateTimeField(auto_now=True)
-  project = models.ForeignKey(GivingProject)
+  #created = models.DateTimeField(auto_now=True)
+  #updated = models.DateTimeField(null=True)
+  date = models.DateTimeField(auto_now=True) #take out auto_now
+  #date_end = models.DateTimeField()
+  project = models.ForeignKey(GivingProject) #remove?
+  #membership = models.ForeignKey(Membership)
   short = models.CharField(max_length=255, help_text='News summary that shows in the news box.')
   long = models.TextField(null=True, blank=True, help_text='(Optional) Longer text to display on the news page.')
   title = models.CharField(max_length=255, null=True, blank=True, help_text='If including a long text, also include a title for the news page display.')

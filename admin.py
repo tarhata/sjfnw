@@ -102,8 +102,7 @@ def step_membership(obj):
   return obj.donor.membership
 
 class StepAdv(admin.ModelAdmin):
-  list_display = ('description', 'donor', step_membership, 'date', 'complete')
-  list_filter = ('complete',)
+  list_display = ('description', 'donor', step_membership, 'date', 'completed')
 
 ## GRANTS
 

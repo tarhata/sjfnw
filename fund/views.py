@@ -188,7 +188,7 @@ def Home(request):
   step_list = list(models.Step.objects.filter(donor__membership=membership))
   upcoming_steps = []
   for step in step_list: #split steps into complete & not, attach to donors
-    if step.complete:
+    if step.completed:
       donor_data[step.donor_id]['complete_steps'].append(step)
     else:
       upcoming_steps.append(step)
@@ -266,7 +266,7 @@ def ProjectPage(request):
   project_progress['bar_width'] =   int(100*project_progress['pledged']/project.fund_goal)
   #blocks
   news = models.NewsItem.objects.filter(project=project).order_by('-date')
-  steps = models.Step.objects.select_related('donor').filter(donor__membership=membership, complete=False).order_by('date')[:2]
+  steps = models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2]
   
   #base
   header = project.title
@@ -295,7 +295,7 @@ def ScoringList(request):
   
   #blocks
   news = models.NewsItem.objects.filter(project=project).order_by('-date')
-  steps = models.Step.objects.filter(donor__membership=membership, complete=False).order_by('date')[:3]
+  steps = models.Step.objects.filter(donor__membership=membership, completed__isnull=True).order_by('date')[:3]
   
   #base
   header = project.title
@@ -619,7 +619,7 @@ def DoneStep(request, donor_id, step_id):
     if form.is_valid():
       membership.last_activity = timezone.now()
       membership.save()
-      step.complete = True
+      step.completed = timezone.now()
       donor.talked=True
       step.save()
       asked = form.cleaned_data['asked']
@@ -666,7 +666,7 @@ def EmailOverdue(request):
     if ship.has_overdue()>0 and ship.emailed<=limit:
       logging.info(user.email + ' has overdue step(s), emailing.')
       to = user.email
-      steps = models.Step.objects.filter(donor__membership=ship, date__lt=today, complete=False)
+      steps = models.Step.objects.filter(donor__membership=ship, date__lt=today, completed__isnull=True)
       html_content = render_to_string('fund/email_overdue.html', {'login_url':settings.APP_BASE_URL+'fund/login', 'ship':ship, 'steps':steps, 'base_url':settings.APP_BASE_URL})
       text_content = strip_tags(html_content)
       msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com'])
@@ -792,7 +792,7 @@ def PopulateDB(request):
     for donor in models.Donor.objects.all():
       days = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
       time = datetime.timedelta(days=days[random.randint(0, 10)])
-      step = models.Step(donor=donor, complete=False, date=timezone.now()+time, description = descs[random.randint(0,4)])
+      step = models.Step(donor=donor, completed__isnull=True, date=timezone.now()+time, description = descs[random.randint(0,4)])
       step.save()
       
   return redirect(Home)
