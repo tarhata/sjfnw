@@ -598,7 +598,6 @@ def EditStep(request, donor_id, step_id):
 @approved_membership()
 def DoneStep(request, donor_id, step_id):
   
-  ajax = request.is_ajax()
   membership = request.membership
   suggested = membership.giving_project.suggested_steps.splitlines()
   
@@ -619,12 +618,16 @@ def DoneStep(request, donor_id, step_id):
     if form.is_valid():
       membership.last_activity = timezone.now()
       membership.save()
+      
       step.completed = timezone.now()
-      donor.talked=True
       step.save()
+      
+      donor.talked=True
       asked = form.cleaned_data['asked']
+      reply = form.cleaned_data['reply']
       pledged = form.cleaned_data['pledged_amount']
-      #share = form.cleaned_data['share']
+      notes = form.cleaned_data['notes']
+
       news = ' talked to a donor'
       if asked:
         donor.asked=True
@@ -633,7 +636,6 @@ def DoneStep(request, donor_id, step_id):
         donor.pledged=pledged
         if pledged>0:
           news = ' got a $'+str(pledged)+' pledge' 
-      #if share:
       story = models.NewsItem(short=membership.member.first_name+news, date=timezone.now(), project=membership.giving_project)
       story.save()
       donor.save()
