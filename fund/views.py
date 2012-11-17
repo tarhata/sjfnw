@@ -592,7 +592,7 @@ def EditStep(request, donor_id, step_id):
   else:
     form = models.StepForm(instance=step)
     
-  return render_to_response('fund/edit.html', { 'donor': donor, 'form': form, 'ajax':ajax, 'action':action, 'divid':divid, 'formid':formid})
+  return render_to_response('fund/edit.html', { 'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -621,13 +621,12 @@ def DoneStep(request, donor_id, step_id):
       
       step.completed = timezone.now()
       step.save()
-      #testing
+
       donor.talked=True
+      donor.notes = form.cleaned_data['notes']
       asked = form.cleaned_data['asked']
       reply = form.cleaned_data['reply']
       pledged = form.cleaned_data['pledged_amount']
-      notes = form.cleaned_data['notes']
-
       news = ' talked to a donor'
       if asked:
         donor.asked=True
@@ -647,14 +646,19 @@ def DoneStep(request, donor_id, step_id):
         form2.description = next
         form2.donor = donor
         form2.save()
-      if ajax:
-        return HttpResponse("success")
-      else:
-        return redirect(Home)
+      return HttpResponse("success")
   else:
-    form = StepDoneForm()
+    reply = 2
+    amount = None
+    if donor.pledged:
+      if donor.pledged==0:
+        reply = 3
+      else:
+        reply = 1
+        amount = donor.pledged
+    form = StepDoneForm(initial = {'asked':donor.asked, 'reply':reply, 'pledged_amount':amount} )
     
-  return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'ajax':request.is_ajax(), 'suggested':suggested})
+  return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'suggested':suggested})
 
 #CRON EMAILS
 def EmailOverdue(request):
