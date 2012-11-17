@@ -621,7 +621,7 @@ def DoneStep(request, donor_id, step_id):
       
       step.completed = timezone.now()
       step.save()
-      
+      #testing
       donor.talked=True
       asked = form.cleaned_data['asked']
       reply = form.cleaned_data['reply']
