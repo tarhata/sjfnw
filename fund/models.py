@@ -122,6 +122,7 @@ class Donor(models.Model):
   gift_notified = models.BooleanField(default=False)
   phone = models.CharField(max_length=15, null=True, blank=True)
   email = models.EmailField(null=True, blank=True)
+  notes = models.TextField(blank=True)
   
   def __unicode__(self):
     return self.firstname+' '+self.lastname
@@ -157,7 +158,7 @@ def make_custom_datefield(f):
 class DonorForm(ModelForm): #used to edit, creation uses custom form
   class Meta:
     model = Donor
-    fields = ('firstname', 'lastname', 'amount', 'likelihood', 'phone', 'email', 'asked', 'pledged')
+    fields = ('firstname', 'lastname', 'amount', 'likelihood', 'phone', 'email', 'asked', 'pledged', 'notes')
 
 class Step(models.Model):  
   created = models.DateTimeField(auto_now=True)

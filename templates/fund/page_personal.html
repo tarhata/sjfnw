@@ -135,7 +135,7 @@ function completeLoaded(pk, dasked, dpledged) {
     asked.style.display = "none";
     summary.style.display = "table-row";
   }
-  if (dpledged) {
+  if (dpledged != 'None') {
     reply.style.display = "none";
     pledged.style.display = "none";
   }
@@ -231,7 +231,10 @@ $(document).ready(function() {
 				<td>{% if dict.donor.email or dict.donor.phone %}Contact info:</td>
 				<td>{{dict.donor.email|default:""}} {{dict.donor.phone|default:""}}{%endif%}</td>
 			</tr>
-			<tr><td colspan="2"> </td></tr>
+			<tr>
+        <td>Notes:</td>
+        <td>{{dict.donor.notes|default:"<i>None entered.</i>"}}</td>
+      </tr>
 			
 			{% if dict.complete_steps %}
 				<tr>

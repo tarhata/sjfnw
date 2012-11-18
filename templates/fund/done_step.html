@@ -4,15 +4,15 @@
       <br>
       Contact status:<br>
       <table class="form asked">
-        <tr>
-          <td colspan="3"><span id = "{{donor.pk}}_asked">Asked: {{form.asked}}</span><span id = "{{donor.pk}}_reply">Response: {{form.reply}}</span></td>
-        </tr>
         <tr id="{{donor.pk}}_summary" style="display:none;">
           <th></th>
           <td colspan="2">
           {% if donor.asked %}Asked. {% endif %}
           {% if donor.pledged == 0 %}Declined.{% elif donor.pledged %}Pledged ${{donor.pledged}}.{% endif %}
           </td>
+        </tr>
+        <tr>
+          <td colspan="3"><span id = "{{donor.pk}}_asked">Asked: {{form.asked}}</span><span id = "{{donor.pk}}_reply">Response: {{form.reply}}</span></td>
         </tr>
         <tr id="{{donor.pk}}_pledge">
           <th>Pledged:</th>
