@@ -166,6 +166,8 @@ class Step(models.Model):
   description = models.CharField(max_length=255, verbose_name='Description')
   donor = models.ForeignKey(Donor)
   completed = models.DateTimeField(null=True)
+  asked = models.BooleanField(default=False)
+  pledged = models.PositiveIntegerField(blank=True, null=True)
 
   def __unicode__(self):
     return unicode(self.date.strftime('%m/%d/%y'))+' '+self.description
@@ -175,7 +177,7 @@ class StepForm(ModelForm):
   
   class Meta:
     model = Step
-    exclude = ('donor', 'completed')
+    exclude = ('donor', 'completed', 'asked', 'pledged')
     
 class NewsItem(models.Model):
   #created = models.DateTimeField(auto_now=True)

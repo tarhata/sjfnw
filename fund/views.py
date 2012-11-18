@@ -628,11 +628,13 @@ def DoneStep(request, donor_id, step_id):
       reply = form.cleaned_data['reply']
       pledged = form.cleaned_data['pledged_amount']
       news = ' talked to a donor'
-      if asked:
+      if asked and not donor.asked:
+        step.asked = True
         donor.asked=True
         news = ' asked a donor'
-      if pledged:
+      if pledged and not donor.pledged:
         donor.pledged=pledged
+        step.pledged=pledged
         if pledged>0: 
           news = ' got a $'+str(pledged)+' pledge' 
       story = models.NewsItem(short=membership.member.first_name+news, date=timezone.now(), project=membership.giving_project)
