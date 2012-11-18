@@ -633,7 +633,7 @@ def DoneStep(request, donor_id, step_id):
         news = ' asked a donor'
       if pledged:
         donor.pledged=pledged
-        if pledged>0:
+        if pledged>0: 
           news = ' got a $'+str(pledged)+' pledge' 
       story = models.NewsItem(short=membership.member.first_name+news, date=timezone.now(), project=membership.giving_project)
       story.save()

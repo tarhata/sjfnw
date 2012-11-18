@@ -26,7 +26,7 @@ function datepicker() {
 	$( ".datePicker" ).datepicker();
 }
 
-function loadView(get_url, div_id) {
+function loadView(get_url, div_id, dasked, dpledged) {
   $.ajax({
 		url:get_url,
 		type:"GET",
@@ -36,6 +36,9 @@ function loadView(get_url, div_id) {
       if (donor_id) {
         var a=document.getElementById('donor-' + donor_id);
         a.style.borderColor="#555"
+        if (dasked && dpledged) {
+          completeLoaded(donor_id, dasked, dpledged)
+        }
       }
 			datepicker();
 		},
@@ -123,6 +126,21 @@ function showSuggestions(inp) { //shows suggested steps
 	div.style.display="block";
 }
 
+function completeLoaded(pk, dasked, dpledged) {
+  var asked = document.getElementById(pk+'_asked');
+  var reply = document.getElementById(pk+'_reply');
+  var pledged = document.getElementById(pk+'_pledge');
+  var summary = document.getElementById(pk+'_summary');
+  if (dasked) {
+    asked.style.display = "none";
+    summary.style.display = "table-row";
+  }
+  if (dpledged) {
+    reply.style.display = "none";
+    pledged.style.display = "none";
+  }
+}
+
 $(document).ready(function() {
   var load = '{{load}}';
   var loadto = '{{loadto}}';
@@ -175,7 +193,7 @@ $(document).ready(function() {
 		<br>
 		{% if dict.next_step %}
 			<div id="{{dict.donor.pk}}-nextstep">{%if dict.overdue%}<div title="This step's goal date has passed! Edit or complete it" style="display:inline;"><div class="overdue_step">! </div>{{dict.next_step}}</div>{% else %}{{dict.next_step}}{%endif%}
-			<div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}', '{{dict.donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}/done', '{{dict.donor.pk}}-nextstep')">complete</a>]</div>
+			<div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}', '{{dict.donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}/done', '{{dict.donor.pk}}-nextstep', '{{dict.donor.asked}}', '{{dict.donor.pledged}}');">complete</a>]</div>
 			</div>
 		{% else %}
 			<div id="{{dict.donor.pk}}-addstep">
