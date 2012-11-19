@@ -163,7 +163,7 @@ def Home(request):
 
   membership = request.membership
   member = membership.member
-
+  logging.debug(str(membership))
   news = models.NewsItem.objects.filter(project=membership.giving_project).order_by('-date')
   header = membership.giving_project.title
 
@@ -263,7 +263,7 @@ def ProjectPage(request):
     if donor.gifted:
       project_progress['gifted'] += donor.gifted
   if project.fund_goal > 0:
-  project_progress['bar_width'] = int(100*project_progress['pledged']/project.fund_goal)
+    project_progress['bar_width'] = int(100*project_progress['pledged']/project.fund_goal)
   else:
      project_progress['bar_width'] = 0
   #blocks
