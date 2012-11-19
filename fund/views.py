@@ -215,11 +215,8 @@ def Home(request):
   
   logging.debug(request.GET.dict())
   step = request.GET.get('step')
-  logging.debug(step)
   donor = request.GET.get('d')
-  logging.debug(donor)
   type = request.GET.get('t')
-  logging.debug(type)
   if step and donor and type:
     load = '/fund/'+donor+'/'+step
     if type=="complete":
