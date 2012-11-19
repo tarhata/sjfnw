@@ -56,14 +56,14 @@ def Register(request):
         fn = request.POST['first_name']
         ln = request.POST['last_name']
         gp = request.POST['giving_project']
-        member, cr = models.Member.get_or_create(email=username, defaults = {'first_name':fn, 'last_name':ln})
+        member, cr = models.Member.objects.get_or_create(email=username, defaults = {'first_name':fn, 'last_name':ln})
         if cr:
           logging.info('Registration - user and member objects created for '+username)
         else:
           logging.info(username + ' registered as User, Member object already existed')
         if gp:
           giv = models.GivingProject.objects.get(pk=gp)
-          membership, crs = models.Membership.get_or_create(member = member, giving_project = giv)
+          membership, crs = models.Membership.objects.get_or_create(member = member, giving_project = giv)
           member.current = membership.pk
           member.save()      
           logging.info('Registration - membership in ' + str(giv) + ' or marked as current')
@@ -183,8 +183,10 @@ def Home(request):
       donor_data[donor.pk]['next_date'] = datetime.date(2700,1,1)
     if donor.gifted:
       progress['gifted'] += donor.gifted
-  progress['bar'] = 100*progress['asked']/progress['contacts']
-    
+  if progress['contacts'] > 0:
+    progress['bar'] = 100*progress['asked']/progress['contacts']
+  else:
+    progress['bar'] = 0
   step_list = list(models.Step.objects.filter(donor__membership=membership))
   upcoming_steps = []
   for step in step_list: #split steps into complete & not, attach to donors
@@ -263,7 +265,10 @@ def ProjectPage(request):
       project_progress['pledged'] += donor.pledged
     if donor.gifted:
       project_progress['gifted'] += donor.gifted
-  project_progress['bar_width'] =   int(100*project_progress['pledged']/project.fund_goal)
+  if project.fund_goal > 0:
+  project_progress['bar_width'] = int(100*project_progress['pledged']/project.fund_goal)
+  else:
+     project_progress['bar_width'] = 0
   #blocks
   news = models.NewsItem.objects.filter(project=project).order_by('-date')
   steps = models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2]
