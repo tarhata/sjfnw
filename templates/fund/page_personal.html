@@ -37,8 +37,6 @@ function loadView(get_url, div_id, dasked, dpledged) {
         var a=document.getElementById('donor-' + donor_id);
         a.style.borderColor="#555"
         if (dasked !='False') {
-          console.log(dasked);
-          console.log('calling completeloaded');
           completeLoaded(donor_id, dasked, dpledged);
         }
       }
