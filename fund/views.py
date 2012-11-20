@@ -634,12 +634,13 @@ def DoneStep(request, donor_id, step_id):
         step.asked = True
         donor.asked=True
         news = ' asked a donor'
-      if pledged and not donor.pledged:
+      if pledged:
+        if not donor.pledged:
+          step.pledged=pledged
+          if pledged>0: 
+            news = ' got a $'+str(pledged)+' pledge' 
         donor.pledged=pledged
-        step.pledged=pledged
-        if pledged>0: 
-          news = ' got a $'+str(pledged)+' pledge' 
-      story = models.NewsItem(short=membership.member.first_name+news, date=timezone.now(), project=membership.giving_project)
+      story = models.NewsItem.objects.get_or_create(date__date=datetime.date.today(), project=membership.giving_project) #update to be user-specific
       story.save()
       donor.save()
       next = form.cleaned_data['next_step']
@@ -807,72 +808,23 @@ def PopulateDB(request):
       
   return redirect(Home)
   
-def UpdateDB(request): #from django 1.3 -> 1.4, making stored datetimes aware
-
-  tz = timezone.get_default_timezone()
+def UpdateDB(request): #fix from when step.complete was removed
+  steps = models.Step.objects.all()
+  donor_steps = {}
+  timestamp = timezone.now()
   count = 0
-  logging.info("Time zone conversion starting - using " + str(tz))
-  
-  cycles = models.GrantCycle.objects.all() #GrantCycle
-  logging.info(str(cycles.count()) + ' grant cycle(s)')
-  for cyc in cycles:
-    logstr = str(cyc)
-    if timezone.is_aware(cyc.open):
-      logstr +=  ': .open is aware'
-    else:
-      count += 1
-      logstr += ': .open changed from '+ str(cyc.open) + ' to ' + str(timezone.make_aware(cyc.open))
-    if timezone.is_aware(cyc.close):
-      logstr += '; .close is aware '
-    else:
-      count += 1
-      logstr += '; .close '+ str(cyc.close) + ' to ' + str(timezone.make_aware(cyc.close))
-    logging.info(logstr)
-  
-  drafts = grants.models.SavedGrantApplication.objects.all() #SavedGrantApplication
-  logging.info(str(drafts.count()) + ' draft applications')
-  for draft in drafts:
-    logstr = str(draft)
-    if timezone.is_aware(draft.modified):
-      logstr +=  ': .modified is aware'
-    else:
-      count += 1
-      logstr += ': .modified changed from '+ str(draft.modified) + ' to ' + str(timezone.make_aware(draft.modified))
-    logging.info(logstr)
-  
-  apps = grants.models.GrantApplication.objects.all() #GrantApplication
-  logging.info(str(apps.count()) + ' submitted applications')
-  for app in apps:
-    logstr = str(app)
-    if timezone.is_aware(app.submission_time):
-      logstr +=  ': .submission_time is aware'
-    else:
-      count += 1
-      logstr += ': .submission_time changed from '+ str(app.submission_time) + ' to ' + str(timezone.make_aware(app.submission_time))
-    logging.info(logstr)
-  
-  news = models.NewsItem.objects.all() #NewsItem
-  logging.info(str(news.count()) + ' news posts')
-  for new in news:
-    logstr = str(new)
-    if timezone.is_aware(new.date):
-      logstr +=  ': .date is aware'
-    else:
-      count += 1
-      logstr += ': .date changed from '+ str(new.date) + ' to ' + str(timezone.make_aware(new.date))
-    logging.info(logstr)
-    
-  events = models.Event.objects.all() #Event
-  logging.info(str(events.count()) + ' events')
-  for event in events:
-    logstr = str(event)
-    if timezone.is_aware(event.date):
-      logstr +=  ': .date is aware'
-    else:
-      count += 1
-      logstr += ': .date changed from '+ str(event.date) + ' to ' + str(timezone.make_aware(event.date))
-    logging.info(logstr)
-  
-  logging.info('Time zone conversion complete; ' + str(count) + ' fields updated.')
-  
-  return render_to_response('debug.html', {'tz':tz})
+  for step in steps:
+    if not step.donor.pk in donor_steps:
+      donor_steps[step.donor.pk] = []
+    donor_steps[step.donor.pk].append(step)
+  for d_pk, d_steps in donor_steps.items():
+    d_steps.sort(key = lambda st: st.date, reverse = True)
+    logging.debug(str(d_pk) + str(d_steps))
+    del(d_steps[0]) #don't edit the most recent step per donor
+    for st in d_steps:
+      if not st.completed:
+        st.completed = timestamp
+        st.save()
+        count += 1
+  logging.info('Update complete, timestamps added to ' + str(count) + ' steps.')
+  return render_to_response('debug.html', {'print':donor_steps})
