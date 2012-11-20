@@ -36,8 +36,10 @@ function loadView(get_url, div_id, dasked, dpledged) {
       if (donor_id) {
         var a=document.getElementById('donor-' + donor_id);
         a.style.borderColor="#555"
-        if (dasked && dpledged) {
-          completeLoaded(donor_id, dasked, dpledged)
+        if (dasked !='False') {
+          console.log(dasked);
+          console.log('calling completeloaded');
+          completeLoaded(donor_id, dasked, dpledged);
         }
       }
 			datepicker();
@@ -126,7 +128,7 @@ function showSuggestions(inp) { //shows suggested steps
 	div.style.display="block";
 }
 
-function completeLoaded(pk, dasked, dpledged) {
+function completeLoaded(pk, dasked, dpledged) { //shows/hides fields on step complete
   var asked = document.getElementById(pk+'_asked');
   var reply = document.getElementById(pk+'_reply');
   var pledged = document.getElementById(pk+'_pledge');
