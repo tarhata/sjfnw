@@ -136,10 +136,8 @@ urlpatterns = patterns('',
     (r'^mail/gifts', 'fund.views.GiftNotify'),
     
 ## DEVEL ##
-  
-    (r'^fund/populate','fund.views.PopulateDB'),
+
     (r'test/$', 'grants.views.TestView'),
-    (r'update-db', 'fund.views.UpdateDB'),
   )
 
   #for devel since using appengine
