@@ -78,4 +78,14 @@ class StepDoneForm(forms.Form):
   next_step = forms.CharField(max_length=100, required=False)
   next_step_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker', 'readonly':'true'}, format='%m/%d/%Y'))
   
-  #add validation - pledged amt req if pledged set
+  def clean(self): #if pledged, require amount
+    cleaned_data = super(StepDoneForm, self).clean()
+    reply = cleaned_data.get("reply")
+    amt = cleaned_data.get("pledged_amount")
+    logging.debug('Reply: '+str(reply))
+    logging.debug('Amount: ' + str(amt))
+    if (reply==1 or reply=='1') and not amt:
+      logging.debug('Pledged without amount')
+      self._errors["pledged_amount"] = self.error_class(["Please enter an amount."])
+      del cleaned_data["pledged_amount"]
+    return cleaned_data
