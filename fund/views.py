@@ -18,6 +18,7 @@ import grants.models
 from fund.decorators import approved_membership
 from fund.forms import *
 import scoring.models
+import pytz
 
 #LOGIN & REGISTRATION
 def FundLogin(request):
@@ -166,7 +167,7 @@ def Home(request):
   logging.debug(str(membership))
   news = models.NewsItem.objects.filter(project=membership.giving_project).order_by('-date')
   header = membership.giving_project.title
-
+  
   donors = list(membership.donor_set.all())
   progress = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0, 'pledged':0, 'gifted':0} 
   donor_data = {}
@@ -189,6 +190,8 @@ def Home(request):
     progress['bar'] = 0
   step_list = list(models.Step.objects.filter(donor__membership=membership))
   upcoming_steps = []
+  ctz = timezone.get_current_timezone()
+  today = ctz.normalize(timezone.now()).date()
   for step in step_list: #split steps into complete & not, attach to donors
     if step.completed:
       donor_data[step.donor_id]['complete_steps'].append(step)
@@ -196,7 +199,7 @@ def Home(request):
       upcoming_steps.append(step)
       donor_data[step.donor_id]['next_step'] = step
       donor_data[step.donor_id]['next_date'] = step.date
-      if step.date < datetime.date.today():
+      if step.date < today:
         donor_data[step.donor_id]['overdue'] = True
   upcoming_steps.sort(key = lambda step: step.date)
   donor_list = donor_data.values() #convert outer dict to list and sort it
@@ -207,6 +210,7 @@ def Home(request):
   
   notif = membership.notifications
   if notif != '': #only show a notification once
+    logging.info('Displaying notification: ' + notif)
     membership.notifications=''
     membership.save()
 
@@ -226,6 +230,7 @@ def Home(request):
     load = ''
     loadto = ''
   
+  now = timezone.now()
   return render_to_response('fund/page_personal.html', 
   {'1active':'true',
   'header':header,
@@ -239,7 +244,8 @@ def Home(request):
   'suggested':suggested,
   'formset':formset,
   'load':load,
-  'loadto':loadto})
+  'loadto':loadto,
+  'now':now})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -640,8 +646,17 @@ def DoneStep(request, donor_id, step_id):
           if pledged>0: 
             news = ' got a $'+str(pledged)+' pledge' 
         donor.pledged=pledged
-      story = models.NewsItem.objects.get_or_create(date__date=datetime.date.today(), project=membership.giving_project) #update to be user-specific
-      story.save()
+      
+      now = timezone.now()
+      today_min = now.replace(hour=0, minute=0, second=0)
+      today_max = now.replace(hour=23, minute=59, second=59)
+      logging.debug('Checking for story with date between ' + str(today_min) + ' and ' + str(today_max))
+      story = models.NewsItem.objects.filter(date__range=(today_min, today_max), project=membership.giving_project) #update to be user-specific
+      logging.debug(story)
+      if not story:
+        new_story = models.NewsItem(date = timezone.now(), project=membership.giving_project, short = membership.member.first_name + news)
+        new_story.save()
+        logging.debug('New story saved')
       donor.save()
       next = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
