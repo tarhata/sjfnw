@@ -53,7 +53,7 @@ function cancelHide(div_id, replace) {
 	document.getElementById(div_id).innerHTML=replace;
 }
 
-function Submit(sub_url, form_id, div_id, date){
+function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
 $.ajax({
 	url:sub_url,
 	type:"POST",
@@ -63,6 +63,12 @@ $.ajax({
 			location.reload();
 		} else {
 			document.getElementById(div_id).innerHTML=jqXHR.responseText;
+      if (dasked && dasked!='False') {
+        var donor_id = div_id.match(/\d+/);
+        if (donor_id) {
+          completeLoaded(donor_id, dasked, dpledged);
+        }
+      }
 		}
 		if (date) { datepicker(); }
 	},
