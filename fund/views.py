@@ -19,6 +19,7 @@ from fund.decorators import approved_membership
 from fund.forms import *
 import scoring.models
 import pytz
+from google.appengine.ext import deferred
 
 #LOGIN & REGISTRATION
 def FundLogin(request):
@@ -230,7 +231,6 @@ def Home(request):
     load = ''
     loadto = ''
   
-  now = timezone.now()
   return render_to_response('fund/page_personal.html', 
   {'1active':'true',
   'header':header,
@@ -244,8 +244,7 @@ def Home(request):
   'suggested':suggested,
   'formset':formset,
   'load':load,
-  'loadto':loadto,
-  'now':now})
+  'loadto':loadto})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -571,8 +570,6 @@ def AddMultStep(request):
 @approved_membership()
 def EditStep(request, donor_id, step_id):
   
-  ajax = request.is_ajax()
-  
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
@@ -593,10 +590,7 @@ def EditStep(request, donor_id, step_id):
         request.membership.last_activity = timezone.now()
         request.membership.save()
         form.save()
-        if ajax:
-          return HttpResponse("success")
-        else:
-          return redirect(Home)
+        return HttpResponse("success")
   else:
     form = models.StepForm(instance=step)
     
@@ -636,22 +630,30 @@ def DoneStep(request, donor_id, step_id):
       reply = form.cleaned_data['reply']
       pledged = form.cleaned_data['pledged_amount']
       news = ' talked to a donor'
-      if asked and not donor.asked:
+      if asked and not donor.asked: #asked this step
         step.asked = True
         donor.asked=True
         news = ' asked a donor'
+      if reply != '2' and not asked and not donor.asked: #put in a reply, so assume that they also asked
+        step.asked = True
+        donor.asked = True
+        news = ' asked a donor'
+      if reply=='3': #declined
+        donor.pledged = 0
       if pledged:
-        if not donor.pledged:
+        if not donor.pledged: #new pledge this step
           step.pledged=pledged
           if pledged>0: 
             news = ' got a $'+str(pledged)+' pledge' 
         donor.pledged=pledged
       
+      #get or create story
       now = timezone.now()
       today_min = now.replace(hour=0, minute=0, second=0)
       today_max = now.replace(hour=23, minute=59, second=59)
       logging.debug('Checking for story with date between ' + str(today_min) + ' and ' + str(today_max))
-      story = models.NewsItem.objects.filter(date__range=(today_min, today_max), project=membership.giving_project) #update to be user-specific
+      #temp until model is updated. this only allows 1 per project per day
+      story = models.NewsItem.objects.filter(date__range=(today_min, today_max), project=membership.giving_project) 
       logging.debug(story)
       if not story:
         new_story = models.NewsItem(date = timezone.now(), project=membership.giving_project, short = membership.member.first_name + news)
@@ -676,7 +678,7 @@ def DoneStep(request, donor_id, step_id):
       else:
         reply = 1
         amount = donor.pledged
-    form = StepDoneForm(initial = {'asked':donor.asked, 'reply':reply, 'pledged_amount':amount} )
+    form = StepDoneForm(initial = {'asked':donor.asked, 'reply':reply, 'pledged_amount':amount, 'notes':donor.notes} )
     
   return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'suggested':suggested})
 
