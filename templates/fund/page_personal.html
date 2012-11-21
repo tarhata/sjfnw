@@ -214,24 +214,21 @@ $(document).ready(function() {
 		<div class="donor_details indent" id="details-{{dict.donor.pk}}" style="display:none;">
 	
 		<table>
-		
 			{% if dict.donor.gifted %}
 				<tr><td>Donated:</td><td>${{dict.donor.gifted}}</td></tr>
-			{% else %}
-				{%if dict.donor.pledged%}
-					{% if dict.donor.pledged > 0 %}
-						<tr><td>Pledged:</td><td>${{dict.donor.pledged}}</td></tr>
-					{% else %}
-						<tr><td colspan="2">Declined to donate.</td></tr>
-					{% endif %}
-				{% else %}
-					{% if dict.donor.asked %}
-						<tr><td colspan="2">Asked; awaiting reply.</td></tr>
-					{% endif %}
-					<tr><td>Amount to ask:</td><td>${{dict.donor.amount}}</td></tr>
-					<tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
-				{% endif %}
-			{% endif %}
+			{% elif dict.donor.pledged != None%}
+        {% if dict.donor.pledged > 0 %}
+          <tr><td>Pledged:</td><td>${{dict.donor.pledged}}</td></tr>
+        {% else %}
+          <tr><td colspan="2">Declined to donate.</td></tr>
+        {% endif %}
+      {% else %}
+        {% if dict.donor.asked %}
+          <tr><td colspan="2">Asked; awaiting reply.</td></tr>
+        {% endif %}
+        <tr><td>Amount to ask:</td><td>${{dict.donor.amount}}</td></tr>
+        <tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
+      {% endif %}
 			
 			<tr>
 				<td>{% if dict.donor.email or dict.donor.phone %}Contact info:</td>
