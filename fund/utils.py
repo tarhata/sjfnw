@@ -51,7 +51,7 @@ def UpdateStory(membership_id, time):
   summary = ' talked to ' + talked + talked_pluralize + summary
   summary += '.'
   logging.info(summary)
-  
+  story.summary = summary
   story.save()
   logging.info('Story saved')
   return HttpResponse("success")
