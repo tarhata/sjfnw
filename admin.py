@@ -81,8 +81,8 @@ class EventAdmin(admin.ModelAdmin):
   list_filter = ('project',)
 
 class NewsAdmin(admin.ModelAdmin):
-  list_display = ('short', 'date', 'project')
-  list_filter = ('project',)
+  list_display = ('summary', 'date', 'membership')
+  list_filter = ('membership__giving_project',)
 
 class DonorAdvanced(admin.ModelAdmin):
   list_display = ('__unicode__', 'membership', 'asked', 'pledged', 'gifted')

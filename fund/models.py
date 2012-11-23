@@ -53,7 +53,7 @@ class Member(models.Model):
   current = models.IntegerField(default=0)
   
   def __unicode__(self):
-    return self.first_name+' '+self.last_name
+    return unicode(self.first_name +' '+self.last_name)
   
 class Membership(models.Model): #relationship b/n member and gp
   giving_project = models.ForeignKey(GivingProject)
@@ -67,7 +67,7 @@ class Membership(models.Model): #relationship b/n member and gp
   notifications = models.TextField(default='', blank=True)
   
   def __unicode__(self):
-    return unicode(self.member)+', '+unicode(self.giving_project)
+    return unicode(self.member)+u', '+unicode(self.giving_project)
     
   def has_overdue(self): #remove
     donors = self.donor_set.all()
@@ -180,18 +180,13 @@ class StepForm(ModelForm):
     exclude = ('donor', 'completed', 'asked', 'pledged')
     
 class NewsItem(models.Model):
-  #created = models.DateTimeField(auto_now=True)
-  #updated = models.DateTimeField(null=True)
-  date = models.DateTimeField(auto_now=True) #take out auto_now
-  #date_end = models.DateTimeField()
-  project = models.ForeignKey(GivingProject) #remove?
-  #membership = models.ForeignKey(Membership)
-  short = models.CharField(max_length=255, help_text='News summary that shows in the news box.')
-  long = models.TextField(null=True, blank=True, help_text='(Optional) Longer text to display on the news page.')
-  title = models.CharField(max_length=255, null=True, blank=True, help_text='If including a long text, also include a title for the news page display.')
-  link = models.URLField(null=True, blank=True, help_text='Displayed with the text "Read more" after the text on the news page.')
+  date = models.DateTimeField(auto_now=True)
+  updated = models.DateTimeField(auto_now_add=True)
+  membership = models.ForeignKey(Membership)
+  summary = models.TextField()
+  
   def __unicode__(self):
-    return self.short
+    return unicode(self.summary)
 
 class Event(models.Model):
   desc = models.CharField(max_length=255)

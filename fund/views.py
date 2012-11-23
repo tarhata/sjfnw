@@ -20,6 +20,7 @@ from fund.forms import *
 import scoring.models
 import pytz
 from google.appengine.ext import deferred
+import utils
 
 #LOGIN & REGISTRATION
 def FundLogin(request):
@@ -166,7 +167,7 @@ def Home(request):
   membership = request.membership
   member = membership.member
   logging.debug(str(membership))
-  news = models.NewsItem.objects.filter(project=membership.giving_project).order_by('-date')
+  news = models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date')
   header = membership.giving_project.title
   
   donors = list(membership.donor_set.all())
@@ -272,7 +273,7 @@ def ProjectPage(request):
   else:
      project_progress['bar_width'] = 0
   #blocks
-  news = models.NewsItem.objects.filter(project=project).order_by('-date')
+  news = models.NewsItem.objects.filter(membership__giving_project=project).order_by('-date')
   steps = models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2]
   
   #base
@@ -301,7 +302,7 @@ def ScoringList(request):
   project = membership.giving_project
   
   #blocks
-  news = models.NewsItem.objects.filter(project=project).order_by('-date')
+  news = models.NewsItem.objects.filter(membership__giving_project=project).order_by('-date')
   steps = models.Step.objects.filter(donor__membership=membership, completed__isnull=True).order_by('date')[:3]
   
   #base
@@ -419,7 +420,7 @@ def AddDonor(request):
       donor.save()
       membership.last_activity = timezone.now()
       membership.save()
-      logging.info('New donor added (membership=' + membership.pk + ', donor=' + donor.pk + ')')
+      logging.info('New donor added - membership=' + str(membership.pk) + ', donor=' + str(donor.pk))
       if request.POST['step_date'] and request.POST['step_desc']:
         step = models.Step(date = request.POST['step_date'], description = request.POST['step_desc'], donor = donor)
         step.save()
@@ -623,7 +624,8 @@ def DoneStep(request, donor_id, step_id):
       
       step.completed = timezone.now()
       step.save()
-
+      
+      logging.info('Completing a step')
       donor.talked=True
       donor.notes = form.cleaned_data['notes']
       asked = form.cleaned_data['asked']
@@ -631,6 +633,7 @@ def DoneStep(request, donor_id, step_id):
       pledged = form.cleaned_data['pledged_amount']
       news = ' talked to a donor'
       if asked and not donor.asked: #asked this step
+        logging.debug('Asked this step')
         step.asked = True
         donor.asked=True
         news = ' asked a donor'
@@ -638,27 +641,18 @@ def DoneStep(request, donor_id, step_id):
         step.asked = True
         donor.asked = True
         news = ' asked a donor'
+        logging.debug('Assuming asked because response was entered')
       if reply=='3': #declined
         donor.pledged = 0
-      if pledged:
-        if not donor.pledged: #new pledge this step
-          step.pledged=pledged
-          if pledged>0: 
-            news = ' got a $'+str(pledged)+' pledge' 
+        logging.debug('Declined')
+      if pledged and pledged>0 and not donor.pledged:
+        logging.debug('Pledge entered')
+        step.pledged=pledged
         donor.pledged=pledged
+      step.save()
+      #call story creator/updater
+      deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
       
-      #get or create story
-      now = timezone.now()
-      today_min = now.replace(hour=0, minute=0, second=0)
-      today_max = now.replace(hour=23, minute=59, second=59)
-      logging.debug('Checking for story with date between ' + str(today_min) + ' and ' + str(today_max))
-      #temp until model is updated. this only allows 1 per project per day
-      story = models.NewsItem.objects.filter(date__range=(today_min, today_max), project=membership.giving_project) 
-      logging.debug(story)
-      if not story:
-        new_story = models.NewsItem(date = timezone.now(), project=membership.giving_project, short = membership.member.first_name + news)
-        new_story.save()
-        logging.debug('New story saved')
       donor.save()
       next = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
@@ -669,7 +663,7 @@ def DoneStep(request, donor_id, step_id):
         form2.donor = donor
         form2.save()
       return HttpResponse("success")
-  else:
+  else: #GET - fill form with initial data
     reply = 2
     amount = None
     if donor.pledged:
@@ -678,7 +672,7 @@ def DoneStep(request, donor_id, step_id):
       else:
         reply = 1
         amount = donor.pledged
-    form = StepDoneForm(initial = {'asked':donor.asked, 'reply':reply, 'pledged_amount':amount, 'notes':donor.notes} )
+    form = StepDoneForm(initial = {'asked':donor.asked, 'reply':reply, 'pledged_amount':amount, 'notes':donor.notes})
     
   return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'suggested':suggested})
 
