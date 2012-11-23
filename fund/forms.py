@@ -82,7 +82,7 @@ class StepDoneForm(forms.Form):
     cleaned_data = super(StepDoneForm, self).clean()
     reply = cleaned_data.get("reply")
     amt = cleaned_data.get("pledged_amount")
-    if reply=='1' and not amt: #reply = pledge but no amount entered
+    if reply=='1' and (not amt or amt==0): #reply = pledge but no/zero amount entered
       logging.debug('Pledged without amount')
       self._errors["pledged_amount"] = self.error_class(["Please enter an amount."])
       del cleaned_data["pledged_amount"]
