@@ -9,6 +9,10 @@ builtins:
 - appstats: on
 - deferred: on
 
+libraries:
+- name: django
+  version: "1.4"
+
 handlers:
 
 - url: /_ah/queue/deferred
