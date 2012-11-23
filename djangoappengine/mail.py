@@ -1,12 +1,9 @@
 from email.MIMEBase import MIMEBase
-
 from django.core.mail.backends.base import BaseEmailBackend
 from django.core.mail import EmailMultiAlternatives
 from django.core.exceptions import ImproperlyConfigured
-
 from google.appengine.api import mail as aeemail
 from google.appengine.runtime import apiproxy_errors
-
 
 def _send_deferred(message, fail_silently=False):
     try:
@@ -14,7 +11,6 @@ def _send_deferred(message, fail_silently=False):
     except (aeemail.Error, apiproxy_errors.Error):
         if not fail_silently:
             raise
-
 
 class EmailBackend(BaseEmailBackend):
     can_defer = False
@@ -27,9 +23,7 @@ class EmailBackend(BaseEmailBackend):
         return num_sent
 
     def _copy_message(self, message):
-        """
-        Creates and returns App Engine EmailMessage class from message.
-        """
+        """Create and return App Engine EmailMessage class from message."""
         gmsg = aeemail.EmailMessage(sender=message.from_email,
                                     to=message.to,
                                     subject=message.subject,
@@ -41,7 +35,7 @@ class EmailBackend(BaseEmailBackend):
         if message.bcc:
             gmsg.bcc = list(message.bcc)
         if message.attachments:
-            # Must be populated with (filename, filecontents) tuples.
+            # Must be populated with (filename, filecontents) tuples
             attachments = []
             for attachment in message.attachments:
                 if isinstance(attachment, MIMEBase):
@@ -50,7 +44,7 @@ class EmailBackend(BaseEmailBackend):
                 else:
                     attachments.append((attachment[0], attachment[1]))
             gmsg.attachments = attachments
-        # Look for HTML alternative content.
+        # Look for HTML alternative content
         if isinstance(message, EmailMultiAlternatives):
             for content, mimetype in message.alternatives:
                 if mimetype == 'text/html':
@@ -86,7 +80,6 @@ class EmailBackend(BaseEmailBackend):
                        message,
                        fail_silently=self.fail_silently,
                        _queue=queue_name)
-
 
 class AsyncEmailBackend(EmailBackend):
     can_defer = True
