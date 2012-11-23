@@ -38,17 +38,15 @@ def UpdateStory(membership_id, time):
     if step.pledged:
       pledges += 1
       pledged += step.pledged
-  logging.debug('talked ' + str(talked) + ', asked ' + str(asked) + ', pledges ' + str(pledges) + ', pledged $' + str(pledged))
-
   summary = ''
   if pledged > 0:
-    summary += ' and got $' + pledged + ' in pledges'
+    summary += ' and got $' + str(pledged) + ' in pledges'
     if asked>0:
-      summary = ', asked ' + asked + summary
+      summary = ', asked ' + str(asked) + summary
   elif asked>0:
-    summary += ' and asked ' + asked
-  talked_pluralize = 'contacts' if talked>1 else 'contact'
-  summary = ' talked to ' + talked + talked_pluralize + summary
+    summary += ' and asked ' + str(asked)
+  talked_pluralize = ' contacts' if talked>1 else ' contact'
+  summary = membership.member.first_name + ' talked to ' + str(talked) + talked_pluralize + summary
   summary += '.'
   logging.info(summary)
   story.summary = summary

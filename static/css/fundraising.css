@@ -154,7 +154,7 @@ table.asked {
 	width:290px;
 }
 
-div.donor_details table {
+div.donor_details table, div.donor_details tbody {
 	width:100%;
 	vertical-align:top;
 }

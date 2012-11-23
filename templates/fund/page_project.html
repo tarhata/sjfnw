@@ -31,9 +31,7 @@
 <b>NEWS</b>
 <div class="indent">
 {% for new in news %}
-{{new.date|date:"n/d/y"}} - {% if new.title %}{{new.title}}{%else%}{{new.short}}{% endif %}
-{% if new.long %}<br>{{new.long|default:""}}{% endif %}
-{% if new.link %}<br><a href="{{new.link}}">Read more</a>{%endif%}
+{{new.date|date:"n/d/y"}} - {{new.summary}}
 <br><br>
 {% endfor %}
 </div>
