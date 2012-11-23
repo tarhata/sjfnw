@@ -26,9 +26,9 @@ handlers:
 - url: /grants
   script: wsgi.application
   login: admin
-
+  
 - url: /static/admin
-  static_dir: django/contrib/admin/static/admin
+  static_dir: static/django_admin
   expiration: '0'
 
 - url: /static

@@ -73,7 +73,7 @@ TIME_ZONE = 'America/Los_Angeles'
 #settings to try to make error reporting happen
 SERVER_EMAIL = 'sjfnwads@gmail.com'
 DEFAULT_FROM_EMAIL = 'sjfnwads@gmail.com'
-ADMINS = (('Aisa', 'sjfnwads@gmail.com'), ('Baisa', 'aisapatino@gmail.com'))
+ADMINS = (('Aisa', 'sjfnwads@gmail.com'),)
 
 PREPARE_UPLOAD_BACKEND = 'djangoappengine.storage.prepare_upload'
 DEFAULT_FILE_STORAGE = 'djangoappengine.storage.BlobstoreStorage'
