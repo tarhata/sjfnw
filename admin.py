@@ -48,15 +48,18 @@ class MembershipAdmin(admin.ModelAdmin): #todo add overdue steps filter
   list_display = ('member', 'giving_project', estimated, pledged, overdue_steps, 'last_activity', 'approved', 'leader')
   actions = [approve]
   list_filter = ('approved', 'leader', 'giving_project')
-  readonly_fields = ('member', 'giving_project', 'last_activity', 'emailed', 'approved')
-
+  #readonly_fields = ('last_activity', 'emailed', 'approved')
+  
 class MembershipInline(admin.TabularInline):
   model = Membership
-  readonly_fields = ('member',)
   fieldsets = (None, {
-                'classes': ('collapse',),
-                'fields': ('member', 'approved', 'leader',)
-              }),
+    'classes': ('collapse',),
+    'fields': ('member', 'approved', 'leader',)
+  }),
+  extra = 1
+
+class MemberInline(admin.TabularInline):
+  model = Member
   extra = 1
 
 def gp_year(obj):
@@ -65,11 +68,10 @@ gp_year.short_description = 'Year'
 
 class GPAdmin(admin.ModelAdmin):
   list_display = ('title', gp_year)
-  fieldsets = (None, {'fields': ('title', 'fund_goal', 'fundraising_deadline', 'calendar', 'grant_cycle', 'pre_approved', 'suggested_steps')}), ('Resources', {'classes': ('collapse',), 'fields': (('r1title', 'r1link'), ('r2title', 'r2link'), ('r3title', 'r3link'), ('r4title', 'r4link'), ('r5title', 'r5link'), ('r6title', 'r6link'), ('r7title', 'r7link'), ('r8title', 'r8link'), ('r9title', 'r9link'), ('r10title', 'r10link'))})
   inlines = [
     MembershipInline,
   ]
-
+  
 class DonorAdmin(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'pledged', 'gifted')
   list_filter = ('membership__giving_project',)
@@ -84,6 +86,7 @@ class NewsAdmin(admin.ModelAdmin):
   list_display = ('summary', 'date', 'membership')
   list_filter = ('membership__giving_project',)
 
+  #advanced
 class DonorAdvanced(admin.ModelAdmin):
   list_display = ('__unicode__', 'membership', 'asked', 'pledged', 'gifted')
   list_filter = ('asked', 'membership__giving_project')
@@ -100,6 +103,11 @@ class MemberAdvanced(admin.ModelAdmin):
 
 def step_membership(obj):
   return obj.donor.membership
+
+class MembershipAdvanced(admin.ModelAdmin):
+  list_display = ('member', 'giving_project', estimated, pledged, overdue_steps, 'last_activity', 'approved', 'leader')
+  actions = [approve]
+  list_filter = ('approved', 'leader', 'giving_project') 
 
 class StepAdv(admin.ModelAdmin):
   list_display = ('description', 'donor', step_membership, 'date', 'completed')
@@ -121,11 +129,13 @@ class GranteeAdmin(admin.ModelAdmin):
 
 #default
 #admin.site.unregister(User) # have to make contrib/auth/admin.py load first..
+admin.site.register(Member, MemberAdvanced)
 admin.site.register(GivingProject, GPAdmin)
 admin.site.register(Membership, MembershipAdmin)
 admin.site.register(NewsItem, NewsAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Donor, DonorAdmin)
+admin.site.register(GrantCycle)
 
 #advanced
 advanced_admin = AdminSite(name='advanced')
