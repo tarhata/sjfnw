@@ -181,6 +181,7 @@ def Home(request):
       progress['talked'] += 1
     if donor.asked:
       progress['asked'] += 1
+      donor_data[donor.pk]['next_date'] = datetime.date(2600,1,1)
     if donor.pledged:
       progress['pledged'] += donor.pledged
       donor_data[donor.pk]['next_date'] = datetime.date(2700,1,1)
@@ -278,11 +279,6 @@ def ProjectPage(request):
   
   #base
   header = project.title
-  
-  #TODO has to be a better way to do this...
-  resources = {project.r1title:project.r1link, project.r2title:project.r2link, project.r3title:project.r3link, project.r4title:project.r4link, project.r5title:project.r5link, project.r6title:project.r6link, project.r7title:project.r7link, project.r8title:project.r8link, project.r9title:project.r9link, project.r10title:project.r10link}
-  if len(resources)==1: #just nulls
-    resources = None
  
   return render_to_response('fund/page_project.html', 
   {'2active':'true',
