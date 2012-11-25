@@ -56,6 +56,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), 'templates'),)
 
 ROOT_URLCONF = 'urls'
+APPEND_SLASH = False
 
 LOGGING = {
   'version': 1,
