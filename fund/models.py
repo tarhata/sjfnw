@@ -17,6 +17,7 @@ class GivingProject(models.Model):
   suggested_steps = models.TextField(default='Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank', help_text='Displayed to users when they add a step.  Put each step on a new line')
   
   calendar = models.CharField(max_length=255, null=True, blank=True, help_text= 'Calendar ID of a google calendar (not the whole embed text)')
+  #resources = models.ManytoManyField(ProjectResource)
   r1title = models.CharField(verbose_name='Resource title', max_length=255, null=True, blank=True)
   r1link= models.URLField(verbose_name='Resource link', null=True, blank=True)
   r2title = models.CharField(verbose_name='Resource title', max_length=255, null=True, blank=True)
@@ -196,3 +197,11 @@ class Event(models.Model):
   link = models.URLField(null=True, blank=True)
   def __unicode__(self):
     return self.desc
+
+"""
+class ProjectResource(models.Model):
+  title = models.CharField(max_length=255)
+  link = models.URLField()
+
+
+"""
