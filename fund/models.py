@@ -19,9 +19,6 @@ class GivingProject(models.Model):
   calendar = models.CharField(max_length=255, null=True, blank=True, help_text= 'Calendar ID of a google calendar (not the whole embed text)')
   #resources = models.ManytoManyField(ProjectResource)
 
-  #grant
-  grant_cycle = models.ForeignKey(GrantCycle, null=True, blank=True)
-
   def __unicode__(self):
     return self.title+' '+unicode(self.fundraising_deadline.year)
     
