@@ -73,7 +73,7 @@ class MassStep(forms.Form):
 class StepDoneForm(forms.Form):
   asked = forms.BooleanField(required=False)
   reply = forms.ChoiceField(choices=((1, 'Pledged'), (2, 'Unsure'), (3, 'Declined')), initial=2)
-  pledged_amount = forms.IntegerField(required=False, min_value=1)
+  pledged_amount = forms.IntegerField(required=False, min_value=0, error_messages={'min_value': 'Pledge amounts cannot be negative'})
   notes = forms.CharField(max_length=255, required=False,  widget=forms.Textarea(attrs={'rows':2, 'cols':20}))
   next_step = forms.CharField(max_length=100, required=False)
   next_step_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker', 'readonly':'true'}, format='%m/%d/%Y'))
@@ -82,10 +82,10 @@ class StepDoneForm(forms.Form):
     cleaned_data = super(StepDoneForm, self).clean()
     reply = cleaned_data.get("reply")
     amt = cleaned_data.get("pledged_amount")
-    if reply=='1' and not amt: #reply = pledge but no/zero amount entered
+    if reply=='1' and (not amt or amt==0): #reply = pledge but no/zero amount entered
       logging.debug('Pledged without amount')
       self._errors["pledged_amount"] = self.error_class(["Please enter an amount."])
-    if reply=='3' and amt: #declined but entered pledge amount
+    elif reply=='3' and amt and amt>0: #declined but entered pledge amount
       logging.debug('Declined with amount')
       self._errors["pledged_amount"] = self.error_class(["Cannot enter a pledge amount with a declined response."])
       del cleaned_data["pledged_amount"]
