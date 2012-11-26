@@ -15,6 +15,10 @@ libraries:
 
 handlers:
 
+- url: /_ereporter.*
+  script: google.appengine.ext.ereporter.report_generator.application
+  login: admin
+
 - url: /_ah/queue/deferred
   script: djangoappengine.deferred.handler.application
   login: admin

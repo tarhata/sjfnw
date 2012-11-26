@@ -19,8 +19,10 @@ from fund.decorators import approved_membership
 from fund.forms import *
 import scoring.models
 import pytz
-from google.appengine.ext import deferred
+from google.appengine.ext import deferred, ereporter
 import utils
+
+ereporter.register_logger()
 
 #LOGIN & REGISTRATION
 def FundLogin(request):

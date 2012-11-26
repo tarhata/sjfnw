@@ -14,3 +14,7 @@ cron:
 - description: warns people with saved drafts when their grant cycle is about to close
   url: /mail/drafts
   schedule: every day 14:15
+
+- description: Hourly exception report
+  url: /_ereporter?sender=sjfnwads@gmail.com  # The sender must be an app admin.
+  schedule: every hour
