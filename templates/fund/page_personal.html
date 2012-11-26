@@ -206,7 +206,7 @@ $(document).ready(function() {
 			{% if dict.donor.pledged == None %}
 				No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
 			{% else %}
-				<img src="/static/images/check.png"/>Asked.
+				<img src="/static/images/check.png"/>Asked. {% if dict.donor.gifted %}Donated ${{dict.donor.gifted}}.{% elif dict.donor.pledged != None %}{% if dict.donor.pledged > 0 %}Pledged ${{dict.donor.pledged}}.{% else %}Declined to donate.{%endif%}{% endif %}
 			{% endif %}
 			</div>
 		{% endif %}
@@ -216,12 +216,14 @@ $(document).ready(function() {
 		<table>
 			{% if dict.donor.gifted %}
 				<tr><td>Donated:</td><td>${{dict.donor.gifted}}</td></tr>
+        <tr><td>Original estimation:</td><td>${{dict.donor.estimated}}</td></tr>
 			{% elif dict.donor.pledged != None%}
         {% if dict.donor.pledged > 0 %}
           <tr><td>Pledged:</td><td>${{dict.donor.pledged}}</td></tr>
         {% else %}
           <tr><td colspan="2">Declined to donate.</td></tr>
         {% endif %}
+        <tr><td>Original estimation:</td><td>${{dict.donor.estimated}}</td></tr>
       {% else %}
         {% if dict.donor.asked %}
           <tr><td colspan="2">Asked; awaiting reply.</td></tr>
