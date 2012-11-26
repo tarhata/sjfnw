@@ -181,6 +181,7 @@ class Event(models.Model):
 """
 class ProjectResource(models.Model):
   title = models.CharField(max_length=255)
+  summary = models.TextField(blank=True)
   link = models.URLField()
 
 
