@@ -30,11 +30,15 @@ def UpdateStory(membership_id, time):
   talked, asked, pledges, pledged = 0, 0, 0, 0
   donors = [] #for talk counts, don't want to double up
   for step in steps:
-    if not step.donor in donors:
-      talked += 1
-      donors.append(step.donor)
     if step.asked:
       asked += 1
+      if step.donor in donors: #if they counted for talk from earlier step, remove
+        talked -= 1
+      else:
+        donors.append(step.donor)
+    elif not step.donor in donors:
+      talked += 1
+      donors.append(step.donor)
     if step.pledged:
       pledges += 1
       pledged += step.pledged
