@@ -193,7 +193,7 @@ def Home(request):
     progress['bar'] = 100*progress['asked']/progress['contacts']
   else:
     progress['bar'] = 0
-  step_list = list(models.Step.objects.filter(donor__membership=membership))
+  step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
   upcoming_steps = []
   ctz = timezone.get_current_timezone()
   today = ctz.normalize(timezone.now()).date()
