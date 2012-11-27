@@ -42,7 +42,7 @@ function loadView(get_url, div_id, dasked, dpledged) {
       }
 			datepicker();
 		},
-		failure:function(jqXHR, textStatus, errorThrown){
+		error:function(jqXHR, textStatus, errorThrown){
 			document.getElementById(div_id).innerHTML="Error! "+textStatus+' '+errorThrown;
 		},
 	});

@@ -136,6 +136,7 @@ admin.site.register(NewsItem, NewsAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Donor, DonorAdmin)
 admin.site.register(GrantCycle)
+admin.site.register(ProjectResource)
 
 #advanced
 advanced_admin = AdminSite(name='advanced')

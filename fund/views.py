@@ -258,6 +258,10 @@ def ProjectPage(request):
   member = membership.member
   project = membership.giving_project
   
+  #blocks
+  news = models.NewsItem.objects.filter(membership__giving_project=project).order_by('-date')
+  steps = models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2]
+  
   project_progress = {'contacts':0, 'talked':0, 'asked':0, 'estimated':0, 'pledged':0, 'gifted':0}
   donors = list(models.Donor.objects.filter(membership__giving_project=project))
   project_progress['contacts'] = len(donors)
@@ -275,10 +279,16 @@ def ProjectPage(request):
     project_progress['bar_width'] = int(100*project_progress['pledged']/project.fund_goal)
   else:
      project_progress['bar_width'] = 0
-  #blocks
-  news = models.NewsItem.objects.filter(membership__giving_project=project).order_by('-date')
-  steps = models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2]
   
+  resources = project.resources.all()
+  logging.info(resources)
+  sectioned = {}
+  for resource in resources:
+    section = str(resource.section)
+    if not section in sectioned:
+       sectioned[section] = []
+    sectioned[section].append(resource)
+    
   #base
   header = project.title
  
@@ -289,7 +299,8 @@ def ProjectPage(request):
   'member':member,
   'steps':steps,
   'membership':membership,
-  'project_progress':project_progress})
+  'project_progress':project_progress,
+  'sectioned':sectioned})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
