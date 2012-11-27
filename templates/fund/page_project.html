@@ -33,6 +33,8 @@
 {% for new in news %}
 {{new.date|date:"n/d/y"}} - {{new.summary}}
 <br><br>
+{% empty %}
+No news yet!
 {% endfor %}
 </div>
 
