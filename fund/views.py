@@ -312,19 +312,19 @@ def ScoringList(request):
   grant_list = grants.models.GrantApplication.objects.filter(grant_cycle = membership.giving_project.grant_cycle)
   logging.info("grant list:" + str(grant_list))
   
-  unreviewed_grants = []
-  reviewed_grants = []
-  review_in_progress_grants = []
+  unreviewed = []
+  reviewed = []
+  in_progress = []
   for grant in grant_list:
-	try: 
-	  review = scoring.models.ApplicationRating.objects.get(application = grant, membership = membership)
-	  if review.submitted:
-		reviewed_grants.append(grant)
-	  else: 
-		review_in_progress_grants.append(grant)
-	except scoring.models.ApplicationRating.DoesNotExist:
-	  unreviewed_grants.append(grant)
-
+    try: 
+      review = scoring.models.ApplicationRating.objects.get(application = grant, membership = membership)
+      if review.submitted:
+      reviewed.append(grant)
+      else: 
+      in_progress.append(grant)
+    except scoring.models.ApplicationRating.DoesNotExist:
+      unreviewed.append(grant)
+  
   return render_to_response('fund/scoring_list.html',
   {'3active':'true', 
   'header':header,
@@ -332,9 +332,9 @@ def ScoringList(request):
   'member':member, 'steps':steps,
   'membership':membership, 
   'grant_list':grant_list, 												
-  'unreviewed_grants':unreviewed_grants, 
-  'reviewed_list':reviewed_grants, 
-  'review_in_progress':review_in_progress_grants})
+  'unreviewed':unreviewed, 
+  'reviewed':reviewed, 
+  'in_progress':in_progress})
 
 #ERROR & HELP PAGES
 @login_required(login_url='/fund/login/')
