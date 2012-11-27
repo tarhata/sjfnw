@@ -9,7 +9,7 @@
         {{step.description}}
       </div>
 		{% endfor %}
-    <div class="block-item">
+    <div class="block-item block-bottom">
       Fundraising deadline:<br>
       {{membership.giving_project.fundraising_deadline}}
     </div>
@@ -21,7 +21,8 @@
 		{% endfor %}
 	</div>
 	<div class="top_block{% if 3active %} active_block{% endif %}" id="scoring_block" onclick="location.href='/fund/scoring';">
-		<br>Grants are not available yet.
+		<div class="block_header">Grants</div>
+		<div class="block-item block-bottom">Grants are not available yet.</div>
 	</div>
 </div>
 {% endblock %}

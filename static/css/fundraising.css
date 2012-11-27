@@ -73,10 +73,12 @@ div.top_block {
 	float:left;
 	padding:0px;
 	cursor:pointer;
+  position:relative;
 }
 
 div.top_block:hover {
 	opacity:0.9;
+  position:relative;
 }
 
 div.active_block {
@@ -91,6 +93,11 @@ div.block_header {
 
 div.block-item {
 	margin:10px;
+}
+
+div.block-bottom {
+  position:absolute;
+  bottom: 3px;
 }
 
 /* personal */

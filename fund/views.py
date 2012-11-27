@@ -306,10 +306,7 @@ def ScoringList(request):
   #base
   header = project.title
   
-  #additional code here!
-  #this is where you want a try catch to see if any grant applications within grant-list (bring in)
-  #have a grant application rating 
-  grant_list = grants.models.GrantApplication.objects.filter(grant_cycle = membership.giving_project.grant_cycle)
+  grant_list = grants.models.GrantApplication.objects.all() #TEMP want to filter by gp
   logging.info("grant list:" + str(grant_list))
   
   unreviewed = []
@@ -319,9 +316,9 @@ def ScoringList(request):
     try: 
       review = scoring.models.ApplicationRating.objects.get(application = grant, membership = membership)
       if review.submitted:
-      reviewed.append(grant)
+        reviewed.append(grant)
       else: 
-      in_progress.append(grant)
+        in_progress.append(grant)
     except scoring.models.ApplicationRating.DoesNotExist:
       unreviewed.append(grant)
   
