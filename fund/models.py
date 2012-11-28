@@ -148,7 +148,7 @@ class Step(models.Model):
   pledged = models.PositiveIntegerField(blank=True, null=True)
 
   def __unicode__(self):
-    return unicode(self.date.strftime('%m/%d/%y'))+' '+self.description
+    return unicode(self.date.strftime('%m/%d/%y')) + u' -  ' + self.description
     
 class StepForm(ModelForm):
   formfield_callback = make_custom_datefield #date input
