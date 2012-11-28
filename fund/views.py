@@ -179,11 +179,11 @@ def Home(request):
   for donor in donors:
     donor_data[donor.pk] = {'donor':donor, 'complete_steps':[], 'next_step':False, 'next_date':empty_date, 'overdue':False}
     progress['estimated'] += donor.estimated()
-    if donor.talked:
-      progress['talked'] += 1
     if donor.asked:
       progress['asked'] += 1
       donor_data[donor.pk]['next_date'] = datetime.date(2600,1,1)
+    elif donor.talked:
+      progress['talked'] += 1
     if donor.pledged:
       progress['pledged'] += donor.pledged
       donor_data[donor.pk]['next_date'] = datetime.date(2700,1,1)
@@ -191,8 +191,11 @@ def Home(request):
       progress['gifted'] += donor.gifted
   if progress['contacts'] > 0:
     progress['bar'] = 100*progress['asked']/progress['contacts']
+    progress['contactsremaining'] = progress['contacts'] - progress['talked'] -  progress['asked']
   else:
     progress['bar'] = 0
+    progress['contactsremaining'] = 0
+  
   step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
   upcoming_steps = []
   ctz = timezone.get_current_timezone()

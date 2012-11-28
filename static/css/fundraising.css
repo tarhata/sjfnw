@@ -257,47 +257,53 @@ div#login {
 
 /* progress charts */
 
+.chartholder {
+  display:block;
+  width:120px;
+  height:120px;
+}
+
 .pie { /* This gives the absolute positioning and size of the entire Pie */
     position: absolute;
-    width: 200px;
-    height: 200px;
-    clip: rect(0px,100px,200px,0px);
-    -moz-border-radius: 100px;
-    -webkit-border-radius: 100px;
-    border-radius: 100px;
+    width: 100px;
+    height: 100px;
+    clip: rect(0px,50px,100px,0px);
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
 }
 
-#slice1 .pie { /* a Slice of the Pie */
+#slice1 .pie { /* filled area of slice 1 - color and size */
    background-color: red;
-   -moz-transform: rotate(120deg);
-   -webkit-transform: rotate(120deg);
-   -o-transform: rotate(120deg);
-   transform: rotate(120deg);
+   -moz-transform: rotate(180deg);
+   -webkit-transform: rotate(180deg);
+   -o-transform: rotate(180deg);
+   transform: rotate(180deg);
 }
 
-#slice2 { /* This gives the absolute positioning and size of the Slice of Pie */
-  -moz-transform: rotate(120deg);
-   -webkit-transform: rotate(120deg);
-   -o-transform: rotate(120deg);
-   transform: rotate(120deg);
+#slice2 { /* Where slice 2 starts */
+  -moz-transform: rotate(180deg);
+   -webkit-transform: rotate(180deg);
+   -o-transform: rotate(180deg);
+   transform: rotate(180deg);
 }
 
-#slice2 .pie { /* a Slice of the Pie */
+#slice2 .pie { /* filled area of slice 2 - color and size */
    background-color: green;
-   -moz-transform: rotate(120deg);
-   -webkit-transform: rotate(120deg);
-   -o-transform: rotate(120deg);
-   transform: rotate(120deg);
+   -moz-transform: rotate(180deg);
+   -webkit-transform: rotate(180deg);
+   -o-transform: rotate(180deg);
+   transform: rotate(180deg);
 }
 
-#slice3 { /* This gives the absolute positioning and size of the Slice of Pie */
+#slice3 { /* Where slice 3 starts */
     -moz-transform: rotate(240deg);
     -webkit-transform: rotate(240deg);
     -o-transform: rotate(240deg);
     transform: rotate(120deg);
 }
 
-#slice3 .pie { /* a Slice of the Pie */
+#slice3 .pie { /* filled area of slice 3 - color and size */
    background-color: blue;
    -moz-transform: rotate(120deg);
    -webkit-transform: rotate(120deg);
@@ -308,11 +314,40 @@ div#login {
 .central_hold { 
     /* This is the Center central_holder, keep the Slices glued togheter */
     position: absolute;
-    width: 200px;
-    height: 200px;
-    clip: rect(0px,200px,200px,100px);
+    width: 100px;
+    height: 100px;
+    clip: rect(0px,100px,100px,50px);
 }
 
 .central_hold_gt50 {
     clip:rect(auto, auto, auto, auto);
 }​
+
+.pie_key {
+  width:100px;
+  height:100px;
+}
+
+div#slice1_key{
+  width:12px;
+  height:12px;
+  background-color:red;
+  float:left;
+  margin-right:5px;
+}
+
+div#slice2_key {
+  width:12px;
+  height:12px;
+  background-color:green;
+  float:left;
+  margin-right:5px;
+}
+
+div#slice3_key {
+  width:12px;
+  height:12px;
+  background-color:blue;
+  float:left;
+  margin-right:5px;
+}
