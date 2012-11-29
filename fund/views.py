@@ -193,21 +193,9 @@ def Home(request):
   if progress['contacts'] > 0:
     progress['bar'] = 100*progress['asked']/progress['contacts']
     progress['contactsremaining'] = progress['contacts'] - progress['talked'] -  progress['asked']
-    # contact progress pie chart
-    pie["#slice_new .pie1"] = round(360*progress['contactsremaining']/progress['contacts'])
-    pie["#slice_talked"] = pie["#slice_new .pie1"]
-    pie["#slice_talked .pie1"] = round(360*progress['talked']/progress['contacts'])
-    pie["#slice_asked"] = pie["#slice_new .pie1"] + pie["#slice_talked .pie1"]
-    pie["#slice_asked .pie1"] = round(360*progress['asked']/progress['contacts'])
-    # fundraising progress pie chart
     progress['togo'] = progress['estimated'] - progress['pledged'] -  progress['donated']
-    """
-    pie["#slice_togo .pie2"] = round(360*progress['togo']/progress['estimated'])
-    pie["#slice_pledged"] = pie["#slice_togo .pie2"]
-    pie["#slice_pledged .pie2"] = round(360*progress['pledged']/progress['estimated'])
-    pie["#slice_donated"] = pie["#slice_togo .pie2"] + pie["#slice_pledged .pie2"]
-    pie["#slice_donated .pie2"] = round(360*progress['donated']/progress['estimated'])
-    """
+    if progress['togo'] < 0:
+      progress['togo'] = 0
   else:
     progress['bar'] = 0
     progress['contactsremaining'] = 0

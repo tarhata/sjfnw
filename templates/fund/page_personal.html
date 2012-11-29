@@ -1,6 +1,61 @@
 {% extends 'fund/blocks.html' %}
 
 {% block script %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+
+  // Load the Visualization API and the piechart package.
+  google.load('visualization', '1.0', {'packages':['corechart']});
+
+  // Set a callback to run when the Google Visualization API is loaded.
+  google.setOnLoadCallback(drawChart);
+
+  // Callback that creates and populates a data table,
+  // instantiates the pie chart, passes in the data and
+  // draws it.
+  var options = {chartArea: {left:5, top:20, width:220, height:150},
+                   legend: {alignment:'center', textStyle: {fontSize:11}},
+                   tooltip: {showColorCode: false},
+                   slices: [{color: 'orange'}, {color:'yellow'}, {color: 'green'}],
+                   pieSliceText: 'value',
+                   pieSliceTextStyle: {fontSize:14},
+                   }
+                   
+  function drawChart() {
+
+    // Create the data table.
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Status');
+    data.addColumn('number', 'Contacts');
+    data.addRows([
+      ["Haven't contacted", {{progress.contactsremaining}}],
+      ["Talked to", {{progress.talked}}],
+      ['Asked', {{progress.asked}}],
+    ]);
+
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+    chart.draw(data, options);
+    drawChart2();             
+  }
+   function drawChart2() {
+
+    // Create the data table.
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Status');
+    data.addColumn('number', 'Amount');
+    data.addRows([
+      ["to go", {{progress.togo|default:'0'}}],
+      ["Pledged", {{progress.pledged}}],
+      ['Donated', {{progress.donated}}],
+    ]);
+    
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.PieChart(document.getElementById('chart_div2'));
+    chart.draw(data, options);           
+  }
+  
+</script>
 <script type="text/javascript">
 
 function toggle(a, b) { //toggles a, border on b if a shown
@@ -146,47 +201,6 @@ function completeLoaded(pk, dasked, dpledged) { //shows/hides fields on step com
     pledged.style.display = "none";
   }
 }
-//"-moz-transform", "-o-transform", "webkit-transform", "transform",
-var properties = ["webkitTransform", "transform"]
-var order = ["#slice_new .pie1", "#slice_talked", "#slice_talked .pie1", "#slice_asked", "#slice_asked .pie1"]
-function setPies() {
-  var pie = {{pie|safe}};
-  var cssRuleCode = document.all ? 'rules' : 'cssRules'; //account for IE and FF
-  for( var i in document.styleSheets ){ //find the fundraising stylesheet
-    if(document.styleSheets[i].href && document.styleSheets[i].href.indexOf("fundraising") != -1) {
-      stylesheet = document.styleSheets[i];
-      break;
-    }
-  }
-  var css_indices = {}; //get indices of css rules we need to change
-  for (var i = 45; i < stylesheet[cssRuleCode].length; i++) { // start/end could require update if rules get added/deleted
-    if (stylesheet[cssRuleCode][i].selectorText.indexOf("slice") != -1) {
-      css_indices[stylesheet[cssRuleCode][i].selectorText] = i;
-    }
-  }
-  console.log('Indices: ' + css_indices);
-  for(var z in order) { 
-    var divname = order[z];
-    var index = css_indices[divname];
-    if (index) {
-      console.log('Editing ' + stylesheet[cssRuleCode][index].selectorText + ', before:');
-      console.log(stylesheet[cssRuleCode][index].style);
-      for(var i in properties) {
-        console.log('\tSetting ' + properties[i] + ' from ' + stylesheet[cssRuleCode][index].style[properties[i]] + 'to rotate(' + pie[divname] + 'deg)');
-        stylesheet[cssRuleCode][index].style[properties[i]] = "rotate(" + pie[divname] + "deg)"
-      }
-      if (pie[divname] > 180) {
-        console.log('\tSetting clip');
-        stylesheet[cssRuleCode][index].style['clip'] = 'rect(auto, auto, auto, auto)'
-      }
-      console.log(stylesheet[cssRuleCode][index].selectorText + ', after:');
-      console.log(stylesheet[cssRuleCode][index].style);
-      //stylesheet[cssRuleCode][index].rule = rulestr;
-    } else {
-      console.log('Index not found for ' + divname); //need to actually log it..
-    }
-  }
-}
 
 $(document).ready(function() {
   var load = '{{load}}';
@@ -194,7 +208,6 @@ $(document).ready(function() {
   if (load) {
     loadView(load, loadto);
   }
-  setPies();
 });
 
 
@@ -219,20 +232,15 @@ $(document).ready(function() {
 <table style="width:100%;">
 <tr>
 	<td style="width:50%;">
-	{{progress.contacts}} contacts<br>
-	{{progress.talked}} talked to<br>
-	{{progress.asked}} asked<br></td>
+    <div align="center">{{progress.contacts}} contacts</div>
+    <div align="center" id ="chart_div" style="width:220px;height:140px;margin-left:35px;"></div>
 	<td>
-	${{progress.estimated}} estimated fundraising<br>
-	${{progress.pledged}} pledged<br>
-	${{progress.donated}} donated<br>
+    <div align="center">${{progress.estimated}} estimated fundraising</div>
+    <div align="center" id ="chart_div2" style="width:220px;height:140px;;margin-left:35px;"></div>
 	</td>
-</tr></table>
-{% if progress.contacts > 0 %}
-  {% include 'fund/progress_charts.html' %}
-{% else %}
-  No contacts yet!  Get started below.
-{% endif %}
+</tr>
+</table>
+
 </div>
 
 <b>YOUR CONTACTS</b>
