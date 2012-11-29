@@ -173,7 +173,7 @@ def Home(request):
   header = membership.giving_project.title
   
   donors = list(membership.donor_set.all())
-  progress = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0, 'pledged':0, 'gifted':0} 
+  progress = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0, 'pledged':0, 'donated':0} 
   donor_data = {}
   empty_date = datetime.date(2500,1,1)
   for donor in donors:
@@ -188,10 +188,26 @@ def Home(request):
       progress['pledged'] += donor.pledged
       donor_data[donor.pk]['next_date'] = datetime.date(2700,1,1)
     if donor.gifted:
-      progress['gifted'] += donor.gifted
+      progress['donated'] += donor.gifted
+  pie = {}
   if progress['contacts'] > 0:
     progress['bar'] = 100*progress['asked']/progress['contacts']
     progress['contactsremaining'] = progress['contacts'] - progress['talked'] -  progress['asked']
+    # contact progress pie chart
+    pie["#slice_new .pie1"] = round(360*progress['contactsremaining']/progress['contacts'])
+    pie["#slice_talked"] = pie["#slice_new .pie1"]
+    pie["#slice_talked .pie1"] = round(360*progress['talked']/progress['contacts'])
+    pie["#slice_asked"] = pie["#slice_new .pie1"] + pie["#slice_talked .pie1"]
+    pie["#slice_asked .pie1"] = round(360*progress['asked']/progress['contacts'])
+    # fundraising progress pie chart
+    progress['togo'] = progress['estimated'] - progress['pledged'] -  progress['donated']
+    """
+    pie["#slice_togo .pie2"] = round(360*progress['togo']/progress['estimated'])
+    pie["#slice_pledged"] = pie["#slice_togo .pie2"]
+    pie["#slice_pledged .pie2"] = round(360*progress['pledged']/progress['estimated'])
+    pie["#slice_donated"] = pie["#slice_togo .pie2"] + pie["#slice_pledged .pie2"]
+    pie["#slice_donated .pie2"] = round(360*progress['donated']/progress['estimated'])
+    """
   else:
     progress['bar'] = 0
     progress['contactsremaining'] = 0
@@ -225,6 +241,7 @@ def Home(request):
   ContactFormset = formset_factory(MassDonor, extra=5)
   formset = ContactFormset()
   
+  #querydict for pre-loading forms
   logging.debug(request.GET.dict())
   step = request.GET.get('step')
   donor = request.GET.get('d')
@@ -251,7 +268,8 @@ def Home(request):
   'suggested':suggested,
   'formset':formset,
   'load':load,
-  'loadto':loadto})
+  'loadto':loadto,
+  'pie':pie})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -265,7 +283,7 @@ def ProjectPage(request):
   news = models.NewsItem.objects.filter(membership__giving_project=project).order_by('-date')
   steps = models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2]
   
-  project_progress = {'contacts':0, 'talked':0, 'asked':0, 'estimated':0, 'pledged':0, 'gifted':0}
+  project_progress = {'contacts':0, 'talked':0, 'asked':0, 'estimated':0, 'pledged':0, 'donated':0}
   donors = list(models.Donor.objects.filter(membership__giving_project=project))
   project_progress['contacts'] = len(donors)
   for donor in donors:
@@ -277,7 +295,7 @@ def ProjectPage(request):
     if donor.pledged:
       project_progress['pledged'] += donor.pledged
     if donor.gifted:
-      project_progress['gifted'] += donor.gifted
+      project_progress['donated'] += donor.gifted
   if project.fund_goal > 0:
     project_progress['bar_width'] = int(100*project_progress['pledged']/project.fund_goal)
   else:
@@ -391,13 +409,13 @@ def Stats(request): #for now, based on django user's admin status
   overall['talked'] = curr_donors.filter(talked=True).count()
   overall['asked'] = curr_donors.filter(asked=True).count()
   overall['pledged'] = 0
-  overall['gifted'] = 0
+  overall['donated'] = 0
   overall['estimated'] = 0
   
   for donor in curr_donors:
     if donor.pledged:
       overall['pledged'] = overall['pledged'] + donor.pledged
-    overall['gifted'] = overall['gifted'] + donor.gifted
+    overall['donated'] = overall['donated'] + donor.gifted
     overall['estimated'] = overall['estimated'] + donor.amount*donor.likelihood/100
   
   return render_to_response('fund/stats.html', {'member':member, 'header':header, 'overall':overall})
@@ -727,7 +745,7 @@ def GiftNotify(request):
   #Sends an email to members letting them know gifts have been received
   #Marks donors as notified
   #Puts details in mem notif for main page
-  donors = models.Donor.objects.filter(gifted__gt=0, gift_notified=0)
+  donors = models.Donor.objects.filter(donated__gt=0, gift_notified=0)
   members = []
   for donor in donors:
     members.append(donor.membership.member)

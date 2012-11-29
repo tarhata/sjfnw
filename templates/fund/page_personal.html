@@ -146,6 +146,47 @@ function completeLoaded(pk, dasked, dpledged) { //shows/hides fields on step com
     pledged.style.display = "none";
   }
 }
+//"-moz-transform", "-o-transform", "webkit-transform", "transform",
+var properties = ["webkitTransform", "transform"]
+var order = ["#slice_new .pie1", "#slice_talked", "#slice_talked .pie1", "#slice_asked", "#slice_asked .pie1"]
+function setPies() {
+  var pie = {{pie|safe}};
+  var cssRuleCode = document.all ? 'rules' : 'cssRules'; //account for IE and FF
+  for( var i in document.styleSheets ){ //find the fundraising stylesheet
+    if(document.styleSheets[i].href && document.styleSheets[i].href.indexOf("fundraising") != -1) {
+      stylesheet = document.styleSheets[i];
+      break;
+    }
+  }
+  var css_indices = {}; //get indices of css rules we need to change
+  for (var i = 45; i < stylesheet[cssRuleCode].length; i++) { // start/end could require update if rules get added/deleted
+    if (stylesheet[cssRuleCode][i].selectorText.indexOf("slice") != -1) {
+      css_indices[stylesheet[cssRuleCode][i].selectorText] = i;
+    }
+  }
+  console.log('Indices: ' + css_indices);
+  for(var z in order) { 
+    var divname = order[z];
+    var index = css_indices[divname];
+    if (index) {
+      console.log('Editing ' + stylesheet[cssRuleCode][index].selectorText + ', before:');
+      console.log(stylesheet[cssRuleCode][index].style);
+      for(var i in properties) {
+        console.log('\tSetting ' + properties[i] + ' from ' + stylesheet[cssRuleCode][index].style[properties[i]] + 'to rotate(' + pie[divname] + 'deg)');
+        stylesheet[cssRuleCode][index].style[properties[i]] = "rotate(" + pie[divname] + "deg)"
+      }
+      if (pie[divname] > 180) {
+        console.log('\tSetting clip');
+        stylesheet[cssRuleCode][index].style['clip'] = 'rect(auto, auto, auto, auto)'
+      }
+      console.log(stylesheet[cssRuleCode][index].selectorText + ', after:');
+      console.log(stylesheet[cssRuleCode][index].style);
+      //stylesheet[cssRuleCode][index].rule = rulestr;
+    } else {
+      console.log('Index not found for ' + divname); //need to actually log it..
+    }
+  }
+}
 
 $(document).ready(function() {
   var load = '{{load}}';
@@ -153,7 +194,9 @@ $(document).ready(function() {
   if (load) {
     loadView(load, loadto);
   }
+  setPies();
 });
+
 
 </script>
 {% endblock %}
@@ -182,39 +225,14 @@ $(document).ready(function() {
 	<td>
 	${{progress.estimated}} estimated fundraising<br>
 	${{progress.pledged}} pledged<br>
-	${{progress.gifted}} gifted<br>
+	${{progress.donated}} donated<br>
 	</td>
 </tr></table>
-
-<table style="vertical-align:middle;">
-  <tr>
-  <td>
-  <div class="chartholder">
-  <div class="pie_holder" id="pie1">
-    <div id="slice1" class="central_hold">
-        <div class="pie" title="X"></div>
-    </div>
-    <div id="slice2" class="central_hold">
-        <div class="pie" title="Y"></div>
-    </div>
-    <div id="slice3" class="central_hold">
-        <div class="pie" title="Z" ></div>
-    </div>
-  </div>
-  </div>
-  </td>
-  <td>{{progress.contacts}} contacts
-    <div class="pie_key">
-      <div id ="slice1_key"></div> asked {{progress.asked}}<br>
-      <div id ="slice2_key"></div> talked to {{progress.talked}}<br>
-      <div id ="slice3_key"></div> {{progress.contactsremaining}} remaining
-    </div>
-  </td>
-</tr>
-</table>
-
-
-
+{% if progress.contacts > 0 %}
+  {% include 'fund/progress_charts.html' %}
+{% else %}
+  No contacts yet!  Get started below.
+{% endif %}
 </div>
 
 <b>YOUR CONTACTS</b>
