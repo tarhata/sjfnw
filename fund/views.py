@@ -742,8 +742,9 @@ def GiftNotify(request):
   #Sends an email to members letting them know gifts have been received
   #Marks donors as notified
   #Puts details in mem notif for main page
-  donors = models.Donor.objects.filter(donated__gt=0, gift_notified=0)
+  donors = models.Donor.objects.filter(gifted__gt=0, gift_notified=False)
   members = []
+  login_url = settings.APP_BASE_URL + 'fund/login'
   for donor in donors:
     members.append(donor.membership.member)
     donor.membership.notifications += 'Gift of $'+str(donor.gifted)+' received from '+donor.firstname+' '+donor.lastname+'!<br>'
@@ -752,7 +753,7 @@ def GiftNotify(request):
   subject, from_email = 'Gift received', settings.APP_SEND_EMAIL
   for mem in unique:
     to = mem.email
-    html_content = render_to_string('fund/email_gift.html')
+    html_content = render_to_string('fund/email_gift.html', {'login_url':login_url})
     text_content = strip_tags(html_content)
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com'])
     msg.attach_alternative(html_content, "text/html")

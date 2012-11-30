@@ -135,6 +135,7 @@ table.form button {
 div#notifications {
 	text-align:center;
 	margin-bottom:10px;
+  margin-top:10px;
 }
 
 div.donor {
