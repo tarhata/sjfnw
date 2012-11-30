@@ -586,6 +586,9 @@ def AddMultStep(request):
 @approved_membership()
 def EditStep(request, donor_id, step_id):
   
+  suggested = request.membership.giving_project.suggested_steps.splitlines()
+  logging.info(suggested)
+  
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
@@ -610,7 +613,7 @@ def EditStep(request, donor_id, step_id):
   else:
     form = models.StepForm(instance=step)
     
-  return render_to_response('fund/edit.html', { 'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid})
+  return render_to_response('fund/edit.html', { 'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()

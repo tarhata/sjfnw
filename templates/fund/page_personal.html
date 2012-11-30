@@ -13,12 +13,13 @@
   // Callback that creates and populates a data table,
   // instantiates the pie chart, passes in the data and
   // draws it.
-  var options = {chartArea: {left:5, top:20, width:220, height:150},
+  var options = {chartArea: {left:0, top:8, width:'100%', height:'90%'},
                    legend: {alignment:'center', textStyle: {fontSize:11}},
-                   tooltip: {showColorCode: false},
-                   slices: [{color: 'orange'}, {color:'yellow'}, {color: 'green'}],
-                   pieSliceText: 'value',
+                   tooltip: {showColorCode: false, textStyle: {fontSize:14}},
+                   slices: [{color: 'green'}, {color:'#D18316'}, {color: '#8B0E04'}],
+                   pieSliceText: 'none',
                    pieSliceTextStyle: {fontSize:14},
+                   reverseCategories: true,
                    }
                    
   function drawChart() {
@@ -45,7 +46,7 @@
     data.addColumn('string', 'Status');
     data.addColumn('number', 'Amount');
     data.addRows([
-      ["to go", {{progress.togo|default:'0'}}],
+      ["Remaining", {{progress.togo|default:'0'}}],
       ["Pledged", {{progress.pledged}}],
       ['Donated', {{progress.donated}}],
     ]);
@@ -228,20 +229,17 @@ $(document).ready(function() {
 {% endif %}
 
 <b>YOUR PROGRESS</b>
-<div class="indent">
-<table style="width:100%;">
+<table style="width:100%;margin-top:10px;">
 <tr>
 	<td style="width:50%;">
     <div align="center">{{progress.contacts}} contacts</div>
-    <div align="center" id ="chart_div" style="width:220px;height:140px;margin-left:35px;"></div>
+    <div align="center" id ="chart_div" style="width:260px;height:100px;margin-left:30px;margin-bottom:25px;"></div>
 	<td>
     <div align="center">${{progress.estimated}} estimated fundraising</div>
-    <div align="center" id ="chart_div2" style="width:220px;height:140px;;margin-left:35px;"></div>
+    <div align="center" id ="chart_div2" style="width:260px;height:100px;;margin-left:25px;margin-bottom:25px;"></div>
 	</td>
 </tr>
 </table>
-
-</div>
 
 <b>YOUR CONTACTS</b>
 {% if donor_list.0 %} <!--only show if mass add won't be showing -->
