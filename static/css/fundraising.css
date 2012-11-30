@@ -58,7 +58,7 @@ div#progress_desc {
 /* blocks */
 div#block_container {
 	width:640px;
-	height:200px;
+	height:184px;
 	color:white;
 }
 
@@ -98,6 +98,16 @@ div.block-item {
 div.block-bottom {
   position:absolute;
   bottom: 3px;
+}
+
+div#blockline_container {
+	width:640px;
+	height:15px;
+	color:white;
+}
+
+div.active_line {
+  border-right: solid 2px #C07205;
 }
 
 /* personal */
@@ -221,6 +231,10 @@ table.padded td{
 	padding:5px;
 }
 
+.calendar-container {
+  font-family:Verdana;
+}
+
 /* error pages */
 div.error_message {
 	font-weight:bold;
@@ -253,145 +267,4 @@ div#admin-link {
 
 div#login {
 	text-align:right;
-}
-
-/* progress charts */
-
-.chartholder {
-  display:block;
-  width:120px;
-  height:120px;
-}
-
-.pie1, .pie2 { /* This gives the absolute positioning and size of the entire Pie */
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  clip: rect(0px,50px,100px, 0px);
-  -moz-border-radius: 50px;
-  -webkit-border-radius: 50px;
-  -o-border-radius: 50px;
-  border-radius: 50px;
-}
-
-#slice_new .pie1 { /* filled area of slice 1 - color and size */
-   background-color: red;
-   -webkit-transform: rotate(0deg);
-  /* -moz-transform: rotate(0deg);
-   -webkit-transform: rotate(0deg);
-   -o-transform: rotate(0deg);
-   transform: rotate(0deg); */
-}
-
-#slice_talked { /* Where slice 2 starts */
-  -webkit-transform: rotate(0deg);
-  /* -moz-transform: rotate(0deg);
-   -o-transform: rotate(0deg);
-   transform: rotate(0deg); */
-}
-
-#slice_talked .pie1 { /* filled area of slice 2 - color and size */
- background-color: green;
- -webkit-transform: rotate(0deg);
- /* -moz-transform: rotate(0deg);
-   -webkit-transform: rotate(0deg);
-   -o-transform: rotate(0deg);
-   transform: rotate(0deg); */
-}
-
-#slice_asked { /* Where slice 3 starts */
-  -webkit-transform: rotate(0deg);
-  /* -moz-transform: rotate(0deg);
-   -webkit-transform: rotate(0deg);
-   -o-transform: rotate(0deg);
-   transform: rotate(0deg); */
-}
-
-#slice_asked .pie1 { /* filled area of slice 3 - color and size */
-  background-color: blue;
-  -webkit-transform: rotate(0deg);
-  /*transform: rotate(257deg); 
-  -moz-transform: rotate(0deg);
-   -webkit-transform: rotate(0deg);
-   -o-transform: rotate(0deg);
-   */
-}
-
-.central_hold { 
-    /* This is the Center central_holder, keep the Slices glued togheter */
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    clip: rect(0px,100px,100px,50px);
-}
-
-.central_hold_gt50 {
-    clip:rect(auto, auto, auto, auto);
-}​
-
-.pie_key {
-  width:100px;
-  height:100px;
-}
-
-div#slice1_key{
-  width:12px;
-  height:12px;
-  background-color:blue;
-  float:left;
-  margin-right:5px;
-}
-
-div#slice2_key {
-  width:12px;
-  height:12px;
-  background-color:green;
-  float:left;
-  margin-right:5px;
-}
-
-div#slice3_key {
-  width:12px;
-  height:12px;
-  background-color:red;
-  float:left;
-  margin-right:5px;
-}
-
-#slice_togo .pie2 { /* filled area of slice 1 - color and size */
-   background-color: red;
-   -moz-transform: rotate(180deg);
-   -webkit-transform: rotate(180deg);
-   -o-transform: rotate(180deg);
-   transform: rotate(180deg);
-}
-
-#slice_pledged { /* Where slice 2 starts */
-  -moz-transform: rotate(180deg);
-   -webkit-transform: rotate(180deg);
-   -o-transform: rotate(180deg);
-   transform: rotate(180deg);
-}
-
-#slice_pledged .pie2 { /* filled area of slice 2 - color and size */
-   background-color: green;
-   -moz-transform: rotate(60deg);
-   -webkit-transform: rotate(60deg);
-   -o-transform: rotate(60deg);
-   transform: rotate(60deg);
-}
-
-#slice_donated { /* Where slice 3 starts */
-    -moz-transform: rotate(240deg);
-    -webkit-transform: rotate(240deg);
-    -o-transform: rotate(240deg);
-    transform: rotate(240deg);
-}
-
-#slice_donated .pie2 { /* filled area of slice 3 - color and size */
-   background-color: blue;
-   -moz-transform: rotate(120deg);
-   -webkit-transform: rotate(120deg);
-   -o-transform: rotate(120deg);
-   transform: rotate(120deg);
 }

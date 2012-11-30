@@ -13,7 +13,7 @@
   // Callback that creates and populates a data table,
   // instantiates the pie chart, passes in the data and
   // draws it.
-  var options = {chartArea: {left:0, top:8, width:'100%', height:'90%'},
+  var options = {chartArea: {left:0, top:8, width:'100%', height:'85%'},
                    legend: {alignment:'center', textStyle: {fontSize:11}},
                    tooltip: {showColorCode: false, textStyle: {fontSize:14}},
                    slices: [{color: 'green'}, {color:'#D18316'}, {color: '#8B0E04'}],
@@ -215,14 +215,6 @@ $(document).ready(function() {
 </script>
 {% endblock %}
 
-{% block progress %}
-<div id="progress_container">
-<div id="progress_bar" style="width:{{progress.bar}}%">
-</div></div>
-<div id="progress_desc">You've asked {{progress.asked}} p{{progress.asked|pluralize:"erson,eople"}} so far</div>
-
-{% endblock %}
-
 {% block content %}
 {% if notif %}
 <div id="notifications">{{notif|safe}}</div>
@@ -233,10 +225,10 @@ $(document).ready(function() {
 <tr>
 	<td style="width:50%;">
     <div align="center">{{progress.contacts}} contacts</div>
-    <div align="center" id ="chart_div" style="width:260px;height:100px;margin-left:30px;margin-bottom:25px;"></div>
+    <div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:30px;margin-bottom:15px;"></div>
 	<td>
     <div align="center">${{progress.estimated}} estimated fundraising</div>
-    <div align="center" id ="chart_div2" style="width:260px;height:100px;;margin-left:25px;margin-bottom:25px;"></div>
+    <div align="center" id ="chart_div2" style="width:260px;height:110px;;margin-left:25px;margin-bottom:15px;"></div>
 	</td>
 </tr>
 </table>

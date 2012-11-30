@@ -276,19 +276,25 @@ def ProjectPage(request):
   project_progress['contacts'] = len(donors)
   for donor in donors:
     project_progress['estimated'] += donor.estimated()
-    if donor.talked:
-      project_progress['talked'] += 1
     if donor.asked:
       project_progress['asked'] += 1
-    if donor.pledged:
-      project_progress['pledged'] += donor.pledged
+    elif donor.talked:
+      project_progress['talked'] += 1
     if donor.gifted:
       project_progress['donated'] += donor.gifted
+    elif donor.pledged:
+      project_progress['pledged'] += donor.pledged 
   if project.fund_goal > 0:
     project_progress['bar_width'] = int(100*project_progress['pledged']/project.fund_goal)
   else:
      project_progress['bar_width'] = 0
   
+  project_progress['contactsremaining'] = project_progress['contacts'] - project_progress['talked'] -  project_progress['asked']
+  project_progress['togo'] = project_progress['estimated'] - project_progress['pledged'] -  project_progress['donated']
+  if project_progress['togo'] < 0:
+    project_progress['togo'] = 0
+  
+  logging.info(project_progress)
   resources = project.resources.all()
   logging.info(resources)
   sectioned = {}

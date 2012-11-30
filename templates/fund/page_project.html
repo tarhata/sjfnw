@@ -1,32 +1,80 @@
 {% extends 'fund/blocks.html' %}
 
-{% block progress %}
+{% block script %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
 
-<div id="progress_container">
-<div id="progress_bar" style="width:{{project_progress.bar_width}}%">
-</div></div>
-<div id="progress_desc">The giving project has raised ${{project_progress.pledged}} so far</div>
+  // Load the Visualization API and the piechart package.
+  google.load('visualization', '1.0', {'packages':['corechart']});
 
+  // Set a callback to run when the Google Visualization API is loaded.
+  google.setOnLoadCallback(drawChart);
+
+  // Callback that creates and populates a data table,
+  // instantiates the pie chart, passes in the data and
+  // draws it.
+  var options = {chartArea: {left:0, top:8, width:'100%', height:'85%'},
+                   legend: {alignment:'center', textStyle: {fontSize:11}},
+                   tooltip: {showColorCode: false, textStyle: {fontSize:14}},
+                   slices: [{color: 'green'}, {color:'#D18316'}, {color: '#8B0E04'}],
+                   pieSliceText: 'none',
+                   pieSliceTextStyle: {fontSize:14},
+                   reverseCategories: true,
+                   }
+                   
+  function drawChart() {
+
+    // Create the data table.
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Status');
+    data.addColumn('number', 'Contacts');
+    data.addRows([
+      ["Haven't contacted", {{project_progress.contactsremaining}}],
+      ["Talked to", {{project_progress.talked}}],
+      ['Asked', {{project_progress.asked}}],
+    ]);
+
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+    chart.draw(data, options);
+    drawChart2();             
+  }
+   function drawChart2() {
+    
+    options['slices'] = [{color: 'green'}, {color:'yellow'}, {color:'#D18316'}, {color: '#8B0E04'}, ] //need 4th color for this one
+    // Create the data table.
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Status');
+    data.addColumn('number', 'Amount');
+    data.addRows([
+      ["Remaining", {{project_progress.togo|default:'0'}}],
+      ["Estimated", {{project_progress.estimated}}],
+      ["Pledged", {{project_progress.pledged}}],
+      ['Donated', {{project_progress.donated}}],
+    ]);
+    
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.PieChart(document.getElementById('chart_div2'));
+    chart.draw(data, options);           
+  }
+  
+</script>
 {% endblock %}
 
 {% block content %}
 
 <b>PROJECT PROGRESS</b>
-<div class="indent">
-	Fundraising goal: ${{membership.giving_project.fund_goal}}<br><br>
-	<table width="100%"><tr>
-		<td style="width:50%;">
-			{{project_progress.contacts}} contacts<br>
-			{{project_progress.talked}} talked to<br>
-			{{project_progress.asked}} asked<br>
-		</td>
-		<td>
-			${{project_progress.estimated}} estimated fundraising<br>
-			${{project_progress.pledged}} pledged<br>
-			${{project_progress.donated}} donated<br>
-		</td>
-	</tr></table>
-</div>
+<table style="width:100%;margin-top:10px;">
+<tr>
+	<td style="width:50%;">
+    <div align="center">{{project_progress.contacts}} contacts</div>
+    <div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:30px;margin-bottom:15px;"></div>
+	<td>
+    <div align="center">${{membership.giving_project.fund_goal}} fundraising goal</div>
+    <div align="center" id ="chart_div2" style="width:260px;height:110px;;margin-left:25px;margin-bottom:15px;"></div>
+	</td>
+</tr>
+</table>
 
 <b>NEWS</b>
 <div class="indent">
@@ -41,7 +89,7 @@ No news yet!
 {% if membership.giving_project.calendar %}
 <b>SCHEDULE</b>
 <div class="indent">
-  <iframe src="https://www.google.com/calendar/embed?showTitle=0&amp;showCalendars=0&amp;showTz=0&amp;mode=AGENDA&amp;height=400&amp;wkst=2&amp;bgcolor=%23FFFFFF&amp;src={{membership.giving_project.calendar}}&amp;color=%232F6309&amp;ctz=America%2FLos_Angeles" style=" border-width:0 " width="550" height="400" frameborder="0" scrolling="no"></iframe>
+  <iframe src="https://www.google.com/calendar/embed?showTitle=0&amp;showCalendars=0&amp;showTz=0&amp;mode=AGENDA&amp;height=400&amp;wkst=2&amp;bgcolor=%23FFFFFF&amp;src={{membership.giving_project.calendar}}&amp;color=%232F6309&amp;ctz=America%2FLos_Angeles" style=" border-width:0; font-family:Verdana;" width="550" height="400" frameborder="0" scrolling="no"></iframe>
 </div>
 {% endif %}
 {% if sectioned %}
