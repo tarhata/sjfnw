@@ -6,7 +6,7 @@
 <tr>
 <td>{{step.donor.firstname}} {{step.donor.lastname}}</td>
 <td>{{step}}</td>
-<td>[<a href="{{base_url}}fund/{{step.donor.pk}}/{{step.donor.get_next_step.pk}}/">edit</a> | <a href="{{base_url}}fund/{{step.donor.pk}}/{{step.donor.get_next_step.pk}}/done">complete</a>]</td>
+<td>[<a href="{{base_url}}fund/?d={{step.donor.pk}}&step={{step.donor.get_next_step.pk}}&t=edit">edit</a> | <a href="{{base_url}}fund/?donor={{step.donor.pk}}&step={{step.donor.get_next_step.pk}}&t=complete">complete</a>]</td>
 </tr>
 {% endfor %}
 </table>

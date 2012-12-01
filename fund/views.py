@@ -232,7 +232,7 @@ def Home(request):
   #querydict for pre-loading forms
   logging.debug(request.GET.dict())
   step = request.GET.get('step')
-  donor = request.GET.get('d')
+  donor = request.GET.get('donor')
   type = request.GET.get('t')
   if step and donor and type:
     load = '/fund/'+donor+'/'+step
