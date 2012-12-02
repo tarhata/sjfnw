@@ -91,9 +91,18 @@ class StepDoneForm(forms.Form):
       self._errors["pledged_amount"] = self.error_class(["Cannot enter a pledge amount with a declined response."])
       del cleaned_data["pledged_amount"]
     return cleaned_data
-     
-class AdminCreateGP(ModelForm):
-  leader = forms.ModelChoiceField(queryset=models.Member.objects.all())
-
-  class Meta:
-    model = models.GivingProject
+    
+class MembershipInlineFormset(forms.models.BaseInlineFormSet):
+  def clean(self):
+    # get forms that actually have valid data
+    leader = 0
+    for form in self.forms:
+      try:
+        if form.cleaned_data and not form.cleaned_data.get('DELETE', False) and form.cleaned_data['leader']:
+          leader += 1
+      except AttributeError:
+        # annoyingly, if a subform is invalid Django explicity raises
+        # an AttributeError for cleaned_data
+        pass
+    if leader < 1:
+      raise forms.ValidationError('You must have at least one leader')

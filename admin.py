@@ -1,4 +1,5 @@
 ﻿from fund.models import *
+import fund.forms
 from grants.models import *
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
@@ -52,11 +53,12 @@ class MembershipAdmin(admin.ModelAdmin): #todo add overdue steps filter
   
 class MembershipInline(admin.TabularInline):
   model = Membership
+  formset = fund.forms.MembershipInlineFormset
+  extra = 0
   fieldsets = (None, {
     'classes': ('collapse',),
     'fields': ('member', 'approved', 'leader',)
   }),
-  extra = 1
 
 class MemberInline(admin.TabularInline):
   model = Member
