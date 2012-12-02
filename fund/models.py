@@ -17,7 +17,7 @@ class GivingProject(models.Model):
   suggested_steps = models.TextField(default='Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank', help_text='Displayed to users when they add a step.  Put each step on a new line')
   
   calendar = models.CharField(max_length=255, null=True, blank=True, help_text= 'Calendar ID of a google calendar (not the whole embed text)')
-  resources = models.ManyToManyField('ProjectResource')
+  resources = models.ManyToManyField('ProjectResource', null=True, blank=True)
 
   def __unicode__(self):
     return self.title+' '+unicode(self.fundraising_deadline.year)
@@ -32,7 +32,7 @@ class Member(models.Model):
   
   def __unicode__(self):
     return unicode(self.first_name +' '+self.last_name)
-  
+    
 class Membership(models.Model): #relationship b/n member and gp
   giving_project = models.ForeignKey(GivingProject)
   member = models.ForeignKey(Member)
