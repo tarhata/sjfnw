@@ -70,7 +70,7 @@ def Register(request):
           giv = models.GivingProject.objects.get(pk=gp)
           membership, crs = models.Membership.objects.get_or_create(member = member, giving_project = giv)
           member.current = membership.pk
-          member.save()      
+          member.save()
           logging.info('Registration - membership in ' + str(giv) + ' or marked as current')
         user = authenticate(username=username, password=password)
         if user:
@@ -284,13 +284,9 @@ def ProjectPage(request):
       project_progress['donated'] += donor.gifted
     elif donor.pledged:
       project_progress['pledged'] += donor.pledged 
-  if project.fund_goal > 0:
-    project_progress['bar_width'] = int(100*project_progress['pledged']/project.fund_goal)
-  else:
-     project_progress['bar_width'] = 0
   
   project_progress['contactsremaining'] = project_progress['contacts'] - project_progress['talked'] -  project_progress['asked']
-  project_progress['togo'] = project_progress['estimated'] - project_progress['pledged'] -  project_progress['donated']
+  project_progress['togo'] =  project.fund_goal - project_progress['estimated'] - project_progress['pledged'] -  project_progress['donated']
   if project_progress['togo'] < 0:
     project_progress['togo'] = 0
   
@@ -348,16 +344,7 @@ def ScoringList(request):
     except scoring.models.ApplicationRating.DoesNotExist:
       unreviewed.append(grant)
   
-  return render_to_response('fund/scoring_list.html',
-  {'3active':'true', 
-  'header':header,
-  'news':news,
-  'member':member, 'steps':steps,
-  'membership':membership, 
-  'grant_list':grant_list, 												
-  'unreviewed':unreviewed, 
-  'reviewed':reviewed, 
-  'in_progress':in_progress})
+  return render_to_response('fund/scoring_list.html',   {'3active':'true',   'header':header,   'news':news,   'member':member, 'steps':steps,   'membership':membership,   'grant_list':grant_list, 												   'unreviewed':unreviewed,   'reviewed':reviewed,   'in_progress':in_progress})
 
 #ERROR & HELP PAGES
 @login_required(login_url='/fund/login/')
