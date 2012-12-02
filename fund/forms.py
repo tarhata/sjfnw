@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import ModelForm
 import models, datetime
 from django.utils import timezone
 import logging
@@ -90,3 +91,9 @@ class StepDoneForm(forms.Form):
       self._errors["pledged_amount"] = self.error_class(["Cannot enter a pledge amount with a declined response."])
       del cleaned_data["pledged_amount"]
     return cleaned_data
+     
+class AdminCreateGP(ModelForm):
+  leader = forms.ModelChoiceField(queryset=models.Member.objects.all())
+
+  class Meta:
+    model = models.GivingProject
