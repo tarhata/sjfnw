@@ -197,8 +197,8 @@ def Home(request):
     if progress['togo'] < 0:
       progress['togo'] = 0
   else:
-    progress['bar'] = 0
     progress['contactsremaining'] = 0
+  
   
   step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
   upcoming_steps = []
