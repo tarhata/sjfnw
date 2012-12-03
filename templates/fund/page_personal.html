@@ -60,7 +60,7 @@
 </script>
 <script type="text/javascript">
 
-var status_texts = {
+var status_texts = { //probably not the best way, but simplest I found
   400: '400 Bad Request',
   401: '401 Unauthorized',
   403: '403 Forbidden',
@@ -98,6 +98,7 @@ function loadView(get_url, div_id, dasked, dpledged) {
   $.ajax({
 		url:get_url,
 		type:"GET",
+    timeout: 1000,
 		success:function(data, textStatus, jqXHR){
 			document.getElementById(div_id).innerHTML=jqXHR.responseText;
       var donor_id = get_url.match(/\d+/);
@@ -132,6 +133,7 @@ $.ajax({
 	url:sub_url,
 	type:"POST",
 	data:$(form_id).serialize(),
+  timeout: 1000,
 	success:function(data, textStatus, jqXHR){
 		if (jqXHR.responseText=="success") {
 			location.reload();
@@ -166,6 +168,7 @@ $.ajax({
 	url:'/fund/addmult',
 	type:"POST",
 	data:$('#addmult').serialize(),
+  timeout: 1000,
 	success:function(data, textStatus, jqXHR){
 		if (jqXHR.responseText=="success") {
 			loadView('/fund/stepmult', 'adddonor');
