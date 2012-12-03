@@ -226,10 +226,10 @@ $(document).ready(function() {
 <tr>
 	<td style="width:50%;">
     <div align="center">{{progress.contacts}} contacts</div>
-    <div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:30px;margin-bottom:15px;"></div>
+    {% if progress.contacts > 0 %}<div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:30px;margin-bottom:15px;"></div>{% endif %}
 	<td>
     <div align="center">${{progress.estimated}} estimated fundraising</div>
-    <div align="center" id ="chart_div2" style="width:260px;height:110px;;margin-left:25px;margin-bottom:15px;"></div>
+     {% if progress.align > 0 %}<div align="center" id ="chart_div2" style="width:260px;height:110px;;margin-left:25px;margin-bottom:15px;"></div>{% endif %}
 	</td>
 </tr>
 </table>
