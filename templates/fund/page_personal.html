@@ -60,6 +60,17 @@
 </script>
 <script type="text/javascript">
 
+var status_texts = {
+  400: '400 Bad Request',
+  401: '401 Unauthorized',
+  403: '403 Forbidden',
+  404: '404 Not found',
+  408: '408 Request Timeout',
+  
+  500: '500 Internal server error',
+  503: '503 Service Unavailable',
+}
+
 function toggle(a, b) { //toggles a, border on b if a shown
   var e=document.getElementById(a);
   var f=document.getElementById(b);
@@ -100,7 +111,13 @@ function loadView(get_url, div_id, dasked, dpledged) {
 			datepicker();
 		},
 		error:function(jqXHR, textStatus, errorThrown){
-			document.getElementById(div_id).innerHTML="Error! "+textStatus+' '+errorThrown;
+      var errortext = ''
+      if (status_texts[jqXHR.status]) {
+        errortext = status_texts[jqXHR.status]
+      } else {
+        errortext = 'Unknown error'
+      }
+			document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + get_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
 		},
 	});
 }
@@ -130,8 +147,16 @@ $.ajax({
 		if (date) { datepicker(); }
 	},
 	error:function(jqXHR, textStatus, errorThrown){
-		document.getElementById(div_id).innerHTML="Error! "+textStatus+' '+errorThrown;
-		if (date) { datepicker(); }
+    var errortext = ''
+    if (status_texts[jqXHR.status]) {
+      errortext = status_texts[jqXHR.status]
+    } else {
+      errortext = 'Unknown error'
+    }
+    document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + get_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
+		if (date) {
+      datepicker();
+    }
 	},
 });
 }
@@ -149,7 +174,13 @@ $.ajax({
 		}
 	},
 	error:function(jqXHR, textStatus, errorThrown){
-		document.getElementById('adddonor').innerHTML="Error! "+textStatus+' '+errorThrown;
+    var errortext = ''
+    if (status_texts[jqXHR.status]) {
+      errortext = status_texts[jqXHR.status]
+    } else {
+      errortext = 'Unknown error'
+    }
+    document.getElementById('adddonor').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + get_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
 	},
 });
 }
@@ -222,14 +253,14 @@ $(document).ready(function() {
 {% endif %}
 
 <b>YOUR PROGRESS</b>
-<table style="width:100%;margin-top:10px;">
+<table style="width:100%;margin-top:10px;margin-bottom:15px;">
 <tr>
 	<td style="width:50%;">
     <div align="center">{{progress.contacts}} contacts</div>
-    {% if progress.contacts > 0 %}<div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:30px;margin-bottom:15px;"></div>{% endif %}
+    {% if progress.contacts > 0 %}<div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:30px;"></div>{% endif %}
 	<td>
     <div align="center">${{progress.estimated}} estimated fundraising</div>
-     {% if progress.align > 0 %}<div align="center" id ="chart_div2" style="width:260px;height:110px;;margin-left:25px;margin-bottom:15px;"></div>{% endif %}
+     {% if progress.estimated > 0 %}<div align="center" id ="chart_div2" style="width:260px;height:110px;;margin-left:25px;"></div>{% endif %}
 	</td>
 </tr>
 </table>
