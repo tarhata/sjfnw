@@ -26,31 +26,37 @@ def UpdateStory(membership_id, time):
   
   #tally today's steps
   steps = models.Step.objects.filter(completed__range=(today_min, today_max)).select_related('donor')
-  logging.debug('Filtered steps: ' + str(steps))
   talked, asked, pledges, pledged = 0, 0, 0, 0
-  donors = [] #for talk counts, don't want to double up
+  talkedlist = [] #for talk counts, don't want to double up
+  askedlist = []
   for step in steps:
+    logging.debug(str(step))
     if step.asked:
       asked += 1
-      if step.donor in donors: #if they counted for talk from earlier step, remove
+      askedlist.append(step.donor)
+      if step.donor in talkedlist: #if they counted for talk from earlier step, remove
         talked -= 1
-      else:
-        donors.append(step.donor)
-    elif not step.donor in donors:
+        talkedlist.remove(step.donor)
+    elif not step.donor in talkedlist and not step.donor in askedlist:
       talked += 1
-      donors.append(step.donor)
+      talkedlist.append(step.donor)
     if step.pledged:
       pledges += 1
       pledged += step.pledged
-  summary = ''
+  summary = membership.member.first_name
+  if talked > 0:
+    summary += ' talked to ' + str(talked) + (' people' if talked>1 else ' person')
+    if asked>0:
+      if pledged > 0:
+        summary += ', asked ' + str(asked)
+      else:
+        summary += ' and asked ' + str(asked)
+  elif asked > 0:
+    summary += ' asked ' + str(talked) + (' people' if asked>1 else ' person')
+  else:
+    logging.error('News update with 0 talked, 0 asked. Story pk: ' + str(story.pk))
   if pledged > 0:
     summary += ' and got $' + str(pledged) + ' in pledges'
-    if asked>0:
-      summary = ', asked ' + str(asked) + summary
-  elif asked>0:
-    summary += ' and asked ' + str(asked)
-  talked_pluralize = ' contacts' if talked>1 else ' contact'
-  summary = membership.member.first_name + ' talked to ' + str(talked) + talked_pluralize + summary
   summary += '.'
   logging.info(summary)
   story.summary = summary
