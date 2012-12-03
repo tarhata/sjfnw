@@ -98,7 +98,7 @@ function loadView(get_url, div_id, dasked, dpledged) {
   $.ajax({
 		url:get_url,
 		type:"GET",
-    timeout: 1000,
+    timeout: 10000,
 		success:function(data, textStatus, jqXHR){
 			document.getElementById(div_id).innerHTML=jqXHR.responseText;
       var donor_id = get_url.match(/\d+/);
@@ -115,6 +115,8 @@ function loadView(get_url, div_id, dasked, dpledged) {
       var errortext = ''
       if (status_texts[jqXHR.status]) {
         errortext = status_texts[jqXHR.status]
+      } else if (textStatus=='timeout') {
+        errortext = 'Request timeout'
       } else {
         errortext = 'Unknown error'
       }
@@ -133,7 +135,7 @@ $.ajax({
 	url:sub_url,
 	type:"POST",
 	data:$(form_id).serialize(),
-  timeout: 1000,
+  timeout: 10000,
 	success:function(data, textStatus, jqXHR){
 		if (jqXHR.responseText=="success") {
 			location.reload();
@@ -152,6 +154,8 @@ $.ajax({
     var errortext = ''
     if (status_texts[jqXHR.status]) {
       errortext = status_texts[jqXHR.status]
+    } else if (textStatus=='timeout') {
+      errortext = 'Request timeout'
     } else {
       errortext = 'Unknown error'
     }
@@ -168,7 +172,7 @@ $.ajax({
 	url:'/fund/addmult',
 	type:"POST",
 	data:$('#addmult').serialize(),
-  timeout: 1000,
+  timeout: 10000,
 	success:function(data, textStatus, jqXHR){
 		if (jqXHR.responseText=="success") {
 			loadView('/fund/stepmult', 'adddonor');
@@ -180,6 +184,8 @@ $.ajax({
     var errortext = ''
     if (status_texts[jqXHR.status]) {
       errortext = status_texts[jqXHR.status]
+    } else if (textStatus=='timeout') {
+      errortext = 'Request timeout'
     } else {
       errortext = 'Unknown error'
     }
