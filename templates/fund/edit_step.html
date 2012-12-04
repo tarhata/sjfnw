@@ -1,14 +1,21 @@
-<table><tr>
-	<td>
-		<form method="post" action="{{action}}" id="{{formid}}">
-			<table class="form">
-				{{ form.as_table }}
-			</table>
-		</form>
-		<button onclick="Submit('{{action}}', '#{{formid}}', '{{divid}}', 'date')">Save</button>
-		<button onclick="location.href='/fund/'">Cancel</button>
-	</td>
-	<td>
-		{% include 'fund/suggested_steps.html' %}
-	</td>
-</tr></table>
+<form id="{{formid}}">
+  <table class="form" style="width:80%;margin-left:10%;">
+    <tr align="center">
+      <td>{{form.description.errors}}</td>
+      <td>{{form.date.errors}}</td>
+    </tr>
+    <tr align="center">
+      <td>Date: {{form.date}}</td>
+      <td>Description: {{form.description}}</td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        {% include 'fund/suggested_steps.html' %}
+      </td>
+    </tr>
+  </table>
+</form>
+<div align="center" style="margin-bottom:15px;">
+	<button onclick="Submit('{{action}}', '#{{formid}}', '{{divid}}', 'date')">Save</button>
+	<button onclick="location.href='/fund/'">Cancel</button>
+</div>
