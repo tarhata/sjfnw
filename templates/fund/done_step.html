@@ -29,19 +29,24 @@
       <br>
       Plan a next step (optional):<br>
       <table class="form">
+				<tr>
+					<th></th>
+					<td>{{form.next_step_date.errors}}</td>
+				</tr>
         <tr>
           <th>Date:</th>
           <td>{{form.next_step_date}}</td>
-          <td>{{form.next_step_date.errors}}</td>
         </tr>
+				<tr>
+					<th></th>
+					<td>{{form.next_step.errors}}</td>
         <tr>
           <th>Description:</th>
           <td>{{form.next_step}}</td>
-          <td>{{form.next_step.errors}}</td>
         </tr>
       </table>
     </form>
-    <button onclick="Submit('{{action}}', '#done_step', '{{donor.pk}}-nextstep', '', '{{donor.asked}}', '{{donor.pledged}}')">Save</button>
+    <button onclick="Submit('{{action}}', '#done_step', '{{donor.pk}}-nextstep', 'date', '{{donor.asked}}', '{{donor.pledged}}')">Save</button>
     <button onclick="location.href='/fund/'">Cancel</button>
   </td>
   <td style="vertical-align:bottom;">

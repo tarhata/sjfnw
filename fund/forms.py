@@ -83,6 +83,9 @@ class StepDoneForm(forms.Form):
     cleaned_data = super(StepDoneForm, self).clean()
     reply = cleaned_data.get("reply")
     amt = cleaned_data.get("pledged_amount")
+    next_step = cleaned_data.get("next_step")
+    next_step_date = cleaned_data.get("next_step_date")
+    
     if reply=='1' and (not amt or amt==0): #reply = pledge but no/zero amount entered
       logging.debug('Pledged without amount')
       self._errors["pledged_amount"] = self.error_class(["Please enter an amount."])
@@ -90,6 +93,12 @@ class StepDoneForm(forms.Form):
       logging.debug('Declined with amount')
       self._errors["pledged_amount"] = self.error_class(["Cannot enter a pledge amount with a declined response."])
       del cleaned_data["pledged_amount"]
+    if next_step and not next_step_date:
+      self._errors["next_step_date"] = self.error_class(["Enter a date."])
+      del cleaned_data["next_step"]
+    elif next_step_date and not next_step:
+      self._errors["next_step"] = self.error_class(["Enter a description."])
+      del cleaned_data["next_step_date"]
     return cleaned_data
     
 class MembershipInlineFormset(forms.models.BaseInlineFormSet):
