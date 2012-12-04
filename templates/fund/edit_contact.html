@@ -1,0 +1,11 @@
+<table><tr>
+	<td>
+	<form method="post" action="{{action}}" id="{{formid}}">
+		<table class="form">
+			{{ form.as_table }}
+		</table>
+	</form>
+	<button onclick="Submit('{{action}}', '#{{formid}}', '{{divid}}', 'date')">Save</button>
+	<button onclick="location.href='/fund/'">Cancel</button>
+	</td>
+</tr></table>

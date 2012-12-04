@@ -473,16 +473,16 @@ def EditDonor(request, donor_id):
   divid = 'donor-'+donor_id
   
   if request.method == 'POST':
-    form = models.DonorForm(request.POST, instance=donor)
+    form = models.DonorForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
     if form.is_valid():
       form.save()
       request.membership.last_activity = timezone.now()
       request.membership.save()
       return HttpResponse("success")
   else:
-    form = models.DonorForm(instance=donor)
+    form = models.DonorForm(instance=donor, auto_id = str(donor.pk) + '_id_%s')
 
-  return render_to_response('fund/edit.html', { 'form': form, 'action':action, 'ajax':ajax, 'divid':divid, 'formid':formid})
+  return render_to_response('fund/edit_contact.html', { 'form': form, 'action':action, 'divid':divid, 'formid':formid})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -524,7 +524,7 @@ def AddStep(request, donor_id):
   divid = donor_id+'-addstep'
   
   if request.method == 'POST':
-    form = models.StepForm(request.POST)
+    form = models.StepForm(request.POST, auto_id = str(donor.pk) + '_id_%s')
     has_step = donor.get_next_step()
     logging.info('Single step - POST: ' + str(request.POST))
     if has_step:
@@ -540,7 +540,7 @@ def AddStep(request, donor_id):
   else: 
     form = models.StepForm(auto_id = str(donor.pk) + '_id_%s')
     
-  return render_to_response('fund/add_step.html', {'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested})
+  return render_to_response('fund/add_step.html', {'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested, 'target': str(donor.pk) + '_id_description'})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -598,16 +598,16 @@ def EditStep(request, donor_id, step_id):
   divid = donor_id+'-nextstep'
   
   if request.method == 'POST':
-      form = models.StepForm(request.POST, instance=step)
+      form = models.StepForm(request.POST, instance=step, auto_id = str(step.pk) + '_id_%s')
       if form.is_valid():
         request.membership.last_activity = timezone.now()
         request.membership.save()
         form.save()
         return HttpResponse("success")
   else:
-    form = models.StepForm(instance=step)
+    form = models.StepForm(instance=step, auto_id = str(step.pk) + '_id_%s')
     
-  return render_to_response('fund/edit.html', { 'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested})
+  return render_to_response('fund/edit_step.html', { 'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested, 'target': str(step.pk) + '_id_description'})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -629,7 +629,7 @@ def DoneStep(request, donor_id, step_id):
   action='/fund/'+str(donor_id)+'/'+str(step_id)+'/done'
 
   if request.method == 'POST':
-    form = StepDoneForm(request.POST)
+    form = StepDoneForm(request.POST, auto_id = str(step.pk) + '_id_%s')
     if form.is_valid():
       membership.last_activity = timezone.now()
       membership.save()
@@ -684,9 +684,9 @@ def DoneStep(request, donor_id, step_id):
       else:
         reply = 1
         amount = donor.pledged
-    form = StepDoneForm(initial = {'asked':donor.asked, 'reply':reply, 'pledged_amount':amount, 'notes':donor.notes})
+    form = StepDoneForm(auto_id = str(step.pk) + '_id_%s', initial = {'asked':donor.asked, 'reply':reply, 'pledged_amount':amount, 'notes':donor.notes})
     
-  return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'suggested':suggested})
+  return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'suggested':suggested, 'target': str(donor.pk) + '_id_next_step'})
 
 #CRON EMAILS
 def EmailOverdue(request):
