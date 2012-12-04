@@ -1,5 +1,5 @@
 <form id="{{formid}}">
-  <table class="form">
+  <table class="form" style="width:80%;margin-left:10%;">
     <tr align="center">
       <td>{{form.description.errors}}</td>
       <td>{{form.date.errors}}</td>
@@ -15,7 +15,7 @@
     </tr>
   </table>
 </form>
-<div align="center">
+<div align="center" style="margin-bottom:15px;">
   <button onclick="Submit('{{action}}', '#{{formid}}', '{{divid}}', 'date')">Save</button>
   <button onclick="location.href='/fund/'">Cancel</button>
 </div>
