@@ -22,7 +22,8 @@ import pytz
 from google.appengine.ext import deferred, ereporter
 import utils
 
-ereporter.register_logger()
+if not settings.DEBUG:
+  ereporter.register_logger()
 
 #LOGIN & REGISTRATION
 def FundLogin(request):
@@ -537,9 +538,9 @@ def AddStep(request, donor_id):
       membership.save()
       return HttpResponse("success")
   else: 
-    form = models.StepForm()
+    form = models.StepForm(auto_id = str(donor.pk) + '_id_%s')
     
-  return render_to_response('fund/add_step.html', {'donor': donor, 'form': form, 'action':action, 'ajax':ajax, 'divid':divid, 'formid':formid, 'suggested':suggested})
+  return render_to_response('fund/add_step.html', {'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
