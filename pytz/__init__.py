@@ -31,10 +31,11 @@ try:
 except ImportError:
     from collections import Mapping as DictMixin
 
+"""
 try:
     from pkg_resources import resource_stream
-except ImportError:
-    resource_stream = None
+except ImportError:"""
+resource_stream = None
 
 from pytz.exceptions import AmbiguousTimeError
 from pytz.exceptions import InvalidTimeError
