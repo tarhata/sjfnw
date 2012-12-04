@@ -64,6 +64,14 @@ class MemberInline(admin.TabularInline):
   model = Member
   extra = 1
 
+class ProjectResourcesInline(admin.TabularInline):
+  model = ProjectResource
+  extra = 0
+  fieldsets = (None, {
+    'classes': ('collapse',),
+    'fields': ('resource', 'session',)
+  }),
+
 def gp_year(obj):
   return obj.fundraising_deadline.year
 gp_year.short_description = 'Year'
@@ -71,6 +79,7 @@ gp_year.short_description = 'Year'
 class GPAdmin(admin.ModelAdmin):
   list_display = ('title', gp_year)
   inlines = [
+    ProjectResourcesInline,
     MembershipInline,
   ]
   
@@ -137,8 +146,9 @@ admin.site.register(Membership, MembershipAdmin)
 admin.site.register(NewsItem, NewsAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Donor, DonorAdmin)
-admin.site.register(GrantCycle)
 admin.site.register(ProjectResource)
+admin.site.register(Resource)
+
 
 #advanced
 advanced_admin = AdminSite(name='advanced')
@@ -153,6 +163,8 @@ advanced_admin.register(GivingProject, GPAdmin)
 advanced_admin.register(NewsItem, NewsAdmin)
 advanced_admin.register(Event, EventAdmin)
 advanced_admin.register(Step, StepAdv)
+advanced_admin.register(ProjectResource)
+advanced_admin.register(Resource)
 
 advanced_admin.register(GrantCycle)
 advanced_admin.register(NarrativeText)

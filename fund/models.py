@@ -17,7 +17,7 @@ class GivingProject(models.Model):
   suggested_steps = models.TextField(default='Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank', help_text='Displayed to users when they add a step.  Put each step on a new line')
   
   calendar = models.CharField(max_length=255, null=True, blank=True, help_text= 'Calendar ID of a google calendar (not the whole embed text)')
-  resources = models.ManyToManyField('ProjectResource', null=True, blank=True)
+  resources = models.ManyToManyField('Resource', through = 'ProjectResource', null=True, blank=True)
 
   def __unicode__(self):
     return self.title+' '+unicode(self.fundraising_deadline.year)
@@ -175,11 +175,16 @@ class Event(models.Model):
   def __unicode__(self):
     return self.desc
 
-class ProjectResource(models.Model):
+class Resource(models.Model):
   title = models.CharField(max_length=255)
   summary = models.TextField(blank=True)
   link = models.URLField()
-  section = models.CharField(max_length=255)
   
   def __unicode__(self):
     return self.title
+
+class ProjectResource(models.Model): #ties resource to project
+  giving_project = models.ForeignKey(GivingProject)
+  resource = models.ForeignKey(Resource)
+  
+  session = models.CharField(max_length=255)
