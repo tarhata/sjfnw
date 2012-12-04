@@ -40,7 +40,7 @@
     chart.draw(data, options);
     drawChart2();             
   }
-   function drawChart2() {
+  function drawChart2() {
 
     // Create the data table.
     var data = new google.visualization.DataTable();
@@ -262,11 +262,11 @@ $(document).ready(function() {
 {% endif %}
 
 <b>YOUR PROGRESS</b>
-<table style="width:100%;margin-top:10px;margin-bottom:15px;">
+<table style="width:90%;margin-top:10px;margin-bottom:15px;">
 <tr>
 	<td style="width:50%;">
     <div align="center">{{progress.contacts}} contacts</div>
-    {% if progress.contacts > 0 %}<div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:30px;"></div>{% endif %}
+    {% if progress.contacts > 0 %}<div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:25px;"></div>{% endif %}
 	<td>
     <div align="center">${{progress.estimated}} estimated fundraising</div>
      {% if progress.estimated > 0 %}<div align="center" id ="chart_div2" style="width:260px;height:110px;;margin-left:25px;"></div>{% endif %}
