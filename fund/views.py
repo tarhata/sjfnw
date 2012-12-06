@@ -697,7 +697,7 @@ def EmailOverdue(request):
   subject, from_email = 'Fundraising Steps', settings.APP_SEND_EMAIL
   for ship in ships:
     user = ship.member
-    if ship.has_overdue()>0 and ship.emailed<=limit:
+    if ship.emailed <= limit and ship.has_overdue()>0: #this does a query for every donor
       logging.info(user.email + ' has overdue step(s), emailing.')
       to = user.email
       steps = models.Step.objects.filter(donor__membership=ship, date__lt=today, completed__isnull=True)
