@@ -200,7 +200,8 @@ def Home(request):
   else:
     progress['contactsremaining'] = 0
   
-  
+  num, st = membership.has_overdue(next = True)
+  logging.info(str(num) + str(st))
   step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
   upcoming_steps = []
   ctz = timezone.get_current_timezone()
@@ -426,14 +427,15 @@ def AddDonor(request):
     form = NewDonor(request.POST)
     if form.is_valid():
       donor = models.Donor(firstname = request.POST['firstname'], lastname= request.POST['lastname'], amount= request.POST['amount'], likelihood= request.POST['likelihood'], phone= request.POST['phone'], email= request.POST['email'], membership=membership)
-      donor.save()
       membership.last_activity = timezone.now()
       membership.save()
-      logging.info('New donor added - membership=' + str(membership.pk) + ', donor=' + str(donor.pk))
       if request.POST['step_date'] and request.POST['step_desc']:
         step = models.Step(date = request.POST['step_date'], description = request.POST['step_desc'], donor = donor)
         step.save()
         logging.info('Step created with donor')
+        donor.next_step = step
+      donor.save()
+      logging.info('New donor added - membership=' + str(membership.pk) + ', donor=' + str(donor.pk))
       return HttpResponse("success")
   else:
     form = NewDonor()
@@ -525,7 +527,7 @@ def AddStep(request, donor_id):
   
   if request.method == 'POST':
     form = models.StepForm(request.POST, auto_id = str(donor.pk) + '_id_%s')
-    has_step = donor.get_next_step()
+    has_step = donor.next_step
     logging.info('Single step - POST: ' + str(request.POST))
     if has_step:
       logging.error('Donor already has an incomplete step: ' + str(has_step))
@@ -534,6 +536,8 @@ def AddStep(request, donor_id):
       step.donor = donor
       step.save()
       logging.info('Single step - form valid, step saved')
+      donor.next_step = step
+      donor.save()
       membership.last_activity = timezone.now()
       membership.save()
       return HttpResponse("success")
@@ -552,7 +556,7 @@ def AddMultStep(request):
   suggested = membership.giving_project.suggested_steps.splitlines()
   
   for donor in membership.donor_set.all():
-    if not donor.get_next_step(): #query for each donor, ouch
+    if not donor.next_step(): #query for each donor, ouch
       initiald.append({'donor': donor})
       dlist.append(donor)
       size = size +1
@@ -566,6 +570,8 @@ def AddMultStep(request):
         if form:
           step = models.Step(donor = form['donor'], date = form['date'], description = form['description'])
           step.save()
+          step.donor.next_step = step
+          step.donor.save()
           logging.info('Multiple steps - step created')
         else:
           logging.debug('Multiple steps - blank form')
@@ -633,11 +639,7 @@ def DoneStep(request, donor_id, step_id):
     if form.is_valid():
       membership.last_activity = timezone.now()
       membership.save()
-      
       step.completed = timezone.now()
-      step.save()
-      
-      logging.info('Completing a step')
       donor.talked=True
       donor.notes = form.cleaned_data['notes']
       asked = form.cleaned_data['asked']
@@ -661,11 +663,10 @@ def DoneStep(request, donor_id, step_id):
         logging.debug('Pledge entered')
         step.pledged=pledged
         donor.pledged=pledged
+      logging.info('Completing a step')
       step.save()
       #call story creator/updater
       deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
-      
-      donor.save()
       next = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
       if next!='' and next_date!=None:
@@ -673,7 +674,9 @@ def DoneStep(request, donor_id, step_id):
         form2.date = next_date
         form2.description = next
         form2.donor = donor
-        form2.save()
+        ns = form2.save()
+        donor.next_step = ns  
+      donor.save()
       return HttpResponse("success")
   else: #GET - fill form with initial data
     reply = 2
