@@ -1,22 +1,17 @@
-<div style="width:80%;margin-left:10%;">
-{% include 'fund/suggested_steps.html' %}
-</div>
 <form id="{{formid}}">
-  <table class="form" style="width:60%;margin-left:20%;text-align:center;">
-    <tr>
-      <td colspan="2"></td>
-    </tr>
-    <tr>
-      <td>Date</td>
-      <td>Description</td>
-    </tr>
-    <tr>
-      <td>{{form.date.errors}}</td>
+  <table class="form" style="width:80%;margin-left:10%;">
+    <tr align="center">
       <td>{{form.description.errors}}</td>
+      <td>{{form.date.errors}}</td>
+    </tr>
+    <tr align="center">
+      <td>Date: {{form.date}}</td>
+      <td>Description: {{form.description}}</td>
     </tr>
     <tr>
-      <td>{{form.date}}</td>
-      <td>{{form.description}}</td>
+      <td colspan="2">
+        {% include 'fund/suggested_steps.html' %}
+      </td>
     </tr>
   </table>
 </form>
