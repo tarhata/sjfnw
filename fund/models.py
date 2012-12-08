@@ -52,10 +52,12 @@ class Membership(models.Model): #relationship b/n member and gp
     cutoff = timezone.now().date() - datetime.timedelta(days=1)
     steps = Step.objects.filter(donor__membership = self, completed__isnull = True, date__lt = cutoff).order_by('-date')
     count = steps.count()
-    if (not next or count == 0):
+    if not next:
       return count
+    elif count==0:
+      return count, False
     else:
-      return steps.count(), steps[0]
+      return count, steps[0]
 
   def asked(self): #remove
     return self.donor_set.filter(asked=True).count()
