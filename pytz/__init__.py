@@ -30,6 +30,7 @@ try:
     from UserDict import DictMixin
 except ImportError:
     from collections import Mapping as DictMixin
+
 """
 try:
     from pkg_resources import resource_stream

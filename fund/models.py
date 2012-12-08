@@ -47,14 +47,14 @@ class Membership(models.Model): #relationship b/n member and gp
   def __unicode__(self):
     return unicode(self.member)+u', '+unicode(self.giving_project)
     
-  def has_overdue(self): #remove
+  def has_overdue(self, next=False): #remove
     donors = self.donor_set.all()
-    overdue = 0
-    day = datetime.timedelta(days=1)
-    for donor in donors:
-      if donor.has_overdue() and donor.has_overdue()>day: #1 day grace period to member to update
-        overdue = overdue+1
-    return overdue
+    cutoff = timezone.now().date() - datetime.timedelta(days=1)
+    steps = Step.objects.filter(donor__membership = self, completed__isnull = True, date__lt = cutoff).order_by('-date')
+    if not next:
+      return steps.count()
+    else:
+      return steps.count(), steps[0]
 
   def asked(self): #remove
     return self.donor_set.filter(asked=True).count()
@@ -102,18 +102,13 @@ class Donor(models.Model):
   email = models.EmailField(null=True, blank=True)
   notes = models.TextField(blank=True)
   
+  next_step = models.ForeignKey('Step', related_name = '+', null=True) #don't need to go backwards
+  
   def __unicode__(self):
     return self.firstname+' '+self.lastname
   
   def estimated(self):
     return int(self.amount*self.likelihood*.01)
-  
-  def get_next_step(self):
-    step = Step.objects.filter(donor=self, completed__isnull=True)
-    if step:
-      return step[0]
-    else:
-      return None
     
   def get_steps(self): #used in expanded view
     return Step.objects.filter(donor=self).filter(completed__isnull=False).order_by('date')
@@ -143,7 +138,7 @@ class Step(models.Model):
   date = models.DateField(verbose_name='Date')
   description = models.CharField(max_length=255, verbose_name='Description')
   donor = models.ForeignKey(Donor)
-  completed = models.DateTimeField(null=True)
+  completed = models.DateTimeField(null=True, blank=True)
   asked = models.BooleanField(default=False)
   pledged = models.PositiveIntegerField(blank=True, null=True)
 
@@ -188,3 +183,6 @@ class ProjectResource(models.Model): #ties resource to project
   resource = models.ForeignKey(Resource)
   
   session = models.CharField(max_length=255)
+  
+  def __unicode__(self):
+    return "%s - %s - %s" %(self.giving_project, self.session, self.resource)
