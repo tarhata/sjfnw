@@ -291,16 +291,16 @@ def ProjectPage(request):
   project_progress['togo'] =  project.fund_goal - project_progress['estimated'] - project_progress['pledged'] -  project_progress['donated']
   if project_progress['togo'] < 0:
     project_progress['togo'] = 0
+
+  resources = models.ProjectResource.objects.filter(giving_project = project).select_related('resource')
   
-  logging.info(project_progress)
-  resources = project.resources.all()
   logging.info(resources)
   sectioned = {}
-  for resource in resources:
-    section = str(resource.section)
-    if not section in sectioned:
-       sectioned[section] = []
-    sectioned[section].append(resource)
+  for projresource in resources:
+    session = str(projresource.session)
+    if not session in sectioned:
+       sectioned[session] = []
+    sectioned[session].append(projresource.resource)
     
   #base
   header = project.title
