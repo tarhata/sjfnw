@@ -51,8 +51,9 @@ class Membership(models.Model): #relationship b/n member and gp
     donors = self.donor_set.all()
     cutoff = timezone.now().date() - datetime.timedelta(days=1)
     steps = Step.objects.filter(donor__membership = self, completed__isnull = True, date__lt = cutoff).order_by('-date')
-    if not next:
-      return steps.count()
+    count = steps.count()
+    if (not next or count == 0):
+      return count
     else:
       return steps.count(), steps[0]
 
