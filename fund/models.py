@@ -183,3 +183,6 @@ class ProjectResource(models.Model): #ties resource to project
   resource = models.ForeignKey(Resource)
   
   session = models.CharField(max_length=255)
+  
+  def __unicode__(self):
+    return "%s - %s - %s" %(self.giving_project, self.session, self.resource)
