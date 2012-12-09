@@ -47,8 +47,7 @@ class Membership(models.Model): #relationship b/n member and gp
   def __unicode__(self):
     return unicode(self.member)+u', '+unicode(self.giving_project)
     
-  def has_overdue(self, next=False): #remove
-    donors = self.donor_set.all()
+  def has_overdue(self, next=False): # 1 db query
     cutoff = timezone.now().date() - datetime.timedelta(days=1)
     steps = Step.objects.filter(donor__membership = self, completed__isnull = True, date__lt = cutoff).order_by('-date')
     count = steps.count()
