@@ -702,16 +702,16 @@ def EmailOverdue(request):
     user = ship.member
     if ship.emailed <= limit:
       num, st = ship.has_overdue(next=True)
-        if num>0 and st:
-          logging.info(user.email + ' has overdue step(s), emailing.')
-          to = user.email
-          html_content = render_to_string('fund/email_overdue.html', {'login_url':settings.APP_BASE_URL+'fund/login', 'ship':ship, 'num':num, 'step':st, 'base_url':settings.APP_BASE_URL})
-          text_content = strip_tags(html_content)
-          msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com'])
-          msg.attach_alternative(html_content, "text/html")
-          msg.send()
-          ship.emailed = today
-          ship.save()
+      if num>0 and st:
+        logging.info(user.email + ' has overdue step(s), emailing.')
+        to = user.email
+        html_content = render_to_string('fund/email_overdue.html', {'login_url':settings.APP_BASE_URL+'fund/login', 'ship':ship, 'num':num, 'step':st, 'base_url':settings.APP_BASE_URL})
+        text_content = strip_tags(html_content)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com'])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+        ship.emailed = today
+        ship.save()
   return HttpResponse("")
 
 def NewAccounts(request):
