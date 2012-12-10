@@ -1,57 +1,66 @@
-<table><tr>
-  <td>
-    <form id = "done_step" method="post" action="{{action}}">
-      <br>
-      Contact status:<br>
-      <table class="form asked">
-        <tr id="{{donor.pk}}_summary" style="display:none;">
-          <th></th>
-          <td colspan="2">
-          </td>
-        </tr>
-        <tr>
-          <td colspan="3"><span style="margin-right:10px;">{% if donor.asked %}Asked.{% endif %}<span id = "{{donor.pk}}_asked">Asked: {{form.asked}}</span></span>{% if donor.pledged == 0 %}Declined.{% elif donor.pledged %}Pledged ${{donor.pledged}}.{% endif %}<span id = "{{donor.pk}}_reply">Response: {{form.reply}}</span></td>
-        </tr>
-        <tr>
-          <td colspan="3">{{form.pledged_amount.errors}}</td>
-        </tr>
-        <tr id="{{donor.pk}}_pledge">
-          <th>Pledged:</th>
-          <td>${{form.pledged_amount}}</td>
-          <td></td>
-        </tr>
-        <tr>
-          <th>Notes:</th>
-          <td>{{form.notes}}</td>
-          <td>{{form.notes.errors}}</td>
-        </tr>
-      </table>
-      <br>
-      Plan a next step (optional):<br>
-      <table class="form">
-				<tr>
-					<th></th>
-					<td>{{form.next_step_date.errors}}</td>
-				</tr>
-        <tr>
-          <th>Date:</th>
-          <td>{{form.next_step_date}}</td>
-        </tr>
-				<tr>
-					<th></th>
-					<td>{{form.next_step.errors}}</td>
-        <tr>
-          <th>Description:</th>
-          <td>{{form.next_step}}</td>
-        </tr>
-      </table>
-    </form>
-    <button onclick="Submit('{{action}}', '#done_step', '{{donor.pk}}-nextstep', 'date', '{{donor.asked}}', '{{donor.pledged}}')">Save</button>
-    <button onclick="location.href='/fund/'">Cancel</button>
-  </td>
-  <td style="vertical-align:bottom;">
-    <div align="center" style="margin-bottom:15px;">
-      {% include 'fund/suggested_steps.html' %}
-    </div>
-  </td>
-</tr></table>
+<table class="form">
+	<tr>
+		<td colspan="3">{{form.pledged_amount.errors}}</td>
+	</tr>
+	<tr>
+		<td>
+			<form id = "done_step" method="post" action="{{action}}">
+      Status:
+		</td>
+		<td colspan="2">
+			<span style="margin-right:10px;">
+				{% if donor.asked %}Asked.{% endif %}
+				<span id = "{{donor.pk}}_asked">
+					Asked: {{form.asked}}
+				</span>
+			</span>
+			{% if donor.pledged == 0 %}
+				Declined.
+			{% elif donor.pledged %}
+				Pledged ${{donor.pledged}}.
+			{% endif %}
+			<span id = "{{donor.pk}}_reply">
+				Response: {{form.reply}}
+			</span>
+			<span id="{{donor.pk}}_pledge">
+				Pledged: ${{form.pledged_amount}}
+			</span>
+		</td>
+	</tr>
+	<tr>
+		<th>Notes:</th>
+		<td>{{form.notes}}</td>
+		<td>{{form.notes.errors}}</td>
+	</tr>
+	<tr>
+    <td colspan="2">
+			<br>Plan a next step (optional):
+		</td>
+		<td rowspan="6" style="vertical-align:bottom;">
+			<div align="center" style="margin-bottom:15px;">
+				{% include 'fund/suggested_steps.html' %}
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<th></th>
+		<td>{{form.next_step_date.errors}}</td>
+	</tr>
+	<tr>
+		<th>Date:</th>
+		<td>{{form.next_step_date}}</td>
+	</tr>
+	<tr>
+		<th></th>
+		<td>{{form.next_step.errors}}</td>
+	<tr>
+		<th>Description:</th>
+		<td>{{form.next_step}}</form></td>
+	</tr>
+	<tr>
+		<td colspan="2" style="text-align:center">
+			<button onclick="Submit('{{action}}', '#done_step', '{{donor.pk}}-nextstep', 'date', '{{donor.asked}}', '{{donor.pledged}}')">Save</button>
+			<button onclick="location.href='/fund/'">Cancel</button>
+		</td>
+	</tr>
+</table>
