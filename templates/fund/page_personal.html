@@ -105,7 +105,7 @@ function loadView(get_url, div_id, dasked, dpledged) {
       if (donor_id) {
         var a=document.getElementById('donor-' + donor_id);
         a.style.borderColor="#555"
-        if (dasked && dasked!='False') {
+        if (dasked) {
           completeLoaded(donor_id, dasked, dpledged);
         }
       }
@@ -229,19 +229,51 @@ function showSuggestions(inp) { //shows suggested steps
 	div.style.display="block";
 }
 
-function completeLoaded(pk, dasked, dpledged) { //shows/hides fields on step complete
+function completeLoaded(pk, dasked, dpledged) {
+	//shows/hides fields in step complete
+	//when form first loads, all are shown
+	console.log(dasked);
+	console.log(pk);
   var asked = document.getElementById(pk+'_asked');
   var reply = document.getElementById(pk+'_reply');
+	console.log(reply);
   var pledged = document.getElementById(pk+'_pledge');
   var summary = document.getElementById(pk+'_summary');
-  if (dasked) {
-    asked.style.display = "none";
+  if (dasked != 'False') { //if contact has been asked hide that field
+    console.log('in dasked check');
+		asked.style.display = "none";
     summary.style.display = "table-row";
   }
   if (dpledged != 'None') {
     reply.style.display = "none";
     pledged.style.display = "none";
   }
+	console.log('calling others\n');
+	askedToggled(asked);
+	replySelected(reply);
+}
+
+function askedToggled(asked) {
+	var patt = new RegExp('\\d');
+	var num = patt.exec(asked.id);
+	var reply = document.getElementById(num+'_reply');
+	if (asked.checked) {
+		reply.style.display="inline";
+	} else {
+		reply.style.display="none";
+	}
+}
+
+function replySelected(reply) {
+	console.log(reply.value); //1 = pledged, 2 = unsure, 3 = dec
+	var patt = new RegExp('\\d');
+	var num = patt.exec(reply.id);
+	var pledge = document.getElementById(num+'_pledge');
+	if (reply.value == 1) {
+		pledge.style.display="";
+	} else {
+		pledge.style.display="none";
+	}
 }
 
 $(document).ready(function() {
