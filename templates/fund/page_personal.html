@@ -101,14 +101,16 @@ function loadView(get_url, div_id, dasked, dpledged) {
     timeout: 10000,
 		success:function(data, textStatus, jqXHR){
 			document.getElementById(div_id).innerHTML=jqXHR.responseText;
-      var donor_id = get_url.match(/\d+/);
+			var donor_id = get_url.match(/\d+/);
       if (donor_id) {
         var a=document.getElementById('donor-' + donor_id);
-        a.style.borderColor="#555"
+        a.style.borderColor="#555";
         if (dasked) {
           completeLoaded(donor_id, dasked, dpledged);
         }
-      }
+      } else if (div_id == 'adddonor') {
+				document.getElementById(div_id).style.borderColor="#555";
+			}
 			datepicker();
 		},
 		error:function(jqXHR, textStatus, errorThrown){
@@ -125,9 +127,11 @@ function loadView(get_url, div_id, dasked, dpledged) {
 	});
 }
 
-function cancelHide(div_id, replace) {
+function cancelHide(div_id, replace) { //used to hide adddonor div
 	replace = replace || '';
-	document.getElementById(div_id).innerHTML=replace;
+	var div = document.getElementById(div_id)
+	div.innerHTML=replace;
+	div.style.borderColor="#FFF";
 }
 
 function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
@@ -256,7 +260,7 @@ function completeLoaded(pk, dasked, dpledged) {
 function askedToggled(asked) {
 	var patt = new RegExp('\\d');
 	var num = patt.exec(asked.id);
-	var reply = document.getElementById(num+'_id_reply');
+	var reply = document.getElementById(num+'_reply');
 	if (asked.checked) {
 		reply.style.display="inline";
 	} else {
@@ -268,7 +272,7 @@ function replySelected(reply) {
 	console.log(reply.value); //1 = pledged, 2 = unsure, 3 = dec
 	var patt = new RegExp('\\d');
 	var num = patt.exec(reply.id);
-	var pledge = document.getElementById(num+'_id_pledged_amount');
+	var pledge = document.getElementById(num+'_pledge');
 	if (reply.value == 1) {
 		pledge.style.display="";
 	} else {
@@ -303,6 +307,7 @@ $(document).ready(function() {
 	<td style="width:50%;">
     <div align="center">{{progress.contacts}} contacts</div>
     {% if progress.contacts > 0 %}<div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:25px;"></div>{% endif %}
+	</td>
 	<td>
     <div align="center">${{progress.estimated}} estimated fundraising</div>
      {% if progress.estimated > 0 %}<div align="center" id ="chart_div2" style="width:260px;height:110px;;margin-left:25px;"></div>{% endif %}
@@ -313,7 +318,7 @@ $(document).ready(function() {
 <b>YOUR CONTACTS</b>
 {% if donor_list.0 %} <!--only show if mass add won't be showing -->
 	<div class="edit_done">[<a onclick="loadView('/fund/add', 'adddonor')">add contact</a>]</div>
-  <div class="donors" id="adddonor"></div><!--forms for adding contacts go here when requested-->
+  <div class="donor indent" id="adddonor"></div><!--forms for adding contacts go here when requested-->
 {% endif %}
 
 {% for dict in donor_list %}
