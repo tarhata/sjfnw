@@ -256,7 +256,7 @@ function completeLoaded(pk, dasked, dpledged) {
 function askedToggled(asked) {
 	var patt = new RegExp('\\d');
 	var num = patt.exec(asked.id);
-	var reply = document.getElementById(num+'_reply');
+	var reply = document.getElementById(num+'_id_reply');
 	if (asked.checked) {
 		reply.style.display="inline";
 	} else {
@@ -268,12 +268,16 @@ function replySelected(reply) {
 	console.log(reply.value); //1 = pledged, 2 = unsure, 3 = dec
 	var patt = new RegExp('\\d');
 	var num = patt.exec(reply.id);
-	var pledge = document.getElementById(num+'_pledge');
+	var pledge = document.getElementById(num+'_id_pledged_amount');
 	if (reply.value == 1) {
 		pledge.style.display="";
 	} else {
 		pledge.style.display="none";
 	}
+}
+
+function pledgeEntered(pledge) {
+	console.log(pledge.value);
 }
 
 $(document).ready(function() {
