@@ -4,6 +4,7 @@ from admin import advanced_admin
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 import grants, fund
+from django.conf import settings
 
 urlpatterns = patterns('',
 
@@ -25,7 +26,7 @@ urlpatterns = patterns('',
     (r'^logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/org'}),
 
     #reset password
-    (r'^org/reset$', 'django.contrib.auth.views.password_reset', {'template_name':'grants/reset.html', 'from_email':'webmaster@socialjusticefund.org', 'email_template_name':'grants/password_reset_email.html'}),
+    (r'^org/reset$', 'django.contrib.auth.views.password_reset', {'template_name':'grants/reset.html', 'from_email':settings.DEFAULT_FROM_EMAIL, 'email_template_name':'grants/password_reset_email.html'}),
     (r'^org/reset-sent', 'django.contrib.auth.views.password_reset_done', {'template_name':'grants/password_reset_done.html'}),
     (r'^org/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'grants/password_reset_confirm.html'}),
     (r'^org/reset-complete', 'django.contrib.auth.views.password_reset_complete', {'template_name':'grants/password_reset_complete.html'}),
