@@ -52,7 +52,7 @@ def UpdateStory(membership_id, time):
       else:
         summary += ' and asked ' + str(asked)
   elif asked > 0:
-    summary += ' asked ' + str(talked) + (' people' if asked>1 else ' person')
+    summary += ' asked ' + str(asked) + (' people' if asked>1 else ' person')
   else:
     logging.error('News update with 0 talked, 0 asked. Story pk: ' + str(story.pk))
   if pledged > 0:
