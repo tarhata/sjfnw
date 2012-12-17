@@ -418,7 +418,7 @@ def StatsSingle(request, gp_id):
 #successful AJAX should return HttpResponse("success")
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def AddDonor(request):
+def AddDonor(request): #no longer in use
 
   membership = request.membership
   suggested = membership.giving_project.suggested_steps.splitlines()
