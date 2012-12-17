@@ -49,7 +49,6 @@
     data.addColumn('number', 'Amount');
     data.addRows([
       ["Remaining", {{project_progress.togo|default:'0'}}],
-      ["Estimated", {{project_progress.estimated}}],
       ["Pledged", {{project_progress.pledged}}],
       ['Donated', {{project_progress.donated}}],
     ]);

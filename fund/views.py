@@ -273,11 +273,11 @@ def ProjectPage(request):
   news = models.NewsItem.objects.filter(membership__giving_project=project).order_by('-date')
   steps = models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2]
   
-  project_progress = {'contacts':0, 'talked':0, 'asked':0, 'estimated':0, 'pledged':0, 'donated':0}
+  project_progress = {'contacts':0, 'talked':0, 'asked':0, 'pledged':0, 'donated':0}
   donors = list(models.Donor.objects.filter(membership__giving_project=project))
   project_progress['contacts'] = len(donors)
   for donor in donors:
-    project_progress['estimated'] += donor.estimated()
+    #project_progress['estimated'] += donor.estimated()
     if donor.asked:
       project_progress['asked'] += 1
     elif donor.talked:
@@ -288,7 +288,7 @@ def ProjectPage(request):
       project_progress['pledged'] += donor.pledged 
   
   project_progress['contactsremaining'] = project_progress['contacts'] - project_progress['talked'] -  project_progress['asked']
-  project_progress['togo'] =  project.fund_goal - project_progress['estimated'] - project_progress['pledged'] -  project_progress['donated']
+  project_progress['togo'] =  project.fund_goal - project_progress['pledged'] -  project_progress['donated']
   if project_progress['togo'] < 0:
     project_progress['togo'] = 0
 
@@ -373,46 +373,6 @@ def Support(request):
   if request.user:
     member = request.user #for shared template
   return render_to_response('fund/support.html', {'member':member, 'header':header})
-
-#NOT IN USE
-@login_required(login_url='/fund/login/')
-def Stats(request): #for now, based on django user's admin status
-  header = 'SJF Fundraising Admin'
-  member = request.user #for sharing template
-  if not member.is_staff:
-    return redirect('fund/blocked')
-    
-  #main page shows current projects
-  curr_memb = models.Membership.objects.filter(giving_project__fundraising_deadline__gte=timezone.now())
-  curr_donors = models.Donor.objects.filter(membership__giving_project__fundraising_deadline__gte=timezone.now())
-  
-  overall = {}
-  overall['parti'] = curr_memb.count()
-  overall['contacts'] = curr_donors.count()
-  overall['talked'] = curr_donors.filter(talked=True).count()
-  overall['asked'] = curr_donors.filter(asked=True).count()
-  overall['pledged'] = 0
-  overall['donated'] = 0
-  overall['estimated'] = 0
-  
-  for donor in curr_donors:
-    if donor.pledged:
-      overall['pledged'] = overall['pledged'] + donor.pledged
-    overall['donated'] = overall['donated'] + donor.gifted
-    overall['estimated'] = overall['estimated'] + donor.amount*donor.likelihood/100
-  
-  return render_to_response('fund/stats.html', {'member':member, 'header':header, 'overall':overall})
-
-@login_required(login_url='/fund/login/')
-def StatsSingle(request, gp_id):
-  if not member.admin:
-    return redirect('fund/blocked')
-  try:
-    proj = models.GivingProject.objects.get(pk=gp_id)
-  except:
-    return redirect(Admin) #add error msg
-  members = proj.member_set.all()
-  return render_to_response('fund/admin_single.html', {'proj':proj, 'members':members})
   
 #FORMS
 #successful AJAX should return HttpResponse("success")
