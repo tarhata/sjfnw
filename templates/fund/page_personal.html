@@ -238,10 +238,11 @@ function showSuggestions(inp) { //shows suggested steps
 function completeLoaded(pk, dasked, dpledged) { //after complete step form loads
 	//shows/hides fields in step complete
 	//when form first loads, all are shown
-	console.log(dasked);
-	console.log(pk);
+	console.log('Asked: ' + dasked + ', pledged: ' +dpledged);
+	console.log('PK: ' + pk);
   var asked = document.getElementById(pk+'_asked');
   var reply = document.getElementById(pk+'_reply');
+	console.log(asked);
 	console.log(reply);
   var pledged = document.getElementById(pk+'_pledge');
   var summary = document.getElementById(pk+'_summary');
@@ -260,7 +261,9 @@ function completeLoaded(pk, dasked, dpledged) { //after complete step form loads
 
 function askedToggled(asked) { //step complete form
 	var patt = new RegExp('\\d');
+	console.log(asked.id);
 	var num = patt.exec(asked.id);
+	console.log('Num ' + num);
 	var reply = document.getElementById(num+'_reply');
 	if (asked.checked) {
 		reply.style.display="inline";
