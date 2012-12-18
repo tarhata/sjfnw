@@ -229,7 +229,7 @@ function suggestFill(source, target) { //fills input with selected step
 var div;
 function showSuggestions(inp) { //shows suggested steps
 	if (div) { div.style.display="none"; } //hides prior set
-	var patt = new RegExp('\\d');
+	var patt = new RegExp('\\d+');
 	var num = patt.exec(inp);
 	div = document.getElementById('suggest_'+num);
 	div.style.display="block";
@@ -245,12 +245,12 @@ function completeLoaded(pk, dasked, dpledged) { //after complete step form loads
 	console.log(asked);
 	console.log(reply);
   var pledged = document.getElementById(pk+'_pledge');
-  var summary = document.getElementById(pk+'_summary');
   if (dasked != 'False') { //if contact has been asked hide that field
     console.log('in dasked check');
 		asked.style.display = "none";
   }
   if (dpledged != 'None') {
+		console.log('dpledged not none');
     reply.style.display = "none";
     pledged.style.display = "none";
   }
@@ -260,7 +260,7 @@ function completeLoaded(pk, dasked, dpledged) { //after complete step form loads
 }
 
 function askedToggled(asked) { //step complete form
-	var patt = new RegExp('\\d');
+	var patt = new RegExp('\\d+');
 	console.log(asked.id);
 	var num = patt.exec(asked.id);
 	console.log('Num ' + num);
@@ -274,7 +274,7 @@ function askedToggled(asked) { //step complete form
 
 function replySelected(reply) { //step complete form
 	console.log(reply.value); //1 = pledged, 2 = unsure, 3 = dec
-	var patt = new RegExp('\\d');
+	var patt = new RegExp('\\d+');
 	var num = patt.exec(reply.id);
 	var pledge = document.getElementById(num+'_pledge');
 	if (reply.value == 1) {
