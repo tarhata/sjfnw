@@ -10,7 +10,7 @@
 		<td colspan="2">
 			<span style="margin-right:10px;">
 				{% if donor.asked %}Asked.{% endif %}
-				<span id = "{{donor.pk}}_asked">
+				<span id = "{{step_id}}_asked">
 					Asked: {{form.asked}}
 				</span>
 			</span>
@@ -19,10 +19,10 @@
 			{% elif donor.pledged %}
 				Pledged ${{donor.pledged}}.
 			{% endif %}
-			<span id = "{{donor.pk}}_reply">
+			<span id = "{{step_id}}_reply">
 				Response: {{form.reply}}
 			</span>
-			<span id="{{donor.pk}}_pledge">
+			<span id="{{step_id}}_pledge">
 				Pledged: ${{form.pledged_amount}}
 			</span>
 		</td>

@@ -261,7 +261,7 @@ function completeLoaded(pk, dasked, dpledged) { //after complete step form loads
 
 function askedToggled(asked) { //step complete form
 	var patt = new RegExp('\\d+');
-	console.log(asked.id);
+	console.log('askedToggled called, id ' + asked.id);
 	var num = patt.exec(asked.id);
 	console.log('Num ' + num);
 	var reply = document.getElementById(num+'_reply');
