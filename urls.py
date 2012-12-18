@@ -127,10 +127,6 @@ urlpatterns = patterns('',
     (r'^fund/support', 'fund.views.Support'),
     (r'^fund/blocked$', 'fund.views.Blocked'),
     
-    #admin
-    (r'^fund/stats/?$', 'fund.views.Stats'),
-    (r'^fund/stats/(?P<gp_id>\d+)/?$', 'fund.views.StatsSingle'),
-    
     #cron
     (r'^mail/overdue-step', 'fund.views.EmailOverdue'),
     (r'^mail/new-accounts', 'fund.views.NewAccounts'),
