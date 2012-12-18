@@ -104,7 +104,7 @@ class Donor(models.Model):
   email = models.EmailField(null=True, blank=True)
   notes = models.TextField(blank=True)
   
-  next_step = models.ForeignKey('Step', related_name = '+', null=True) #don't need to go backwards
+  next_step = models.ForeignKey('Step', related_name = '+', null=True, blank=True) #don't need to go backwards
   
   def __unicode__(self):
     return self.firstname+' '+self.lastname

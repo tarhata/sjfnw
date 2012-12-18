@@ -602,6 +602,7 @@ def DoneStep(request, donor_id, step_id):
       step.completed = timezone.now()
       donor.talked=True
       donor.notes = form.cleaned_data['notes']
+      donor.next_step = None
       asked = form.cleaned_data['asked']
       reply = form.cleaned_data['reply']
       pledged = form.cleaned_data['pledged_amount']
