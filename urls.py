@@ -123,7 +123,6 @@ urlpatterns = patterns('',
     #error/help pages
     (r'^fund/not-member', 'fund.views.NotMember'),
     (r'^fund/pending$', 'fund.views.NotApproved'),
-    (r'^fund/contact', direct_to_template, {'template': 'fund/contact_us.html'}),
     (r'^fund/support', 'fund.views.Support'),
     (r'^fund/blocked$', 'fund.views.Blocked'),
     
