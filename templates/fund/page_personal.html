@@ -327,7 +327,7 @@ $(document).ready(function() { //page load
 
 {% for dict in donor_list %}
 	<div class="donor indent" id="donor-{{dict.donor.pk}}">
-		<a class="{%if dict.donor.pledged != None%}pledged{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{donor.lastname}}</b></a>
+		<a class="{%if dict.donor.pledged != None%}pledged{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{dict.donor.lastname}}</b></a>
 		<br>
 		{% if dict.next_step %}
 			<div id="{{dict.donor.pk}}-nextstep">{%if dict.overdue%}<div title="This step's goal date has passed! Edit or complete it" style="display:inline;"><div class="overdue_step">! </div>{{dict.next_step}}</div>{% else %}{{dict.next_step}}{%endif%}
