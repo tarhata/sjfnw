@@ -60,7 +60,7 @@
 </script>
 <script type="text/javascript">
 
-var status_texts = { //probably not the best way, but simplest I found
+var status_texts = { //for ajax error messages
   400: '400 Bad request',
   401: '401 Unauthorized',
   403: '403 Forbidden',
@@ -69,20 +69,6 @@ var status_texts = { //probably not the best way, but simplest I found
   
   500: '500 Internal server error',
   503: '503 Service unavailable',
-}
-
-function toggle(a, b) { //toggles a, border on b if a shown
-  var e=document.getElementById(a);
-  var f=document.getElementById(b);
-  if(!e)return true;
-  if(e.style.display=="none"){
-    e.style.display="block"
-    f.style.borderColor="#555"
-  } else {
-    e.style.display="none"
-    f.style.borderColor="#FFF"
-  }
-  return true;
 }
 
 function datepicker() {
@@ -127,13 +113,6 @@ function loadView(get_url, div_id, dasked, dpledged) {
 	});
 }
 
-function cancelHide(div_id, replace) { //used to hide adddonor div
-	replace = replace || '';
-	var div = document.getElementById(div_id)
-	div.innerHTML=replace;
-	div.style.borderColor="#FFF";
-}
-
 function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
 $.ajax({
 	url:sub_url,
@@ -171,7 +150,30 @@ $.ajax({
 });
 }
 
-function SubmitMult() {
+
+function toggle(a, b) { //donor info
+	//toggles a, border on b if a shown
+  var e=document.getElementById(a);
+  var f=document.getElementById(b);
+  if(!e)return true;
+  if(e.style.display=="none"){
+    e.style.display="block"
+    f.style.borderColor="#555"
+  } else {
+    e.style.display="none"
+    f.style.borderColor="#FFF"
+  }
+  return true;
+}
+
+function cancelHide(div_id, replace) { //hide adddonor div
+	replace = replace || '';
+	var div = document.getElementById(div_id)
+	div.innerHTML=replace;
+	div.style.borderColor="#FFF";
+}
+
+function SubmitMult() { //add contacts
 $.ajax({
 	url:'/fund/addmult',
 	type:"POST",
@@ -198,7 +200,7 @@ $.ajax({
 });
 }
 
-function cloneMore(selector, type) { //adds a row to the multiple contacts form
+function cloneMore(selector, type) { //add row to mult contacts form
 	var newElement = $(selector).clone(true);
 	var total = $('#id_' + type + '-TOTAL_FORMS').val();
 	newElement.find(':input').each(function() {
@@ -215,7 +217,7 @@ function cloneMore(selector, type) { //adds a row to the multiple contacts form
 	$(selector).after(newElement); // only copies last row, not incl error row. but error row will load when form reloads
 }
 
-function suggestFill(source, target) { //fills input with the selected step
+function suggestFill(source, target) { //fills input with selected step
 	var text = source.innerHTML;
 	if (target) {
 		document.getElementById(target).value=text;
@@ -233,7 +235,7 @@ function showSuggestions(inp) { //shows suggested steps
 	div.style.display="block";
 }
 
-function completeLoaded(pk, dasked, dpledged) {
+function completeLoaded(pk, dasked, dpledged) { //after complete step form loads
 	//shows/hides fields in step complete
 	//when form first loads, all are shown
 	console.log(dasked);
@@ -256,7 +258,7 @@ function completeLoaded(pk, dasked, dpledged) {
 	replySelected(reply);
 }
 
-function askedToggled(asked) {
+function askedToggled(asked) { //step complete form
 	var patt = new RegExp('\\d');
 	var num = patt.exec(asked.id);
 	var reply = document.getElementById(num+'_reply');
@@ -267,7 +269,7 @@ function askedToggled(asked) {
 	}
 }
 
-function replySelected(reply) {
+function replySelected(reply) { //step complete form
 	console.log(reply.value); //1 = pledged, 2 = unsure, 3 = dec
 	var patt = new RegExp('\\d');
 	var num = patt.exec(reply.id);
@@ -279,18 +281,18 @@ function replySelected(reply) {
 	}
 }
 
-function pledgeEntered(pledge) {
+function pledgeEntered(pledge) { //step complete form
 	console.log(pledge.value);
 }
 
-$(document).ready(function() {
+
+$(document).ready(function() { //page load
   var load = '{{load}}';
   var loadto = '{{loadto}}';
   if (load) {
     loadView(load, loadto);
   }
 });
-
 
 </script>
 {% endblock %}
