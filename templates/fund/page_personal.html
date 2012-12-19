@@ -226,13 +226,18 @@ function suggestFill(source, target) { //fills input with selected step
 	}
 }
 
-var div;
+var sug_div;
 function showSuggestions(inp) { //shows suggested steps
+<<<<<<< HEAD
 	if (div) { div.style.display="none"; } //hides prior set
 	var patt = new RegExp('\\d+');
+=======
+	if (sug_div) { sug_div.style.display="none"; } //hides prior set
+	var patt = new RegExp('\\d');
+>>>>>>> started on js for post-submit messages
 	var num = patt.exec(inp);
-	div = document.getElementById('suggest_'+num);
-	div.style.display="block";
+	sug_div = document.getElementById('suggest_'+num);
+	sug_div.style.display="block";
 }
 
 function completeLoaded(pk, dasked, dpledged) { //after complete step form loads
@@ -288,8 +293,12 @@ function pledgeEntered(pledge) { //step complete form
 	console.log(pledge.value);
 }
 
+function formSaved(text) {
+  var div = document.getElementById('form_saved');
+  div.innerHTML = text;
+}
 
-$(document).ready(function() { //page load
+$(document).ready(function() {
   var load = '{{load}}';
   var loadto = '{{loadto}}';
   if (load) {
@@ -301,6 +310,7 @@ $(document).ready(function() { //page load
 {% endblock %}
 
 {% block content %}
+<div id="form_saved"></div>
 {% if notif %}
 <div id="notifications">{{notif|safe}}</div>
 {% endif %}
