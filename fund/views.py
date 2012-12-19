@@ -648,9 +648,9 @@ def DoneStep(request, donor_id, step_id):
       else:
         reply = 1
         amount = donor.pledged
-    form = StepDoneForm(auto_id = str(step.pk) + '_id_%s', initial = {'asked':donor.asked, 'reply':reply, 'pledged_amount':amount, 'notes':donor.notes, 'step_id':step_id})
+    form = StepDoneForm(auto_id = str(step.pk) + '_id_%s', initial = {'asked':donor.asked, 'reply':reply, 'pledged_amount':amount, 'notes':donor.notes})
     
-  return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'suggested':suggested, 'target': str(step.pk) + '_id_next_step'})
+  return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'suggested':suggested, 'target': str(step.pk) + '_id_next_step', 'step_id':step_id})
 
 #CRON EMAILS
 def EmailOverdue(request):

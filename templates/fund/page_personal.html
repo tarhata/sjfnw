@@ -86,13 +86,14 @@ function loadView(get_url, div_id, dasked, dpledged) {
 		type:"GET",
     timeout: 10000,
 		success:function(data, textStatus, jqXHR){
-			document.getElementById(div_id).innerHTML=jqXHR.responseText;
-			var donor_id = get_url.match(/\d+/);
-      if (donor_id) {
-        var a=document.getElementById('donor-' + donor_id);
+			console.log(get_url);
+      document.getElementById(div_id).innerHTML=jqXHR.responseText;
+			var pks = get_url.match(/\d+/g);
+      if (pks && pks[1]) {
+        var a=document.getElementById('donor-' + pks[0]);
         a.style.borderColor="#555";
         if (dasked) {
-          completeLoaded(donor_id, dasked, dpledged);
+          completeLoaded(pks[1], dasked, dpledged);
         }
       } else if (div_id == 'adddonor') {
 				document.getElementById(div_id).style.borderColor="#555";
@@ -228,13 +229,8 @@ function suggestFill(source, target) { //fills input with selected step
 
 var sug_div;
 function showSuggestions(inp) { //shows suggested steps
-<<<<<<< HEAD
 	if (div) { div.style.display="none"; } //hides prior set
 	var patt = new RegExp('\\d+');
-=======
-	if (sug_div) { sug_div.style.display="none"; } //hides prior set
-	var patt = new RegExp('\\d');
->>>>>>> started on js for post-submit messages
 	var num = patt.exec(inp);
 	sug_div = document.getElementById('suggest_'+num);
 	sug_div.style.display="block";
