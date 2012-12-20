@@ -265,8 +265,9 @@ function askedToggled(asked) { //step complete form
 	console.log('askedToggled called, id ' + asked.id);
 	var num = patt.exec(asked.id);
 	console.log('Num ' + num);
+  var asked_input = document.getElementById(num+'_id_asked');
 	var reply = document.getElementById(num+'_reply');
-	if (asked.checked) {
+	if (asked_input.checked) {
 		reply.style.display="inline";
 	} else {
 		reply.style.display="none";
