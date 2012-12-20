@@ -154,7 +154,7 @@ $.ajax({
 
 
 function toggle(a, b) { //donor info
-	//toggles a, border on b if a shown
+	//toggles a, border on b if a is shown
   var e=document.getElementById(a);
   var f=document.getElementById(b);
   if(!e)return true;
@@ -238,60 +238,52 @@ function showSuggestions(inp) { //shows suggested steps
 }
 
 function completeLoaded(pk, dasked, dpledged) { //after complete step form loads
-	//shows/hides fields in step complete
-	//when form first loads, all are shown
-	console.log('Asked: ' + dasked + ', pledged: ' +dpledged);
-	console.log('PK: ' + pk);
-  var asked = document.getElementById(pk+'_asked');
-  var reply = document.getElementById(pk+'_reply');
-	console.log(asked);
-	console.log(reply);
-  var pledged = document.getElementById(pk+'_pledge');
-  if (dasked != 'False') { //if contact has been asked hide that field
-    console.log('in dasked check');
-		asked.style.display = "none";
+	//hide fields that have previously been entered
+  //pk = pk of step being completed
+  //dasked = donor has been asked, t/f
+  //dpledged = donor's pledge, None or #
+  var asked_span = document.getElementById(pk+'_asked');
+  var response_span = document.getElementById(pk+'_response');
+  var pledged_span = document.getElementById(pk+'_pledge');
+  if (dasked != 'False') {  //have asked - hide ask, check response
+		asked_span.style.display = "none";
+    var response = document.getElementById(pk+'_id_response');
+    responseSelected(response);
   }
-  if (dpledged != 'None') {
-		console.log('dpledged not none');
-    reply.style.display = "none";
-    pledged.style.display = "none";
+  if (dasked =='False' || dpledged != 'None') { //haven't asked yet, or pledge complete --hide 2&3
+    response_span.style.display = "none";
+    pledged_span.style.display = "none";
   }
-	console.log('calling others\n');
-	askedToggled(asked);
-	replySelected(reply);
 }
 
-function askedToggled(asked) { //step complete form
-	var patt = new RegExp('\\d+');
-	console.log('askedToggled called, id ' + asked.id);
-	var num = patt.exec(asked.id);
-	console.log('Num ' + num);
-  var asked_input = document.getElementById(num+'_id_asked');
-	var reply = document.getElementById(num+'_reply');
-	if (asked_input.checked) {
-		reply.style.display="inline";
+function askedToggled(asked) { //step complete form - asked input changed
+  //show or hide the response field
+	var num = asked.id.match(/\d+/);
+	var response = document.getElementById(num+'_response');
+	if (asked.checked) {
+		response.style.display="inline";
 	} else {
-		reply.style.display="none";
+		response.style.display="none";
 	}
 }
 
-function replySelected(reply) { //step complete form
-	console.log(reply.value); //1 = pledged, 2 = unsure, 3 = dec
-	var patt = new RegExp('\\d+');
-	var num = patt.exec(reply.id);
-	var pledge = document.getElementById(num+'_pledge');
-	if (reply.value == 1) {
-		pledge.style.display="";
+function responseSelected(response) { //step complete form - response input changed
+  //show or hide the pledged field
+	var num = response.id.match(/\d+/);
+	var pledged_span = document.getElementById(num+'_pledge');
+	if (response.value == 1) { //1 = pledged, 2 = unsure, 3 = dec
+		pledged_span.style.display="";
 	} else {
-		pledge.style.display="none";
+		pledged_span.style.display="none";
 	}
 }
 
-function pledgeEntered(pledge) { //step complete form
-	console.log(pledge.value);
+function pledgeEntered(pledge) { //step complete form - pledge input changed
+  //show or hide the last name & contact info fields
+  console.log(pledge.value);
 }
 
-function formSaved(text) {
+function formSaved(text) { //display message confirming form submission
   var div = document.getElementById('form_saved');
   div.innerHTML = text;
 }
@@ -366,7 +358,7 @@ $(document).ready(function() {
         <tr><td>Original estimation:</td><td>${{dict.donor.estimated}}</td></tr>
       {% else %}
         {% if dict.donor.asked %}
-          <tr><td colspan="2">Asked; awaiting reply.</td></tr>
+          <tr><td colspan="2">Asked; awaiting response.</td></tr>
         {% endif %}
         <tr><td>Amount to ask:</td><td>${{dict.donor.amount}}</td></tr>
         <tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>

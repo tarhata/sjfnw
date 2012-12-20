@@ -604,7 +604,7 @@ def DoneStep(request, donor_id, step_id):
       donor.notes = form.cleaned_data['notes']
       donor.next_step = None
       asked = form.cleaned_data['asked']
-      reply = form.cleaned_data['reply']
+      response = form.cleaned_data['response']
       pledged = form.cleaned_data['pledged_amount']
       news = ' talked to a donor'
       if asked and not donor.asked: #asked this step
@@ -612,12 +612,12 @@ def DoneStep(request, donor_id, step_id):
         step.asked = True
         donor.asked=True
         news = ' asked a donor'
-      if reply != '2' and not asked and not donor.asked: #put in a reply, so assume that they also asked
+      if response != '2' and not asked and not donor.asked: #put in a response, so assume that they also asked
         step.asked = True
         donor.asked = True
         news = ' asked a donor'
         logging.debug('Assuming asked because response was entered')
-      if reply=='3': #declined
+      if response=='3': #declined
         donor.pledged = 0
         logging.debug('Declined')
       if pledged and pledged>0 and not donor.pledged:
@@ -640,15 +640,15 @@ def DoneStep(request, donor_id, step_id):
       donor.save()
       return HttpResponse("success")
   else: #GET - fill form with initial data
-    reply = 2
+    response = 2
     amount = None
     if donor.pledged:
       if donor.pledged==0:
-        reply = 3
+        response = 3
       else:
-        reply = 1
+        response = 1
         amount = donor.pledged
-    form = StepDoneForm(auto_id = str(step.pk) + '_id_%s', initial = {'asked':donor.asked, 'reply':reply, 'pledged_amount':amount, 'notes':donor.notes})
+    form = StepDoneForm(auto_id = str(step.pk) + '_id_%s', initial = {'asked':donor.asked, 'response':response, 'pledged_amount':amount, 'notes':donor.notes})
     
   return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'suggested':suggested, 'target': str(step.pk) + '_id_next_step', 'step_id':step_id})
 
