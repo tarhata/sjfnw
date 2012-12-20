@@ -40,6 +40,7 @@
     chart.draw(data, options);
     drawChart2();             
   }
+  
   function drawChart2() {
 
     // Create the data table.
@@ -71,7 +72,7 @@ var status_texts = { //for ajax error messages
   503: '503 Service unavailable',
 }
 
-function datepicker() {
+function datepicker() { //date input fields
 	$.datepicker.setDefaults({
 		dateFormat: 'yy-mm-dd',
 		minDate: 0,
@@ -229,7 +230,7 @@ function suggestFill(source, target) { //fills input with selected step
 
 var sug_div;
 function showSuggestions(inp) { //shows suggested steps
-	if (div) { div.style.display="none"; } //hides prior set
+	if (sug_div) { sug_div.style.display="none"; } //hides prior set
 	var patt = new RegExp('\\d+');
 	var num = patt.exec(inp);
 	sug_div = document.getElementById('suggest_'+num);
