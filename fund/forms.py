@@ -14,7 +14,19 @@ class RegistrationForm(forms.Form):
   last_name = forms.CharField(max_length=100)
   email = forms.EmailField()
   password = forms.CharField(widget=forms.PasswordInput())
+  passwordtwo = forms.CharField(widget=forms.PasswordInput(), label="Re-enter password")
   giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date()), empty_label="Select a giving project", required=False)
+  
+  def clean(self): #make sure passwords match
+    cleaned_data = super(RegistrationForm, self).clean()
+    password = cleaned_data.get("password")
+    passwordtwo = cleaned_data.get("passwordtwo")
+    if password and passwordtwo and password != passwordtwo:
+      self._errors["password"] = self.error_class(["Passwords did not match."])
+      del cleaned_data["password"]
+      del cleaned_data["passwordtwo"]
+    return cleaned_data
+    
 
 class AddProjectForm(forms.Form):
   giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date()), empty_label="Select a giving project")
