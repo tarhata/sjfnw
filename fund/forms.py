@@ -109,10 +109,10 @@ class StepDoneForm(forms.Form):
       logging.debug('Declined with amount')
       self._errors["pledged_amount"] = self.error_class(["Cannot enter a pledge amount with a declined response."])
       del cleaned_data["pledged_amount"]
-    if next_step and not next_step_date:
+    if next_step and not next_step_date: #next step - date missing
       self._errors["next_step_date"] = self.error_class(["Enter a date."])
       del cleaned_data["next_step"]
-    elif next_step_date and not next_step:
+    elif next_step_date and not next_step: #next step - desc missing
       self._errors["next_step"] = self.error_class(["Enter a description."])
       del cleaned_data["next_step_date"]
     return cleaned_data

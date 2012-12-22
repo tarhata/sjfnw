@@ -600,30 +600,26 @@ def DoneStep(request, donor_id, step_id):
       membership.last_activity = timezone.now()
       membership.save()
       step.completed = timezone.now()
-      donor.talked=True
+      donor.talked = True
       donor.notes = form.cleaned_data['notes']
       donor.next_step = None
       asked = form.cleaned_data['asked']
       response = form.cleaned_data['response']
       pledged = form.cleaned_data['pledged_amount']
       news = ' talked to a donor'
-      if asked and not donor.asked: #asked this step
-        logging.debug('Asked this step')
-        step.asked = True
-        donor.asked=True
-        news = ' asked a donor'
-      if response != '2' and not asked and not donor.asked: #put in a response, so assume that they also asked
-        step.asked = True
-        donor.asked = True
-        news = ' asked a donor'
-        logging.debug('Assuming asked because response was entered')
-      if response=='3': #declined
-        donor.pledged = 0
-        logging.debug('Declined')
-      if pledged and pledged>0 and not donor.pledged:
-        logging.debug('Pledge entered')
-        step.pledged=pledged
-        donor.pledged=pledged
+      if asked:
+        if not donor.asked: #asked this step
+          logging.debug('Asked this step')
+          step.asked = True
+          donor.asked = True
+          news = ' asked a donor'
+        if response=='3': #declined, doesn't matter whether new this step or not
+          donor.pledged = 0
+          logging.debug('Declined')
+        if response=='2' and pledged and not donor.pledged: #pledged this step
+          logging.debug('Pledge entered')
+          step.pledged = pledged
+          donor.pledged = pledged
       logging.info('Completing a step')
       step.save()
       #call story creator/updater
