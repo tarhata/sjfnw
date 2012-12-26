@@ -632,7 +632,8 @@ def DoneStep(request, donor_id, step_id):
         form2.description = next
         form2.donor = donor
         ns = form2.save()
-        donor.next_step = ns  
+        logging.info(form2)
+        donor.next_step = form2  
       donor.save()
       return HttpResponse("success")
   else: #GET - fill form with initial data
