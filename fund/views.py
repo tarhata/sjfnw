@@ -376,31 +376,6 @@ def Support(request):
   
 #FORMS
 #successful AJAX should return HttpResponse("success")
-@login_required(login_url='/fund/login/')
-@approved_membership()
-def AddDonor(request): #no longer in use
-
-  membership = request.membership
-  suggested = membership.giving_project.suggested_steps.splitlines()
-  
-  if request.method=='POST':
-    form = NewDonor(request.POST)
-    if form.is_valid():
-      donor = models.Donor(firstname = request.POST['firstname'], lastname= request.POST['lastname'], amount= request.POST['amount'], likelihood= request.POST['likelihood'], phone= request.POST['phone'], email= request.POST['email'], membership=membership)
-      membership.last_activity = timezone.now()
-      membership.save()
-      if request.POST['step_date'] and request.POST['step_desc']:
-        step = models.Step(date = request.POST['step_date'], description = request.POST['step_desc'], donor = donor)
-        step.save()
-        logging.info('Step created with donor')
-        donor.next_step = step
-      donor.save()
-      logging.info('New donor added - membership=' + str(membership.pk) + ', donor=' + str(donor.pk))
-      return HttpResponse("success")
-  else:
-    form = NewDonor()
-
-  return render_to_response('fund/add_contact.html', {'form':form, 'action':'/fund/add', 'suggested':suggested})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
