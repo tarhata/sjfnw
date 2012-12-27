@@ -11,6 +11,7 @@ class GivingProject(models.Model):
   public = models.BooleanField(default=True)
   
   #fundraising
+  fundraising_training = models.DateTimeField(help_text='Date & time of fundraising training.  At this point the app will require members to enter an ask amount & estimated likelihood for each contact.')
   fundraising_deadline = models.DateField(help_text='Members will stop receiving reminder emails at this date.')
   fund_goal = models.PositiveIntegerField(default=0)
   pre_approved = models.TextField(null=True, blank=True, help_text='List of member emails, separated by commas.  Anyone who registers using an email on this list will have their account automatically approved.  Emails are removed from the list once they have registered.  IMPORTANT: Any syntax error can make this feature stop working; in that case memberships will default to requiring manual approval by an administrator.') #remove null from all char
@@ -110,12 +111,15 @@ class Donor(models.Model):
     return self.firstname+' '+self.lastname
   
   def estimated(self):
-    return int(self.amount*self.likelihood*.01)
+    if self.amount and self.likelihood:
+      return int(self.amount*self.likelihood*.01)
+    else:
+      return 0
     
   def get_steps(self): #used in expanded view
     return Step.objects.filter(donor=self).filter(completed__isnull=False).order_by('date')
   
-  def has_overdue(self):
+  def has_overdue(self): #needs update, if it's still used
     steps = Step.objects.filter(donor=self, completed__isnull=True)
     for step in steps:
       if step.date < timezone.now().date():
