@@ -62,6 +62,15 @@ class MassDonor(forms.Form):
   amount = forms.IntegerField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}))
   likelihood = forms.IntegerField(label='*Estimated likelihood (%)', widget=forms.TextInput(attrs={'class':'half'}))
 
+class MassDonorPre(forms.Form):
+  firstname = forms.CharField(max_length=100, label='*First name')
+  lastname = forms.CharField(max_length=100, required=False, label='Last name')
+
+class DonorEstimates(form.Form):
+  donor = forms.ModelChoiceField(queryset=models.Donor.objects.all(), widget=forms.HiddenInput())
+  amount = forms.IntegerField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}))
+  likelihood = forms.IntegerField(label='*Estimated likelihood (%)', widget=forms.TextInput(attrs={'class':'half'}))
+  
 class MassStep(forms.Form):
   date = forms.DateField(widget=forms.DateInput(attrs={'class':'datePicker', 'readonly':'true'}, format='%Y-%m-%d'), required=False)
   description = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'onfocus':'showSuggestions(this.id)'}))

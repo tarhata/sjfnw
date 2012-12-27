@@ -142,6 +142,14 @@ class DonorForm(ModelForm): #used to edit, creation uses custom form
       'notes': forms.Textarea(attrs={'cols': 25, 'rows': 4}),
     }
 
+class DonorPreForm(ModelForm): #for editing prior to fund training
+  class Meta:
+    model = Donor
+    fields = ('firstname', 'lastname', 'phone', 'email', 'notes')
+    widgets = {
+      'notes': forms.Textarea(attrs={'cols': 25, 'rows': 4}),
+    }
+
 class Step(models.Model):  
   created = models.DateTimeField(auto_now=True)
   date = models.DateField(verbose_name='Date')
