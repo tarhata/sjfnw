@@ -25,8 +25,7 @@ class RegistrationForm(forms.Form):
       self._errors["password"] = self.error_class(["Passwords did not match."])
       del cleaned_data["password"]
       del cleaned_data["passwordtwo"]
-    return cleaned_data
-    
+    return cleaned_data    
 
 class AddProjectForm(forms.Form):
   giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date()), empty_label="Select a giving project")
