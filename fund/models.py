@@ -22,6 +22,9 @@ class GivingProject(models.Model):
 
   def __unicode__(self):
     return self.title+' '+unicode(self.fundraising_deadline.year)
+  
+  def require_estimates(self):
+    return self.fundraising_training <= timezone.now()
     
 class Member(models.Model):
   email = models.CharField(max_length=255)
@@ -89,18 +92,22 @@ class Donor(models.Model):
   
   firstname = models.CharField(max_length=100, verbose_name='*First name')
   lastname = models.CharField(max_length=100, null=True, blank=True, verbose_name='Last name')
+  
   PRIVACY_CHOICES = (
     ('PR', 'Private - cannot be seen by staff'),
     ('SH', 'Shared'),
   )
-  privacy = models.CharField(max_length=2, choices=PRIVACY_CHOICES, default='SH')
-  amount = models.PositiveIntegerField(verbose_name='*Amount to ask ($)')
-  likelihood = models.PositiveIntegerField(verbose_name='*Estimated likelihood (%)', validators=[MaxValueValidator(100)])
+  privacy = models.CharField(max_length=2, choices=PRIVACY_CHOICES, default='SH') #not in use
+  
+  amount = models.PositiveIntegerField(verbose_name='*Amount to ask ($)', null=True, blank=True)
+  likelihood = models.PositiveIntegerField(verbose_name='*Estimated likelihood (%)', validators=[MaxValueValidator(100)], null=True, blank=True)
+  
   talked = models.BooleanField(default=False)
   asked = models.BooleanField(default=False)
   pledged = models.PositiveIntegerField(blank=True, null=True)
   gifted = models.PositiveIntegerField(default=0)
   gift_notified = models.BooleanField(default=False)
+  
   phone = models.CharField(max_length=15, null=True, blank=True)
   email = models.EmailField(null=True, blank=True)
   notes = models.TextField(blank=True)

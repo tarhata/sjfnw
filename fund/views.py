@@ -380,18 +380,29 @@ def Support(request):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def AddMult(request):
-  ContactFormset = formset_factory(MassDonor, extra=5)
-  if request.method=='POST': #should really only get accessed by post
+  est = request.membership.giving_project.require_estimates() #showing estimates t/f
+  if est:
+    ContactFormset = formset_factory(MassDonor, extra=5)
+  else:
+    ContactFormset = formset_factory(MassDonorPre, extra=5)
+  if request.method=='POST':
     formset = ContactFormset(request.POST)
     if formset.is_valid():
       for form in formset.cleaned_data:
         if form:
-          contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], amount= form['amount'], likelihood= form['likelihood'], membership = request.membership)
+          if est:
+            contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], amount= form['amount'], likelihood= form['likelihood'], membership = request.membership)
+          else:
+            contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], membership = request.membership)
           contact.save()
       return HttpResponse("success")        
   else:
     formset = ContactFormset()
-  return render_to_response('fund/add_mult.html', {'formset':formset})
+
+  if est:
+    return render_to_response('fund/add_mult.html', {'formset':formset})
+  else:
+    return render_to_response('fund/add_mult_pre.html', {'formset':formset})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
