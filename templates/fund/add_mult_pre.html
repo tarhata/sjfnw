@@ -1,0 +1,28 @@
+<form id="addmult">
+  <table class="form" id="add_form" style="text-align:center">
+  <tr>
+    <td>{{ formset.management_form }}</td>
+  </tr>
+  <tr>
+    <td>First name</td>
+    <td>Last name (optional)</td>
+  </tr>
+  {%for form in formset%}
+    <tr>
+      <td>{{form.firstname.errors}}</td>
+      <td>{{form.lastname.errors}}</td>
+    </tr>
+    <tr>
+      <td>{{form.firstname}}</td>
+      <td>{{form.lastname}}</td>
+    </tr>
+  {% endfor %}
+  </table>
+</form>
+<div align="right" style="margin-right:40px;">
+  <a onclick="cloneMore('#add_form tr:last', 'form')">Add more contacts</a>
+</div>
+<div align="center">
+  <button onclick="SubmitMult()">Save</button>
+  <button onclick="location.href='/fund/'">Cancel</button>
+</div>
