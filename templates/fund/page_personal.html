@@ -365,8 +365,10 @@ $(document).ready(function() {
         {% if dict.donor.asked %}
           <tr><td colspan="2">Asked; awaiting response.</td></tr>
         {% endif %}
-        <tr><td>Amount to ask:</td><td>${{dict.donor.amount}}</td></tr>
-        <tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
+        {% if dict.donor.amount %}
+          <tr><td>Amount to ask:</td><td>${{dict.donor.amount}}</td></tr>
+          <tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
+        {% endif %}
       {% endif %}
 			
 			<tr>
