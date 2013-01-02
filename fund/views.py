@@ -407,30 +407,33 @@ def AddMult(request):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def EditDonor(request, donor_id):
-  
+
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
     logging.error('Tried to edit a nonexist donor. User: ' + str(request.membership) + ', id given: '
      + str(donor_id))
-    return redirect(Home)
-    
-  action='/fund/'+str(donor_id)+'/edit'
-  ajax = request.is_ajax()
-  formid = 'editdonor-'+donor_id
-  divid = 'donor-'+donor_id
+    raise Http404
+  
+  est = request.membership.giving_project.require_estimates() #showing estimates t/f
   
   if request.method == 'POST':
-    form = models.DonorForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
+    if est:
+      form = models.DonorForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
+    else:
+      form = models.DonorPreForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
     if form.is_valid():
       form.save()
       request.membership.last_activity = timezone.now()
       request.membership.save()
       return HttpResponse("success")
   else:
-    form = models.DonorForm(instance=donor, auto_id = str(donor.pk) + '_id_%s')
-
-  return render_to_response('fund/edit_contact.html', { 'form': form, 'action':action, 'divid':divid, 'formid':formid})
+    if est:
+      form = models.DonorForm(instance=donor, auto_id = str(donor.pk) + '_id_%s')
+    else:
+      form = models.DonorPreForm(instance=donor, auto_id = str(donor.pk) + '_id_%s')
+      
+  return render_to_response('fund/edit_contact.html', { 'form': form, 'pk': donor.pk, 'action':'/fund/'+str(donor_id)+'/edit'})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
