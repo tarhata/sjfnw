@@ -406,6 +406,41 @@ def AddMult(request):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
+def AddEstimates(request):
+  initiald = [] #list of dicts for form initial
+  dlist = [] #list of donors for zipping to formset
+  size = 0
+  membership = request.membership
+  
+  for donor in membership.donor_set.all():
+    if not donor.amount:
+      initiald.append({'donor': donor})
+      dlist.append(donor)
+      size = size +1
+  EstFormset = formset_factory(DonorEstimates, extra=0)
+  if request.method=='POST':
+    formset = EstFormset(request.POST)
+    logging.debug('Adding estimates - posted: ' + str(request.POST))
+    if formset.is_valid():
+      logging.debug('Adding estimates - is_valid passed, cycling through forms')
+      for form in formset.cleaned_data:
+        if form:
+          step = models.Step(donor = form['donor'], date = form['date'], description = form['description'])
+          step.save()
+          step.donor.next_step = step
+          step.donor.save()
+          logging.info('Multiple steps - step created')
+        else:
+          logging.debug('Multiple steps - blank form')
+      return HttpResponse("success")
+  else:
+    formset = EstFormset(initial=initiald)
+    logging.info('Adding estimates - loading initial formset, size ' + str(size) + ': ' +str(dlist))
+  fd = zip(formset, dlist)
+  return render_to_response('fund/add_estimates.html', {'formset':formset})
+
+@login_required(login_url='/fund/login/')
+@approved_membership()
 def EditDonor(request, donor_id):
 
   try:

@@ -1,0 +1,28 @@
+<div id="estimates">
+  Enter an amount to ask and an estimated likelihood for each contact.<br><br>
+  <div align="center">
+    <form method="post" id="add_estimates">
+    <table class="form" style="width:460px;">
+      <tr align="center">
+        <td></td>
+        <td>Amount</td>
+        <td>Likelihood</td>
+      </tr>
+      {{ formset.management_form }}
+      {% for form, d in fd%}
+        <tr align="center">
+          <td>{{form.donor.errors}}</td>
+          <td>{{form.amount.errors}}</td>
+          <td>{{form.likelihood.errors}}</td>
+        </tr>
+        <tr align="center">
+          <td>{{form.donor}}{{d}}</td>
+          <td>${{form.amount}}</td>
+          <td>{{form.likelihood}}%</td>
+        </tr>
+    {% endfor %}
+    </table>
+    </form>
+    <button onclick="Submit('/fund/add-estimates', '#add_estimates', 'estimates'">Save</button><button onclick="location.href='/fund/'">Cancel</button>
+  </div>
+</div>
