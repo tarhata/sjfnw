@@ -66,7 +66,7 @@ class MassDonorPre(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
   lastname = forms.CharField(max_length=100, required=False, label='Last name')
 
-class DonorEstimates(form.Form):
+class DonorEstimates(forms.Form):
   donor = forms.ModelChoiceField(queryset=models.Donor.objects.all(), widget=forms.HiddenInput())
   amount = forms.IntegerField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}))
   likelihood = forms.IntegerField(label='*Estimated likelihood (%)', widget=forms.TextInput(attrs={'class':'half'}))

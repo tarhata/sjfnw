@@ -109,7 +109,6 @@ urlpatterns = patterns('',
     (r'^fund/scoring', 'fund.views.ScoringList'),
     
     #forms - contacts
-    (r'^fund/add$', 'fund.views.AddDonor'),
     (r'^fund/addmult', 'fund.views.AddMult'),
     (r'^fund/(?P<donor_id>\d+)/edit','fund.views.EditDonor'),
     (r'^fund/(?P<donor_id>\d+)/delete', 'fund.views.DeleteDonor'),
