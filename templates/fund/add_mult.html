@@ -1,5 +1,5 @@
 <form id="addmult">
-  <table class="form" style="text-align:center">
+  <table class="form" id="add_form" style="text-align:center">
   <tr>
     <td>{{ formset.management_form }}</td>
   </tr>
@@ -26,7 +26,7 @@
   </table>
 </form>
 <div align="right" style="margin-right:40px;">
-  <a onclick="cloneMore('.form tr:last', 'form')">Add more contacts</a>
+  <a onclick="cloneMore('#add_form tr:last', 'form')">Add more contacts</a>
 </div>
 <div align="center">
   <button onclick="SubmitMult()">Save</button>
