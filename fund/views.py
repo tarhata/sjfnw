@@ -425,19 +425,18 @@ def AddEstimates(request):
       logging.debug('Adding estimates - is_valid passed, cycling through forms')
       for form in formset.cleaned_data:
         if form:
-          step = models.Step(donor = form['donor'], date = form['date'], description = form['description'])
-          step.save()
-          step.donor.next_step = step
-          step.donor.save()
-          logging.info('Multiple steps - step created')
-        else:
-          logging.debug('Multiple steps - blank form')
+          current = form['donor']
+          logging.debug(current)
+          current.amount = form['amount']
+          current.likelihood = form['likelihood']
+          current.save()
+          logging.debug('Amount & likelihood entered for ' + str(current))
       return HttpResponse("success")
   else:
     formset = EstFormset(initial=initiald)
     logging.info('Adding estimates - loading initial formset, size ' + str(size) + ': ' +str(dlist))
   fd = zip(formset, dlist)
-  return render_to_response('fund/add_estimates.html', {'formset':formset})
+  return render_to_response('fund/add_estimates.html', {'formset':formset, 'fd':fd})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
