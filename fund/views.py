@@ -166,17 +166,42 @@ def SetCurrent(request, ship_id):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def Home(request):
-
+  
+  #querydict for pre-loading forms
+  logging.debug(request.GET.dict())
+  step = request.GET.get('step')
+  donor = request.GET.get('donor')
+  type = request.GET.get('t')
+  if step and donor and type:
+    load = '/fund/'+donor+'/'+step
+    if type=="complete":
+      load += '/done'
+    loadto = donor + '-nextstep'
+  else:
+    load = ''
+    loadto = ''
+  
+  #member/ship info
   membership = request.membership
   member = membership.member
-  logging.debug(str(membership))
+  
+  #top content
   news = models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date')
   header = membership.giving_project.title
   
+  logging.debug(str(membership))
+  
+  #donors
   donors = list(membership.donor_set.all())
+  #check & re-route here for mass estimates
   progress = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0, 'pledged':0, 'donated':0} 
   donor_data = {}
   empty_date = datetime.date(2500,1,1)
+  est = membership.giving_project.require_estimates()
+  if load != '':
+    est = False #override, don't check if following link from email
+  amount_entered, amount_missing = False, False
+  need_est, initiale = [], []
   for donor in donors:
     donor_data[donor.pk] = {'donor':donor, 'complete_steps':[], 'next_step':False, 'next_date':empty_date, 'overdue':False}
     progress['estimated'] += donor.estimated()
@@ -190,6 +215,18 @@ def Home(request):
       donor_data[donor.pk]['next_date'] = datetime.date(2700,1,1)
     if donor.gifted:
       progress['donated'] += donor.gifted
+    if est:
+      if donor.amount:
+        amount_entered = True
+      else:
+        amount_missing = True
+        initiale.append({'donor': donor})
+        need_est.append(donor)
+  if amount_missing: #show add estimates form instead of reg list
+    if amount_entered:
+      #should not happen!
+    
+      
   pie = {}
   if progress['contacts'] > 0:
     progress['bar'] = 100*progress['asked']/progress['contacts']
@@ -200,13 +237,12 @@ def Home(request):
   else:
     progress['contactsremaining'] = 0
   
-  num, st = membership.has_overdue(next = True)
-  logging.info(str(num) + str(st))
+  #steps
   step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
   upcoming_steps = []
   ctz = timezone.get_current_timezone()
   today = ctz.normalize(timezone.now()).date()
-  for step in step_list: #split steps into complete & not, attach to donors
+  for step in step_list: #split into complete/not, attach to donors
     if step.completed:
       donor_data[step.donor_id]['complete_steps'].append(step)
     else:
@@ -231,19 +267,7 @@ def Home(request):
   ContactFormset = formset_factory(MassDonor, extra=5)
   formset = ContactFormset()
   
-  #querydict for pre-loading forms
-  logging.debug(request.GET.dict())
-  step = request.GET.get('step')
-  donor = request.GET.get('donor')
-  type = request.GET.get('t')
-  if step and donor and type:
-    load = '/fund/'+donor+'/'+step
-    if type=="complete":
-      load += '/done'
-    loadto = donor + '-nextstep'
-  else:
-    load = ''
-    loadto = ''
+  
   
   return render_to_response('fund/page_personal.html', 
   {'1active':'true',
@@ -409,14 +433,12 @@ def AddMult(request):
 def AddEstimates(request):
   initiald = [] #list of dicts for form initial
   dlist = [] #list of donors for zipping to formset
-  size = 0
   membership = request.membership
   
   for donor in membership.donor_set.all():
     if not donor.amount:
       initiald.append({'donor': donor})
       dlist.append(donor)
-      size = size +1
   EstFormset = formset_factory(DonorEstimates, extra=0)
   if request.method=='POST':
     formset = EstFormset(request.POST)
