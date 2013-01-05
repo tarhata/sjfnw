@@ -193,15 +193,17 @@ def Home(request):
   
   #donors
   donors = list(membership.donor_set.all())
-  #check & re-route here for mass estimates
   progress = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0, 'pledged':0, 'donated':0} 
   donor_data = {}
   empty_date = datetime.date(2500,1,1)
+  
   est = membership.giving_project.require_estimates()
   if load != '':
     est = False #override, don't check if following link from email
-  amount_entered, amount_missing = False, False
-  need_est, initiale = [], []
+  else:
+    amount_entered, amount_missing = False, False
+    need_est, initiale = [], []
+  
   for donor in donors:
     donor_data[donor.pk] = {'donor':donor, 'complete_steps':[], 'next_step':False, 'next_date':empty_date, 'overdue':False}
     progress['estimated'] += donor.estimated()
@@ -222,11 +224,8 @@ def Home(request):
         amount_missing = True
         initiale.append({'donor': donor})
         need_est.append(donor)
-  if amount_missing: #show add estimates form instead of reg list
-    if amount_entered:
-      #should not happen!
-    
-      
+  
+  #progress charts
   pie = {}
   if progress['contacts'] > 0:
     progress['bar'] = 100*progress['asked']/progress['contacts']
@@ -237,26 +236,35 @@ def Home(request):
   else:
     progress['contactsremaining'] = 0
   
-  #steps
-  step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
-  upcoming_steps = []
-  ctz = timezone.get_current_timezone()
-  today = ctz.normalize(timezone.now()).date()
-  for step in step_list: #split into complete/not, attach to donors
-    if step.completed:
-      donor_data[step.donor_id]['complete_steps'].append(step)
-    else:
-      upcoming_steps.append(step)
-      donor_data[step.donor_id]['next_step'] = step
-      donor_data[step.donor_id]['next_date'] = step.date
-      if step.date < today:
-        donor_data[step.donor_id]['overdue'] = True
-  upcoming_steps.sort(key = lambda step: step.date)
-  donor_list = donor_data.values() #convert outer dict to list and sort it
-  donor_list.sort(key = lambda donor: donor['next_date'])  
+  #show estimates form
+  if amount_missing:
+    if amount_entered:
+      #should not happen!
+      logging.warning(str(membership) + ' has some contacts with estimates and some without.')
   
-  suggested = membership.giving_project.suggested_steps.splitlines()
-  suggested = filter(None, suggested) #move this to the admin save
+  #show regular contacts view
+  else:  
+   
+    #steps
+    step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
+    upcoming_steps = []
+    ctz = timezone.get_current_timezone()
+    today = ctz.normalize(timezone.now()).date()
+    for step in step_list: #split into complete/not, attach to donors
+      if step.completed:
+        donor_data[step.donor_id]['complete_steps'].append(step)
+      else:
+        upcoming_steps.append(step)
+        donor_data[step.donor_id]['next_step'] = step
+        donor_data[step.donor_id]['next_date'] = step.date
+        if step.date < today:
+          donor_data[step.donor_id]['overdue'] = True
+    upcoming_steps.sort(key = lambda step: step.date)
+    donor_list = donor_data.values() #convert outer dict to list and sort it
+    donor_list.sort(key = lambda donor: donor['next_date'])  
+    
+    suggested = membership.giving_project.suggested_steps.splitlines()
+    suggested = filter(None, suggested) #move this to the admin save
   
   notif = membership.notifications
   if notif != '': #only show a notification once
