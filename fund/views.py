@@ -236,12 +236,54 @@ def Home(request):
   else:
     progress['contactsremaining'] = 0
   
+  notif = membership.notifications
+  if notif != '': #only show a notification once
+    logging.info('Displaying notification: ' + notif)
+    membership.notifications=''
+    membership.save()
+
   #show estimates form
   if amount_missing:
     if amount_entered:
       #should not happen!
       logging.warning(str(membership) + ' has some contacts with estimates and some without.')
-  
+    EstFormset = formset_factory(DonorEstimates, extra=0)
+    if request.method=='POST':
+      formset = EstFormset(request.POST)
+      logging.debug('Adding estimates - posted: ' + str(request.POST))
+      if formset.is_valid():
+        logging.debug('Adding estimates - is_valid passed, cycling through forms')
+        for form in formset.cleaned_data:
+          if form:
+            current = form['donor']
+            logging.debug(current)
+            current.amount = form['amount']
+            current.likelihood = form['likelihood']
+            current.save()
+            logging.debug('Amount & likelihood entered for ' + str(current))
+        return HttpResponse("success")
+    else:
+      formset = EstFormset(initial=initiale)
+      logging.info('Adding estimates - loading initial formset: ' +str(need_est))
+    fd = zip(formset, need_est)
+    
+    #basic version for blocks
+    step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
+    return render_to_response('fund/page_personal.html', 
+      {'1active':'true',
+      'header':header,
+      'progress':progress,
+      'member':member,
+      'news':news,
+      'steps':step_list,
+      'membership':membership,
+      'notif':notif,
+      'formset':formset,
+      'fd': fd,
+      'load':load,
+      'loadto':loadto,
+      'pie':pie})
+      
   #show regular contacts view
   else:  
    
@@ -266,32 +308,24 @@ def Home(request):
     suggested = membership.giving_project.suggested_steps.splitlines()
     suggested = filter(None, suggested) #move this to the admin save
   
-  notif = membership.notifications
-  if notif != '': #only show a notification once
-    logging.info('Displaying notification: ' + notif)
-    membership.notifications=''
-    membership.save()
-
-  ContactFormset = formset_factory(MassDonor, extra=5)
-  formset = ContactFormset()
-  
-  
-  
-  return render_to_response('fund/page_personal.html', 
-  {'1active':'true',
-  'header':header,
-  'donor_list': donor_list,
-  'progress':progress,
-  'member':member,
-  'news':news,
-  'steps':upcoming_steps,
-  'membership':membership,
-  'notif':notif,
-  'suggested':suggested,
-  'formset':formset,
-  'load':load,
-  'loadto':loadto,
-  'pie':pie})
+    ContactFormset = formset_factory(MassDonor, extra=5)
+    formset = ContactFormset()
+    
+    return render_to_response('fund/page_personal.html', 
+    {'1active':'true',
+    'header':header,
+    'donor_list': donor_list,
+    'progress':progress,
+    'member':member,
+    'news':news,
+    'steps':upcoming_steps,
+    'membership':membership,
+    'notif':notif,
+    'suggested':suggested,
+    'formset':formset,
+    'load':load,
+    'loadto':loadto,
+    'pie':pie})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
