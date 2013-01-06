@@ -672,12 +672,12 @@ def DoneStep(request, donor_id, step_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=membership)
   except models.Donor.DoesNotExist:
-    return redirect(Home)
+    raise Http404
   
   try:
     step = models.Step.objects.get(id=step_id, donor=donor)
   except models.Step.DoesNotExist:
-    return redirect(Home)
+    raise Http404
     
   action='/fund/'+str(donor_id)+'/'+str(step_id)+'/done'
 
