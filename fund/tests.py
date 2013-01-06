@@ -2,9 +2,8 @@ from django.test import TestCase
 from django.test.client import Client
 from fund import models
 from django.contrib.auth.models import User
-import logging
 import sys
-  
+ 
 class StepCompleteTest(TestCase):
     fixtures = ['fund/fixtures/test_fund.json',]
     
@@ -17,8 +16,8 @@ class StepCompleteTest(TestCase):
       user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')
       self.client.login(username = 'testacct@gmail.com', password = 'testy')
       
-
-    def test_valid_asked(self):
+    # valid data
+    def test_valid_asked(self): #asked only
       form_data = {'asked': 'on',
           'response': 2,
           'pledged_amount': '',
@@ -27,9 +26,24 @@ class StepCompleteTest(TestCase):
           'next_step': '',
           'next_step_date': ''}
       
-      response = self.client.post('/fund/1/1/', form_data)
-      print(response.templates)
-      self.assertEqual(response.status_code, 200)
+      response = self.client.post('/fund/1/1/done', form_data)
+      #expect an HttpResponse("success")
+      self.assertEqual(response.content, "success")
+      
+    # invalid data
+    def test_invalid_asked(self): #pledged w/o amt
+      form_data = {'asked': 'on',
+          'response': 1,
+          'pledged_amount': '',
+          'last_name': '',
+          'notes': '',
+          'next_step': '',
+          'next_step_date': ''}
+      
+      response = self.client.post('/fund/1/1/done', form_data)
+      form = response.context['form']
+      #expect error message on pledged_amount
+      assert form.errors['pledged_amount'] is not None
       
     
     
