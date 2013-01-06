@@ -1,0 +1,117 @@
+﻿[
+  {
+    "pk": 1,
+    "model": "fund.givingproject",
+    "fields": {
+      "suggested_steps": "Talk to about project\r\nInvite to SJF event\r\nSet up time to meet for the ask\r\nAsk\r\nFollow up\r\nThank",
+      "title": "Test Giving Project",
+      "fund_goal": 5000,
+      "pre_approved": "",
+      "fundraising_deadline": "2013-03-13",
+      "calendar": "rum1rhrk8coq8e3t301frig62c@group.calendar.google.com",
+      "public": true,
+      "fundraising_training": "2013-01-01T17:24:44Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "fund.member",
+    "fields": {
+      "current": 1,
+      "first_name": "Test",
+      "last_name": "Member",
+      "email": "testacct@gmail.com"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "fund.membership",
+    "fields": {
+      "emailed": "2012-12-09",
+      "notifications": "",
+      "giving_project": 1,
+      "leader": true,
+      "member": 1,
+      "last_activity": "2012-12-18",
+      "approved": true
+    }
+  },
+  {
+    "pk": 1,
+    "model": "fund.donor",
+    "fields": {
+      "gift_notified": false,
+      "next_step": null,
+      "talked": true,
+      "firstname": "Lauren",
+      "privacy": "SH",
+      "lastname": "O'Laughlin",
+      "pledged": null,
+      "gifted": 0,
+      "amount": 20,
+      "email": null,
+      "phone": null,
+      "membership": 1,
+      "notes": "",
+      "likelihood": 1,
+      "asked": false
+    }
+  },
+  {
+    "pk": 2,
+    "model": "fund.donor",
+    "fields": {
+      "gift_notified": false,
+      "next_step": null,
+      "talked": true,
+      "firstname": "Aniseto",
+      "privacy": "SH",
+      "lastname": "",
+      "pledged": null,
+      "gifted": 0,
+      "amount": 500,
+      "email": null,
+      "phone": null,
+      "membership": 1,
+      "notes": "",
+      "likelihood": 3,
+      "asked": false
+    }
+  },
+  {
+    "pk": 1,
+    "model": "fund.step",
+    "fields": {
+      "description": "Talk to about project",
+      "created": "2012-12-18T21:37:30Z",
+      "completed": null,
+      "pledged": null,
+      "date": "2012-12-01",
+      "donor": 1,
+      "asked": false
+    }
+  },
+  {
+    "pk": 2,
+    "model": "fund.step",
+    "fields": {
+      "description": "Talk to about project",
+      "created": "2012-12-18T21:38:02Z",
+      "completed": null,
+      "pledged": null,
+      "date": "2012-12-20",
+      "donor": 2,
+      "asked": false
+    }
+  },
+  {
+    "pk": 1,
+    "model": "fund.newsitem",
+    "fields": {
+      "date": "2012-12-18T21:38:03Z",
+      "updated": "2012-12-18T21:37:33Z",
+      "membership": 1,
+      "summary": "Social asked 2 people."
+    }
+  }
+]
