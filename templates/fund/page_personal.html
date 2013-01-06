@@ -306,6 +306,7 @@ $(document).ready(function() {
 
 {% block content %}
 <div id="form_saved"></div>
+
 {% if notif %}
 <div id="notifications">{{notif|safe}}</div>
 {% endif %}
@@ -330,7 +331,7 @@ $(document).ready(function() {
   <div class="donor indent" id="adddonor"></div><!--forms for adding contacts go here when requested-->
 {% endif %}
 
-{% for dict in donor_list %}
+{% for dict in donor_list %} <!-- per contact -->
 	<div class="donor indent" id="donor-{{dict.donor.pk}}">
 		<a class="{%if dict.donor.pledged != None%}pledged{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{dict.donor.lastname}}</b></a>
 		<br>
@@ -404,11 +405,14 @@ $(document).ready(function() {
 	</div> <!-- ends donor -->
 
 {% empty %} <!--no contacts yet -->
-<div class="donors" id="adddonor">
-  <p>You don't have any contacts yet!  Get started by adding some.  You'll be able to add, change or remove contacts at any time.</p>
-	{% include 'fund/add_mult.html' %}
-</div>
-
+{% if fd %} <!-- add estimates -->
+	{% include 'fund/add_estimates.html' %}	
+{% else %} <!-- add contacts -->
+	<div class="donors" id="adddonor">
+		<p>You don't have any contacts yet!  Get started by adding some.  You'll be able to add, change or remove contacts at any time.</p>
+		{% include 'fund/add_mult.html' %}
+	</div>
+{% endif %}
 {% endfor %} <!--ends contacts check-->
 
 {% endblock %}
