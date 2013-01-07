@@ -97,6 +97,8 @@ class StepDoneForm(forms.Form):
   pledged_amount = forms.IntegerField(required=False, min_value=0, error_messages={'min_value': 'Pledge amounts cannot be negative'}, widget=forms.TextInput(attrs = {'onchange':'pledgeEntered(this)', 'size':10}))
   
   last_name = forms.CharField(max_length=255, required=False)
+  phone = forms.CharField(max_length=15,required=False)
+  email = forms.EmailField(required=False)
   
   notes = forms.CharField(max_length=255, required=False,  widget=forms.Textarea(attrs={'rows':2, 'cols':20}))
   
@@ -109,10 +111,18 @@ class StepDoneForm(forms.Form):
     amt = cleaned_data.get("pledged_amount")
     next_step = cleaned_data.get("next_step")
     next_step_date = cleaned_data.get("next_step_date")
+    last_name = cleaned_data.get("last_name")
+    phone = cleaned_data.get("phone")
+    email = cleaned_data.get("email")
     
-    if response=='1' and (not amt or amt==0): #response = pledge but no/zero amount entered
-      logging.debug('Pledged without amount')
-      self._errors["pledged_amount"] = self.error_class(["Please enter an amount."])
+    if response=='1': #response = pledge
+      if not amt or amt==0: #no/zero amount entered
+        logging.debug('Pledged without amount')
+        self._errors["pledged_amount"] = self.error_class(["Please enter an amount."])
+      if not last_name:
+        logging.debug('Pledged without last name')
+        self._errors["last_name"] = self.error_class(["Please enter a last name."])
+      if not 
     elif response=='3' and amt and amt>0: #declined but entered pledge amount
       logging.debug('Declined with amount')
       self._errors["pledged_amount"] = self.error_class(["Cannot enter a pledge amount with a declined response."])
