@@ -140,7 +140,7 @@ div#notifications {
 div.donor {
   border: 1px solid;
   border-color:#FFF;
-	border-radius:2px;
+	border-radius:8px;
 }
 
 div.donor_delete {
