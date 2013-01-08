@@ -430,7 +430,7 @@ $(document).ready(function() {
 {% else %} <!-- add contacts -->
 	<div class="donors" id="adddonor">
 		<p>You don't have any contacts yet!  Get started by adding some.  You'll be able to add, change or remove contacts at any time.</p>
-		{% include 'fund/add_mult.html' %}
+		{% include mult_template %}
 	</div>
 {% endif %}
 {% endfor %} <!--ends contacts check-->

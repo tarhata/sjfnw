@@ -166,6 +166,9 @@ def SetCurrent(request, ship_id):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def Home(request):
+  #hacks
+  mult_template = 'fund/add_mult.html'
+  formset = ''
   
   #querydict for pre-loading forms
   logging.debug(request.GET.dict())
@@ -197,9 +200,11 @@ def Home(request):
   donor_data = {}
   empty_date = datetime.date(2500,1,1)
   
+  #checking for direct links from emails & whether ests are req
   est = membership.giving_project.require_estimates()
+  add_est = est
   if load != '':
-    est = False #override, don't check if following link from email
+    add_est = False #override, don't check if following link from email
   else:
     amount_entered, amount_missing = False, False
     need_est, initiale = [], []
@@ -217,7 +222,7 @@ def Home(request):
       donor_data[donor.pk]['next_date'] = datetime.date(2700,1,1)
     if donor.gifted:
       progress['donated'] += donor.gifted
-    if est:
+    if add_est:
       if donor.amount:
         amount_entered = True
       else:
@@ -286,30 +291,37 @@ def Home(request):
       
   #show regular contacts view
   else:  
-   
-    #steps
-    step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
-    upcoming_steps = []
-    ctz = timezone.get_current_timezone()
-    today = ctz.normalize(timezone.now()).date()
-    for step in step_list: #split into complete/not, attach to donors
-      if step.completed:
-        donor_data[step.donor_id]['complete_steps'].append(step)
+    if donors:
+      #steps
+      step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
+      upcoming_steps = []
+      ctz = timezone.get_current_timezone()
+      today = ctz.normalize(timezone.now()).date()
+      for step in step_list: #split into complete/not, attach to donors
+        if step.completed:
+          donor_data[step.donor_id]['complete_steps'].append(step)
+        else:
+          upcoming_steps.append(step)
+          donor_data[step.donor_id]['next_step'] = step
+          donor_data[step.donor_id]['next_date'] = step.date
+          if step.date < today:
+            donor_data[step.donor_id]['overdue'] = True
+      upcoming_steps.sort(key = lambda step: step.date)
+      donor_list = donor_data.values() #convert outer dict to list and sort it
+      donor_list.sort(key = lambda donor: donor['next_date'])  
+      
+    else: #no donors - showing mass form
+      donor_list, upcoming_steps = [], [] #FIX
+      if est:
+        ContactFormset = formset_factory(MassDonor, extra=5)
+        mult_template = 'fund/add_mult.html'
       else:
-        upcoming_steps.append(step)
-        donor_data[step.donor_id]['next_step'] = step
-        donor_data[step.donor_id]['next_date'] = step.date
-        if step.date < today:
-          donor_data[step.donor_id]['overdue'] = True
-    upcoming_steps.sort(key = lambda step: step.date)
-    donor_list = donor_data.values() #convert outer dict to list and sort it
-    donor_list.sort(key = lambda donor: donor['next_date'])  
+        ContactFormset = formset_factory(MassDonorPre, extra=5)
+        mult_template = 'fund/add_mult_pre.html'
+      formset = ContactFormset()
     
     suggested = membership.giving_project.suggested_steps.splitlines()
-    suggested = filter(None, suggested) #move this to the admin save
-  
-    ContactFormset = formset_factory(MassDonor, extra=5)
-    formset = ContactFormset()
+    suggested = filter(None, suggested) #move this to the admin save    
     
     return render_to_response('fund/page_personal.html', 
     {'1active':'true',
@@ -325,7 +337,8 @@ def Home(request):
     'formset':formset,
     'load':load,
     'loadto':loadto,
-    'pie':pie})
+    'pie':pie,
+    'mult_template':mult_template})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
