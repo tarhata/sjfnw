@@ -27,6 +27,46 @@
 			</span>
 		</td>
 	</tr>
+	<tr class="{{step_id}}_pledge_follow" style="display:none;padding-top:10px;">
+		<td colspan="3">
+			<p>Please enter a last name and contact info so that SJF can follow up on the pledge as needed.</p>
+			<table>
+				<tr>
+					<td>
+						Last name
+					</td>
+					<td>
+						Phone number
+					</td>
+					<td>
+						 Email address
+					</td>		
+				</tr>
+				<tr>
+					<td>
+						{{form.last_name.errors}}
+					</td>
+					<td>
+						{{form.phone.errors}}
+					</td>
+					<td>
+						{{form.email.errors}}
+					</td>		
+				</tr>
+				<tr>
+					<td>
+						{{form.last_name}}
+					</td>
+					<td>
+						{{form.phone}}
+					</td>
+					<td>
+						{{form.email}}
+					</td>		
+				</tr>
+			</table>
+		</td>
+	</tr>
 	<tr>
 		<th>Notes:</th>
 		<td>{{form.notes}}</td>

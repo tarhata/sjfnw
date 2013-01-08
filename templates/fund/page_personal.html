@@ -264,11 +264,15 @@ function completeLoaded(pk, dasked, dpledged) { //after complete step form loads
 function askedToggled(asked) { //step complete form - asked input changed
   //show or hide the response field
 	var num = asked.id.match(/\d+/);
-	var response = document.getElementById(num+'_response');
+	var response_span = document.getElementById(num+'_response');
 	if (asked.checked) {
-		response.style.display="inline";
+		response_span.style.display="inline";
+		var response = document.getElementById(num+'_id_response');
+		responseSelected(response);
 	} else {
-		response.style.display="none";
+		response_span.style.display="none";
+		var pledged_span = document.getElementById(num+'_pledge');
+		pledged_span.style.display="none";
 	}
 }
 
@@ -285,7 +289,23 @@ function responseSelected(response) { //step complete form - response input chan
 
 function pledgeEntered(pledge) { //step complete form - pledge input changed
   //show or hide the last name & contact info fields
+	var num = pledge.id.match(/\d+/);
   console.log(pledge.value);
+	pledge_amt = parseFloat(pledge.value) || 0;
+	console.log(pledge_amt);
+	var follows = $('.' + num + '_pledge_follow').get();
+	console.log(follows);
+	if (pledge_amt > 0) {
+		for (var i = 0; i < follows.length; i++) {
+			console.log(follows[i]);
+			follows[i].style.display="table-row";
+		}
+	} else {
+		for (var i = 0; i < follows.length; i++) {
+			console.log(follows[i]);
+			follows[i].style.display="none";
+		}
+	}
 }
 
 function formSaved(text) { //display message confirming form submission

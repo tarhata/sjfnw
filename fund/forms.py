@@ -122,7 +122,9 @@ class StepDoneForm(forms.Form):
       if not last_name:
         logging.debug('Pledged without last name')
         self._errors["last_name"] = self.error_class(["Please enter a last name."])
-      if not 
+      if not phone and not email:
+        logging.debug('Pledged without contact info')
+        self._errors["phone"] = self.error_class(["Please enter a phone number or email address."])
     elif response=='3' and amt and amt>0: #declined but entered pledge amount
       logging.debug('Declined with amount')
       self._errors["pledged_amount"] = self.error_class(["Cannot enter a pledge amount with a declined response."])
