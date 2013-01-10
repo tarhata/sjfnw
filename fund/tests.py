@@ -89,6 +89,7 @@ class MainPageContent(TestCase):
 
 """
 test ideas:
+  add checks for data, not just response output
   registration
   step complete
   fresh page w/o contacts
