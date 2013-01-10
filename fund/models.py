@@ -84,7 +84,8 @@ class Membership(models.Model): #relationship b/n member and gp
     estimated = 0
     donors = self.donor_set.all()
     for donor in donors:
-      estimated = estimated + donor.amount*donor.likelihood/100
+      if donor.amount and donor.likelihood:
+        estimated = estimated + donor.amount*donor.likelihood/100
     return estimated
 
 class Donor(models.Model):
