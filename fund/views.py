@@ -47,14 +47,14 @@ def FundLogin(request):
   return render_to_response('fund/login.html', {'form':form, 'printout':printout})
 
 def Register(request):
-  printout = ''
+  error_msg = ''
   if request.method=='POST':
     register = RegistrationForm(request.POST)
     if register.is_valid():
       username = request.POST['email'].lower()
       password = request.POST['password']
       if User.objects.filter(username=username):
-        printout = 'That email is already registered.  <a href="/fund/login/">Login</a> instead.'
+        error_msg = 'That email is already registered.  <a href="/fund/login/">Login</a> instead.'
         logging.info('Email already registered: ' + username)
       else:
         created = User.objects.create_user(username, username, password)
@@ -79,15 +79,15 @@ def Register(request):
             login(request, user)
             return redirect('/fund/registered')
           else: #not active
-            printout = 'There was a problem with your registration.  Please contact a site admin for assistance.'
+            error_msg = 'There was a problem with your registration.  Please contact a site admin for assistance.'
             logging.error('Inactive right after registering. Email: ' + username)
         else: #email & pw didn't match
-          printout = 'There was a problem with your registration.  Please contact a site admin for assistance.'
+          error_msg = 'There was a problem with your registration.  Please contact a site admin for assistance.'
           logging.error("Password didn't match right after registering. Email: " + username)
   else:
     register = RegistrationForm()
     
-  return render_to_response('fund/register.html', {'form':register, 'printout':printout})
+  return render_to_response('fund/register.html', {'form':register, 'error_msg':error_msg})
 
 @login_required(login_url='/fund/login/')
 def Registered(request):
