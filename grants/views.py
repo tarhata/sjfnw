@@ -46,19 +46,21 @@ def OrgRegister(request): #update - uses old try/catch instead of filters
   error_msg=''
   if request.method=='POST':
     register = RegisterForm(request.POST)
-    username_email = request.POST['email'].lower()
-    password = request.POST['password']
-    org = request.POST['organization']
     if register.is_valid():
-      #check org already registered
+      username_email = request.POST['email'].lower()
+      password = request.POST['password']
+      org = request.POST['organization']
+     
+     #check org already registered
       if models.Grantee.objects.filter(name=org) or models.Grantee.objects.filter(email=username_email):
         error_msg = 'That organization is already registered. Log in instead.'
         logging.warning(org + 'tried to re-register under ' + username_email)
       else:
+        #allow existing Users to register as orgs?
         if not User.objects.filter(username=username_email):
           created = User.objects.create_user(username_email, username_email, password)
           logging.info('Created new User ' + username_email)
-        user = authenticate(username_email=username_email, password=password)
+        user = authenticate(username=username_email, password=password)
         if user:
           if user.is_active:
             login(request, user)
@@ -71,8 +73,7 @@ def OrgRegister(request): #update - uses old try/catch instead of filters
             logging.error('Inactive acct right after registration, account: ' + username_email)
         else:
           logging.error('Password not working right after registration, account:  ' + username_email)
-          error_msg="Your password didn't match.  Try again."
-          register = RegisterForm()
+          error_msg="Your password was incorrect.  Try again."
   else:
     register = RegisterForm()
   form = LoginForm()
