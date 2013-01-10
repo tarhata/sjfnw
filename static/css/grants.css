@@ -45,6 +45,7 @@ div.label {
 
 table#application_form {
 	width:100%;
+  font-size: 75%;
 }
 
 table#application_form td{
