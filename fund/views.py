@@ -231,7 +231,6 @@ def Home(request):
         need_est.append(donor)
   
   #progress charts
-  pie = {}
   if progress['contacts'] > 0:
     progress['bar'] = 100*progress['asked']/progress['contacts']
     progress['contactsremaining'] = progress['contacts'] - progress['talked'] -  progress['asked']
@@ -286,8 +285,7 @@ def Home(request):
       'formset':formset,
       'fd': fd,
       'load':load,
-      'loadto':loadto,
-      'pie':pie})
+      'loadto':loadto})
       
   #show regular contacts view
   else:  
@@ -337,7 +335,6 @@ def Home(request):
     'formset':formset,
     'load':load,
     'loadto':loadto,
-    'pie':pie,
     'mult_template':mult_template})
 
 @login_required(login_url='/fund/login/')
