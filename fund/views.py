@@ -239,8 +239,10 @@ def Home(request):
     progress['bar'] = 100*progress['asked']/progress['contacts']
     progress['contactsremaining'] = progress['contacts'] - progress['talked'] -  progress['asked']
     progress['togo'] = progress['estimated'] - progress['pledged'] -  progress['donated']
+    progress['header'] = '$' + str(progress['estimated']) + ' fundraising goal'
     if progress['togo'] < 0:
       progress['togo'] = 0
+      progress['header'] = '$' + str(progress['pledged'] + progress['donated']) + ' raised'
   else:
     progress['contactsremaining'] = 0
   

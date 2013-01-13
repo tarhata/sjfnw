@@ -311,7 +311,7 @@ $(document).ready(function() {
     {% if progress.contacts > 0 %}<div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:25px;"></div>{% endif %}
 	</td>
 	<td>
-    <div align="center">${{progress.estimated}} estimated fundraising</div>
+    <div align="center" title = "Personal fundraising goal of ${{progress.estimated}} calculated based on your ask amount and estimated likelihood for each contact">{{progress.header}}</div>
      {% if progress.estimated > 0 %}<div align="center" id ="chart_div2" style="width:260px;height:110px;;margin-left:25px;"></div>{% endif %}
 	</td>
 </tr>
