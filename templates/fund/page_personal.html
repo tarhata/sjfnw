@@ -157,7 +157,6 @@ $.ajax({
 });
 }
 
-
 function toggle(a, b) { //donor info
 	//toggles a, border on b if a is shown
   var e=document.getElementById(a);
@@ -178,33 +177,6 @@ function cancelHide(div_id, replace) { //hide adddonor div
 	var div = document.getElementById(div_id)
 	div.innerHTML=replace;
 	div.style.borderColor="#FFF";
-}
-
-function SubmitMult() { //add contacts
-$.ajax({
-	url:'/fund/addmult',
-	type:"POST",
-	data:$('#addmult').serialize(),
-  timeout: 10000,
-	success:function(data, textStatus, jqXHR){
-		if (jqXHR.responseText=="success") {
-			loadView('/fund/stepmult', 'adddonor');
-		} else {
-			document.getElementById('adddonor').innerHTML=jqXHR.responseText;
-		}
-	},
-	error:function(jqXHR, textStatus, errorThrown){
-    var errortext = ''
-    if (status_texts[jqXHR.status]) {
-      errortext = status_texts[jqXHR.status]
-    } else if (textStatus=='timeout') {
-      errortext = 'Request timeout'
-    } else {
-      errortext = 'Unknown error'
-    }
-    document.getElementById('adddonor').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + get_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
-	},
-});
 }
 
 function cloneMore(selector, type) { //add row to mult contacts form

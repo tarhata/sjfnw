@@ -175,12 +175,16 @@ def Home(request):
   step = request.GET.get('step')
   donor = request.GET.get('donor')
   type = request.GET.get('t')
+  load_form = request.GET.get('load')
   if step and donor and type:
     load = '/fund/'+donor+'/'+step
     if type=="complete":
       load += '/done'
     loadto = donor + '-nextstep'
-  else:
+  elif load_form == 'stepmult':
+    load = '/fund/stepmult'
+    loadto = 'adddonor'
+  else:  
     load = ''
     loadto = ''
   
@@ -247,7 +251,7 @@ def Home(request):
     membership.save()
 
   #show estimates form
-  if amount_missing:
+  if add_est and amount_missing:
     if amount_entered:
       #should not happen!
       logging.warning(str(membership) + ' has some contacts with estimates and some without.')
@@ -451,8 +455,6 @@ def Support(request):
   return render_to_response('fund/support.html', {'member':member, 'header':header})
   
 #FORMS
-#successful AJAX should return HttpResponse("success")
-
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def AddMult(request):
@@ -471,7 +473,7 @@ def AddMult(request):
           else:
             contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], membership = request.membership)
           contact.save()
-      return HttpResponse("success")        
+      return redirect('/fund/?load=stepmult')
   else:
     formset = ContactFormset()
 
