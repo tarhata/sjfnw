@@ -19,6 +19,11 @@ import logging
   gp save - remove blank lines in s_steps
   """
 
+class HiddenModelAdmin(admin.ModelAdmin):
+  def get_model_perms(self, request):
+    #Return empty perms dict thus hiding the model from admin index.
+    return {} 
+
 def approve(modeladmin, request, queryset):
   subject, from_email = 'Membership Approved', settings.APP_SEND_EMAIL
   logging.info('Approval button pressed; looking through queryset')
@@ -111,6 +116,10 @@ class MembershipAdvanced(admin.ModelAdmin):
 class MemberAdvanced(admin.ModelAdmin):
   list_display = ('__unicode__', 'email')
   search_fields = ['first_name', 'last_name', 'email']
+  def get_model_perms(self, request):
+    #Return empty perms dict thus hiding the model from admin index.
+    return {}
+  
 
 def step_membership(obj):
   return obj.donor.membership
