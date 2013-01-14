@@ -1,19 +1,21 @@
 <table class="form">
+	<tr> <!-- heading -->
+		<td colspan="3"><b>Completing {{step}}</b></td>
+	</tr>
 	<tr>
 		<td colspan="3">{{form.pledged_amount.errors}}</td>
 	</tr>
-	<tr>
+	<tr style="height:28px;"> 
 		<td>
-			<form id = "done_step" method="post" action="{{action}}">
-      Status:
-		</td>
-		<td colspan="2">
+			<form id = "{{step_id}}_done_step" method="post" action="{{action}}">
 			<span style="margin-right:10px;">
 				{% if donor.asked %}Asked.{% endif %}
 				<span id = "{{step_id}}_asked">
 					Asked: {{form.asked}}
 				</span>
 			</span>
+		</td>
+		<td>
 			{% if donor.pledged == 0 %}
 				Declined.
 			{% elif donor.pledged %}
@@ -22,14 +24,16 @@
 			<span id = "{{step_id}}_response">
 				Response: {{form.response}}
 			</span>
+		</td>
+		<td>
 			<span id="{{step_id}}_pledge">
 				Pledged: ${{form.pledged_amount}}
 			</span>
 		</td>
 	</tr>
-	<tr class="{{step_id}}_pledge_follow" style="display:none;padding-top:10px;">
+	<tr class="{{step_id}}_pledge_follow" style="display:none;padding-top:10px;">  <!-- pledge follow -->
 		<td colspan="3">
-			<p>Please enter a last name and contact info so that SJF can follow up on the pledge as needed.</p>
+			<p>Enter a last name and contact info so that SJF can follow up on the pledge if needed.</p>
 			<table>
 				<tr>
 					<td>
@@ -68,13 +72,12 @@
 		</td>
 	</tr>
 	<tr>
-		<th>Notes:</th>
-		<td>{{form.notes}}</td>
+		<td colspan="2">Contact notes:<br>{{form.notes}}</td>
 		<td>{{form.notes.errors}}</td>
 	</tr>
-	<tr>
+	<tr>  <!-- heading -->
     <td colspan="2">
-			<br>Plan a next step (optional):
+			<br><b>Plan a next step:</b> (optional)
 		</td>
 		<td rowspan="6" style="vertical-align:bottom;">
 			<div align="center" style="margin-bottom:15px;">
@@ -99,7 +102,7 @@
 	</tr>
 	<tr>
 		<td colspan="2" style="text-align:center">
-			<button onclick="Submit('{{action}}', '#done_step', '{{donor.pk}}-nextstep', 'date', '{{donor.asked}}', '{{donor.pledged}}')">Save</button>
+			<button onclick="Submit('{{action}}', '#{{step_id}}_done_step', '{{donor.pk}}-nextstep', 'date', '{{donor.asked}}', '{{donor.pledged}}')">Save</button>
 			<button onclick="location.href='/fund/'">Cancel</button>
 		</td>
 	</tr>
