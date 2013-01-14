@@ -10,7 +10,6 @@ def setPaths():
   sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\webob_1_1_1')
 
 def logInTesty(self):
-  self.client = Client()
   user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')
   self.client.login(username = 'testacct@gmail.com', password = 'testy')
 

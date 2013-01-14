@@ -37,6 +37,29 @@
     }
   },
   {
+    "pk": 2,
+    "model": "fund.member",
+    "fields": {
+      "current": 1,
+      "first_name": "New",
+      "last_name": "Member",
+      "email": "newacct@gmail.com"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "fund.membership",
+    "fields": {
+      "emailed": "2012-12-09",
+      "notifications": "",
+      "giving_project": 1,
+      "leader": false,
+      "member": 2,
+      "last_activity": "2000-01-18",
+      "approved": true
+    }
+  },
+  {
     "pk": 1,
     "model": "fund.donor",
     "fields": {
