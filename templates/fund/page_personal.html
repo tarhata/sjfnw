@@ -172,6 +172,32 @@ function toggle(a, b) { //donor info
   return true;
 }
 
+function SubmitMult() { //add contacts
+$.ajax({
+	url:'/fund/addmult',
+	type:"POST",
+	data:$('#addmult').serialize(),
+  timeout: 10000,
+	success:function(data, textStatus, jqXHR){
+		if (jqXHR.responseText=="success") {
+			location.href= '/fund/?load=stepmult';
+		} else {
+			document.getElementById('adddonor').innerHTML=jqXHR.responseText;
+		}
+	},
+	error:function(jqXHR, textStatus, errorThrown){
+    var errortext = ''
+    if (status_texts[jqXHR.status]) {
+      errortext = status_texts[jqXHR.status]
+    } else if (textStatus=='timeout') {
+      errortext = 'Request timeout'
+    } else {
+      errortext = 'Unknown error'
+    }
+    document.getElementById('adddonor').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + get_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
+	},
+});
+}
 function cancelHide(div_id, replace) { //hide adddonor div
 	replace = replace || '';
 	var div = document.getElementById(div_id)

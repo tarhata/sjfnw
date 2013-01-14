@@ -70,9 +70,13 @@ def Register(request):
         if gp:
           giv = models.GivingProject.objects.get(pk=gp)
           membership, crs = models.Membership.objects.get_or_create(member = member, giving_project = giv)
+          if crs:
+            membership.notifications = "Welcome to Project Central! I'm Odo, your Online Donor Organizing assistant."
+            logging.info('Set welcome notif for ' + str(membership))
+            membership.save()
           member.current = membership.pk
           member.save()
-          logging.info('Registration - membership in ' + str(giv) + ' or marked as current')
+          logging.info('Registration - membership in ' + str(giv) + 'created or marked as current')
         user = authenticate(username=username, password=password)
         if user:
           if user.is_active:
@@ -248,7 +252,7 @@ def Home(request):
   
   notif = membership.notifications
   if notif != '': #only show a notification once
-    logging.info('Displaying notification: ' + notif)
+    logging.info('Displaying notification to ' + str(membership) + ': ' + notif)
     membership.notifications=''
     membership.save()
 
@@ -475,7 +479,7 @@ def AddMult(request):
           else:
             contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], membership = request.membership)
           contact.save()
-      return redirect('/fund/?load=stepmult')
+      return HttpResponse("success")
   else:
     formset = ContactFormset()
 

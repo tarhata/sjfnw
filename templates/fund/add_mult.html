@@ -24,7 +24,11 @@
     </tr>
   {% endfor %}
   </table>
-	<span style="display:inline;margin-left:40%;">
-		<input type="submit" value="Save">
-	</span>
-</form><button onclick="location.href='/fund/'" style="display:inline;">Cancel</button><span style="margin-left:100px;"><a onclick="cloneMore('#add_form tr:last', 'form')">Add more contacts</a></span>
+</form>
+<div align="right" style="margin-right:40px;">
+  <a onclick="cloneMore('#add_form tr:last', 'form')">Add more contacts</a>
+</div>
+<div align="center">
+  <button onclick="SubmitMult()">Save</button>
+  <button onclick="location.href='/fund/'">Cancel</button>
+</div>
