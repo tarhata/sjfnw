@@ -92,7 +92,7 @@ function loadView(get_url, div_id, dasked, dpledged) {
 		type:"GET",
     timeout: 10000,
 		success:function(data, textStatus, jqXHR){
-			console.log(get_url);
+			//console.log(get_url);
       document.getElementById(div_id).innerHTML=jqXHR.responseText;
 			var pks = get_url.match(/\d+/g);
       if (pks && pks[1]) {
@@ -128,7 +128,7 @@ $.ajax({
   timeout: 10000,
 	success:function(data, textStatus, jqXHR){
 		if (jqXHR.responseText=="success") {
-			location.reload();
+			location.href='/fund/';
 		} else {
 			document.getElementById(div_id).innerHTML=jqXHR.responseText;
       if (dasked && dasked!='False') {
@@ -359,7 +359,7 @@ $(document).ready(function() {
 			</div>
 		{% else %}
 			<div id="{{dict.donor.pk}}-addstep">
-			{% if dict.donor.pledged == None %}
+			{% if dict.donor.pledged == None and dict.donor.gifted == 0 %}
 				No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
 			{% else %}
 				<img src="/static/images/check.png"/>Asked. {% if dict.donor.gifted %}Donated ${{dict.donor.gifted}}.{% elif dict.donor.pledged != None %}{% if dict.donor.pledged > 0 %}Pledged ${{dict.donor.pledged}}.{% else %}Declined to donate.{%endif%}{% endif %}
