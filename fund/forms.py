@@ -125,10 +125,6 @@ class StepDoneForm(forms.Form):
       if not phone and not email:
         logging.debug('Pledged without contact info')
         self._errors["phone"] = self.error_class(["Enter a phone number or email."])
-    elif response=='3' and amt and amt>0: #declined but entered pledge amount
-      logging.debug('Declined with amount')
-      self._errors["pledged_amount"] = self.error_class(["Cannot enter a pledge amount with a declined response."])
-      del cleaned_data["pledged_amount"]
     if next_step and not next_step_date: #next step - date missing
       self._errors["next_step_date"] = self.error_class(["Enter a date."])
       del cleaned_data["next_step"]
