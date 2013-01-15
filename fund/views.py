@@ -721,10 +721,17 @@ def DoneStep(request, donor_id, step_id):
         if response=='3': #declined, doesn't matter whether new this step or not
           donor.pledged = 0
           logging.debug('Declined')
-        if response=='2' and pledged and not donor.pledged: #pledged this step
+        if response=='1' and pledged and not donor.pledged: #pledged this step
           logging.debug('Pledge entered')
           step.pledged = pledged
           donor.pledged = pledged
+          donor.lastname = form.cleaned_data['last_name']
+          phone = form.cleaned_data['phone']
+          email = form.cleaned_data['email']
+          if phone:
+            donor.phone = phone
+          if email:
+            donor.email = email
       logging.info('Completing a step')
       step.save()
       #call story creator/updater
