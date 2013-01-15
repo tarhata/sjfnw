@@ -265,12 +265,13 @@ def view_app(request, app_id):
   return render_to_response('grants/view_app.html', {'app':app, 'form':form, 'user':user})
 
 def download_handler(request, app_id, file_type):
+  
   logging.info('download_handler called, file_type: ' + file_type)
-  #return serve_file(request, key)
+
   try:
     upload = models.GrantApplication.objects.get(pk = app_id)
     logging.info('Trying to serve ' + str(upload.file1))
-    #logging.info('.key is ' + str(upload.file1.key()))
+
   except models.GrantApplication.DoesNotExist:
     logging.warning('Grant app not found')
     raise Http404
@@ -281,11 +282,26 @@ def download_handler(request, app_id, file_type):
   
   blobinfo_dict =  dict([l.split(': ', 1) for l in blobinfo if l.strip()])
   creation_time = blobinfo_dict['X-AppEngine-Upload-Creation'].strip()
-  logging.info(creation_time)
+  if not settings.DEBUG: #convert to datetime for live
+    creation_time = datetime.strptime(creation_time, '%Y-%m-%d %H:%M:%S.%f')
+    creation_time = timezone.make_aware(creation_time, timezone.get_current_timezone())
+  
+  logging.info('Looking for: ' + creation_time)
   
   for b in  blobstore.BlobInfo.all():    
-    if str(b.creation) == creation_time:
-      return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
+    logging.info(b.filename)
+    c = b.creation
+    logging.debug(c)
+    if settings.DEBUG: #local - just compare strings
+      if str(timezone.localtime(c)) == creation_time:
+        return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
+    else:
+      c = timezone.make_aware(c, timezone.utc)
+      logging.debug('creation made aware: ' + c)
+      logging.debug('made local: ' + str(timezone.localtime(c)))
+      if timezone.localtime(c) == creation_time:
+        return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
+  logging.info('No match, raising 404')
   raise Http404('How could this possibly have gone wrong?')
   
   """
