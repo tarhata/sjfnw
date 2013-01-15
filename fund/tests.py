@@ -20,7 +20,6 @@ class StepCompleteTest(TestCase):
   
   """ 
    TO DO:
-    invalid next step
     valid pledge amount follow up
     weird conflicting data as if showed/hidden
     correct spans shown/hidden (on GET and POST)
@@ -37,6 +36,7 @@ class StepCompleteTest(TestCase):
   def test_valid_asked(self):
     
     """ asked + undecided = valid form input
+        step.completed set
         step.asked false -> true
         donor.asked false -> true """
     
@@ -84,10 +84,52 @@ class StepCompleteTest(TestCase):
     response = self.client.post('/fund/1/1/done', form_data)
     self.assertEqual(response.content, "success")
     
-    #step completed
-    
     self.assertEqual(pre_count + 1, models.Step.objects.count())
     self.assertEqual(1, models.Step.objects.filter(description = 'A BRAND NEW STEP').count())
+  
+  def test_valid_followup1(self):
+    
+    """ last name + phone = valid
+        donor fields updated """
+    
+    form_data = {'asked': 'on',
+      'response': 1,
+      'pledged_amount': 50,
+      'last_name': 'Sozzity',
+      'phone': '',
+      'email': 'blah@gmail.com',
+      'notes': '',
+      'next_step': 'A BRAND NEW STEP',
+      'next_step_date': '2013-01-25'}
+    
+    response = self.client.post('/fund/1/1/done', form_data)
+    self.assertEqual(response.content, "success")
+    
+    donor1 = models.Donor.objects.get(pk=1)
+    self.assertEqual(donor1.lastname, 'Sozzity')
+    self.assertEqual(donor1.email, 'blah@gmail.com')
+  
+  def test_valid_followup2(self):
+  
+    """ last name + email = valid
+        donor fields updated """
+    
+    form_data = {'asked': 'on',
+      'response': 1,
+      'pledged_amount': 50,
+      'last_name': 'Sozzity',
+      'phone': '206-555-5898',
+      'email': '',
+      'notes': '',
+      'next_step': 'A BRAND NEW STEP',
+      'next_step_date': '2013-01-25'}
+  
+    response = self.client.post('/fund/1/1/done', form_data)
+    self.assertEqual(response.content, "success")
+    
+    donor1 = models.Donor.objects.get(pk=1)
+    self.assertEqual(donor1.lastname, 'Sozzity')
+    self.assertEqual(donor1.phone, '206-555-5898')
     
   def test_invalid_asked(self):
     
@@ -113,6 +155,7 @@ class StepCompleteTest(TestCase):
     
     response = self.client.post('/fund/1/1/done', form_data)
     
+    self.assertTemplateUsed(response, 'fund/done_step.html')
     self.assertFormError(response, 'form', 'pledged_amount', "Please enter an amount.")
     self.assertFormError(response, 'form', 'last_name', "Please enter a last name.")
     self.assertFormError(response, 'form', 'phone', "Please enter a phone number or email address.")
@@ -124,6 +167,43 @@ class StepCompleteTest(TestCase):
     self.assertFalse(step1.asked)
     self.assertFalse(donor1.asked)
 
+  def test_invalid_next(self):
+    
+    """ missing date
+        missing desc """
+    
+    form_data = {'asked': '',
+        'response': 2,
+        'pledged_amount': '',
+        'last_name': '',
+        'notes': '',
+        'next_step': 'A step description!',
+        'next_step_date': ''}
+    
+    response = self.client.post('/fund/1/1/done', form_data)
+    
+    self.assertTemplateUsed(response, 'fund/done_step.html')
+    self.assertFormError(response, 'form', 'next_step_date', "Enter a date.")
+    
+    step1 = models.Step.objects.get(pk=1)
+    self.assertIsNone(step1.completed)
+    
+    form_data = {'asked': '',
+        'response': 2,
+        'pledged_amount': '',
+        'last_name': '',
+        'notes': '',
+        'next_step': '',
+        'next_step_date': '2013-01-25'}
+    
+    response = self.client.post('/fund/1/1/done', form_data)
+    self.assertTemplateUsed(response, 'fund/done_step.html')
+    self.assertFormError(response, 'form', 'next_step', "Enter a description.")
+    
+    step1 = models.Step.objects.get(pk=1)
+    self.assertIsNone(step1.completed)
+        
+        
 class MainPageContent(TestCase):      
   
   """ TO DO
