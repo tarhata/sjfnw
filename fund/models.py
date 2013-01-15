@@ -116,8 +116,11 @@ class Donor(models.Model):
   next_step = models.ForeignKey('Step', related_name = '+', null=True, blank=True) #don't need to go backwards
   
   def __unicode__(self):
-    return self.firstname+' '+self.lastname
-  
+    if self.lastname:
+      return self.firstname+' '+self.lastname
+    else:
+      return self.firstname
+
   def estimated(self):
     if self.amount and self.likelihood:
       return int(self.amount*self.likelihood*.01)
