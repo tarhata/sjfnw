@@ -40,7 +40,7 @@ def UpdateStory(membership_id, time):
     elif not step.donor in talkedlist and not step.donor in askedlist:
       talked += 1
       talkedlist.append(step.donor)
-    if step.pledged:
+    if step.pledged and step.pledged > 0:
       pledges += 1
       pledged += step.pledged
   summary = membership.member.first_name
