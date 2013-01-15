@@ -20,11 +20,7 @@ class StepCompleteTest(TestCase):
   
   """ 
    TO DO:
-    valid pledge amount follow up
-    weird conflicting data as if showed/hidden
     correct spans shown/hidden (on GET and POST)
-    
-    news creation can't be tested since deferred breaks tests. unless we stop using deferred
   """
   
   fixtures = ['fund/fixtures/test_fund.json',]
@@ -87,9 +83,17 @@ class StepCompleteTest(TestCase):
     self.assertEqual(pre_count + 1, models.Step.objects.count())
     self.assertEqual(1, models.Step.objects.filter(description = 'A BRAND NEW STEP').count())
   
+  def test_valid_response(self):
+    """ TO DO
+    contact that was already asked
+    add a response 
+    make sure step.asked stays false """
+    pass
+    
   def test_valid_followup1(self):
     
     """ last name + phone = valid
+        step.pledged updated
         donor fields updated """
     
     form_data = {'asked': 'on',
@@ -108,7 +112,9 @@ class StepCompleteTest(TestCase):
     donor1 = models.Donor.objects.get(pk=1)
     self.assertEqual(donor1.lastname, 'Sozzity')
     self.assertEqual(donor1.email, 'blah@gmail.com')
-  
+    step1 = models.Step.objects.get(pk=1)
+    self.assertEqual(step1.pledged, 50)
+    
   def test_valid_followup2(self):
   
     """ last name + email = valid
@@ -130,6 +136,81 @@ class StepCompleteTest(TestCase):
     donor1 = models.Donor.objects.get(pk=1)
     self.assertEqual(donor1.lastname, 'Sozzity')
     self.assertEqual(donor1.phone, '206-555-5898')
+  
+  def test_valid_hiddendata1(self):
+    
+    """ pledge amt + follow up + undecided
+      amt & follow up info should not be saved """
+      
+    form_data = {'asked': 'on',
+      'response': 2,
+      'pledged_amount': 50,
+      'last_name': 'Sozzity',
+      'phone': '206-555-5898',
+      'email': '',
+      'notes': '',
+      'next_step': '',
+      'next_step_date': ''}
+  
+    response = self.client.post('/fund/1/1/done', form_data)
+    self.assertEqual(response.content, "success")
+    
+    donor1 = models.Donor.objects.get(pk=1)
+    self.assertNotEqual(donor1.lastname, 'Sozzity')
+    self.assertNotEqual(donor1.phone, '206-555-5898')
+    self.assertIsNone(donor1.pledged)
+    step1 = models.Step.objects.get(pk=1)
+    self.assertIsNone(step1.pledged)
+
+  def test_valid_hiddendata2(self):
+    
+    """ pledge amt + follow up + declined
+      amt & follow up info should not be saved
+      step.pledged & donor.pledged = 0 """
+      
+    form_data = {'asked': 'on',
+      'response': 3,
+      'pledged_amount': 50,
+      'last_name': 'Sozzity',
+      'phone': '206-555-5898',
+      'email': '',
+      'notes': '',
+      'next_step': '',
+      'next_step_date': ''}
+  
+    response = self.client.post('/fund/1/1/done', form_data)
+    self.assertEqual(response.content, "success")
+    
+    donor1 = models.Donor.objects.get(pk=1)
+    self.assertNotEqual(donor1.lastname, 'Sozzity')
+    self.assertNotEqual(donor1.phone, '206-555-5898')
+    self.assertEqual(donor1.pledged, 0)
+    step1 = models.Step.objects.get(pk=1)
+    self.assertEqual(step1.pledged, 0)
+  
+  def test_valid_hiddendata3(self):
+    
+    """ pledge amt + follow up + undecided
+      allow without followup
+      don't save pledge on donor or step """
+      
+    form_data = {'asked': 'on',
+      'response': 2,
+      'pledged_amount': 50,
+      'last_name': '',
+      'phone': '',
+      'email': '',
+      'notes': '',
+      'next_step': '',
+      'next_step_date': ''}
+  
+    response = self.client.post('/fund/1/1/done', form_data)
+    self.assertEqual(response.content, "success")
+    
+    donor1 = models.Donor.objects.get(pk=1)
+    self.assertIsNone(donor1.pledged)
+    step1 = models.Step.objects.get(pk=1)
+    self.assertIsNone(step1.pledged)
     
   def test_invalid_asked(self):
     
@@ -257,6 +338,7 @@ class MainPageContent(TestCase):
 test ideas:
   different starting data? diff user? etc?
   
+  news story update/create
   add checks for data, not just response output
   registration
   fresh page w/o contacts
