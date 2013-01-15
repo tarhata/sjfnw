@@ -5,6 +5,7 @@ import datetime
 from grants.models import GrantCycle
 from django.utils import timezone
 from django.core.validators import MaxValueValidator
+import logging
  
 class GivingProject(models.Model):
   title = models.CharField(max_length=255)
@@ -25,6 +26,11 @@ class GivingProject(models.Model):
   
   def require_estimates(self):
     return self.fundraising_training <= timezone.now()
+  
+  def save(self, *args, **kwargs):
+    logging.info(self.suggested_steps.count('\r'))
+    self.suggested_steps = self.suggested_steps.replace('\r', '')
+    super(GivingProject, self).save(*args, **kwargs)
     
 class Member(models.Model):
   email = models.CharField(max_length=255)
