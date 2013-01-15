@@ -91,7 +91,7 @@
     "model":"fund.donor",
     "fields":{
       "gift_notified":false,
-      "next_step":null,
+      "next_step":1,
       "talked":true,
       "firstname":"Lauren",
       "privacy":"SH",
@@ -112,7 +112,7 @@
     "model":"fund.donor",
     "fields":{
       "gift_notified":false,
-      "next_step":null,
+      "next_step":2,
       "talked":true,
       "firstname":"Aniseto",
       "privacy":"SH",
@@ -126,6 +126,48 @@
       "notes":"",
       "likelihood":3,
       "asked":false
+    }
+  },
+  {
+    "pk":3,
+    "model":"fund.donor",
+    "fields":{
+      "gift_notified":false,
+      "next_step":null,
+      "talked":true,
+      "firstname":"Lynne",
+      "privacy":"SH",
+      "lastname":"Asked",
+      "pledged":null,
+      "gifted":0,
+      "amount":500,
+      "email":null,
+      "phone":null,
+      "membership":1,
+      "notes":"",
+      "likelihood":3,
+      "asked":true
+    }
+  },
+  {
+    "pk":4,
+    "model":"fund.donor",
+    "fields":{
+      "gift_notified":false,
+      "next_step":null,
+      "talked":true,
+      "firstname":"Elsa",
+      "privacy":"SH",
+      "lastname":"Declined",
+      "pledged":0,
+      "gifted":0,
+      "amount":500,
+      "email":null,
+      "phone":null,
+      "membership":1,
+      "notes":"",
+      "likelihood":3,
+      "asked":true
     }
   },
   {

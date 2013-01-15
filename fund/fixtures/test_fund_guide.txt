@@ -13,9 +13,11 @@ MEMBER
 MEMBERSHIPS -- DONORS -- STEPS
  
  1 testacct@gmail.com & Post - approved true
-    donors:
-      1 Lauren O'Laughlin
-      2 Aniseto
+
+      1 Lauren O'Laughlin - next step 1
+      2 Aniseto - next step 2
+      3 Lynne - asked, no response
+      4 Elsa - asked, declined
       
   2 newacct@gmail.com & Post - approved true
     no donors
