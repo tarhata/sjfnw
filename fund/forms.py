@@ -118,13 +118,13 @@ class StepDoneForm(forms.Form):
     if response=='1': #response = pledge
       if not amt or amt==0: #no/zero amount entered
         logging.debug('Pledged without amount')
-        self._errors["pledged_amount"] = self.error_class(["Please enter an amount."])
+        self._errors["pledged_amount"] = self.error_class(["Enter an amount."])
       if not last_name:
         logging.debug('Pledged without last name')
-        self._errors["last_name"] = self.error_class(["Please enter a last name."])
+        self._errors["last_name"] = self.error_class(["Enter a last name."])
       if not phone and not email:
         logging.debug('Pledged without contact info')
-        self._errors["phone"] = self.error_class(["Please enter a phone number or email address."])
+        self._errors["phone"] = self.error_class(["Enter a phone number or email."])
     elif response=='3' and amt and amt>0: #declined but entered pledge amount
       logging.debug('Declined with amount')
       self._errors["pledged_amount"] = self.error_class(["Cannot enter a pledge amount with a declined response."])

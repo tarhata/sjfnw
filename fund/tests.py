@@ -237,9 +237,9 @@ class StepCompleteTest(TestCase):
     response = self.client.post('/fund/1/1/done', form_data)
     
     self.assertTemplateUsed(response, 'fund/done_step.html')
-    self.assertFormError(response, 'form', 'pledged_amount', "Please enter an amount.")
-    self.assertFormError(response, 'form', 'last_name', "Please enter a last name.")
-    self.assertFormError(response, 'form', 'phone', "Please enter a phone number or email address.")
+    self.assertFormError(response, 'form', 'pledged_amount', "Enter an amount.")
+    self.assertFormError(response, 'form', 'last_name', "Enter a last name.")
+    self.assertFormError(response, 'form', 'phone', "Enter a phone number or email.")
     
     step1 = models.Step.objects.get(pk=1)
     donor1 = models.Donor.objects.get(pk=1)
