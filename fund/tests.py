@@ -281,12 +281,6 @@ class StepCompleteTest(TestCase):
        
 class MainPageContent(TestCase):      
   
-  """ TO DO
-    mass add form (2 variations)
-    contacts list
-    add estimates form
-  """
-  
   fixtures = ['fund/fixtures/test_fund.json',]
   
   def setUp(self):
