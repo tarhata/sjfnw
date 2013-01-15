@@ -5,8 +5,8 @@
 				{{ form.as_table }}
 			</table>
 		</form>
-		<button onclick="Submit('{{action}}', '#{{formid}}', '{{divid}}', 'date')">Save</button>
-		<button onclick="location.href='/fund/'">Cancel</button>
+		<div align="center"><button onclick="Submit('{{action}}', '#{{formid}}', '{{divid}}', 'date')">Save</button>
+		<button onclick="location.href='/fund/'">Cancel</button></div>
 	</td>
 	<td>
 		{% include 'fund/suggested_steps.html' %}
