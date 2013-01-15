@@ -283,10 +283,10 @@ def download_handler(request, app_id, file_type):
   blobinfo_dict =  dict([l.split(': ', 1) for l in blobinfo if l.strip()])
   creation_time = blobinfo_dict['X-AppEngine-Upload-Creation'].strip()
   if not settings.DEBUG: #convert to datetime for live
-    creation_time = datetime.strptime(creation_time, '%Y-%m-%d %H:%M:%S.%f')
+    creation_time = datetime.datetime.strptime(creation_time, '%Y-%m-%d %H:%M:%S.%f')
     creation_time = timezone.make_aware(creation_time, timezone.get_current_timezone())
   
-  logging.info('Looking for: ' + creation_time)
+  logging.info('Looking for: ' + str(creation_time))
   
   for b in  blobstore.BlobInfo.all():    
     logging.info(b.filename)
@@ -297,7 +297,7 @@ def download_handler(request, app_id, file_type):
         return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
     else:
       c = timezone.make_aware(c, timezone.utc)
-      logging.debug('creation made aware: ' + c)
+      logging.debug('creation made aware: ' + str(c))
       logging.debug('made local: ' + str(timezone.localtime(c)))
       if timezone.localtime(c) == creation_time:
         return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
