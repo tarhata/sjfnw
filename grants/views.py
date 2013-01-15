@@ -265,8 +265,6 @@ def view_app(request, app_id):
   return render_to_response('grants/view_app.html', {'app':app, 'form':form, 'user':user})
 
 def download_handler(request, app_id, file_type):
-  
-  logging.info('download_handler called, file_type: ' + file_type)
 
   try:
     upload = models.GrantApplication.objects.get(pk = app_id)
@@ -289,37 +287,16 @@ def download_handler(request, app_id, file_type):
   logging.info('Looking for: ' + str(creation_time))
   
   for b in  blobstore.BlobInfo.all():    
-    logging.info(b.filename)
     c = b.creation
-    logging.debug(c)
     if settings.DEBUG: #local - just compare strings
       if str(timezone.localtime(c)) == creation_time:
         return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
     else:
       c = timezone.make_aware(c, timezone.utc)
-      logging.debug('creation made aware: ' + str(c))
-      logging.debug('made local: ' + str(timezone.localtime(c)))
       if timezone.localtime(c) == creation_time:
         return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
   logging.info('No match, raising 404')
   raise Http404('How could this possibly have gone wrong?')
-  
-  """
-  if b.key() == "tQcX6YOnvYIehiMThLMdBOrKCVNOiPdHUtD2KMAbaVWNEdlV29Vn0UcAbp7v6dGR":
-    print "".join(b.open().readlines())
-
-    creation_time =  dict([l.split(': ', 1) for l in b.open().readlines() if l.strip()])['X-AppEngine-Upload-Creation']
-  #break
-
-  for b in  blobstore.BlobInfo.all():
-    print b.creation, creation_time
-    #if b.creation == creation_time:
-    #  print "win"
-    
-  # blob_reader = blobstore.BlobReader()
-  """
-
-  return storage.serve_file(request, upload.file1, None, None)
   
 #REPORTING
 
