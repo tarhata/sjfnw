@@ -105,7 +105,7 @@ class StepDoneForm(forms.Form):
   next_step = forms.CharField(max_length=100, required=False)
   next_step_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker', 'readonly':'true'}, format='%m/%d/%Y'))
   
-  def clean(self): #if pledged, require amount
+  def clean(self):
     cleaned_data = super(StepDoneForm, self).clean()
     response = cleaned_data.get("response")
     amt = cleaned_data.get("pledged_amount")
