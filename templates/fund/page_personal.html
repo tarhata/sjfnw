@@ -131,7 +131,7 @@ $.ajax({
 			location.href='/fund/';
 		} else {
 			document.getElementById(div_id).innerHTML=jqXHR.responseText;
-      if (dasked && dasked!='False') {
+      if (sub_url.match('done')) {
         var pks = sub_url.match(/\d+/g);
         if (pks && pks[1]) {
           completeLoaded(pks[1], dasked, dpledged, 'True');
@@ -260,7 +260,7 @@ function completeLoaded(pk, dasked, dpledged, submitted) {
 		response_span.style.display = "none";
     pledged_span.style.display = "none";
 		if (submitted) {
-			//console.log('in completeloaded pledge in db, calling askedtoggled')
+			console.log('in completeloaded pledge in db, calling askedtoggled')
 			var asked = document.getElementById(pk+'_id_asked');
 			askedToggled(asked);
 		}
@@ -273,10 +273,12 @@ function askedToggled(asked) { //step complete form - asked input changed
 	var num = asked.id.match(/\d+/);
 	var response_span = document.getElementById(num+'_response');
 	if (asked.checked) {
+		console.log('askedtoggled checked');
 		response_span.style.display="inline";
 		var response = document.getElementById(num+'_id_response');
 		responseSelected(response);
 	} else { //hide all following
+		console.log('askedtoggled un checked');
 		response_span.style.display="none";
 		var hide_span = document.getElementById(num+'_pledge');
 		hide_span.style.display="none";
@@ -291,11 +293,11 @@ function responseSelected(response) { //step complete form - response input chan
 	if (response.value == 1) { //1 = pledged, 2 = unsure, 3 = dec
 		pledged_span.style.display="";
 		var pledge = document.getElementById(num+'_id_pledged_amount');
-		//console.log('in respselected, calling pledge entered')
+		console.log('in respselected, calling pledge entered')
 		pledgeEntered(pledge);
 	} else {
 		pledged_span.style.display="none";
-		//console.log('in respselected, calling pledge entered hide')
+		console.log('in respselected, calling pledge entered hide')
 		pledgeEntered(pledged_span, true);
 	}
 }
@@ -304,7 +306,7 @@ function pledgeEntered(pledge, hide) { //step complete form - pledge input chang
   //show or hide the last name & contact info fields
 	pledge_amt = parseFloat(pledge.value) || 0;
 	var num = pledge.id.match(/\d+/);
-	//console.log('in pledgeentered, amt = ' + pledge_amt +', num = ' +num)
+	console.log('in pledgeentered, amt = ' + pledge_amt +', num = ' +num)
 	var follows = $('.' + num + '_pledge_follow').get();
 	for (var i = 0; i < follows.length; i++) {
 		if (pledge_amt > 0 && hide != true) {
