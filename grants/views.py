@@ -264,11 +264,11 @@ def view_app(request, app_id):
   form = models.GrantApplicationForm(instance = app)
   return render_to_response('grants/view_app.html', {'app':app, 'form':form, 'user':user})
 
-def download_handler(request, filename):
-  logging.info('download_handler called, filename: ' + filename)
+def download_handler(request, app_id, file_type):
+  logging.info('download_handler called, file_type: ' + file_type)
   #return serve_file(request, key)
   try:
-    upload = models.GrantApplication.objects.get(file1_name=filename)
+    upload = models.GrantApplication.objects.get(pk = app_id)
     logging.info('Trying to serve ' + str(upload.file1))
     #logging.info('.key is ' + str(upload.file1.key()))
   except models.GrantApplication.DoesNotExist:
@@ -276,18 +276,17 @@ def download_handler(request, filename):
     raise Http404
   #import pdb; pdb.set_trace()
   
-  #blobinfo_key = str(upload.file1).split('/', 1)[0]
-  #blobinfo = blobstore.BlobReader(blobinfo_key).readlines()
+  blobinfo_key = str(upload.file1).split('/', 1)[0]
+  blobinfo = blobstore.BlobReader(blobinfo_key).readlines()
   
-  #blobinfo_dict =  dict([l.split(': ', 1) for l in blobinfo if l.strip()])
-  #creation_time = blobinfo_dict['X-AppEngine-Upload-Creation'].strip()
-  #logging.info(creation_time)
+  blobinfo_dict =  dict([l.split(': ', 1) for l in blobinfo if l.strip()])
+  creation_time = blobinfo_dict['X-AppEngine-Upload-Creation'].strip()
+  logging.info(creation_time)
   
-  #for b in  blobstore.BlobInfo.all():    
-  #  if str(b.creation) == creation_time:
-  #    return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
-  #raise Http404('How could this possibly have gone wrong?')
-  
+  for b in  blobstore.BlobInfo.all():    
+    if str(b.creation) == creation_time:
+      return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
+  raise Http404('How could this possibly have gone wrong?')
   
   """
   if b.key() == "tQcX6YOnvYIehiMThLMdBOrKCVNOiPdHUtD2KMAbaVWNEdlV29Vn0UcAbp7v6dGR":

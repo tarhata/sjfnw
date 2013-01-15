@@ -48,7 +48,7 @@ urlpatterns = patterns('',
 ## GRANTS - APPLICATION VIEWS ##
 
     (r'^grants/view/(?P<app_id>\d+)/?$', 'grants.views.view_app'),
-    (r'^grants/download/(?P<filename>.*)$', 'grants.views.download_handler'),
+    (r'^grants/download/(?P<app_id>\d+)/(?P<file_type>.*)$', 'grants.views.download_handler'),
     
 ## GRANTS - REPORTING ##
   

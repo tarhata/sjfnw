@@ -49,8 +49,8 @@ Submitted {{app.submission_time}}</div>
 
 <h3>Files</h3>
 <h4>Budget, grant funding sources and diversity chart</h4>
-{%if app.file1_name %}
-<a href="https://docs.google.com/viewer?url=http://sjf-nw.appspot.com/grants/download/{{app.file1_name}}">View</a><br>
+{%if app.file1 %}
+<a href="http://localhost:8080/grants/download/{{app.pk}}/file">View</a><br>
 {%endif%}
 {%if app.file2_name%}
 <a href="https://docs.google.com/viewer?url=http://sjf-nw.appspot.com/grants/download/{{app.file2_name}}">View</a><br>
