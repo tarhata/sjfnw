@@ -162,7 +162,7 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
     """
 
     def new_file(self, *args, **kwargs):
-        import pdb; pdb.set_trace() 
+        #import pdb; pdb.set_trace() 
         super(BlobstoreFileUploadHandler, self).new_file(*args, **kwargs)
         
         blobkey = None # self.content_type_extra.get('blob-key')
