@@ -18,11 +18,6 @@ def logInNewbie(self):
 
 class StepCompleteTest(TestCase):
   
-  """ 
-   TO DO:
-    correct spans shown/hidden (on GET and POST)
-  """
-  
   fixtures = ['fund/fixtures/test_fund.json',]
   
   def setUp(self):
@@ -164,7 +159,7 @@ class StepCompleteTest(TestCase):
 
   def test_valid_hiddendata2(self):
     
-    """ pledge amt + follow up + declined
+    """ declined + pledge amt + follow up
       amt & follow up info should not be saved
       step.pledged & donor.pledged = 0 """
       
@@ -283,8 +278,7 @@ class StepCompleteTest(TestCase):
     
     step1 = models.Step.objects.get(pk=1)
     self.assertIsNone(step1.completed)
-        
-        
+       
 class MainPageContent(TestCase):      
   
   """ TO DO
@@ -296,15 +290,14 @@ class MainPageContent(TestCase):
   fixtures = ['fund/fixtures/test_fund.json',]
   
   def setUp(self):
-    setPaths()      
+    setPaths()
+    logInNewbie(self)    
     
   def test_new(self):
     
-    """ brand new user 
-          logged into pre gp, sees mass add pre
-          logged into post gp, sees reg mass add """
-    
-    logInNewbie(self)
+    """ no contacts 
+        logged into pre gp, sees mass add pre
+        logged into post gp, sees reg mass add """
     
     membership = models.Membership.objects.get(pk = 2)
     
@@ -322,30 +315,46 @@ class MainPageContent(TestCase):
     self.assertTemplateUsed(response, 'fund/add_mult_pre.html')
     self.assertEqual(response.context['membership'], membership)
     
-  def test_pre_contacts(self): #pre-training, has contacts
-    pass
-    #expect regular contacts list
-  
-  def test_post_contacts(self): #post-training, has contacts from pre
-    pass
-    #expect add estimates form
- 
-  def test_post_empty(self): #post training, has no contacts
-    pass
-    #expect add estimates form
+  def test_no_estimates(self):
+   
+    """ 2 contacts w/o est
+        logs into post training, gets estimates form
+        logs into pre, does not """
+    
+    membership = models.Membership.objects.get(pk = 2)
+    
+    contact = models.Donor(firstname = 'Anna', membership = membership)
+    contact.save()
+    contact = models.Donor(firstname = 'Banana', membership = membership)
+    contact.save()
+    
+    response = self.client.get('/fund/')
+    self.assertTemplateUsed('fund/add_estimates.html')
+    
+    member = membership.member
+    member.current = 3 # the pre-training one
+    member.save()
+    
+    membership = models.Membership.objects.get(pk = 3)
+    
+    contact = models.Donor(firstname = 'Anna', membership = membership)
+    contact.save()
+    contact = models.Donor(firstname = 'Banana', membership = membership)
+    contact.save()
+    
+    response = self.client.get('/fund/')
+    self.assertTemplateNotUsed('fund/add_estimates.html')
 
 """
-test ideas:
-  different starting data? diff user? etc?
+ TEST IDEAS
+  general:
+    different starting data? diff user? etc?
+    news story update/create
+    add checks for data, not just response output
   
-  news story update/create
-  add checks for data, not just response output
-  registration
-  fresh page w/o contacts
-  pre & post estimate
-  notifications
-  forms in general
-  attempt regis w/repeat & non
+  pages/forms:
+    registration
+    pre & post estimate forms
+    notifications
+    forms in general
 """
-
-""" FIXTURES REF """
