@@ -72,8 +72,7 @@ class BlobstoreStorage(Storage):
         elif isinstance(content, File):
             logging.info('3rd, is file')
             guessed_type = mimetypes.guess_type(name)[0]
-            file_name = files.blobstore.create(mime_type=guessed_type or 'application/octet-stream',
-                                               _blobinfo_uploaded_filename=name)
+            file_name = files.blobstore.create(mime_type=guessed_type or 'application/octet-stream', _blobinfo_uploaded_filename=name)
 
             with files.open(file_name, 'a') as f:
                 for chunk in content.chunks():
