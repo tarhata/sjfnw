@@ -5,4 +5,7 @@ from grants import models
       discard draft button
       submitted apps sorting
       password reset on live
-      file upload/serving? """
+      file upload/serving? 
+      loading app page for the first time
+      brand new org
+      org with profile info saved """
