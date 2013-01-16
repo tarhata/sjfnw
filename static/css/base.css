@@ -2,7 +2,11 @@
 
 body {
   font-family: Verdana;
-  font-size:75%;
+  font-size:.75em;
+}
+
+table {
+  font-size: inherit;
 }
 
 button, input[type="submit"] {
