@@ -247,32 +247,32 @@ $(document).ready(function() {
    <div class="narrative_q">1. {%if texts.narrative1 %}{{texts.narrative1|safe}}{%else%}
 		{{form.narrative1.label|safe}}{%endif%}
 		{{form.narrative1.errors}}{{form.narrative1}}
-		<span class="char_counter" id="narrative1_counter">1800</span></div>
+		<span class="char_counter" id="narrative1_counter">{{limits.1}}</span></div>
 
    <div class="narrative_q">2. {%if texts.narrative2 %}{{texts.narrative2|safe}}{%else%}
    {{form.narrative2.label|safe}}{%endif%}
    {{form.narrative2.errors}}{{form.narrative2}}
-	 <span class="char_counter" id="narrative2_counter">900</span></div>
+	 <span class="char_counter" id="narrative2_counter">{{limits.2}}</span></div>
 
    <div class="narrative_q">3. {%if texts.narrative3 %}{{texts.narrative3|safe}}{%else%}
    {{form.narrative3.label|safe}}{%endif%}
    {{form.narrative3.errors}}{{form.narrative3}}
-	 <span class="char_counter" id="narrative3_counter">2700</span></div>
+	 <span class="char_counter" id="narrative3_counter">{{limits.3}}</span></div>
    
    <div class="narrative_q">4 {%if texts.narrative4 %}{{texts.narrative4|safe}}{%else%}
    {{form.narrative4.label|safe}}{%endif%}
    {{form.narrative4.errors}}{{form.narrative4}}
-	 <span class="char_counter" id="narrative4_counter">1800</span></div>
+	 <span class="char_counter" id="narrative4_counter">{{limits.4}}</span></div>
 
    <div class="narrative_q">5. {%if texts.narrative5 %}{{texts.narrative5|safe}}{%else%}
    {{form.narrative5.label|safe}}{%endif%}
    {{form.narrative5.errors}}
    {{form.narrative5}}
-	 <span class="char_counter" id="narrative5_counter">1800</span></div>
+	 <span class="char_counter" id="narrative5_counter">{{limits.5}}</span></div>
 
    <div class="narrative_q">{%if texts.narrative6 %}{{texts.narrative6|safe}}{{form.narrative6.errors}}
    {{form.narrative6}}
-	 <span class="char_counter" id="narrative6_counter">1800</span></div>{%endif%}
+	 <span class="char_counter" id="narrative6_counter">{{limits.6}}</span></div>{%endif%}
   
     <h4>Budget, grant funding sources and diversity chart</h4>
 	Upload as one file or multiple files.<br><br>
