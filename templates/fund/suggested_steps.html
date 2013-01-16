@@ -2,7 +2,6 @@
 	Select one or write your own description.
 	<br><br>
   {% for sugg in suggested %}
-    <div class="sugg_step" id="sugg_{{forloop.counter}}" onclick="suggestFill(this, '{{target}}')">{{sugg}}
-    </div>
+    <div class="sugg_step" id="sugg_{{forloop.counter}}" onclick="suggestFill(this, '{{target}}')">{{sugg}}</div>
 	{% endfor %}
 </div>
