@@ -71,7 +71,7 @@ def Register(request):
           giv = models.GivingProject.objects.get(pk=gp)
           membership, crs = models.Membership.objects.get_or_create(member = member, giving_project = giv)
           if crs:
-            membership.notifications = "Welcome to Project Central! I'm Odo, your Online Donor Organizing assistant."
+            membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant.</td><td><img src="/static/images/odo1.png"></td></tr></table>'
             logging.info('Set welcome notif for ' + str(membership))
             membership.save()
           member.current = membership.pk
@@ -251,7 +251,7 @@ def Home(request):
     progress['contactsremaining'] = 0
   
   notif = membership.notifications
-  if notif != '': #only show a notification once
+  if notif == 'specifhjdsjkfh': #only show a notification once
     logging.info('Displaying notification to ' + str(membership) + ': ' + notif)
     membership.notifications=''
     membership.save()
