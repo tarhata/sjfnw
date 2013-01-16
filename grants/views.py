@@ -52,7 +52,7 @@ def OrgRegister(request): #update - uses old try/catch instead of filters
       org = request.POST['organization']
      
      #check org already registered
-      if models.Grantee.objects.filter(name=org) or models.Grantee.objects.filter(email=username_email):
+      if models.Organization.objects.filter(name=org) or models.Organization.objects.filter(email=username_email):
         error_msg = 'That organization is already registered. Log in instead.'
         logging.warning(org + 'tried to re-register under ' + username_email)
       else:
@@ -64,7 +64,7 @@ def OrgRegister(request): #update - uses old try/catch instead of filters
         if user:
           if user.is_active:
             login(request, user)
-            orgg = models.Grantee(name=org, email=username_email)
+            orgg = models.Organization(name=org, email=username_email)
             orgg.save()
             logging.info('Created new org ' + org)
             return redirect(OrgHome)
@@ -82,11 +82,11 @@ def OrgRegister(request): #update - uses old try/catch instead of filters
 @login_required(login_url='/org/login/')
 def OrgHome(request): # /org
   try:
-    grantee = models.Grantee.objects.get(email=request.user.username)
-  except models.Grantee.DoesNotExist:
+    grantee = models.Organization.objects.get(email=request.user.username)
+  except models.Organization.DoesNotExist:
     return redirect('/org/nr')
     
-  saved = models.SavedGrantApplication.objects.filter(organization=grantee)
+  saved = models.DraftGrantApplication.objects.filter(organization=grantee)
   submitted = models.GrantApplication.objects.filter(organization=grantee).order_by('-submission_time')
 
   cycles = models.GrantCycle.objects.filter(close__gt=timezone.now()-datetime.timedelta(days=180)).order_by('open') #grants that closed w/in the last 180 days (~6 mos)
@@ -115,8 +115,8 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
 
   #check that user is registered as an org
   try: 
-    grantee = models.Grantee.objects.get(email=request.user.username)
-  except models.Grantee.DoesNotExist:
+    grantee = models.Organization.objects.get(email=request.user.username)
+  except models.Organization.DoesNotExist:
     return redirect('/org/nr')
   
   #check cycle exists
@@ -142,7 +142,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     logging.info("Application POST, files:" + str(request.FILES))
     #get or create autosave json, update it **UPDATE**
     dict = simplejson.dumps(request.POST)
-    saved, cr = models.SavedGrantApplication.objects.get_or_create(organization = grantee, grant_cycle=cycle)
+    saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = grantee, grant_cycle=cycle)
     saved.contents = dict
     saved.save()
     mod = saved.modified
@@ -183,10 +183,10 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       logging.info("Application form invalid: " + str(form.errors))
   else: #GET
     try:
-      saved = models.SavedGrantApplication.objects.get(organization=grantee, grant_cycle=cycle)
+      saved = models.DraftGrantApplication.objects.get(organization=grantee, grant_cycle=cycle)
       dict = simplejson.loads(saved.contents)
       mod = saved.modified
-    except models.SavedGrantApplication.DoesNotExist:
+    except models.DraftGrantApplication.DoesNotExist:
       dict = model_to_dict(grantee)
       mod = ''
     dict['organization'] = grantee
@@ -201,12 +201,12 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
   logging.info('Upload prepped, url: ' + upload_url)
   
   return render_to_response('grants/org_app.html',
-  {'grantee':grantee, 'form': form, 'cycle':cycle, 'upload_url': upload_url, 'texts':texts, 'saved':mod}  )
+  {'grantee':grantee, 'form': form, 'cycle':cycle, 'upload_url': upload_url, 'texts':texts, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS}  )
 
 def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   try:
-    grantee = models.Grantee.objects.get(email=request.user.username)
-  except models.Grantee.DoesNotExist:
+    grantee = models.Organization.objects.get(email=request.user.username)
+  except models.Organization.DoesNotExist:
     return redirect('/org/nr')
   
   try:
@@ -219,7 +219,7 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
     
     #get or create saved json, update it
     dict = simplejson.dumps(request.POST)
-    saved, cr = models.SavedGrantApplication.objects.get_or_create(organization=grantee, grant_cycle=cycle)
+    saved, cr = models.DraftGrantApplication.objects.get_or_create(organization=grantee, grant_cycle=cycle)
     saved.contents = dict
     saved.save()
     
@@ -227,21 +227,21 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
 
 def AutoSaveFile(request, cycle_id):
   try:
-    grantee = models.Grantee.objects.get(email=request.user.username)
-  except models.Grantee.DoesNotExist:
-    logging.error('Grantee not found on file autosave. Email = ' + request.user.username)
+    grantee = models.Organization.objects.get(email=request.user.username)
+  except models.Organization.DoesNotExist:
+    logging.error('Organization not found on file autosave. Email = ' + request.user.username)
     return HttpResponse("Error")
   
   if request.method == 'POST':
     
-    saved, cr = models.SavedGrantApplication.objects.get_or_create(organization=grantee, grant_cycle=cycle)
+    saved, cr = models.DraftGrantApplication.objects.get_or_create(organization=grantee, grant_cycle=cycle)
     #get file off the request and save it
     return HttpResponse("")
 
 def DiscardDraft(request, cycle_id):
   try:
-    grantee = models.Grantee.objects.get(email=request.user.username)
-  except models.Grantee.DoesNotExist:
+    grantee = models.Organization.objects.get(email=request.user.username)
+  except models.Organization.DoesNotExist:
     return redirect('/org/nr')
   
   try:
@@ -251,10 +251,10 @@ def DiscardDraft(request, cycle_id):
   
   #look for saved draft
   try:
-    saved = models.SavedGrantApplication.objects.get(organization=grantee, grant_cycle=cycle)
+    saved = models.DraftGrantApplication.objects.get(organization=grantee, grant_cycle=cycle)
     saved.delete()
     return redirect('/org')
-  except models.SavedGrantApplication.DoesNotExist:
+  except models.DraftGrantApplication.DoesNotExist:
     return redirect('/org')
 
 #APPLICATION
@@ -304,7 +304,7 @@ def download_handler(request, app_id, file_type):
 
 #CRON
 def DraftWarning(request):
-  drafts = models.SavedGrantApplication.objects.all()
+  drafts = models.DraftGrantApplication.objects.all()
   for draft in drafts:
     time_left = draft.grant_cycle.close - timezone.now()
     logging.debug('Time left: ' + str(time_left))

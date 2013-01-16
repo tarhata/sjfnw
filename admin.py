@@ -141,7 +141,7 @@ class GrantAppAdmin(admin.ModelAdmin):
 class DraftAdmin(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified')
 
-class GranteeAdmin(admin.ModelAdmin):
+class OrganizationAdmin(admin.ModelAdmin):
   list_display = ('name', 'email',)
   list_editable = ('email',)
 
@@ -177,6 +177,6 @@ advanced_admin.register(Resource)
 
 advanced_admin.register(GrantCycle)
 advanced_admin.register(NarrativeText)
-advanced_admin.register(Grantee, GranteeAdmin)
+advanced_admin.register(Organization, OrganizationAdmin)
 advanced_admin.register(GrantApplication, GrantAppAdmin)
-advanced_admin.register(SavedGrantApplication, DraftAdmin)
+advanced_admin.register(DraftGrantApplication, DraftAdmin)
