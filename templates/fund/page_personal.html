@@ -340,22 +340,26 @@ $(document).ready(function() {
 <div id="notifications">{{notif|safe}}</div>
 {% endif %}
 
+{% if donor_list.0 %}
 <b>YOUR PROGRESS</b>
-<table style="width:90%;margin-top:10px;margin-bottom:15px;">
+<table style="width:90%;margin-left:8%;margin-top:10px;margin-bottom:15px;text-align:center;">
 <tr>
-	<td style="width:50%;">
+	<td>
     <div align="center">{{progress.contacts}} contacts</div>
-    {% if progress.contacts > 0 %}<div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:25px;"></div>{% endif %}
+		<div align="center" id ="chart_div" style="width:240px;height:110px;margin-left:auto;margin-right:auto;"></div>
 	</td>
+	{% if progress.estimated > 0 %}
 	<td>
     <div align="center" title = "Personal fundraising goal of ${{progress.estimated}} calculated based on your ask amount and estimated likelihood for each contact">{{progress.header}}</div>
-     {% if progress.estimated > 0 %}<div align="center" id ="chart_div2" style="width:260px;height:110px;;margin-left:25px;"></div>{% endif %}
+    <div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div>
 	</td>
+	{% endif %}
 </tr>
 </table>
+{% endif %}
 
 <b>YOUR CONTACTS & NEXT STEPS</b>
-{% if donor_list.0 %} <!--only show if mass add won't be showing -->
+{% if donor_list.0 and load != 'stepmult' %} <!--only show if mass add won't be showing -->
 	<div class="edit_done">[<a onclick="loadView('/fund/addmult', 'adddonor')">add contacts</a>]</div>
   <div class="donor indent" id="adddonor"></div><!--forms for adding contacts go here when requested-->
 {% endif %}
@@ -434,14 +438,14 @@ $(document).ready(function() {
 	</div> <!-- ends donor -->
 
 {% empty %} <!--no contacts yet -->
-{% if fd %} <!-- add estimates -->
-	{% include 'fund/add_estimates.html' %}	
-{% else %} <!-- add contacts -->
-	<div class="donors" id="adddonor">
-		<p>You don't have any contacts yet!  Get started by adding some.  You'll be able to add, change or remove contacts at any time.</p>
-		{% include mult_template %}
-	</div>
-{% endif %}
+	{% if fd %} <!-- add estimates -->
+		{% include 'fund/add_estimates.html' %}	
+	{% else %} <!-- add contacts -->
+		<div class="donors" id="adddonor">
+			<p>You don't have any contacts yet!  Get started by adding some.  You'll be able to add, change or remove contacts at any time.</p>
+			{% include mult_template %}
+		</div>
+	{% endif %}
 {% endfor %} <!--ends contacts check-->
 
 {% endblock %}
