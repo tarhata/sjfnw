@@ -231,7 +231,7 @@ def Home(request):
     if donor.gifted:
       progress['donated'] += donor.gifted
     if add_est:
-      if donor.amount:
+      if donor.amount is not None:
         amount_entered = True
       else:
         amount_missing = True
