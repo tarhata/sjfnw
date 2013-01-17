@@ -720,6 +720,7 @@ def DoneStep(request, donor_id, step_id):
           news = ' asked a donor'
         if response=='3': #declined, doesn't matter whether new this step or not
           donor.pledged = 0
+          step.pledged = 0
           logging.debug('Declined')
         if response=='1' and pledged and not donor.pledged: #pledged this step
           logging.debug('Pledge entered')
