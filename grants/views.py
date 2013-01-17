@@ -258,34 +258,48 @@ def DiscardDraft(request, cycle_id):
     return redirect('/org')
 
 #APPLICATION
-def view_app(request, app_id):
+def ViewApplication(request, app_id):
+  
   user = request.user
   app = get_object_or_404(models.GrantApplication, pk=app_id)
   form = models.GrantApplicationForm(instance = app)
-  return render_to_response('grants/view_app.html', {'app':app, 'form':form, 'user':user})
+  
+  return render_to_response('grants/ViewApplication.html', {'app':app, 'form':form, 'user':user})
 
-def download_handler(request, app_id, file_type):
-
+def ViewFile(request, app_id, file_type):
+ 
+  #find the application
   try:
-    upload = models.GrantApplication.objects.get(pk = app_id)
-    logging.info('Trying to serve ' + str(upload.file1))
-
+    application = models.GrantApplication.objects.get(pk = app_id)
   except models.GrantApplication.DoesNotExist:
     logging.warning('Grant app not found')
     raise Http404
-  #import pdb; pdb.set_trace()
   
-  blobinfo_key = str(upload.file1).split('/', 1)[0]
+  #find the file
+  if file_type == 'budget':
+    file_field = application.budget
+  elif file_type == 'demographics':
+    file_field = application.demographics
+  elif file_type == 'funding':
+    file_field = application.funding_sources
+  else:
+    logging.warning('Unknown file type ' + file_type)
+    raise Http404
+  
+  #filefield stores key that gets us the blobinfo
+  blobinfo_key = str(application.file1).split('/', 1)[0]
   blobinfo = blobstore.BlobReader(blobinfo_key).readlines()
-  
+  #look through the info for the creation time of the blob
   blobinfo_dict =  dict([l.split(': ', 1) for l in blobinfo if l.strip()])
   creation_time = blobinfo_dict['X-AppEngine-Upload-Creation'].strip()
+  
   if not settings.DEBUG: #convert to datetime for live
     creation_time = datetime.datetime.strptime(creation_time, '%Y-%m-%d %H:%M:%S.%f')
     creation_time = timezone.make_aware(creation_time, timezone.get_current_timezone())
   
   logging.info('Looking for: ' + str(creation_time))
   
+  #find blob that matches the creation time
   for b in  blobstore.BlobInfo.all():    
     c = b.creation
     if settings.DEBUG: #local - just compare strings
