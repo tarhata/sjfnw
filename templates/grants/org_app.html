@@ -274,11 +274,25 @@ $(document).ready(function() {
    {{form.narrative6}}
 	 <span class="char_counter" id="narrative6_counter">{{limits.6}}</span></div>{%endif%}
   
-    <h4>Budget, grant funding sources and diversity chart</h4>
-	Upload as one file or multiple files.<br><br>
-  {{form.file1.errors}}
-  {{form.file1}}<span id="file_status"></span>
-  <br>
+    <h4>File uploads</h4>
+	Note: Files are not autosaved.<br><br>
+  <table>
+		<tr>
+			<td>Budget:</td>
+			<td>{{form.budget}}</td>
+			<td>{{form.budget.errors}}</td>
+		</tr>
+		<tr>
+			<td>Demographics:</td>
+			<td>{{form.demographics}}</td>
+			<td>{{form.demographics.errors}}</td>
+		</tr>
+		<tr>
+			<td>Funding sources:</td>
+			<td>{{form.funding_sources}}</td>
+			<td>{{form.funding_sources.errors}}</td>
+		</tr>
+	</table>
   <!--
   
   <h4>Fiscal sponsor letter (if applicable)</h4>

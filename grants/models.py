@@ -167,13 +167,12 @@ class GrantApplication(models.Model):
   narrative6 = models.TextField(null=True, blank=True)
   
   #files
-  file1 = models.FileField(upload_to='up/', max_length=255)
-  """ budget
-    demographics form
-    funding sources
-    timeline? """
+  budget = models.FileField(upload_to='/%Y/', max_length=255)
+  demographics = models.FileField(upload_to='/%Y/', max_length=255)
+  funding_sources = models.FileField(upload_to='/%Y/', max_length=255)
+  #timeline?
   
-  fiscal_letter = models.FileField(upload_to='uploads/%Y/', null=True,blank=True)
+  fiscal_letter = models.FileField(upload_to='/%Y/', null=True,blank=True)
   
   #admin fields  
   SCREENING_CHOICES = (
