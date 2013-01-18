@@ -13,6 +13,7 @@ if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.geten
     }
   }
   DEBUG = False
+  APP_BASE_URL = 'http://sjf-nw.appspot.com/' #until i learn how to do this
 else:
   DATABASES = {
     'default': {
@@ -24,6 +25,7 @@ else:
     }
   }
   DEBUG = True
+  APP_BASE_URL = 'http://localhost:8080/'
 
 INSTALLED_APPS = (
   'django.contrib.admin',
@@ -92,4 +94,3 @@ FILE_UPLOAD_HANDLERS = (
 APP_SUPPORT_EMAIL = 'webmaster@socialjusticefund.org' #just email
 APP_SEND_EMAIL = 'sjfnwads@gmail.com' #can include name
 SUPPORT_FORM_URL = 'https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ'
-APP_BASE_URL = 'http://sjf-nw.appspot.com/' #until i learn how to do this the real way..
