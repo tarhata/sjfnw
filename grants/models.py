@@ -4,6 +4,7 @@ from django.forms import ModelForm, Textarea
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.core.validators import MaxLengthValidator
+import logging, re
 
 class Organization(models.Model):
   name = models.CharField(max_length=255)
@@ -93,7 +94,21 @@ class DraftGrantApplication(models.Model):
     return self.organization.name + ' saved draft id ' + unicode(self.pk)
 
 class CharLimitValidator(MaxLengthValidator):
+  """ Overwriting the error message  """
   message = 'Please limit this response to %(limit_value)s characters or less.'
+
+class TextFieldCustom(models.TextField):
+  
+  description = 'A text field that removes return newlines'
+  
+  __metaclass__ = models.SubfieldBase
+   
+  def to_python(self, value):
+    if value:
+      logging.info(repr(value))
+      value = value.replace('\r\r\n', '')
+      logging.info(repr(value))
+    return value    
 
 NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 100, 100]
  
@@ -192,7 +207,7 @@ class GrantApplication(models.Model):
   
   def __unicode__(self):
     return unicode(self.organization)
-
+    
 class GrantApplicationForm(ModelForm):
   class Meta:
     model = GrantApplication
@@ -206,6 +221,20 @@ class GrantApplicationForm(ModelForm):
           'narrative5': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
           'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[6]) + ')'}),
         }
+  
+  """
+  def clean(self):
+    cleaned_data = super(GrantApplicationForm, self).clean()
+    TEXT_FIELDS = ['narrative1', 'narrative2', 'narrative3', 'narrative4', 'narrative5', 'narrative6', 'mission', 'grant_request']
+    #for f in TEXT_FIELDS:
+      #value = cleaned_data.get(f)
+      #if value:
+        #cleaned_data[f] = value.replace('\r', '')
+    logging.info(repr(cleaned_data['narrative1']))
+    cleaned_data['narrative1'] = cleaned_data['narrative1'].replace('\r\r\n', '')
+    logging.info(repr(cleaned_data['narrative1']))
+    return cleaned_data """
+    
     
 class NarrativeText(models.Model):
   name = models.CharField(max_length=100, default="Application", unique=True)
