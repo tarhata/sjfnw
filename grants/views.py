@@ -19,6 +19,7 @@ from google.appengine.ext.webapp import blobstore_handlers
 from django.core.files.uploadhandler import FileUploadHandler
 from django.conf import settings
 from djangoappengine import storage
+import re, quopri
 
 #ORG VIEWS
 def OrgLogin(request):
@@ -138,22 +139,24 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     texts = None
   
   if request.method == 'POST':
-    form = models.GrantApplicationForm(request.POST, request.FILES)
-    logging.info("Application POST, files:" + str(request.FILES))
+    post_data = request.POST.copy()
+    for key in post_data: #fix newline multiplying
+      if key.startswith('_') or key == u'csrfmiddlewaretoken':
+          continue
+      value = post_data[key]
+      if isinstance(value,(str, unicode)):
+          post_data[key] = value.replace('\r', '')
+    form = models.GrantApplicationForm(post_data, request.FILES)
+    #logging.info("Application POST, files:" + str(request.FILES))
     #get or create autosave json, update it **UPDATE**
-    dict = simplejson.dumps(request.POST)
+    dict = simplejson.dumps(post_data)
     saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = grantee, grant_cycle=cycle)
     saved.contents = dict
     saved.save()
     mod = saved.modified
-
     if form.is_valid():
       logging.info("Application form valid")
       application = form.save() #save as GrantApp object
-      """might need a name storage field?
-      application.file1_name = str(application.submission_time)+str(application.organization)+'.'+application.file1_type
-      application.file1_name = application.file1_name.replace(' ', '')
-      """
       if application.fiscal_letter:
         application.fiscal_letter_type = str(application.fiscal_letter).split('.')[-1]
         application.fiscal_letter_name = str(application.submission_time.year)+str(application.organization)+'FiscalLetter.'+application.fiscal_letter_type
@@ -180,11 +183,13 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       saved.delete()
       return redirect('/org/submitted.html')
     else:
-      logging.info("Application form invalid: " + str(form.errors))
+      logging.info("Application form invalid")
+      
   else: #GET
     try:
       saved = models.DraftGrantApplication.objects.get(organization=grantee, grant_cycle=cycle)
       dict = simplejson.loads(saved.contents)
+      logging.info(dict)
       mod = saved.modified
     except models.DraftGrantApplication.DoesNotExist:
       dict = model_to_dict(grantee)
@@ -198,7 +203,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
   #view_url = reverse('grants.views.Apply', args=(cycle_id,)) #current url
   #upload_url, blah = prepare_upload(request, view_url)
   upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
-  logging.info('Upload prepped, url: ' + upload_url)
+  #logging.info('Upload prepped, url: ' + upload_url)
   
   return render_to_response('grants/org_app.html',
   {'grantee':grantee, 'form': form, 'cycle':cycle, 'upload_url': upload_url, 'texts':texts, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS}  )
