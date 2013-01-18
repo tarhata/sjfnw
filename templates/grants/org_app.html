@@ -270,9 +270,11 @@ $(document).ready(function() {
    {{form.narrative5}}
 	 <span class="char_counter" id="narrative5_counter">{{limits.5}}</span></div>
 
-   <div class="narrative_q">{%if texts.narrative6 %}{{texts.narrative6|safe}}{{form.narrative6.errors}}
+   <div class="narrative_q">{%if texts.narrative6 %}{{texts.narrative6|safe}}{% else %}
+   {{form.narrative6.label|safe}}{% endif %}
+	 {{form.narrative6.errors}}
    {{form.narrative6}}
-	 <span class="char_counter" id="narrative6_counter">{{limits.6}}</span></div>{%endif%}
+	 <span class="char_counter" id="narrative6_counter">{{limits.6}}</span></div>
   
     <h4>File uploads</h4>
 	Note: Files are not autosaved.<br><br>
