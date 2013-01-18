@@ -48,21 +48,19 @@ Submitted {{app.submission_time}}</div>
 {{app.narrative5}}<br><br>
 
 <h3>Files</h3>
-<h4>Budget, grant funding sources and diversity chart</h4>
-{%if app.file1 %}
-<a href="http://sjf-nw.appspot.com/grants/download/{{app.pk}}/file">View</a><br>
+{%if app.budget %}
+	<b>Budget</b>: <a href="{{base_url}}grants/download/{{app.pk}}/budget">View</a><br>
 {%endif%}
-{%if app.file2_name%}
-<a href="https://docs.google.com/viewer?url=http://sjf-nw.appspot.com/grants/download/{{app.file2_name}}">View</a><br>
+{%if app.demographics%}
+	<b>Demographics</b>: <a href="{{base_url}}grants/download/{{app.pk}}/demographics">View</a><br>
 {%endif%}
-{%if app.file3_name%}
-<a href="https://docs.google.com/viewer?url=http://sjf-nw.appspot.com/grants/download/{{app.file3_name}}">View</a><br>
+{%if app.funding_sources%}
+	<b>Funding sources</b>: <a href="{{base_url}}grants/download/{{app.pk}}/funding">View</a><br>
 {%endif%}
 
-<h4>Letter from fiscal sponsor (if applicable)</h4>
-{% if app.fiscal_letter_name %}
-<a href="https://docs.google.com/viewer?url=http://sjf-nw.appspot.com/grants/download/{{app.fiscal_letter_name}}">View</a><br>
-{%else%}N/A{% endif %}
+{% if app.fiscal_letter %}
+	<b>Fiscal sponsor letter</b>: <a href="{{base_url}}grants/download/{{app.fiscal_letter_name}}">View</a><br>
+{% endif %}
 
 </div>
 {%endblock%}
