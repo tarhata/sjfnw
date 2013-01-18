@@ -159,7 +159,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
         application.fiscal_letter_name = str(application.submission_time.year)+str(application.organization)+'FiscalLetter.'+application.fiscal_letter_type
         application.fiscal_letter_name = application.fiscal_letter_name.replace(' ', '')
       application.save()
-      logging.info("Application form saved, file1: " + str(application.file1))
+      logging.info("Application form saved, budget: " + str(application.budget))
       #update org profile
       form2 = models.OrgProfile(request.POST, instance=grantee)
       if form2.is_valid():
@@ -263,8 +263,10 @@ def ViewApplication(request, app_id):
   user = request.user
   app = get_object_or_404(models.GrantApplication, pk=app_id)
   form = models.GrantApplicationForm(instance = app)
-  
-  return render_to_response('grants/ViewApplication.html', {'app':app, 'form':form, 'user':user})
+  base_url = settings.APP_BASE_URL
+  if not settings.DEBUG:
+    base_url = 'https://docs.google.com/viewer?url=' + base_url
+  return render_to_response('grants/view_app.html', {'app':app, 'form':form, 'user':user, 'base_url':base_url})
 
 def ViewFile(request, app_id, file_type):
  
@@ -287,7 +289,7 @@ def ViewFile(request, app_id, file_type):
     raise Http404
   
   #filefield stores key that gets us the blobinfo
-  blobinfo_key = str(application.file1).split('/', 1)[0]
+  blobinfo_key = str(file_field).split('/', 1)[0]
   blobinfo = blobstore.BlobReader(blobinfo_key).readlines()
   #look through the info for the creation time of the blob
   blobinfo_dict =  dict([l.split(': ', 1) for l in blobinfo if l.strip()])
