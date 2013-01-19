@@ -194,6 +194,7 @@ class GrantApplication(models.Model):
     return unicode(self.organization)
 
 class GrantApplicationForm(ModelForm):
+  
   class Meta:
     model = GrantApplication
     widgets = {
@@ -206,6 +207,12 @@ class GrantApplicationForm(ModelForm):
           'narrative5': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
           'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[6]) + ')'}),
         }
+  
+  def __init__(self, *args, **kwargs):
+    super(GrantApplicationForm, self).__init__(*args, **kwargs)
+    for key in self.fields:
+      if self.fields[key].required:
+        self.fields[key].widget.attrs['class'] = 'required'
     
 class NarrativeText(models.Model):
   name = models.CharField(max_length=100, default="Application", unique=True)
