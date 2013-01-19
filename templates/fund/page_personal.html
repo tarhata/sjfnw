@@ -3,7 +3,7 @@
 {% block script %}
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
-
+if ('{{progress}}') {
   // Load the Visualization API and the piechart package.
   google.load('visualization', '1.0', {'packages':['corechart']});
 
@@ -38,7 +38,9 @@
     // Instantiate and draw our chart, passing in some options.
     var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
     chart.draw(data, options);
-    drawChart2();             
+    if ({{progress.estimated}} > 0) {
+			drawChart2();
+		}
   }
   
   function drawChart2() {
@@ -57,7 +59,7 @@
     var chart = new google.visualization.PieChart(document.getElementById('chart_div2'));
     chart.draw(data, options);           
   }
-  
+}
 </script>
 <script type="text/javascript">
 
@@ -77,6 +79,8 @@ var submitted_messages = { //maps sub_url to a success message to display after 
 
 }
 
+var request_processing = false;
+
 function datepicker() { //date input fields
 	$.datepicker.setDefaults({
 		dateFormat: 'yy-mm-dd',
@@ -87,12 +91,17 @@ function datepicker() { //date input fields
 }
 
 function loadView(get_url, div_id, dasked, dpledged) {
-  $.ajax({
+	if (request_processing) {
+		return
+	}
+	startProcessing();
+	$.ajax({
 		url:get_url,
 		type:"GET",
     timeout: 10000,
 		success:function(data, textStatus, jqXHR){
 			//console.log(get_url);
+			endProcessing();
       document.getElementById(div_id).innerHTML=jqXHR.responseText;
 			var pks = get_url.match(/\d+/g);
       if (pks && pks[1]) {
@@ -107,6 +116,7 @@ function loadView(get_url, div_id, dasked, dpledged) {
 			datepicker();
 		},
 		error:function(jqXHR, textStatus, errorThrown){
+			endProcessing();
       var errortext = ''
       if (status_texts[jqXHR.status]) {
         errortext = status_texts[jqXHR.status]
@@ -121,40 +131,46 @@ function loadView(get_url, div_id, dasked, dpledged) {
 }
 
 function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
-$.ajax({
-	url:sub_url,
-	type:"POST",
-	data:$(form_id).serialize(),
-  timeout: 10000,
-	success:function(data, textStatus, jqXHR){
-		if (jqXHR.responseText=="success") {
-			location.href='/fund/';
-		} else {
-			document.getElementById(div_id).innerHTML=jqXHR.responseText;
-      if (sub_url.match('done')) {
-        var pks = sub_url.match(/\d+/g);
-        if (pks && pks[1]) {
-          completeLoaded(pks[1], dasked, dpledged, 'True');
-        }
-      }
-		}
-		if (date) { datepicker(); }
-	},
-	error:function(jqXHR, textStatus, errorThrown){
-    var errortext = ''
-    if (status_texts[jqXHR.status]) {
-      errortext = status_texts[jqXHR.status]
-    } else if (textStatus=='timeout') {
-      errortext = 'Request timeout'
-    } else {
-      errortext = 'Unknown error'
-    }
-    document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + sub_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
-		if (date) {
-      datepicker();
-    }
-	},
-});
+	if (request_processing) {
+		return
+	}
+	startProcessing();
+	$.ajax({
+		url:sub_url,
+		type:"POST",
+		data:$(form_id).serialize(),
+		timeout: 10000,
+		success:function(data, textStatus, jqXHR){
+			endProcessing();
+			if (jqXHR.responseText=="success") {
+				location.href='/fund/';
+			} else {
+				document.getElementById(div_id).innerHTML=jqXHR.responseText;
+				if (sub_url.match('done')) {
+					var pks = sub_url.match(/\d+/g);
+					if (pks && pks[1]) {
+						completeLoaded(pks[1], dasked, dpledged, 'True');
+					}
+				}
+			}
+			if (date) { datepicker(); }
+		},
+		error:function(jqXHR, textStatus, errorThrown){
+			endProcessing();
+			var errortext = ''
+			if (status_texts[jqXHR.status]) {
+				errortext = status_texts[jqXHR.status]
+			} else if (textStatus=='timeout') {
+				errortext = 'Request timeout'
+			} else {
+				errortext = 'Unknown error'
+			}
+			document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + sub_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
+			if (date) {
+				datepicker();
+			}
+		},
+	});
 }
 
 function toggle(a, b) { //donor info
@@ -172,32 +188,55 @@ function toggle(a, b) { //donor info
   return true;
 }
 
-function SubmitMult() { //add contacts
-$.ajax({
-	url:'/fund/addmult',
-	type:"POST",
-	data:$('#addmult').serialize(),
-  timeout: 10000,
-	success:function(data, textStatus, jqXHR){
-		if (jqXHR.responseText=="success") {
-			location.href= '/fund/?load=stepmult';
-		} else {
-			document.getElementById('adddonor').innerHTML=jqXHR.responseText;
-		}
-	},
-	error:function(jqXHR, textStatus, errorThrown){
-    var errortext = ''
-    if (status_texts[jqXHR.status]) {
-      errortext = status_texts[jqXHR.status]
-    } else if (textStatus=='timeout') {
-      errortext = 'Request timeout'
-    } else {
-      errortext = 'Unknown error'
-    }
-    document.getElementById('adddonor').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + get_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
-	},
-});
+function startProcessing() {
+	request_processing = true;
+	var loader = document.getElementById('ajax_loading');
+	if (loader) {
+		loader.style.display = "";
+	}
 }
+
+function endProcessing() {
+	request_processing = false;
+	var loader = document.getElementById('ajax_loading');
+	if (loader) {
+		loader.style.display = "none;";
+	}
+}
+
+function SubmitMult() { //add contacts
+	if (request_processing) {
+		return
+	}
+	startProcessing();
+	$.ajax({
+		url:'/fund/addmult',
+		type:"POST",
+		data:$('#addmult').serialize(),
+		timeout: 10000,
+		success:function(data, textStatus, jqXHR){
+			endProcessing();
+			if (jqXHR.responseText=="success") {
+				location.href= '/fund/?load=stepmult';
+			} else {
+				document.getElementById('adddonor').innerHTML=jqXHR.responseText;
+			}
+		},
+		error:function(jqXHR, textStatus, errorThrown){
+			endProcessing();
+			var errortext = ''
+			if (status_texts[jqXHR.status]) {
+				errortext = status_texts[jqXHR.status]
+			} else if (textStatus=='timeout') {
+				errortext = 'Request timeout'
+			} else {
+				errortext = 'Unknown error'
+			}
+			document.getElementById('adddonor').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + get_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
+		},
+	});
+}
+
 function cancelHide(div_id, replace) { //hide adddonor div
 	replace = replace || '';
 	var div = document.getElementById(div_id)
