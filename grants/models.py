@@ -95,8 +95,16 @@ class DraftGrantApplication(models.Model):
 class CharLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'
 
-NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 100, 100]
- 
+NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 2700]
+NARRATIVE_TEXTS = ['Placeholder for 0',
+  'Describe your organization\'s mission, history and major accomplishments.', #1
+  'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ol type="a"><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ol>', #2
+  'Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ol type="a"><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ol>', #3
+  'Please describe your workplan, covering at least the next 12 months. (You will list the activities and objectives in the timeline form below the narrative.)<ul><li>What are your overall goals and strategies for the coming year?</li><li>How will you assess whether you have met your objectives and goals?</li></ul>', #4
+  'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ol type="a"><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organizations role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li><li>Provide <u>names and contact information</u> for two people who are familiar with your organizations role in these collaborations so we can contact them for more information.</li></ol>', #5
+  'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i><ul>  <li>Summarize your organization’s analysis of inequality and oppression.</li>  <li>How does your organization live out that analysis internally?</li><li>How does your organization’s work impact those systems of oppression in the larger society?</li><li>If you are a primarily white-led organization, also describe how you work as an ally to communities of color. Be as specific as possible, and list at least one organization led by people of color that we can contact as a reference for your racial justice work.</li></ul>', #6
+  ]
+
 class GrantApplication(models.Model):
   """ Submitted grant application """
   
@@ -118,9 +126,9 @@ class GrantApplication(models.Model):
   state = models.CharField(max_length=2,choices=STATE_CHOICES)
   zip = models.CharField(max_length=50)
   telephone_number = models.CharField(max_length=20)
-  fax_number = models.CharField(max_length=20, null=True, blank=True)
+  fax_number = models.CharField(max_length=20, null=True, blank=True, help_text='(optional)')
   email_address = models.EmailField()
-  website = models.CharField(max_length=50, null=True, blank=True)
+  website = models.CharField(max_length=50, null=True, blank=True, help_text='(optional)')
   
   #org info
   STATUS_CHOICES = (
@@ -132,10 +140,11 @@ class GrantApplication(models.Model):
   status = models.CharField(max_length=50, choices=STATUS_CHOICES)
   ein = models.CharField(max_length=50, verbose_name="Organization or Fiscal Sponsor EIN")
   founded = models.PositiveIntegerField(verbose_name='Year founded')
-  mission = models.TextField(verbose_name="Mission statement:")
+  mission = models.TextField(verbose_name="Mission statement")
   
   #grant & financial info
-  contact_person = models.CharField(max_length=250, verbose_name='Contact person for this grant application (name and title)')
+  contact_person = models.CharField(max_length=250, verbose_name= 'Name', help_text='Contact person for this grant application')
+  contact_person_title = models.CharField(max_length=100, verbose_name='Title')
   amount_requested = models.PositiveIntegerField(verbose_name='Amount requested $')
   SUPPORT_CHOICES = (
     ('General support', 'General support'),   
@@ -159,12 +168,12 @@ class GrantApplication(models.Model):
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
   
   #narrative
-  narrative1 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name="Describe your organization's mission, history and major accomplishments.")
-  narrative2 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[2])], verbose_name='Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ol type="a"><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ol>')
-  narrative3 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[3])], verbose_name='Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ol type="a"><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ol>')
-  narrative4 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[4])], verbose_name='Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ol type="a"><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organizations role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li><li>Provide <u>names and contact information</u> for two people who are familiar with your organizations role in these collaborations so we can contact them for more information.</li></ol>') #5 in doc --end of retyped
-  narrative5 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[5])], verbose_name="<b>Describe how your work promotes diversity and addresses inequality, oppression and discrimination, both in your organization and in the larger society.</b>  Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression.  If you are a primarily white-led organization, also describe how you work as an ally to communities of color. Be as specific as possible, and list at least one organization led by people of color that we can contact as a reference for your racial justice work. While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to winning racial justice.")
-  narrative6 = models.TextField(null=True, blank=True)
+  narrative1 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
+  narrative2 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[2])], verbose_name = NARRATIVE_TEXTS[2])
+  narrative3 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[3])], verbose_name = NARRATIVE_TEXTS[3])
+  narrative4 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[4])], verbose_name = NARRATIVE_TEXTS[4])
+  narrative5 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[5])], verbose_name = NARRATIVE_TEXTS[5])
+  narrative6 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
   
   #files
   budget = models.FileField(upload_to='/%Y/', max_length=255)
@@ -222,3 +231,19 @@ class NarrativeText(models.Model):
   narrative3 = models.TextField(null=True, blank=True)
   narrative4 = models.TextField(null=True, blank=True)
   narrative5 = models.TextField(null=True, blank=True)
+
+class SJFSettings(models.Model):
+  name = models.CharField(max_length=100, default="SJF Settings", unique=True)
+  
+  support_email = models.EmailField(help_text = 'Address displayed on the site for technical support.')
+  fund_from_email = models.EmailField(help_text = 'Address from which fundraising app emails are sent.')
+  grant_from_email = models.EmailField(help_text = 'Address from which grant app emails are sent.')
+  
+  narrative_heading models.TextField(help_text = 'Paragraph displayed at the start of the narratives section.', default = 'Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan. Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process.')
+  narrative1 = models.TextField()
+  narrative2 = models.TextField()
+  narrative3 = models.TextField()
+  narrative4 = models.TextField()
+  narrative5 = models.TextField()
+  narrative6 = models.TextField()
+  narrative7 = models.TextField()

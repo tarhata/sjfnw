@@ -98,9 +98,8 @@ $(document).ready(function() {
 
   <table id="application_form">
     <tr>
-      <td><h4>Contact information</h4></td>
-    </tr>
-    
+      <td><h4>Contact information</h4></td> <!-- Contact information -->
+    </tr> 
     <tr>
       <td>{{form.address.errors}}</td>
       <td>{{form.city.errors}}</td>
@@ -123,7 +122,7 @@ $(document).ready(function() {
     </tr>
     <tr>
       <td>{{form.telephone_number.label}}{{form.telephone_number}}</td>
-      <td>{{form.fax_number.label}}{{form.fax_number}}</td>
+      <td>{{form.fax_number.label}} {{form.fax_number.help_text}}{{form.fax_number}}</td>
     </tr>    
     <tr>
       <td>{{form.email_address.errors}}</td>
@@ -131,13 +130,11 @@ $(document).ready(function() {
     </tr>
     <tr>
       <td>{{form.email_address.label}}{{form.email_address}}</td>
-      <td>{{form.website.label}}{{form.website}}</td>
+      <td>{{form.website.label}} {{form.website.help_text}}{{form.website}}</td>
     </tr>
-    
     <tr>
-      <td><h4>Organization information</h4></td>
+      <td><h4>Organization information</h4></td> <!-- Organization information -->
     </tr>
-    
     <tr>
       <td colspan="2">{{form.status.errors}}{{form.status.label}}{{form.status}}</td>
     </tr> 
@@ -152,16 +149,19 @@ $(document).ready(function() {
     <tr>
       <td colspan="2">{{form.mission.label}}{{form.mission.errors}}{{form.mission}}</td>
     </tr>
-      
     <tr>
-      <td><h4>Grant and budget information</h4></td>
-    </tr>
-    
-    <tr>
-      <td colspan="2">{{form.contact_person.errors}}</td>
+      <td><h4>Grant and budget information</h4></td><!-- Grant and budget information -->
     </tr>
     <tr>
-      <td colspan="2">{{form.contact_person.label}} {{form.contact_person}}</td>
+      <td colspan="2">{{form.contact_person.help_text}}</td>
+    </tr>
+    <tr>
+			<td>{{form.contact_person.errors}}</td>
+			<td>{{form.contact_person_title.errors}}</td>
+		</tr>
+		<tr>
+      <td>{{form.contact_person.label}}{{form.contact_person}}</td>
+      <td>{{form.contact_person_title.label}}{{form.contact_person_title}}</td>
     </tr>
     <tr>
       <td>{{form.grant_period.errors}}</td>
@@ -171,9 +171,7 @@ $(document).ready(function() {
       <td>{{form.grant_period.label}}{{form.grant_period}}</td>
       <td>{{form.start_year.label}}{{form.start_year}}</td>
     </tr>
-   
    <tr><td></td><td></td></tr>
-   
     <tr>
       <td>{{form.budget_last.errors}}</td>
       <td>{{form.budget_current.errors}}</td>
