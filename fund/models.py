@@ -33,7 +33,7 @@ class GivingProject(models.Model):
     super(GivingProject, self).save(*args, **kwargs)
     
 class Member(models.Model):
-  email = models.CharField(max_length=255)
+  email = models.EmailField()
   first_name = models.CharField(max_length=100)
   last_name = models.CharField(max_length=100)
   
@@ -195,15 +195,6 @@ class NewsItem(models.Model):
   def __unicode__(self):
     return unicode(self.summary)
 
-class Event(models.Model):
-  desc = models.CharField(max_length=255)
-  date = models.DateTimeField()
-  project = models.ForeignKey(GivingProject)
-  location = models.CharField(max_length=255, null=True, blank=True)
-  link = models.URLField(null=True, blank=True)
-  def __unicode__(self):
-    return self.desc
-
 class Resource(models.Model):
   title = models.CharField(max_length=255)
   summary = models.TextField(blank=True)
@@ -219,4 +210,4 @@ class ProjectResource(models.Model): #ties resource to project
   session = models.CharField(max_length=255)
   
   def __unicode__(self):
-    return "%s - %s - %s" %(self.giving_project, self.session, self.resource)
+    return "%s - %s - %s" %(self.giving_project, self.session, self.resource) 

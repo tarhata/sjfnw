@@ -94,10 +94,6 @@ class DonorAdmin(admin.ModelAdmin):
   list_editable = ('gifted',)
   search_fields = ['firstname', 'lastname']
 
-class EventAdmin(admin.ModelAdmin):
-  list_display = ('desc', 'date', 'project')
-  list_filter = ('project',)
-
 class NewsAdmin(admin.ModelAdmin):
   list_display = ('summary', 'date', 'membership')
   list_filter = ('membership__giving_project',)
@@ -153,7 +149,6 @@ admin.site.register(Member, MemberAdvanced)
 admin.site.register(GivingProject, GPAdmin)
 admin.site.register(Membership, MembershipAdmin)
 admin.site.register(NewsItem, NewsAdmin)
-admin.site.register(Event, EventAdmin)
 admin.site.register(Donor, DonorAdmin)
 admin.site.register(ProjectResource)
 admin.site.register(Resource)
@@ -170,7 +165,6 @@ advanced_admin.register(Donor, DonorAdvanced)
 advanced_admin.register(Membership, MembershipAdvanced)
 advanced_admin.register(GivingProject, GPAdmin)
 advanced_admin.register(NewsItem, NewsAdmin)
-advanced_admin.register(Event, EventAdmin)
 advanced_admin.register(Step, StepAdv)
 advanced_admin.register(ProjectResource)
 advanced_admin.register(Resource)
