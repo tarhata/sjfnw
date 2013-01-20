@@ -92,5 +92,5 @@ FILE_UPLOAD_HANDLERS = (
 ### CUSTOM SETTINGS
 
 APP_SUPPORT_EMAIL = 'webmaster@socialjusticefund.org' #just email
-APP_SEND_EMAIL = 'sjfnwads@gmail.com' #can include name
+APP_SEND_EMAIL = 'sjfnwads@gmail.com' #can include name is_email_valid(email_address)
 SUPPORT_FORM_URL = 'https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ'
