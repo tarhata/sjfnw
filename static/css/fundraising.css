@@ -13,18 +13,6 @@ div#content_area {
 	padding:15px;
 }
 
-div.indent {
-	margin-top:8px;
-	margin-left:8px;
-	margin-right:8px;
-	margin-bottom:8px;
-	padding:7px;
-}
-
-.hidden {
-	display:none;
-}
-
 /* header & bar */
 div#header {
 	font-size:2em;
@@ -253,16 +241,10 @@ div.error_message {
 	font-weight:bold;
 }
 
-/* support */
-a.FAQ{
-	display:block;
-	margin-bottom:10px;
-  font-weight:bold;
-	/* color:#333; */
-}
-
-div#FAQ div {
-  line-height:1.5em;
+/* odo */
+.odo_float_right {
+  float:right;
+  margin-right:40px;
 }
 
 /* footer  */
