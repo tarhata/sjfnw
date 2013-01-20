@@ -218,7 +218,7 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
     cycle = models.GrantCycle.objects.get(pk=cycle_id)
   except models.GrantCycle.DoesNotExist:
     logging.error('Auto-save on cycle that does not exist')
-    return redirect('/org')
+    raise Http404
   
   if request.method == 'POST':
     
@@ -252,7 +252,8 @@ def DiscardDraft(request, cycle_id):
   try:
     cycle = models.GrantCycle.objects.get(pk=cycle_id)
   except models.GrantCycle.DoesNotExist:
-    return redirect('/org')
+    logging.error(str(request.user) + ' discard nonexistent cycle ' + str(cycle_id))
+    raise Http404
   
   #look for saved draft
   try:
@@ -260,7 +261,8 @@ def DiscardDraft(request, cycle_id):
     saved.delete()
     return redirect('/org')
   except models.DraftGrantApplication.DoesNotExist:
-    return redirect('/org')
+    logging.error(str(request.user) + ' discard nonexistent draft, cycle ' + str(cycle_id))
+    raise Http404
 
 #APPLICATION
 def ViewApplication(request, app_id):

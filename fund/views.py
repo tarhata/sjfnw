@@ -558,7 +558,8 @@ def DeleteDonor(request, donor_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
-    return redirect(Home) #ADDERROR
+    logging.warning(str(request.user) + 'tried to delete nonexistant donor: ' + str(donor_id))
+    raise Http404
     
   action = '/fund/'+str(donor_id)+'/delete'
   
@@ -583,7 +584,7 @@ def AddStep(request, donor_id):
     donor = models.Donor.objects.get(pk=donor_id, membership=membership)
   except models.Donor.DoesNotExist:
     logging.error('Single step - tried to add step to nonexistent donor.')
-    return redirect(Home)
+    raise Http404
     
   action='/fund/'+donor_id+'/step'
   ajax = request.is_ajax()
@@ -657,12 +658,14 @@ def EditStep(request, donor_id, step_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
-    return redirect(Home) #ADDERROR
+    logging.error(str(request.user) + 'edit step on nonexistent donor ' + str(donor_id))
+    raise Http404
   
   try:
     step = models.Step.objects.get(id=step_id)
   except models.Step.DoesNotExist:
-    return redirect(Home) #ADDERROR
+    logging.error(str(request.user) + 'edit step on nonexistent step ' + str(step_id))
+    raise Http404
     
   action='/fund/'+str(donor_id)+'/'+str(step_id)+'/'
   formid = 'editstep-'+donor_id
@@ -690,11 +693,13 @@ def DoneStep(request, donor_id, step_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=membership)
   except models.Donor.DoesNotExist:
+    logging.error(str(request.user) + ' complete step on nonexistent donor ' + str(donor_id))
     raise Http404
   
   try:
     step = models.Step.objects.get(id=step_id, donor=donor)
   except models.Step.DoesNotExist:
+    logging.error(str(request.user) + ' complete step on nonexistent step ' + str(step_id))
     raise Http404
     
   action='/fund/'+str(donor_id)+'/'+str(step_id)+'/done'
