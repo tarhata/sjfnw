@@ -259,7 +259,7 @@ $(document).ready(function() {
    {{form.narrative3.errors}}{{form.narrative3}}
 	 <span class="char_counter" id="narrative3_counter">{{limits.3}}</span></div>
    
-   <div class="narrative_q">4 {%if texts.narrative4 %}{{texts.narrative4|safe}}{%else%}
+   <div class="narrative_q">4. {%if texts.narrative4 %}{{texts.narrative4|safe}}{%else%}
    {{form.narrative4.label|safe}}{%endif%}
    {{form.narrative4.errors}}{{form.narrative4}}
 	 <span class="char_counter" id="narrative4_counter">{{limits.4}}</span></div>
@@ -270,7 +270,7 @@ $(document).ready(function() {
    {{form.narrative5}}
 	 <span class="char_counter" id="narrative5_counter">{{limits.5}}</span></div>
 
-   <div class="narrative_q">{%if texts.narrative6 %}{{texts.narrative6|safe}}{% else %}
+   <div class="narrative_q">6. {%if texts.narrative6 %}{{texts.narrative6|safe}}{% else %}
    {{form.narrative6.label|safe}}{% endif %}
 	 {{form.narrative6.errors}}
    {{form.narrative6}}
