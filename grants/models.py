@@ -173,7 +173,20 @@ class GrantApplication(models.Model):
   narrative3 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[3])], verbose_name = NARRATIVE_TEXTS[3])
   narrative4 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[4])], verbose_name = NARRATIVE_TEXTS[4])
   narrative5 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[5])], verbose_name = NARRATIVE_TEXTS[5])
+
   narrative6 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
+  
+  """
+  references
+  collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.' verbose_name='Name', max_length = 150)
+  collab_ref1_org = models.CharField(verbose_name='Organization', max_length = 150)
+  
+  collab_ref2_name = models.CharField(verbose_name='Name', max_length = 150)
+  collab_ref2_org = models.CharField(verbose_name='Organization', max_length = 150)
+  
+  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, also describe how you work as an ally to communities of color. Be as specific as possible, and list at least one organization led by people of color that we can contact as a reference for your racial justice work.' verbose_name='Name', max_length = 150)
+  racial_justice_ref1_org = models.CharField(verbose_name='Organization', max_length = 150)
+  """
   
   #files
   budget = models.FileField(upload_to='/%Y/', max_length=255)
@@ -239,7 +252,7 @@ class SJFSettings(models.Model):
   fund_from_email = models.EmailField(help_text = 'Address from which fundraising app emails are sent.')
   grant_from_email = models.EmailField(help_text = 'Address from which grant app emails are sent.')
   
-  narrative_heading models.TextField(help_text = 'Paragraph displayed at the start of the narratives section.', default = 'Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan. Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process.')
+  narrative_heading = models.TextField(help_text = 'Paragraph displayed at the start of the narratives section.', default = 'Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan. Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process.')
   narrative1 = models.TextField()
   narrative2 = models.TextField()
   narrative3 = models.TextField()
