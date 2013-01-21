@@ -40,6 +40,7 @@ urlpatterns = patterns('',
     (r'^apply/(?P<cycle_id>\d+)/autosave/?$','grants.views.AutoSaveApp'),
     (r'^apply/(?P<cycle_id>\d+)/upload-file/?$','grants.views.AutoSaveFile'),
     (r'^apply/(?P<cycle_id>\d+)/DELETE$', 'grants.views.DiscardDraft'),
+    (r'^get-upload-url/(?P<cycle_id>\d+)/?$','grants.views.RefreshUploadUrl'),
     (r'^org/submitted.html', direct_to_template, {'template': 'grants/submitted.html'}),
     
     #cron

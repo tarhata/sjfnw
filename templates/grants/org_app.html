@@ -2,6 +2,8 @@
 <!-- python vars: grantee, form, cycle, upload_url, texts, mod -->
 {% block script %}
 <script type="text/javascript">
+var autosave_timer;
+var upload_url_timer;
 
 function confirmation() { //confirmation window before discarding a draft
 	var conf = confirm("Discard this draft?  It cannot be recovered.")
@@ -39,21 +41,6 @@ function autoSave(){
 			document.getElementById('autosaved').innerHTML=textStatus+' '+errorThrown;
 		},
 	});
-	window.setTimeout("autoSave()", 30000);
-}
-
-function autoSaveFile(){
-  $.ajax({
-		url:"/apply/"+{{cycle.pk}}+"/upload-file/",
-		type:"POST",
-		data:$('form').serialize(), //update
-		success:function(){
-			document.getElementById('file_status').innerHTML='File uploaded';
-		},
-		error:function(jqXHR, textStatus, errorThrown){
-			document.getElementById('file_status').innerHTML=textStatus+' '+errorThrown;
-		},
-	});
 }
 
 function charLimitDisplay(area, limit){
@@ -68,10 +55,19 @@ function charLimitDisplay(area, limit){
   } 
 }
 
+function getUploadURL() {
+	$.ajax({
+		url: '/get-upload-url/{{cycle.pk}}',
+		success: function(data) {
+			document.forms[0].action = data;
+			window.setTimeout("getUploadURL()", 540000);
+		},
+	});
+}
+
 $(document).ready(function() {
-  //start autosave timer
-	window.setTimeout("autoSave()", 30000);
-  //update character limit counts
+	autosave_timer = window.setInterval("autoSave()", 30000);
+	upload_url_timer = window.setTimeout("getUploadURL()", 540000);
 	$('.char_counter').each(function(index) {
 		var id = "id_" + this.id.replace("_counter","");
     var area = document.getElementById(id);
@@ -278,7 +274,7 @@ $(document).ready(function() {
 	Note: Files are not autosaved.<br><br>
   <table>
 		<tr>
-			<td>Budget:</td>
+			<td>Budget: {{files.budget}}</td>
 			<td>{{form.budget}}</td>
 			<td>{{form.budget.errors}}</td>
 		</tr>
@@ -302,6 +298,6 @@ $(document).ready(function() {
   <br><br>-->
   
   <div align="center"><input type="submit" value="Submit Application" /></div>
-</form><div align="right"><button type="button" onclick="confirmation()">Discard</button>
-</div>
+</form>
+<div align="right"><button type="button" onclick="confirmation()">Discard</button></div>
 {% endblock %}

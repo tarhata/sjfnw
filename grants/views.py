@@ -113,7 +113,7 @@ def OrgSupport(request):
   
 @login_required(login_url='/org/login/')
 def Apply(request, cycle_id): # /apply/[cycle_id]
-
+  
   #check that user is registered as an org
   try: 
     grantee = models.Organization.objects.get(email=request.user.username)
@@ -147,15 +147,17 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       if isinstance(value,(str, unicode)):
           post_data[key] = value.replace('\r', '')
     form = models.GrantApplicationForm(post_data, request.FILES)
-    #logging.info("Application POST, files:" + str(request.FILES))
+    logging.info("Application POST, files:" + str(request.FILES))
     #get or create autosave json, update it **UPDATE**
     dict = simplejson.dumps(post_data)
     saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = grantee, grant_cycle=cycle)
     saved.contents = dict
+    saved.file1 = request.FILES['budget']
     saved.save()
     mod = saved.modified
     if form.is_valid():
-      logging.info("Application form valid")
+      logging.info('Application form valid')
+      logging.info(request.META['HTTP_REFERER'])
       application = form.save() #save as GrantApp object
       if application.fiscal_letter:
         application.fiscal_letter_type = str(application.fiscal_letter).split('.')[-1]
@@ -198,7 +200,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     dict['grant_cycle'] = cycle
     dict['screening_status'] = 10
     form = models.GrantApplicationForm(initial=dict)
-  
+    files = {'budget': saved.file1}
   #file upload prep
   #view_url = reverse('grants.views.Apply', args=(cycle_id,)) #current url
   #upload_url, blah = prepare_upload(request, view_url)
@@ -206,7 +208,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
   #logging.info('Upload prepped, url: ' + upload_url)
   
   return render_to_response('grants/org_app.html',
-  {'grantee':grantee, 'form': form, 'cycle':cycle, 'upload_url': upload_url, 'texts':texts, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS}  )
+  {'grantee':grantee, 'form': form, 'cycle':cycle, 'upload_url': upload_url, 'texts':texts, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files}  )
 
 def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   try:
@@ -264,6 +266,10 @@ def DiscardDraft(request, cycle_id):
     logging.error(str(request.user) + ' discard nonexistent draft, cycle ' + str(cycle_id))
     raise Http404
 
+def RefreshUploadUrl(request, cycle_id):
+  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
+  return HttpResponse(upload_url)
+
 #APPLICATION
 def ViewApplication(request, app_id):
   
@@ -319,8 +325,16 @@ def ViewFile(request, app_id, file_type):
       if timezone.localtime(c) == creation_time:
         return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
   logging.info('No match, raising 404')
-  raise Http404('How could this possibly have gone wrong?')
-  
+  raise Http404
+
+def ViewDraftFile(request, draft_id, file_type): #FINISH
+  #find the application
+  try:
+    application = models.GrantApplication.objects.get(pk = app_id)
+  except models.GrantApplication.DoesNotExist:
+    logging.warning('Grant app not found')
+    raise Http404
+
 #REPORTING
 
 #Add your views here.  New views should also be added to urls.py under reporting
