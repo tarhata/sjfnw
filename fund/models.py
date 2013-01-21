@@ -154,7 +154,7 @@ def make_custom_datefield(f):
 class DonorForm(ModelForm): #used to edit, creation uses custom form
   class Meta:
     model = Donor
-    fields = ('firstname', 'lastname', 'amount', 'likelihood', 'phone', 'email', 'asked', 'pledged', 'notes')
+    fields = ('firstname', 'lastname', 'amount', 'likelihood', 'phone', 'email', 'notes')
     widgets = {
       'notes': forms.Textarea(attrs={'cols': 25, 'rows': 4}),
     }
