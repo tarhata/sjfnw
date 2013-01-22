@@ -1,9 +1,10 @@
-﻿import datetime
+﻿from django.core.exceptions import ValidationError
+from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.forms import ModelForm, Textarea
-from django.core.exceptions import ValidationError
 from django.utils import timezone
-from django.core.validators import MaxLengthValidator
+from fund.models import GivingProject
+import datetime
 
 class Organization(models.Model):
   name = models.CharField(max_length=255)
@@ -209,6 +210,7 @@ class GrantApplication(models.Model):
     (90, 'Closed'),
   )
   screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10, blank = True, null=True)
+  giving_project = models.ForeignKey(GivingProject, null=True, blank=True)
   scoring_bonus_poc = models.BooleanField(default=False, verbose_name='Scoring bonus for POC-led?')
   scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity?')
   
