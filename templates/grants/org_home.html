@@ -5,12 +5,12 @@
 
 <h4>Saved drafts</h4>
 	<ul>{%if saved%}{%for save in saved%}
-		<li><a href="/apply/{{save.grant_cycle.pk}}">{{save.grant_cycle}}</a> - last modified {{save.modified|date:"m/d h:ia"}}</li>
+		<li><a href="{% url grants.views.Apply save.grant_cycle.pk %}">{{save.grant_cycle}}</a> - last modified {{save.modified|date:"m/d h:ia"}}</li>
 	{%endfor%}{%else%}<li>None found</li>{%endif%}</ul>
 
 <h4>Submitted applications</h4>
 	<ul>{%if submitted%}{%for sub in submitted%}
-		<li><a href="/grants/view/{{sub.pk}}">{{sub.grant_cycle}} - submitted {{sub.submission_time|date:"m/d/y"}}</a></li>
+		<li><a href="{% url grants.views.ViewApplication sub.pk %}}}">{{sub.grant_cycle}} - submitted {{sub.submission_time|date:"m/d/y"}}</a></li>
 	{%endfor%}{%else%}<li>None found</li>{%endif%}</ul>
 
 <div align="center"><h3>SJF grant cycles</h3></div>
@@ -19,7 +19,7 @@
 
 <ul>{% if open %}
 {% for ope in open %}
-<li>{{ope}} - <a href="/apply/{{ope.pk}}">open until {{ope.close|date:"m/d/y"}}</a></li>
+<li>{{ope}} - <a href="{% url grants.views.Apply ope.pk %}">open until {{ope.close|date:"m/d/y"}}</a></li>
 {% endfor %}
 {% else %}
 <li>No grants are being accepted at this time.</li>
