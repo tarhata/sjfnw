@@ -1,11 +1,9 @@
 from django import forms
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.forms import ModelForm
-import datetime
-from grants.models import GrantCycle
 from django.utils import timezone
-from django.core.validators import MaxValueValidator
-import logging
+import datetime, logging
  
 class GivingProject(models.Model):
   title = models.CharField(max_length=255)
