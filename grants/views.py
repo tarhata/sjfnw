@@ -128,13 +128,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
   #check for app already submitted
   subd = models.GrantApplication.objects.filter(organization=grantee, grant_cycle=cycle)
   if subd: 
-    return render_to_response('grants/already_applied.html', {'grantee':grantee, 'cycle':cycle})  
-  
-  #get narrative text overrides if they exist
-  try: 
-    texts = models.NarrativeText.objects.get(name="Application")
-  except models.NarrativeText.DoesNotExist:
-    texts = None
+    return render_to_response('grants/already_applied.html', {'grantee':grantee, 'cycle':cycle})
   
   if request.method == 'POST':
     post_data = request.POST.copy()
@@ -206,7 +200,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
   #logging.info('Upload prepped, url: ' + upload_url)
   
   return render_to_response('grants/org_app.html',
-  {'grantee':grantee, 'form': form, 'cycle':cycle, 'upload_url': upload_url, 'texts':texts, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files}  )
+  {'grantee':grantee, 'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files}  )
 
 def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   try:

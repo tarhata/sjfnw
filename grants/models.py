@@ -237,16 +237,8 @@ class GrantApplicationForm(ModelForm):
     for key in self.fields:
       if self.fields[key].required:
         self.fields[key].widget.attrs['class'] = 'required'
-    
-class NarrativeText(models.Model):
-  name = models.CharField(max_length=100, default="Application", unique=True)
-  narrative_heading = models.TextField(null=True, blank=True)
-  narrative1 = models.TextField(null=True, blank=True)
-  narrative2 = models.TextField(null=True, blank=True)
-  narrative3 = models.TextField(null=True, blank=True)
-  narrative4 = models.TextField(null=True, blank=True)
-  narrative5 = models.TextField(null=True, blank=True)
 
+"""
 class SJFSettings(models.Model):
   name = models.CharField(max_length=100, default="SJF Settings", unique=True)
   
@@ -262,3 +254,4 @@ class SJFSettings(models.Model):
   narrative5 = models.TextField()
   narrative6 = models.TextField()
   narrative7 = models.TextField()
+  """

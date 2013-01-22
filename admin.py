@@ -170,7 +170,6 @@ advanced_admin.register(ProjectResource)
 advanced_admin.register(Resource)
 
 advanced_admin.register(GrantCycle)
-advanced_admin.register(NarrativeText)
 advanced_admin.register(Organization, OrganizationAdmin)
 advanced_admin.register(GrantApplication, GrantAppAdmin)
 advanced_admin.register(DraftGrantApplication, DraftAdmin)
