@@ -1,26 +1,22 @@
 from django import http, template, forms
-from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.conf import settings
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, connection
 from django.db.models import Sum, Count, Avg, Min, Max
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login
-from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from django.forms.formsets import formset_factory
+from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.utils import timezone
-import models, datetime, random, logging
-import json as simplejson
-import grants.models
+from django.utils.html import strip_tags
 from fund.decorators import approved_membership
 from fund.forms import *
-import scoring.models
-import pytz
 from google.appengine.ext import deferred, ereporter
-import utils
+import grants.models, scoring.models
+import pytz, utils, json, models, datetime, random, logging
 
 if not settings.DEBUG:
   ereporter.register_logger()

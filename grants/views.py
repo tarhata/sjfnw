@@ -1,25 +1,23 @@
 from django import http, template, forms
-from django.db import IntegrityError
-from django.forms.models import model_to_dict
-from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.http import HttpResponseServerError, HttpResponse, Http404
+from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.utils import timezone
+from django.core.files.uploadhandler import FileUploadHandler
 from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from django.core.urlresolvers import reverse
-import fund, models, datetime, logging
-import json as simplejson
-from grants.forms import *
+from django.db import IntegrityError, connection
+from django.forms.models import model_to_dict
+from django.http import HttpResponseServerError, HttpResponse, Http404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.template.loader import render_to_string
+from django.utils import timezone
+from django.utils.html import strip_tags
+from djangoappengine import storage
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
-from django.core.files.uploadhandler import FileUploadHandler
-from django.conf import settings
-from djangoappengine import storage
-import re, quopri
+from grants.forms import *
+import fund, models, datetime, logging, json, re
 
 #ORG VIEWS
 def OrgLogin(request):
@@ -87,7 +85,7 @@ def OrgHome(request): # /org
   except models.Organization.DoesNotExist:
     return redirect('/org/nr')
     
-  saved = models.DraftGrantApplication.objects.filter(organization=grantee)
+  saved = models.DraftGrantApplication.objects.filter(organization=grantee).select_related('grant_cycle')
   submitted = models.GrantApplication.objects.filter(organization=grantee).order_by('-submission_time')
 
   cycles = models.GrantCycle.objects.filter(close__gt=timezone.now()-datetime.timedelta(days=180)).order_by('open') #grants that closed w/in the last 180 days (~6 mos)
@@ -104,7 +102,7 @@ def OrgHome(request): # /org
     elif status=='upcoming':
       upcoming.append(cycle)
   
-  return render_to_response('grants/org_home.html', {'user':request.user,'grantee':grantee,'submitted':submitted,'saved':saved, 'cycles':cycles, 'closed':closed, 'open':open, 'upcoming':upcoming})
+  return render_to_response('grants/org_home.html', {'user':request.user, 'grantee':grantee, 'submitted':submitted, 'saved':saved, 'cycles':cycles, 'closed':closed, 'open':open, 'upcoming':upcoming})
 
 def OrgSupport(request):
   if request.user:
@@ -149,7 +147,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     form = models.GrantApplicationForm(post_data, request.FILES)
     logging.info("Application POST, files:" + str(request.FILES))
     #get or create autosave json, update it **UPDATE**
-    dict = simplejson.dumps(post_data)
+    dict = json.dumps(post_data)
     saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = grantee, grant_cycle=cycle)
     saved.contents = dict
     saved.file1 = request.FILES['budget']
@@ -190,7 +188,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
   else: #GET
     try:
       saved = models.DraftGrantApplication.objects.get(organization=grantee, grant_cycle=cycle)
-      dict = simplejson.loads(saved.contents)
+      dict = json.loads(saved.contents)
       logging.info(dict)
       mod = saved.modified
     except models.DraftGrantApplication.DoesNotExist:
@@ -225,7 +223,7 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   if request.method == 'POST':
     
     #get or create saved json, update it
-    dict = simplejson.dumps(request.POST)
+    dict = json.dumps(request.POST)
     saved, cr = models.DraftGrantApplication.objects.get_or_create(organization=grantee, grant_cycle=cycle)
     saved.contents = dict
     saved.save()
