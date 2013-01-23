@@ -173,6 +173,43 @@ function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
 	});
 }
 
+function trackEvents(url, div_id, request_type) {
+  //ONLY GETS SO FAR -- NEED TO ADD POSTS
+  var category = '';
+  var action = '';
+  var label = '';
+  var value = null;
+  if (div_id.search('adddonor') > -1) {
+    event = 'Start add';
+    if (url.search('addmult') > -1) {
+      category = 'Contacts';
+    } else if (url.search('stepmult') > -1) {
+      category = 'Steps';
+    }
+  } else if (div_id.search('nextstep') > -1) {
+    category = 'Steps'
+    /* for now we don't need to know about load edit
+    if (url.search(/\d+$/) > -1) {
+      event = 'Load edit
+    else */
+    if (url.search(/done$/) > -1) {
+      event = 'Start complete';
+    }  
+  } else if (url.search(/step$/) > -1) {
+      category = 'Steps';
+      event = 'Start add';
+    /* don't care about start edit/delete
+    category = 'Contacts';
+    else if (url.search(/delete$/) > -1) {
+      event = 'Start complete';
+    }
+    else if (url.search(/edit$/) > -1) {
+      event = 'Start complete';
+    } */
+  }
+  
+}
+ 
 function toggle(a, b) { //donor info
 	//toggles a, border on b if a is shown
   var e=document.getElementById(a);
