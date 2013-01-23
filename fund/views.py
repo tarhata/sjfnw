@@ -1,4 +1,4 @@
-from django import http, template, forms
+﻿from django import http, template, forms
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
