@@ -16,6 +16,12 @@
 
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-28076150-2']);
+    
+    //custom variable #1 user type, session level
+    _gaq.push(['_setCustomVar', 1, 'User type', {% if request.user.is_staff %}'Staff'{% elif request.membership_status > 0 %}'Member'{% elif request.user.is_authenticated %}'User without Member obj'{% else %}'Anonymous'{% endif %}, 2]); 
+    //custom variable #2 giving project, page level
+    _gaq.push(['_setCustomVar', 2, 'Giving project', {% if request.membership.giving_project %}'{{request.membership}}'{% else %}'None'{% endif %}, 3]);
+    
     _gaq.push(['_trackPageview']);
 
     (function() {
@@ -28,33 +34,30 @@
 </head>
 
 <body>
-<div id="page_wrapper">
+  <div id="page_wrapper">
 
-  <div id="header">{{header|default:"SJF Fundraising"}}</div>
+    <div id="header">{{header|default:"SJF Fundraising"}}</div>
 
-  {% block progress %}
-  {% endblock %}
+    {% block top %}
+    {% endblock %}
 
-  {% block top %}
-  {% endblock %}
+    <div id="content_area">
+    {% block content %}
+    {% endblock %}
+    </div>
 
-  <div id="content_area">
-  {% block content %}
-  {% endblock %}
+    <table id="footer"><tr>
+    <td style="width:25%;"><a href="https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ" target="_blank">feedback</a></td>
+    <td style="width:25%;"><a href="/fund/support">support/FAQ</a></td>
+    <td style="width:15%;">{% if member %}<a href="/fund/projects">your projects</a></td>
+    <td style="width:35%;">
+    <div id="login">{{member.email}} | <a href="/fund/logout/">logout</a></div>
+    {% else %}
+    </td><td>
+    {% endif %}
+    </td>
+    </tr></table>
   </div>
-
-  <table id="footer"><tr>
-  <td style="width:25%;"><a href="https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ" target="_blank">feedback</a></td>
-  <td style="width:25%;"><a href="/fund/support">support/FAQ</a></td>
-  <td style="width:15%;">{% if member %}<a href="/fund/projects">your projects</a></td>
-  <td style="width:35%;">
-  <div id="login">{{member.email}} | <a href="/fund/logout/">logout</a></div>
-  {% else %}
-  </td><td>
-  {% endif %}
-  </td>
-  </tr></table>
-</div>
 </body>
 
 </html>
