@@ -7,8 +7,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, connection
 from django.db.models import Sum, Count, Avg, Min, Max
 from django.forms.formsets import formset_factory
-from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.http import HttpResponse, Http404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -40,7 +40,7 @@ def FundLogin(request):
         printout ="Your login and password didn't match."
   else:
     form = LoginForm()
-  return render_to_response('fund/login.html', {'form':form, 'printout':printout})
+  return render(request, 'fund/login.html', {'form':form, 'printout':printout})
 
 def Register(request):
   error_msg = ''
@@ -87,7 +87,7 @@ def Register(request):
   else:
     register = RegistrationForm()
     
-  return render_to_response('fund/register.html', {'form':register, 'error_msg':error_msg})
+  return render(request, 'fund/register.html', {'form':register, 'error_msg':error_msg})
 
 @login_required(login_url='/fund/login/')
 def Registered(request):
@@ -120,7 +120,7 @@ def Registered(request):
       logging.info('Pre-approval succeeded')
       return redirect(Home)
 
-  return render_to_response('fund/registered.html', {'member':member, 'proj':proj})
+  return render(request, 'fund/registered.html', {'member':member, 'proj':proj})
 
 #MEMBERSHIP MANAGEMENT
 @login_required(login_url='/fund/login/')
@@ -146,7 +146,7 @@ def Projects(request):
         printout = 'You are already registered with that giving project.'
   else:
     form = AddProjectForm()
-  return render_to_response('fund/projects.html', {'member':member, 'form':form, 'printout':printout, 'ships':ships})
+  return render(request, 'fund/projects.html', {'member':member, 'form':form, 'printout':printout, 'ships':ships})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -279,7 +279,7 @@ def Home(request):
     
     #basic version for blocks
     step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
-    return render_to_response('fund/page_personal.html', 
+    return render(request, 'fund/page_personal.html', 
       {'1active':'true',
       'header':header,
       'progress':progress,
@@ -327,7 +327,7 @@ def Home(request):
     suggested = membership.giving_project.suggested_steps.splitlines()
     suggested = filter(None, suggested) #move this to the admin save    
     
-    return render_to_response('fund/page_personal.html', 
+    return render(request, 'fund/page_personal.html', 
     {'1active':'true',
     'header':header,
     'donor_list': donor_list,
@@ -387,7 +387,7 @@ def ProjectPage(request):
   #base
   header = project.title
  
-  return render_to_response('fund/page_project.html', 
+  return render(request, 'fund/page_project.html', 
   {'2active':'true',
   'header':header,
   'news':news,
@@ -428,14 +428,25 @@ def ScoringList(request):
     except scoring.models.ApplicationRating.DoesNotExist:
       unreviewed.append(grant)
   
-  return render_to_response('fund/scoring_list.html',   {'3active':'true',   'header':header,   'news':news,   'member':member, 'steps':steps,   'membership':membership,   'grant_list':grant_list, 												   'unreviewed':unreviewed,   'reviewed':reviewed,   'in_progress':in_progress})
+  return render(request, 'fund/scoring_list.html',
+  { '3active':'true',
+    'header':header,
+    'news':news,
+    'member':member,
+    'steps':steps,
+    'membership':membership,
+    'grant_list':grant_list,
+    'unreviewed':unreviewed,
+    'reviewed':reviewed,
+    'in_progress':in_progress })
 
 #ERROR & HELP PAGES
 @login_required(login_url='/fund/login/')
 def NotMember(request):
   member = request.user #not really member, just for sharing template code
   contact_url=settings.SUPPORT_FORM_URL
-  return render_to_response('fund/not_member.html', {'member':member, 'contact_url':contact_url})
+  return render(request, 'fund/not_member.html',
+{'member':member, 'contact_url':contact_url})
 
 @login_required(login_url='/fund/login/')
 def NotApproved(request):
@@ -444,17 +455,17 @@ def NotApproved(request):
   except models.Member.DoesNotExist:
     return redirect(NotMember)
   memberships = member.membership_set.all()
-  return render_to_response('fund/not_approved.html', {'member':member, 'memberships':memberships})
+  return render(request, 'fund/not_approved.html', {'member':member, 'memberships':memberships})
 
 def Blocked(request):
   contact_url = settings.SUPPORT_FORM_URL
-  return render_to_response('fund/blocked.html', {'contact_url':contact_url})
+  return render(request, 'fund/blocked.html', {'contact_url':contact_url})
 
 def Support(request):
   header = "Support"
   if request.user:
     member = request.user #for shared template
-  return render_to_response('fund/support.html', {'member':member, 'header':header})
+  return render(request, 'fund/support.html', {'member':member, 'header':header})
   
 #FORMS
 @login_required(login_url='/fund/login/')
@@ -480,9 +491,9 @@ def AddMult(request):
     formset = ContactFormset()
 
   if est:
-    return render_to_response('fund/add_mult.html', {'formset':formset})
+    return render(request, 'fund/add_mult.html', {'formset':formset})
   else:
-    return render_to_response('fund/add_mult_pre.html', {'formset':formset})
+    return render(request, 'fund/add_mult_pre.html', {'formset':formset})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -514,7 +525,7 @@ def AddEstimates(request):
     formset = EstFormset(initial=initiald)
     logging.info('Adding estimates - loading initial formset, size ' + str(size) + ': ' +str(dlist))
   fd = zip(formset, dlist)
-  return render_to_response('fund/add_estimates.html', {'formset':formset, 'fd':fd})
+  return render(request, 'fund/add_estimates.html', {'formset':formset, 'fd':fd})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -545,7 +556,7 @@ def EditDonor(request, donor_id):
     else:
       form = models.DonorPreForm(instance=donor, auto_id = str(donor.pk) + '_id_%s')
       
-  return render_to_response('fund/edit_contact.html', { 'form': form, 'pk': donor.pk, 'action':'/fund/'+str(donor_id)+'/edit'})
+  return render(request, 'fund/edit_contact.html', { 'form': form, 'pk': donor.pk, 'action':'/fund/'+str(donor_id)+'/edit'})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -565,7 +576,7 @@ def DeleteDonor(request, donor_id):
     donor.delete()
     return redirect(Home)
     
-  return render_to_response('fund/delete.html', {'action':action})
+  return render(request, 'fund/delete.html', {'action':action})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -606,7 +617,7 @@ def AddStep(request, donor_id):
   else: 
     form = models.StepForm(auto_id = str(donor.pk) + '_id_%s')
     
-  return render_to_response('fund/add_step.html', {'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested, 'target': str(donor.pk) + '_id_description'})
+  return render(request, 'fund/add_step.html', {'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested, 'target': str(donor.pk) + '_id_description'})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -642,7 +653,7 @@ def AddMultStep(request):
     formset = StepFormSet(initial=initiald)
     logging.info('Multiple steps - loading initial formset, size ' + str(size) + ': ' +str(dlist))
   fd = zip(formset, dlist)
-  return render_to_response('fund/add_mult_step.html', {'size':size, 'formset':formset, 'fd':fd, 'multi':True, 'suggested':suggested})
+  return render(request, 'fund/add_mult_step.html', {'size':size, 'formset':formset, 'fd':fd, 'multi':True, 'suggested':suggested})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -677,7 +688,7 @@ def EditStep(request, donor_id, step_id):
   else:
     form = models.StepForm(instance=step, auto_id = str(step.pk) + '_id_%s')
     
-  return render_to_response('fund/edit_step.html', { 'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested, 'target': str(step.pk) + '_id_description'})
+  return render(request, 'fund/edit_step.html', { 'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested, 'target': str(step.pk) + '_id_description'})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -761,7 +772,7 @@ def DoneStep(request, donor_id, step_id):
         amount = donor.pledged
     form = StepDoneForm(auto_id = str(step.pk) + '_id_%s', initial = {'asked':donor.asked, 'response':response, 'pledged_amount':amount, 'notes':donor.notes, 'last_name':donor.lastname, 'phone':donor.phone, 'email':donor.email})
     
-  return render_to_response('fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'suggested':suggested, 'target': str(step.pk) + '_id_next_step', 'step_id':step_id, 'step':step})
+  return render(request, 'fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'suggested':suggested, 'target': str(step.pk) + '_id_next_step', 'step_id':step_id, 'step':step})
 
 #CRON EMAILS
 def EmailOverdue(request):
