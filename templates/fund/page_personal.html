@@ -72,6 +72,7 @@ var status_texts = { //for ajax error messages
   
   500: '500 Internal server error',
   503: '503 Service unavailable',
+  504: '504 Gateway timeout',
 }
 
 var submitted_messages = { //maps sub_url to a success message to display after reload
@@ -101,7 +102,6 @@ function loadView(get_url, div_id, dasked, dpledged) {
     timeout: 10000,
 		success:function(data, textStatus, jqXHR){
 			//console.log(get_url);
-			endProcessing();
       document.getElementById(div_id).innerHTML=jqXHR.responseText;
 			var pks = get_url.match(/\d+/g);
       if (pks && pks[1]) {
@@ -114,6 +114,8 @@ function loadView(get_url, div_id, dasked, dpledged) {
 				document.getElementById(div_id).style.borderColor="#555";
 			}
 			datepicker();
+      endProcessing();
+      trackEvents(get_url, div_id, 'GET');
 		},
 		error:function(jqXHR, textStatus, errorThrown){
 			endProcessing();
@@ -141,7 +143,6 @@ function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
 		data:$(form_id).serialize(),
 		timeout: 10000,
 		success:function(data, textStatus, jqXHR){
-			endProcessing();
 			if (jqXHR.responseText=="success") {
 				location.href='/fund/';
 			} else {
@@ -153,7 +154,9 @@ function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
 					}
 				}
 			}
-			if (date) { datepicker(); }
+			if (date) { datepicker();}
+      endProcessing();
+      trackEvents(sub_url, div_id, 'POST');
 		},
 		error:function(jqXHR, textStatus, errorThrown){
 			endProcessing();
@@ -174,40 +177,45 @@ function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
 }
 
 function trackEvents(url, div_id, request_type) {
-  //ONLY GETS SO FAR -- NEED TO ADD POSTS
-  var category = '';
-  var action = '';
-  var label = '';
-  var value = null;
+  var category;
+  var action;
   if (div_id.search('adddonor') > -1) {
-    event = 'Start add';
+    if (request_type == 'POST') {
+      event = 'Add';
+    } else {
+      event = 'Start add';
+    }
     if (url.search('addmult') > -1) {
       category = 'Contacts';
     } else if (url.search('stepmult') > -1) {
       category = 'Steps';
     }
   } else if (div_id.search('nextstep') > -1) {
-    category = 'Steps'
-    /* for now we don't need to know about load edit
-    if (url.search(/\d+$/) > -1) {
-      event = 'Load edit
-    else */
-    if (url.search(/done$/) > -1) {
-      event = 'Start complete';
+    category = 'Steps';
+    if (url.search(/\d+$/) > -1 && request_type == 'POST') {
+      event = 'Edit';
+    } else if (url.search(/done$/) > -1) {
+      if (request_type == 'POST') {
+        event = 'Complete';
+      } else {
+        event = 'Start complete';
+      }
     }  
-  } else if (url.search(/step$/) > -1) {
+  } else if (request_type == 'POST') {
+    if (url.search(/step$/ &&  > -1) {
       category = 'Steps';
-      event = 'Start add';
-    /* don't care about start edit/delete
-    category = 'Contacts';
-    else if (url.search(/delete$/) > -1) {
-      event = 'Start complete';
+      event = 'Add';
+    } else if (url.search(/delete$/ > -1) {
+        category = 'Contacts';
+        event = 'Delete';
+    } else if (url.search(/edit$/ > -1) {
+      category = 'Contacts';
+      event = 'Edit';
     }
-    else if (url.search(/edit$/) > -1) {
-      event = 'Start complete';
-    } */
   }
-  
+  if (category && action) {
+    _gaq.push(['_trackEvent', category, action]);
+  }
 }
  
 function toggle(a, b) { //donor info
