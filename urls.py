@@ -44,7 +44,7 @@ urlpatterns = patterns('',
     (r'^org/submitted.html', direct_to_template, {'template': 'grants/submitted.html'}),
     
     #cron
-    (r'^mail/drafts/', 'grants.views.DraftWarning'),
+    (r'^mail/drafts', 'grants.views.DraftWarning'),
 
 ## GRANTS - APPLICATION VIEWS ##
 
