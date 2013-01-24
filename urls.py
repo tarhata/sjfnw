@@ -118,7 +118,7 @@ urlpatterns = patterns('',
     #forms - steps
     (r'^fund/(?P<donor_id>\d+)/step$','fund.views.AddStep'),
     (r'^fund/stepmult$','fund.views.AddMultStep'),
-    (r'^fund/(?P<donor_id>\d+)/(?P<step_id>\d+)/?$','fund.views.EditStep'),
+    (r'^fund/(?P<donor_id>\d+)/(?P<step_id>\d+)$','fund.views.EditStep'),
     (r'^fund/(?P<donor_id>\d+)/(?P<step_id>\d+)/done','fund.views.DoneStep'),
     
     #error/help pages

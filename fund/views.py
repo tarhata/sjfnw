@@ -674,7 +674,7 @@ def EditStep(request, donor_id, step_id):
     logging.error(str(request.user) + 'edit step on nonexistent step ' + str(step_id))
     raise Http404
     
-  action='/fund/'+str(donor_id)+'/'+str(step_id)+'/'
+  action='/fund/'+str(donor_id)+'/'+str(step_id)
   formid = 'editstep-'+donor_id
   divid = donor_id+'-nextstep'
   
