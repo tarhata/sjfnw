@@ -1,14 +1,14 @@
-﻿from fund.models import *
-import fund.forms
-from grants.models import *
+﻿from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
-from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
-from django.conf import settings
+from django.contrib.auth.models import User, Group
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from fund.models import *
+from grants.models import *
+import fund.forms
 import logging
 
 ## FUND
@@ -83,6 +83,14 @@ gp_year.short_description = 'Year'
 
 class GPAdmin(admin.ModelAdmin):
   list_display = ('title', gp_year)
+  fields = (
+    ('title', 'public'),
+    ('fundraising_training', 'fundraising_deadline'),
+    'fund_goal',
+    'calendar',
+    'suggested steps',
+    'pre_approved',
+   )
   inlines = [
     ProjectResourcesInline,
     MembershipInline,

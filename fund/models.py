@@ -7,7 +7,7 @@ import datetime, logging
  
 class GivingProject(models.Model):
   title = models.CharField(max_length=255)
-  public = models.BooleanField(default=True)
+  public = models.BooleanField(default=True, help_text='Whether this project should show in the dropdown menu for members registering or adding a project to their account.')
   
   #fundraising
   fundraising_training = models.DateTimeField(help_text='Date & time of fundraising training.  At this point the app will require members to enter an ask amount & estimated likelihood for each contact.')
