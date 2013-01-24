@@ -59,7 +59,7 @@ class MassDonor(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
   lastname = forms.CharField(max_length=100, required=False, label='Last name')
   amount = forms.IntegerField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}))
-  likelihood = forms.IntegerField(label='*Estimated likelihood (%)', widget=forms.TextInput(attrs={'class':'half'}))
+  likelihood = forms.IntegerField(label='*Estimated likelihood (%)', validators=[MaxValueValidator(100)], widget=forms.TextInput(attrs={'class':'half'}))
 
 class MassDonorPre(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
