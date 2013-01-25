@@ -88,7 +88,7 @@ class GPAdmin(admin.ModelAdmin):
     ('fundraising_training', 'fundraising_deadline'),
     'fund_goal',
     'calendar',
-    'suggested steps',
+    'suggested_steps',
     'pre_approved',
    )
   inlines = [
