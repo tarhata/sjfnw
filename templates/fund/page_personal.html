@@ -4,8 +4,9 @@
 <script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
+var text_progress = false;
 if ('{{progress}}') {
-	if ( 1 == 2) { //Modernizr.inlinesvg) {
+	if (Modernizr.inlinesvg) { 
 		// Load the Visualization API and the piechart package.
 		google.load('visualization', '1.0', {'packages':['corechart']});
 
@@ -62,12 +63,16 @@ if ('{{progress}}') {
 			chart.draw(data, options);           
 		}
 	} else { //browser cannot support charts
-		console.log('Browser does not support charts; displaying text summaries');
-		console.log(document); //ERROR FUCK THIS
-		document.getElementById('chart_div').innerHTML = "Haven't contacted: {{progress.contactsremaining}}<br>Talked to: {{progress.talked}}<br>Asked: {{progress.asked}}";
-		if ({{progress.estimated}} > 0) {
-			document.getElementById('chart_div2').innerHTML = "Remaining: {{progress.togo|default:'0'}}<br>Pledged: {{progress.pledged}}<br>Donated: {{progress.donated}}";
-		}
+		console.log('Browser does not support charts; text_progress = true');
+		text_progress = true;
+	}
+}
+
+function textProgress() {
+	console.log('textProgress');
+	document.getElementById('chart_div').innerHTML = "<br><br>Haven't contacted: {{progress.contactsremaining}}<br>Talked to: {{progress.talked}}<br>Asked: {{progress.asked}}";
+	if ({{progress.estimated}} > 0) {
+		document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: {{progress.togo|default:'0'}}<br>Pledged: {{progress.pledged}}<br>Donated: {{progress.donated}}";
 	}
 }
 </script>
@@ -430,6 +435,9 @@ $(document).ready(function() {
   if (load) {
     loadView(load, loadto);
   }
+	if (text_progress) {
+		textProgress();
+	}
 });
 
 </script>
