@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.db import connection
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -35,7 +35,7 @@ def OrgLogin(request):
   else:
     form = LoginForm()
   register = RegisterForm()
-  return render_to_response('grants/org_login.html', {'form':form, 'register':register, 'printout':error_msg})
+  return render(request, 'grants/org_login.html', {'form':form, 'register':register, 'printout':error_msg})
 
 def OrgRegister(request): #update - uses old try/catch instead of filters
   error_msg=''
@@ -72,7 +72,7 @@ def OrgRegister(request): #update - uses old try/catch instead of filters
   else:
     register = RegisterForm()
   form = LoginForm()
-  return render_to_response('grants/org_login.html', {'form':form, 'register':register, 'rprintout':error_msg})
+  return render(request, 'grants/org_login.html', {'form':form, 'register':register, 'rprintout':error_msg})
 
 @login_required(login_url='/org/login/')
 def OrgHome(request): # /org
@@ -98,12 +98,10 @@ def OrgHome(request): # /org
     elif status=='upcoming':
       upcoming.append(cycle)
   
-  return render_to_response('grants/org_home.html', {'user':request.user, 'grantee':grantee, 'submitted':submitted, 'saved':saved, 'cycles':cycles, 'closed':closed, 'open':open, 'upcoming':upcoming})
+  return render(request, 'grants/org_home.html', {'user':request.user, 'grantee':grantee, 'submitted':submitted, 'saved':saved, 'cycles':cycles, 'closed':closed, 'open':open, 'upcoming':upcoming})
 
 def OrgSupport(request):
-  if request.user:
-    member = request.user #for shared template
-  return render_to_response('grants/org_support.html', {'grantee':member})
+  return render(request, 'grants/org_support.html')
   
 @login_required(login_url='/org/login/')
 def Apply(request, cycle_id): # /apply/[cycle_id]
@@ -119,12 +117,12 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
   
   #check whether cycle is open
   if cycle.is_open()==False: 
-    return render_to_response('grants/closed.html', {'cycle':cycle})
+    return render(request, 'grants/closed.html', {'cycle':cycle})
   
   #check for app already submitted
   subd = models.GrantApplication.objects.filter(organization=grantee, grant_cycle=cycle)
   if subd: 
-    return render_to_response('grants/already_applied.html', {'grantee':grantee, 'cycle':cycle})
+    return render(request, 'grants/already_applied.html', {'grantee':grantee, 'cycle':cycle})
   
   if request.method == 'POST':
     post_data = request.POST.copy()
@@ -195,8 +193,8 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
   upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
   #logging.info('Upload prepped, url: ' + upload_url)
   
-  return render_to_response('grants/org_app.html',
-  {'grantee':grantee, 'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files}  )
+  return render(request, 'grants/org_app.html',
+  {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files}  )
 
 def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   try:
@@ -267,7 +265,7 @@ def ViewApplication(request, app_id):
   base_url = settings.APP_BASE_URL
   if not settings.DEBUG:
     base_url = 'https://docs.google.com/viewer?url=' + base_url
-  return render_to_response('grants/view_app.html', {'app':app, 'form':form, 'user':user, 'base_url':base_url})
+  return render(request, 'grants/view_app.html', {'app':app, 'form':form, 'user':user, 'base_url':base_url})
 
 def ViewFile(request, app_id, file_type):
  
@@ -350,4 +348,4 @@ def TestView(request):
   timezone.activate(z)
   today = timezone.now()
   logging.error('fake test error')
-  return render_to_response('debug.html', {'now':today, 'tzzz':z})
+  return render(request, 'debug.html', {'now':today, 'tzzz':z})
