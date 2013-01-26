@@ -199,9 +199,9 @@ function trackEvents(url, div_id, request_type) {
   if (div_id.search('adddonor') > -1) {
     console.log('adddonor');
     if (request_type == 'POST') {
-      action = 'Add';
+      action = 'Add - submit';
     } else {
-      action = 'Start add';
+      action = 'Add - start';
     }
     if (url.search('addmult') > -1) {
       category = 'Contacts';
@@ -215,16 +215,16 @@ function trackEvents(url, div_id, request_type) {
       action = 'Edit';
     } else if (url.search(/done$/) > -1) {
       if (request_type == 'POST') {
-        action = 'Complete';
+        action = 'Complete - submit';
       } else {
-        action = 'Start complete';
+        action = 'Complete - start';
       }
     }  
   } else if (request_type == 'POST') {
     console.log('POST');
     if (url.search(/step$/) > -1) {
       category = 'Steps';
-      action = 'Add';
+      action = 'Add single';
     } else if (url.search(/delete$/) > -1) {
         category = 'Contacts';
         action = 'Delete';
@@ -233,7 +233,7 @@ function trackEvents(url, div_id, request_type) {
       action = 'Edit';
     } else if (url.search('stepmult') > -1) {
       category = 'Steps';
-      action = 'Add mult';
+      action = 'Add multiple';
     }
   }
   console.log(category, action)
