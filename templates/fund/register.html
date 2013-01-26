@@ -1,9 +1,12 @@
 ﻿{% extends 'fund/base.html' %}
+
+{% block title %}Registration {{block.super}}{% endblock %}
+
 {% block content %}
 
 <div align="center">
 <p>Register below to use SJF's fundraising app.</p>
-<p>An administrator will need to approve your account before you can login.  You will receive an email notification when your account is ready for use.</p></div>
+<p>An administrator may need to approve your account before you can login.  You will receive an email notification when your account is ready for use.</p></div>
 
 <div id="login_wrapper">
 <ul class="errorlist"><li>{{error_msg|safe}}</li></ul>

@@ -1,5 +1,7 @@
 {% extends 'fund/base.html' %}
 
+{% block title %}Not member {{block.super}}{% endblock %}
+
 {% block content %}
 <div class="error_message">Your account wasn't registered properly.</div>
 Please <a href="{{contact_url}}">contact</a> site admin to have it fixed.  Include your name and the email address you used to log in.

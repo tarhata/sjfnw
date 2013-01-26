@@ -3,6 +3,8 @@
 	<link href="index.css" type="text/css" rel="stylesheet" />
 </head>
 
+{% block title %}Grants {{block.super}}{% endblock %}
+
 {% block progress %}
 <div id="progress_container">
   <div id="progress_bar" style="width:0%"></div>
