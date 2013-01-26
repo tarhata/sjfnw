@@ -37,9 +37,7 @@
 			<td style="width:50%;"><a href="{% url grants.views.OrgSupport %}">support</a></td>
 			<td style="width:5%;"></td>
 			<td style="width:45%;text-align:right;">
-			{% if grantee %}
-				{{grantee.email}} | <a href="/logout">log out</a>
-			{% elif user.is_authenticated %}
+			{% if user.is_authenticated %}
 				{{user.email}} | <a href="/logout">log out</a>
 			{% elif not register %}<a href="{% url grants.views.OrgLogin %}">log in</a>{% endif %}</td>
 		</tr></table>
