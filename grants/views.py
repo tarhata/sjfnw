@@ -1,21 +1,17 @@
-from django import http, template, forms
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.files.uploadhandler import FileUploadHandler
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError, connection
+from django.db import connection
 from django.forms.models import model_to_dict
-from django.http import HttpResponseServerError, HttpResponse, Http404
+from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
-from djangoappengine import storage
 from google.appengine.ext import blobstore
-from google.appengine.ext.webapp import blobstore_handlers
 from grants.forms import *
 import fund, models, datetime, logging, json, re
 
