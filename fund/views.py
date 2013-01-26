@@ -443,10 +443,8 @@ def ScoringList(request):
 #ERROR & HELP PAGES
 @login_required(login_url='/fund/login/')
 def NotMember(request):
-  member = request.user #not really member, just for sharing template code
   contact_url=settings.SUPPORT_FORM_URL
-  return render(request, 'fund/not_member.html',
-{'member':member, 'contact_url':contact_url})
+  return render(request, 'fund/not_member.html', {'contact_url':contact_url})
 
 @login_required(login_url='/fund/login/')
 def NotApproved(request):
@@ -455,7 +453,7 @@ def NotApproved(request):
   except models.Member.DoesNotExist:
     return redirect(NotMember)
   memberships = member.membership_set.all()
-  return render(request, 'fund/not_approved.html', {'member':member, 'memberships':memberships})
+  return render(request, 'fund/not_approved.html')
 
 def Blocked(request):
   contact_url = settings.SUPPORT_FORM_URL
@@ -463,9 +461,7 @@ def Blocked(request):
 
 def Support(request):
   header = "Support"
-  if request.user:
-    member = request.user #for shared template
-  return render(request, 'fund/support.html', {'member':member, 'header':header})
+  return render(request, 'fund/support.html', {'header':header})
   
 #FORMS
 @login_required(login_url='/fund/login/')
