@@ -50,9 +50,9 @@ MIDDLEWARE_CLASSES = (
 
 TEMPLATE_CONTEXT_PROCESSORS = (
   'django.contrib.auth.context_processors.auth',
-  'django.core.context_processors.request',
-  'django.core.context_processors.media',
-  'django.contrib.messages.context_processors.messages',
+  'django.core.context_processors.request', #only used in fund/base.html js
+  #'django.core.context_processors.media',  MEDIA_URL in templates
+  #'django.contrib.messages.context_processors.messages', messages var. not using yet
 )
 
 TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), 'templates'),)
