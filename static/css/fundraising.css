@@ -14,12 +14,18 @@ div#content_area {
 }
 
 /* header & bar */
+
 div#header {
+  height:80px;
+  
+}
+div#header_text {
+  /* display:inline-block; */
 	font-size:2em;
-	text-align:center;
-	line-height:1.5em;
-	margin-bottom:.25em;
+  text-align:center;
+	/* margin-bottom:.25em; */
 	font-weight:bold;
+  vertical-align:middle;
 }
 
 div#progress_container {
