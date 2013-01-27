@@ -18,7 +18,7 @@
     _gaq.push(['_setAccount', 'UA-28076150-2']);
     
     //custom variable #1 user type, session level
-    _gaq.push(['_setCustomVar', 1, 'User type', {% if request.user.is_staff %}'Staff'{% elif request.membership_status > 0 %}'Member'{% elif request.user.is_authenticated %}'User without Member obj'{% else %}'Anonymous'{% endif %}, 2]); 
+    _gaq.push(['_setCustomVar', 1, 'User type', {% if user.is_staff %}'Staff'{% elif request.membership_status > 0 %}'Member'{% elif user.is_authenticated %}'User without Member obj'{% else %}'Anonymous'{% endif %}, 2]); 
     //custom variable #2 giving project, page level
     _gaq.push(['_setCustomVar', 2, 'Giving project', {% if request.membership %}'{{request.membership.giving_project}}'{% else %}'None'{% endif %}, 3]);
     
@@ -35,9 +35,11 @@
 
 <body>
   <div id="page_wrapper">
-
-    <div id="header">{{header|default:"Project Central"}}</div>
-
+    <div id="header">
+    <!-- <img src="/static/images/logo.png" alt="Project Central logo" height=80 width=160 style="float:left;"> -->
+    <div align="center" id="header_text">{{header|default:"Project Central"}}</div>
+    </div>
+    
     {% block top %}
     {% endblock %}
 
