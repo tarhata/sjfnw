@@ -25,7 +25,6 @@ table#org_footer {
 /* application form */
 div.formwrapper {
 	width:725px;
-	display:table;
 	/*border:1px solid;*/
 	border-color:#CCC;
 }

@@ -177,17 +177,26 @@ class GrantApplication(models.Model):
 
   narrative6 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
   
-  """
-  references
-  collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.' verbose_name='Name', max_length = 150)
+  #references
+  collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.', verbose_name='Name', max_length = 150)
   collab_ref1_org = models.CharField(verbose_name='Organization', max_length = 150)
+  collab_ref1_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
+  collab_ref1_email = models.EmailField(verbose_name='Email', blank=True)
   
   collab_ref2_name = models.CharField(verbose_name='Name', max_length = 150)
   collab_ref2_org = models.CharField(verbose_name='Organization', max_length = 150)
+  collab_ref2_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
+  collab_ref2_email = models.EmailField(verbose_name='Email', blank=True)
   
-  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, also describe how you work as an ally to communities of color. Be as specific as possible, and list at least one organization led by people of color that we can contact as a reference for your racial justice work.' verbose_name='Name', max_length = 150)
-  racial_justice_ref1_org = models.CharField(verbose_name='Organization', max_length = 150)
-  """
+  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, also describe how you work as an ally to communities of color. Be as specific as possible, and list at least one organization led by people of color that we can contact as a reference for your racial justice work.', verbose_name='Name', max_length = 150, blank=True)
+  racial_justice_ref1_org = models.CharField(verbose_name='Organization', max_length = 150, blank=True)
+  racial_justice_ref1_phone = models.CharField(verbose_name='Phone number', max_length = 20, blank=True)
+  racial_justice_ref1_email = models.EmailField(verbose_name='Email', blank=True)
+ 
+  racial_justice_ref2_name = models.CharField(verbose_name='Name', max_length = 150, blank=True)
+  racial_justice_ref2_org = models.CharField(verbose_name='Organization', max_length = 150, blank=True)
+  racial_justice_ref2_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
+  racial_justice_ref2_email = models.EmailField(verbose_name='Email', blank=True) 
   
   #files
   budget = models.FileField(upload_to='/%Y/', max_length=255)
@@ -237,6 +246,45 @@ class GrantApplicationForm(ModelForm):
     for key in self.fields:
       if self.fields[key].required:
         self.fields[key].widget.attrs['class'] = 'required'
+  
+  def clean(self):
+    cleaned_data = super(GrantApplicationForm, self).clean()
+    phone = cleaned_data.get('collab_ref1_phone')
+    email = cleaned_data.get('collab_ref1_email')
+    if not phone and not email:
+       self._errors["collab_ref1_phone"] = 'Enter a phone number or email.'
+    phone = cleaned_data.get('collab_ref2_phone')
+    email = cleaned_data.get('collab_ref2_email')
+    if not phone and not email:
+       self._errors["collab_ref2_phone"] = 'Enter a phone number or email.'
+    name = cleaned_data.get('racial_justice_ref1_name')
+    org = cleaned_data.get('racial_justice_ref1_org')
+    phone = cleaned_data.get('racial_justice_ref1_phone')
+    email = cleaned_data.get('racial_justice_ref1_email')
+    if name or org or phone or email:
+      #require whole set
+      #not removing from cleaned_data
+      if not name:
+        self._errors["racial_justice_ref1_name"] = 'Enter a contact person.'
+      if not org:
+        self._errors["racial_justice_ref1_org"] = 'Enter the organization name.'
+      if not phone and not email:
+        self._errors["racial_justice_ref1_phone"] = 'Enter a phone number or email.'
+    name = cleaned_data.get('racial_justice_ref2_name')
+    org = cleaned_data.get('racial_justice_ref2_org')
+    phone = cleaned_data.get('racial_justice_ref2_phone')
+    email = cleaned_data.get('racial_justice_ref2_email')
+    if name or org or phone or email:
+      #require whole set
+      #not removing from cleaned_data
+      if not name:
+        self._errors["racial_justice_ref2_name"] = 'Enter a contact person.'
+      if not org:
+        self._errors["racial_justice_ref2_org"] = 'Enter the organization name.'
+      if not phone and not email:
+        self._errors["racial_justice_ref2_phone"] = 'Enter a phone number or email.'    
+  
+    return cleaned_data
 
 """
 class SJFSettings(models.Model):

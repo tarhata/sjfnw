@@ -251,8 +251,18 @@ $(document).ready(function() {
 
 	<div class="narrative_q">5. {{form.narrative5.label|safe}}
 	{{form.narrative5.errors}}{{form.narrative5}}
-	<span class="char_counter" id="narrative5_counter">{{limits.5}}</span></div>
-
+	<span class="char_counter" id="narrative5_counter">{{limits.5}}</span>
+	<table><tr>
+	<td colspan="4">{{form.collab_ref1_name.help_text}}</td>
+	</tr>
+	<td>{{form.collab_ref1_name.label}}</td><td>{{form.collab_ref1_org.label}}</td><td>{{form.collabref1_phone.label}}</td><td>{{form.collabref1_email.label}}</td>
+	</tr><tr>
+	<td>{{form.collab_ref1_name.errors}}</td><td>{{form.collab_ref1_org.errors}}</td><td>{{form.collab_ref1_phone.errors}}</td><td>{{form.collab_ref1_email.errors}}</td>
+	</tr><tr>
+	<td>{{form.collab_ref1_name}}</td><td>{{form.collab_ref1_org}}</td><td>{{form.collab_ref1_phone}}</td><td>{{form.collab_ref1_email}}</td>
+	</tr></table>
+	</div>
+	
 	<div class="narrative_q">6. {{form.narrative6.label|safe}}
 	{{form.narrative6.errors}}{{form.narrative6}}
 	<span class="char_counter" id="narrative6_counter">{{limits.6}}</span></div>
