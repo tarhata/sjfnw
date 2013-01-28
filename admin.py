@@ -55,7 +55,7 @@ class MembershipAdmin(admin.ModelAdmin): #todo add overdue steps filter
   actions = [approve]
   list_filter = ('approved', 'leader', 'giving_project')
   #readonly_fields = ('last_activity', 'emailed', 'approved')
-  
+
 class MembershipInline(admin.TabularInline):
   model = Membership
   formset = fund.forms.MembershipInlineFormset
@@ -158,9 +158,7 @@ admin.site.register(GivingProject, GPAdmin)
 admin.site.register(Membership, MembershipAdmin)
 admin.site.register(NewsItem, NewsAdmin)
 admin.site.register(Donor, DonorAdmin)
-admin.site.register(ProjectResource)
 admin.site.register(Resource)
-
 
 #advanced
 advanced_admin = AdminSite(name='advanced')
