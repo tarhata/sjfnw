@@ -412,7 +412,7 @@ def ScoringList(request):
   #base
   header = project.title
   
-  grant_list = grants.models.GrantApplication.objects.all() #TEMP want to filter by gp
+  grant_list = grants.models.GrantApplication.objects.all(giving_project = project) #TEMP want to filter by gp
   logging.info("grant list:" + str(grant_list))
   
   unreviewed = []
