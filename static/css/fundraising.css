@@ -254,7 +254,9 @@ div.error_message {
 /* odo */
 .odo_float_right {
   float:right;
-  margin-right:40px;
+  margin-top:8px;
+  margin-right:15px;
+  margin-left:8px;
 }
 
 /* footer  */
