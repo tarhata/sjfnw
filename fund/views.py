@@ -67,7 +67,7 @@ def Register(request):
           giv = models.GivingProject.objects.get(pk=gp)
           membership, crs = models.Membership.objects.get_or_create(member = member, giving_project = giv)
           if crs:
-            membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant.</td><td><img src="/static/images/odo1.png"></td></tr></table>'
+            membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant.</td><td><img src="/static/images/odo1.png" height=88 width=54></td></tr></table>'
             logging.info('Set welcome notif for ' + str(membership))
             membership.save()
           member.current = membership.pk
