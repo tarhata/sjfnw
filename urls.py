@@ -12,8 +12,8 @@ urlpatterns = patterns('',
 
 ## ADMIN ##
 
-    (r'^admin/', include(admin.site.urls)),
-    (r'^admin-advanced/', include(advanced_admin.urls)),
+    (r'^admin', include(admin.site.urls)),
+    (r'^admin-advanced', include(advanced_admin.urls)),
 
 ## LANDING ##    
 
