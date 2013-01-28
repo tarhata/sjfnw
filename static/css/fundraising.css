@@ -1,8 +1,12 @@
 ﻿/* --- FUND --- */
 
 /* general */
+
+html, body {
+}
+
 div#page_wrapper {
-	width:640px;
+  width:640px;
 }
 
 div#content_area {
@@ -15,10 +19,11 @@ div#content_area {
 
 /* header & bar */
 
-div#header {
-  height:80px;
-  
+table#header {
+  margin-bottom:10px;
+  width:100%;
 }
+
 div#header_text {
   /* display:inline-block; */
 	font-size:2em;
@@ -163,8 +168,7 @@ img.donor_tag {
 	vertical-align:middle;
 }
 
-div.overdue_step {
-	display:inline;
+span.overdue_step {
 	color:red;
 	font-weight:bold;
 }
