@@ -1,30 +1,18 @@
 ﻿{% extends 'fund/base.html' %}
 {% block top %}
-<div id="block_container">
-	<div class="top_block{%if 1active %} active_block{% endif %}" id="personal_block" style="margin-right:14px;" onclick="location.href='/fund';">
-		<div class="block_header">Your fundraising</div>
-		{% for step in steps|slice:"2" %}
-			<div class="block-item">
-        {{step.date|date:"n/d/y"}} {{step.donor.firstname}}<br>
-        {{step.description}}
-      </div>
-		{% endfor %}
-    <div class="block-item block-bottom">
-      Fundraising deadline:<br>
-      {{membership.giving_project.fundraising_deadline}}
-    </div>
-	</div>
-	<div class="top_block{% if 2active %} active_block{% endif %}" id="gp_block" style="margin-right:13px;" onclick="location.href='/fund/gp';">
-		<div class="block_header">Project progress</div>
-		{% for new in news|slice:":3" %}
-			<div class="block-item">{{new.date|date:"n/d/y" }}: {{new.summary}}</div>
-		{% endfor %}
-	</div>
-	<div class="top_block{% if 3active %} active_block{% endif %}" id="scoring_block" onclick="location.href='/fund/scoring';">
-		<div class="block_header">Grants</div>
-		<div class="block-item block-bottom">Grants are not available yet.</div>
-	</div>
-</div>
+<div id="block_container"><div class="top_block{%if 1active %} active_block{% endif %}" id="personal_block" style="margin-right:14px;" onclick="location.href='/fund';">
+    <div class="block_header">Your fundraising</div>
+    {% for step in steps|slice:"2" %}<div class="block-item">{{step.date|date:"n/d/y"}} {{step.donor.firstname}}<br>{{step.description}}</div>{% endfor %}
+    <div class="block-item block-bottom">Fundraising deadline:<br>{{membership.giving_project.fundraising_deadline}}</div>
+  </div>
+  <div class="top_block{% if 2active %} active_block{% endif %}" id="gp_block" style="margin-right:13px;" onclick="location.href='/fund/gp';">
+    <div class="block_header">Project progress</div>
+    {% for new in news|slice:":3" %}<div class="block-item">{{new.date|date:"n/d/y" }}: {{new.summary}}</div>{% endfor %}
+  </div>
+  <div class="top_block{% if 3active %} active_block{% endif %}" id="scoring_block" onclick="location.href='/fund/scoring';">
+    <div class="block_header">Grants</div>
+    <div class="block-item block-bottom">Grants are not available yet.</div>
+  </div></div>
 <div id="blockline_container">
   <div class = "{%if 1active %} active_line{% endif %}" style="width:102px;height:100%;float:left;"></div>
   <div class = "{%if 2active %} active_line{% endif %}" style="width:218px;height:100%;float:left;"></div>
