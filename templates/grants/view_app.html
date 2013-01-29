@@ -46,7 +46,10 @@ Submitted {{app.submission_time}}</div>
 {{app.narrative4}}<br><br>
 <div class="label">{{form.narrative5.label|safe}}</div><br>
 {{app.narrative5}}<br><br>
-
+<div class="label">{{form.collab_ref1_name.help_text}}</div><br>
+{{app.collab_ref1_name}}, {{app.collab_ref1_org}}<br><br>
+<div class="label">{{form.narrative5.label|safe}}</div><br>
+{{app.narrative5}}<br><br>
 <h3>Files</h3>
 {%if app.budget %}
 	<b>Budget</b>: <a href="{{base_url}}grants/download/{{app.pk}}/budget">View</a><br>
