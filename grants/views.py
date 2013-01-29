@@ -37,7 +37,7 @@ def OrgLogin(request):
   register = RegisterForm()
   return render(request, 'grants/org_login.html', {'form':form, 'register':register, 'printout':error_msg})
 
-def OrgRegister(request): #update - uses old try/catch instead of filters
+def OrgRegister(request):
   error_msg=''
   if request.method=='POST':
     register = RegisterForm(request.POST)
@@ -67,8 +67,8 @@ def OrgRegister(request): #update - uses old try/catch instead of filters
             error_msg='Your account is not active.  Please contact an administrator.'
             logging.error('Inactive acct right after registration, account: ' + username_email)
         else:
-          logging.error('Password not working right after registration, account:  ' + username_email)
-          error_msg="Your password was incorrect.  Try again."
+          logging.error('Password not working at registration, account:  ' + username_email)
+          error_msg='Your password was incorrect.  <a href="/org/support#register-password">More info</a>.'
   else:
     register = RegisterForm()
   form = LoginForm()

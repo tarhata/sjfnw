@@ -31,7 +31,7 @@
 			</td>
 			<td style="padding-left:10px;padding-right:10px">
 			REGISTER<br>
-				{%if rprintout%}<ul class="errorlist">{{rprintout}}</ul>{%endif%}
+				{%if rprintout%}<ul class="errorlist">{{rprintout|safe}}</ul>{%endif%}
 				<form method="post" action="/org/register/">
 					<table>
 						<tr>
