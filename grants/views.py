@@ -138,7 +138,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     dict = json.dumps(post_data)
     saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = grantee, grant_cycle=cycle)
     saved.contents = dict
-    saved.file1 = request.FILES['budget']
+    saved.file1 = request.FILES.get('budget')
     saved.save()
     mod = saved.modified
     if form.is_valid():
@@ -186,7 +186,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     dict['grant_cycle'] = cycle
     dict['screening_status'] = 10
     form = models.GrantApplicationForm(initial=dict)
-    files = {'budget': saved.file1}
+  files = {'budget': saved.file1}
   #file upload prep
   #view_url = reverse('grants.views.Apply', args=(cycle_id,)) #current url
   #upload_url, blah = prepare_upload(request, view_url)
