@@ -232,41 +232,99 @@ $(document).ready(function() {
   <h4>Narrative</h4>
 
 	Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan.  	Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process.
-
-	<div class="narrative_q">1. {{form.narrative1.label|safe}}
+	{% autoescape off %}
+	<div class="narrative_q">1. {{form.narrative1.label}}
 	{{form.narrative1.errors}}{{form.narrative1}}
 	<span class="char_counter" id="narrative1_counter">{{limits.1}}</span></div>
 
-	<div class="narrative_q">2. {{form.narrative2.label|safe}}
+	<div class="narrative_q">2. {{form.narrative2.label}}
 	{{form.narrative2.errors}}{{form.narrative2}}
 	<span class="char_counter" id="narrative2_counter">{{limits.2}}</span></div>
 
-	<div class="narrative_q">3. {{form.narrative3.label|safe}}
+	<div class="narrative_q">3. {{form.narrative3.label}}
 	{{form.narrative3.errors}}{{form.narrative3}}
 	<span class="char_counter" id="narrative3_counter">{{limits.3}}</span></div>
 
-	<div class="narrative_q">4. {{form.narrative4.label|safe}}
+	<div class="narrative_q">4. {{form.narrative4.label}}
 	{{form.narrative4.errors}}{{form.narrative4}}
 	<span class="char_counter" id="narrative4_counter">{{limits.4}}</span></div>
 
-	<div class="narrative_q">5. {{form.narrative5.label|safe}}
+	<div class="narrative_q">5. {{form.narrative5.label}}
 	{{form.narrative5.errors}}{{form.narrative5}}
 	<span class="char_counter" id="narrative5_counter">{{limits.5}}</span>
 	<table><tr>
 	<td colspan="4">{{form.collab_ref1_name.help_text}}</td>
-	</tr>
-	<td>{{form.collab_ref1_name.label}}</td><td>{{form.collab_ref1_org.label}}</td><td>{{form.collabref1_phone.label}}</td><td>{{form.collabref1_email.label}}</td>
 	</tr><tr>
-	<td>{{form.collab_ref1_name.errors}}</td><td>{{form.collab_ref1_org.errors}}</td><td>{{form.collab_ref1_phone.errors}}</td><td>{{form.collab_ref1_email.errors}}</td>
+	<td>{{form.collab_ref1_name.label}}</td>
+	<td>{{form.collab_ref1_org.label}}</td>
+	<td>{{form.collab_ref1_phone.label}}</td>
+	<td>{{form.collab_ref1_email.label}}</td>
 	</tr><tr>
-	<td>{{form.collab_ref1_name}}</td><td>{{form.collab_ref1_org}}</td><td>{{form.collab_ref1_phone}}</td><td>{{form.collab_ref1_email}}</td>
+	<td>{{form.collab_ref1_name.errors}}</td>
+	<td>{{form.collab_ref1_org.errors}}</td>
+	<td>{{form.collab_ref1_phone.errors}}</td>
+	<td>{{form.collab_ref1_email.errors}}</td>
+	</tr><tr>
+	<td>{{form.collab_ref1_name}}</td>
+	<td>{{form.collab_ref1_org}}</td>
+	<td>{{form.collab_ref1_phone}}</td>
+	<td>{{form.collab_ref1_email}}</td>
+	</tr><tr>
+	<td>{{form.collab_ref2_name.label}}</td>
+	<td>{{form.collab_ref2_org.label}}</td>
+	<td>{{form.collab_ref2_phone.label}}</td>
+	<td>{{form.collab_ref2_email.label}}</td>
+	</tr><tr>
+	<td>{{form.collab_ref2_name.errors}}</td>
+	<td>{{form.collab_ref2_org.errors}}</td>
+	<td>{{form.collab_ref2_phone.errors}}</td>
+	<td>{{form.collab_ref2_email.errors}}</td>
+	</tr><tr>
+	<td>{{form.collab_ref2_name}}</td>
+	<td>{{form.collab_ref2_org}}</td>
+	<td>{{form.collab_ref2_phone}}</td>
+	<td>{{form.collab_ref2_email}}</td>
 	</tr></table>
 	</div>
 	
-	<div class="narrative_q">6. {{form.narrative6.label|safe}}
+	<div class="narrative_q">6. {{form.narrative6.label}}
 	{{form.narrative6.errors}}{{form.narrative6}}
-	<span class="char_counter" id="narrative6_counter">{{limits.6}}</span></div>
-
+	<span class="char_counter" id="narrative6_counter">{{limits.6}}</span>
+	<table><tr>
+	<td colspan="4">{{form.racial_justice_ref1_name.help_text}}</td>
+	</tr><tr>
+	<td>{{form.racial_justice_ref1_name.label}}</td>
+	<td>{{form.racial_justice_ref1_org.label}}</td>
+	<td>{{form.racial_justice_ref1_phone.label}}</td>
+	<td>{{form.racial_justice_ref1_email.label}}</td>
+	</tr><tr>
+	<td>{{form.racial_justice_ref1_name.errors}}</td>
+	<td>{{form.racial_justice_ref1_org.errors}}</td>
+	<td>{{form.racial_justice_ref1_phone.errors}}</td>
+	<td>{{form.racial_justice_ref1_email.errors}}</td>
+	</tr><tr>
+	<td>{{form.racial_justice_ref1_name}}</td>
+	<td>{{form.racial_justice_ref1_org}}</td>
+	<td>{{form.racial_justice_ref1_phone}}</td>
+	<td>{{form.racial_justice_ref1_email}}</td>
+	</tr><tr>
+	<td>{{form.racial_justice_ref2_name.label}}</td>
+	<td>{{form.racial_justice_ref2_org.label}}</td>
+	<td>{{form.racial_justice_ref2_phone.label}}</td>
+	<td>{{form.racial_justice_ref2_email.label}}</td>
+	</tr><tr>
+	<td>{{form.racial_justice_ref2_name.errors}}</td>
+	<td>{{form.racial_justice_ref2_org.errors}}</td>
+	<td>{{form.racial_justice_ref2_phone.errors}}</td>
+	<td>{{form.racial_justice_ref2_email.errors}}</td>
+	</tr><tr>
+	<td>{{form.racial_justice_ref2_name}}</td>
+	<td>{{form.racial_justice_ref2_org}}</td>
+	<td>{{form.racial_justice_ref2_phone}}</td>
+	<td>{{form.racial_justice_ref2_email}}</td>
+	</tr></table>
+	</div>
+	{% endautoescape %}
 	<h4>File uploads</h4>
 	Note: Files are not autosaved.<br><br>
   <table>
