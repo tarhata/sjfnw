@@ -42,6 +42,11 @@ div.label {
 	font-weight:bold;
 }
 
+div.form_error {
+  font-style:italic;
+	color:red;
+}
+
 table#application_form {
 	width:100%;
 }

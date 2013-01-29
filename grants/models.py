@@ -252,11 +252,11 @@ class GrantApplicationForm(ModelForm):
     phone = cleaned_data.get('collab_ref1_phone')
     email = cleaned_data.get('collab_ref1_email')
     if not phone and not email:
-       self._errors["collab_ref1_phone"] = 'Enter a phone number or email.'
+       self._errors["collab_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
     phone = cleaned_data.get('collab_ref2_phone')
     email = cleaned_data.get('collab_ref2_email')
     if not phone and not email:
-       self._errors["collab_ref2_phone"] = 'Enter a phone number or email.'
+       self._errors["collab_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
     name = cleaned_data.get('racial_justice_ref1_name')
     org = cleaned_data.get('racial_justice_ref1_org')
     phone = cleaned_data.get('racial_justice_ref1_phone')
@@ -265,11 +265,11 @@ class GrantApplicationForm(ModelForm):
       #require whole set
       #not removing from cleaned_data
       if not name:
-        self._errors["racial_justice_ref1_name"] = 'Enter a contact person.'
+        self._errors["racial_justice_ref1_name"] = '<div class="form_error">Enter a contact person.</div>'
       if not org:
-        self._errors["racial_justice_ref1_org"] = 'Enter the organization name.'
+        self._errors["racial_justice_ref1_org"] = '<div class="form_error">Enter the organization name.</div>'
       if not phone and not email:
-        self._errors["racial_justice_ref1_phone"] = 'Enter a phone number or email.'
+        self._errors["racial_justice_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
     name = cleaned_data.get('racial_justice_ref2_name')
     org = cleaned_data.get('racial_justice_ref2_org')
     phone = cleaned_data.get('racial_justice_ref2_phone')
@@ -278,11 +278,11 @@ class GrantApplicationForm(ModelForm):
       #require whole set
       #not removing from cleaned_data
       if not name:
-        self._errors["racial_justice_ref2_name"] = 'Enter a contact person.'
+        self._errors["racial_justice_ref2_name"] = '<div class="form_error">Enter a contact person.</div>'
       if not org:
-        self._errors["racial_justice_ref2_org"] = 'Enter the organization name.'
+        self._errors["racial_justice_ref2_org"] = '<div class="form_error">Enter the organization name.</div>'
       if not phone and not email:
-        self._errors["racial_justice_ref2_phone"] = 'Enter a phone number or email.'    
+        self._errors["racial_justice_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'    
   
     return cleaned_data
 
