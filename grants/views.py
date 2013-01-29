@@ -169,7 +169,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       logging.info("Application created; confirmation email sent to " + to)
       #delete json obj
       saved.delete()
-      return redirect('/org/submitted.html')
+      return redirect('/org/submitted')
     else:
       logging.info("Application form invalid")
       

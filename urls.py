@@ -28,40 +28,40 @@ urlpatterns = patterns('',
     (r'^logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/org'}),
 
     #reset password
-    (r'^org/reset$', 'django.contrib.auth.views.password_reset', {'template_name':'grants/reset.html', 'from_email':settings.DEFAULT_FROM_EMAIL, 'email_template_name':'grants/password_reset_email.html'}),
-    (r'^org/reset-sent', 'django.contrib.auth.views.password_reset_done', {'template_name':'grants/password_reset_done.html'}),
+    (r'^org/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'grants/reset.html', 'from_email':settings.DEFAULT_FROM_EMAIL, 'email_template_name':'grants/password_reset_email.html'}),
+    (r'^org/reset-sent/?', 'django.contrib.auth.views.password_reset_done', {'template_name':'grants/password_reset_done.html'}),
     (r'^org/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'grants/password_reset_confirm.html'}),
-    (r'^org/reset-complete', 'django.contrib.auth.views.password_reset_complete', {'template_name':'grants/password_reset_complete.html'}),
+    (r'^org/reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'grants/password_reset_complete.html'}),
      
      #main pages
     (r'^org/?$','grants.views.OrgHome'),
-    (r'^org/support', 'grants.views.OrgSupport'),
+    (r'^org/support/?', 'grants.views.OrgSupport'),
     
     #application
     (r'^apply/(?P<cycle_id>\d+)/?$','grants.views.Apply'),
     (r'^apply/(?P<cycle_id>\d+)/autosave/?$','grants.views.AutoSaveApp'),
     (r'^apply/(?P<cycle_id>\d+)/upload-file/?$','grants.views.AutoSaveFile'),
-    (r'^apply/(?P<cycle_id>\d+)/DELETE$', 'grants.views.DiscardDraft'),
+    (r'^apply/(?P<cycle_id>\d+)/DELET/?E$', 'grants.views.DiscardDraft'),
     (r'^get-upload-url/(?P<cycle_id>\d+)/?$','grants.views.RefreshUploadUrl'),
-    (r'^org/submitted.html', direct_to_template, {'template': 'grants/submitted.html'}),
+    (r'^org/submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
     
     #cron
-    (r'^mail/drafts', 'grants.views.DraftWarning'),
+    (r'^mail/drafts/?', 'grants.views.DraftWarning'),
 
 ## GRANTS - APPLICATION VIEWS ##
 
     (r'^grants/view/(?P<app_id>\d+)/?$', 'grants.views.ViewApplication'),
-    (r'^grants/download/(?P<app_id>\d+)/(?P<file_type>.*)$', 'grants.views.ViewFile'),
+    (r'^grants/download/(?P<app_id>\d+)/(?P<file_type>.*)/?$', 'grants.views.ViewFile'),
     
 ## GRANTS - REPORTING ##
   
     (r'^grants/grant_application/?$', 'grants.search.search'),
-    (r'^grants/grant_application/search', 'grants.search.search'),
-    (r'^grants/grant_application/results', 'grants.search.results'),
+    (r'^grants/grant_application/search/?', 'grants.search.search'),
+    (r'^grants/grant_application/results/?', 'grants.search.results'),
     (r'^grants/grant_application/(?P<grant_application_id>\d+)/?$', 'grants.search.show'),
 
     # These endpoints return the serialized json form of these models
-    (r'^grants/api/grant_application/results',
+    (r'^grants/api/grant_application/results/?',
             'grants.search.api_grant_applications'),
 
     (r'^grants/api/grant_application/(?P<grant_application_id>\d+)/?$',
@@ -82,10 +82,10 @@ urlpatterns = patterns('',
 
 ## SCORING ##
 
-    (r'^scoring/projectlist/', 'scoring.views.all_giving_projects'),
+    (r'^scoring/projectlist/?', 'scoring.views.all_giving_projects'),
     (r'^scoring/projectsummary/(?P<project_id>\d+)/?$', 'scoring.views.specific_project_admin'),
     (r'^scoring/reading/(?P<app_id>\d+)/?$', 'scoring.views.read_grant'),
-    (r'scoring/save$', 'scoring.views.Save'),
+    (r'scoring/save/?$', 'scoring.views.Save'),
     # (r'^fund/scoring', 'fund.views.ScoringList') --located under main pages
 
 ## FUNDRAISING ##
@@ -97,19 +97,19 @@ urlpatterns = patterns('',
     (r'^fund/registered/?$', 'fund.views.Registered'),
     
     #reset password
-    (r'^fund/reset$', 'django.contrib.auth.views.password_reset', {'template_name':'fund/reset.html', 'from_email':settings.DEFAULT_FROM_EMAIL, 'email_template_name':'fund/password_reset_email.html', 'subject_template_name':'registration/password_reset_subject.txt'}),
-    (r'^fund/reset-sent', 'django.contrib.auth.views.password_reset_done', {'template_name':'fund/password_reset_done.html'}),
+    (r'^fund/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'fund/reset.html', 'from_email':settings.DEFAULT_FROM_EMAIL, 'email_template_name':'fund/password_reset_email.html', 'subject_template_name':'registration/password_reset_subject.txt'}),
+    (r'^fund/reset-sent/?', 'django.contrib.auth.views.password_reset_done', {'template_name':'fund/password_reset_done.html'}),
     (r'^fund/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'fund/password_reset_confirm.html'}),
-    (r'^fund/reset-complete', 'django.contrib.auth.views.password_reset_complete', {'template_name':'fund/password_reset_complete.html'}),
+    (r'^fund/reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'fund/password_reset_complete.html'}),
     
     #manage memberships
-    (r'^fund/projects', 'fund.views.Projects'),
-    (r'^fund/set-current/(?P<ship_id>\d+)/', 'fund.views.SetCurrent'),
+    (r'^fund/projects/?', 'fund.views.Projects'),
+    (r'^fund/set-current/(?P<ship_id>\d+)/?', 'fund.views.SetCurrent'),
     
     #main pages
     (r'^fund/?$', 'fund.views.Home'),
-    (r'^fund/gp', 'fund.views.ProjectPage'),
-    (r'^fund/scoring', 'fund.views.ScoringList'),
+    (r'^fund/gp/?', 'fund.views.ProjectPage'),
+    (r'^fund/scoring/?', 'fund.views.ScoringList'),
     
     #forms - contacts
     (r'^fund/addmult', 'fund.views.AddMult'),
@@ -124,10 +124,10 @@ urlpatterns = patterns('',
     (r'^fund/(?P<donor_id>\d+)/(?P<step_id>\d+)/done','fund.views.DoneStep'),
     
     #error/help pages
-    (r'^fund/not-member', 'fund.views.NotMember'),
-    (r'^fund/pending$', 'fund.views.NotApproved'),
-    (r'^fund/support', 'fund.views.Support'),
-    (r'^fund/blocked$', 'fund.views.Blocked'),
+    (r'^fund/not-member/?', 'fund.views.NotMember'),
+    (r'^fund/pending/?$', 'fund.views.NotApproved'),
+    (r'^fund/support/?', 'fund.views.Support'),
+    (r'^fund/blocked/?$', 'fund.views.Blocked'),
     
     #cron
     (r'^mail/overdue-step', 'fund.views.EmailOverdue'),
