@@ -7,6 +7,7 @@ import grants, fund
 from django.conf import settings
 
 handler404 = 'views.page_not_found'
+handler500 = 'views.server_error'
 
 urlpatterns = patterns('',
 
