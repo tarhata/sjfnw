@@ -90,7 +90,8 @@ $(document).ready(function() {
   
   <div id="last_saved">Last saved: <div id="autosaved">{%if saved %}{{saved|date:"F j, g:ia"}}{%else%}never{% endif %}</div></div>
 	</div>
-
+  
+  {% autoescape off %}
   <table id="application_form">
     <tr>
       <td><h4>Contact information</h4></td> <!-- Contact information -->
@@ -232,8 +233,8 @@ $(document).ready(function() {
   <h4>Narrative</h4>
 
 	Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan.  	Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process.
-	{% autoescape off %}
-	<div class="narrative_q">1. {{form.narrative1.label}}
+	
+	<div class="narrative_q">1. {{form.narrative1.label}}<br><br>
 	{{form.narrative1.errors}}{{form.narrative1}}
 	<span class="char_counter" id="narrative1_counter">{{limits.1}}</span></div>
 
@@ -252,9 +253,9 @@ $(document).ready(function() {
 	<div class="narrative_q">5. {{form.narrative5.label}}
 	{{form.narrative5.errors}}{{form.narrative5}}
 	<span class="char_counter" id="narrative5_counter">{{limits.5}}</span>
-	<table><tr>
+	<table class="narrative_references"><tr>
 	<td colspan="4">{{form.collab_ref1_name.help_text}}</td>
-	</tr><tr>
+	</tr><tr class="main_row">
 	<td>{{form.collab_ref1_name.label}}</td>
 	<td>{{form.collab_ref1_org.label}}</td>
 	<td>{{form.collab_ref1_phone.label}}</td>
@@ -269,7 +270,7 @@ $(document).ready(function() {
 	<td>{{form.collab_ref1_org}}</td>
 	<td>{{form.collab_ref1_phone}}</td>
 	<td>{{form.collab_ref1_email}}</td>
-	</tr><tr>
+	</tr><tr class="main_row">
 	<td>{{form.collab_ref2_name.label}}</td>
 	<td>{{form.collab_ref2_org.label}}</td>
 	<td>{{form.collab_ref2_phone.label}}</td>
@@ -290,9 +291,9 @@ $(document).ready(function() {
 	<div class="narrative_q">6. {{form.narrative6.label}}
 	{{form.narrative6.errors}}{{form.narrative6}}
 	<span class="char_counter" id="narrative6_counter">{{limits.6}}</span>
-	<table><tr>
+	<table class="narrative_references"><tr>
 	<td colspan="4">{{form.racial_justice_ref1_name.help_text}}</td>
-	</tr><tr>
+	</tr><tr class="main_row">
 	<td>{{form.racial_justice_ref1_name.label}}</td>
 	<td>{{form.racial_justice_ref1_org.label}}</td>
 	<td>{{form.racial_justice_ref1_phone.label}}</td>
@@ -307,7 +308,7 @@ $(document).ready(function() {
 	<td>{{form.racial_justice_ref1_org}}</td>
 	<td>{{form.racial_justice_ref1_phone}}</td>
 	<td>{{form.racial_justice_ref1_email}}</td>
-	</tr><tr>
+	</tr><tr class="main_row">
 	<td>{{form.racial_justice_ref2_name.label}}</td>
 	<td>{{form.racial_justice_ref2_org.label}}</td>
 	<td>{{form.racial_justice_ref2_phone.label}}</td>
@@ -324,26 +325,41 @@ $(document).ready(function() {
 	<td>{{form.racial_justice_ref2_email}}</td>
 	</tr></table>
 	</div>
-	{% endautoescape %}
 	<h4>File uploads</h4>
 	Note: Files are not autosaved.<br><br>
   <table>
-		<tr>
-			<td>Budget: {{files.budget}}</td>
-			<td>{{form.budget}}</td>
+    <tr>
+			<td></td>
 			<td>{{form.budget.errors}}</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Budget:</td>
+			<td>{{form.budget}}</td>
+			<td>{% if files.budget %}<a href="/grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% endif %}</td>
+		</tr>
+    <tr>
+			<td></td>
+			<td>{{form.demographics.errors}}</td>
+			<td></td>
 		</tr>
 		<tr>
 			<td>Demographics:</td>
 			<td>{{form.demographics}}</td>
-			<td>{{form.demographics.errors}}</td>
+			<td>{{files.demographics}}</td>
+		</tr>
+    <tr>
+			<td></td>
+			<td>{{form.funding_sources.errors}}</td>
+			<td></td>
 		</tr>
 		<tr>
 			<td>Funding sources:</td>
 			<td>{{form.funding_sources}}</td>
-			<td>{{form.funding_sources.errors}}</td>
+			<td>{{files.funding_sources}}</td>
 		</tr>
 	</table>
+  {% endautoescape %}
   <!--
   
   <h4>Fiscal sponsor letter (if applicable)</h4>

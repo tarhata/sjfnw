@@ -89,8 +89,8 @@ ul.errorlist, ul.errorlist li {
 	font-style:italic;
 	color:red;
 	margin:0 0 0 0;
-	vertical-align:bottom;
-	padding:2px;
+	/* vertical-align:bottom; */
+	padding:0px;
 }
 
 /* support */

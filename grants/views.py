@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore
 from grants.forms import *
-import fund, models, datetime, logging, json, re
+import fund, models, datetime, logging, json, re, utils
 
 #ORG VIEWS
 def OrgLogin(request):
@@ -138,7 +138,9 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     dict = json.dumps(post_data)
     saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = grantee, grant_cycle=cycle)
     saved.contents = dict
-    saved.file1 = request.FILES.get('budget')
+    if request.FILES.get('budget'):
+      logging.info('Saving draft budget file: ' + str(request.FILES.get('budget')))
+      saved.budget = request.FILES.get('budget')
     saved.save()
     mod = saved.modified
     if form.is_valid():
@@ -177,7 +179,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     try:
       saved = models.DraftGrantApplication.objects.get(organization=grantee, grant_cycle=cycle)
       dict = json.loads(saved.contents)
-      logging.info(dict)
+      logging.debug('Loading draft: ' + str(dict))
       mod = saved.modified
     except models.DraftGrantApplication.DoesNotExist:
       dict = model_to_dict(grantee)
@@ -186,7 +188,9 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     dict['grant_cycle'] = cycle
     dict['screening_status'] = 10
     form = models.GrantApplicationForm(initial=dict)
-  files = {'budget': saved.file1}
+  budg = str(saved.budget).split('/')[-1] #WILL THROW ERROR IF NOT SAVED
+  logging.info(str(saved.budget).split('/')[-1])
+  files = {'pk': saved.pk, 'budget': budg}
   #file upload prep
   #view_url = reverse('grants.views.Apply', args=(cycle_id,)) #current url
   #upload_url, blah = prepare_upload(request, view_url)
@@ -276,51 +280,17 @@ def ViewFile(request, app_id, file_type):
     logging.warning('Grant app not found')
     raise Http404
   
-  #find the file
-  if file_type == 'budget':
-    file_field = application.budget
-  elif file_type == 'demographics':
-    file_field = application.demographics
-  elif file_type == 'funding':
-    file_field = application.funding_sources
-  else:
-    logging.warning('Unknown file type ' + file_type)
-    raise Http404
-  
-  #filefield stores key that gets us the blobinfo
-  blobinfo_key = str(file_field).split('/', 1)[0]
-  blobinfo = blobstore.BlobReader(blobinfo_key).readlines()
-  #look through the info for the creation time of the blob
-  blobinfo_dict =  dict([l.split(': ', 1) for l in blobinfo if l.strip()])
-  creation_time = blobinfo_dict['X-AppEngine-Upload-Creation'].strip()
-  
-  if not settings.DEBUG: #convert to datetime for live
-    creation_time = datetime.datetime.strptime(creation_time, '%Y-%m-%d %H:%M:%S.%f')
-    creation_time = timezone.make_aware(creation_time, timezone.get_current_timezone())
-  
-  logging.info('Looking for: ' + str(creation_time))
-  
-  #find blob that matches the creation time
-  for b in  blobstore.BlobInfo.all():    
-    c = b.creation
-    if settings.DEBUG: #local - just compare strings
-      if str(timezone.localtime(c)) == creation_time:
-        return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
-    else:
-      c = timezone.make_aware(c, timezone.utc)
-      if timezone.localtime(c) == creation_time:
-        return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
-  logging.info('No match, raising 404')
-  raise Http404
+  return utils.FindBlob(application, file_type)
 
 def ViewDraftFile(request, draft_id, file_type): #FINISH
   #find the application
   try:
-    application = models.GrantApplication.objects.get(pk = app_id)
-  except models.GrantApplication.DoesNotExist:
-    logging.warning('Grant app not found')
-    raise Http404
+    application = models.DraftGrantApplication.objects.get(pk = draft_id)
+  except models.DraftGrantApplication.DoesNotExist:
+    raise Http404('Draft grant app ' + str(draft_id) + ' not found')
 
+  return utils.FindBlob(application, file_type)
+    
 #REPORTING
 
 #Add your views here.  New views should also be added to urls.py under reporting

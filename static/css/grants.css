@@ -65,8 +65,8 @@ input#id_ein {
 	width:100px;
 }
 
-div.formwrapper input, div.formwrapper select {
-	margin-left:8px;
+table span.label {
+	margin-right:8px;
 }
 
 textarea {
@@ -82,6 +82,19 @@ div.info_box {
 div.narrative_q {
   padding-top:2em;
   padding-bottom:2em;
+}
+
+table.narrative_references {
+  padding-top:15px;
+}
+
+table.narrative_references .main_row {
+  height:27px;
+  vertical-align:bottom;
+}
+
+table.narrative_references .label {
+  padding-left:2px;
 }
 
 span.char_counter_ok, span.char_counter_over {
