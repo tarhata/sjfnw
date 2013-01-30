@@ -346,7 +346,7 @@ $(document).ready(function() {
 		<tr>
 			<td>Demographics:</td>
 			<td>{{form.demographics}}</td>
-			<td>{{files.demographics}}</td>
+			<td>{% if files.demographics %}<a href="/grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% endif %}</td>
 		</tr>
     <tr>
 			<td></td>
@@ -356,7 +356,7 @@ $(document).ready(function() {
 		<tr>
 			<td>Funding sources:</td>
 			<td>{{form.funding_sources}}</td>
-			<td>{{files.funding_sources}}</td>
+			<td>{% if files.funding_sources %}<a href="/grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% endif %}</td>
 		</tr>
 	</table>
   {% endautoescape %}

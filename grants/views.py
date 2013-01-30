@@ -88,11 +88,15 @@ def OrgHome(request): # /org
   
   closed = []
   open = []
+  applied = []
   upcoming = []
   for cycle in cycles:
     status = cycle.get_status()
     if status=='open':
-      open.append(cycle)
+      if cycle in submitted:
+        applied.append(cycle)
+      else:
+        open.append(cycle)
     elif status=='closed':
       closed.append(cycle)
     elif status=='upcoming':
@@ -132,17 +136,28 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       value = post_data[key]
       if isinstance(value,(str, unicode)):
           post_data[key] = value.replace('\r', '')
-    form = models.GrantApplicationForm(post_data, request.FILES)
-    logging.info("Application POST, files:" + str(request.FILES))
-    #get or create autosave json, update it **UPDATE**
+    files_data = request.FILES.copy()
+    logging.info('FILES at start: ' + str(files_data))
+    
+    #get or create autosave json, update it from this submission
     dict = json.dumps(post_data)
     saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = grantee, grant_cycle=cycle)
     saved.contents = dict
-    if request.FILES.get('budget'):
-      logging.info('Saving draft budget file: ' + str(request.FILES.get('budget')))
-      saved.budget = request.FILES.get('budget')
+    if files_data.get('budget'): #if new file, use it and save it
+      saved.budget = files_data['budget']
+    elif saved.budget: #use draft file if it exists
+      files_data['budget'] = saved.budget
+    if files_data.get('demographics'):
+      saved.demographics = files_data['demographics']
+    elif saved.demographics:
+      files_data['demographics'] = saved.demographics
+    if files_data.get('funding_sources'):
+      saved.funding_sources = files_data['funding_sources']
+    elif saved.funding_sources:
+      files_data['funding_sources'] = saved.funding_sources
     saved.save()
     mod = saved.modified
+    form = models.GrantApplicationForm(post_data, files_data)
     if form.is_valid():
       logging.info('Application form valid')
       logging.info(request.META['HTTP_REFERER'])
@@ -188,14 +203,24 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
     dict['grant_cycle'] = cycle
     dict['screening_status'] = 10
     form = models.GrantApplicationForm(initial=dict)
-  budg = str(saved.budget).split('/')[-1] #WILL THROW ERROR IF NOT SAVED
-  logging.info(str(saved.budget).split('/')[-1])
-  files = {'pk': saved.pk, 'budget': budg}
-  #file upload prep
-  #view_url = reverse('grants.views.Apply', args=(cycle_id,)) #current url
-  #upload_url, blah = prepare_upload(request, view_url)
+  
+  #get saved files
+  if saved:
+    files = {'pk': saved.pk}
+    name = str(saved.budget).split('/')[-1]
+    files['budget'] = name
+    logging.info('Budget name ' + name)
+    name = str(saved.demographics).split('/')[-1]
+    files['demographics'] = name
+    logging.info('demographics name ' + name)
+    name = str(saved.funding_sources).split('/')[-1]
+    files['funding_sources'] = name
+    logging.info('funding_sources name ' + name)
+    logging.info('Files dict: ' + str(files))
+  else:
+    files = ''
+
   upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
-  #logging.info('Upload prepped, url: ' + upload_url)
   
   return render(request, 'grants/org_app.html',
   {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files}  )
