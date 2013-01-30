@@ -52,17 +52,17 @@ Submitted {{app.submission_time}}</div>
 {{app.narrative5}}<br><br>
 <h3>Files</h3>
 {%if app.budget %}
-	<b>Budget</b>: <a href="{{base_url}}grants/download/{{app.pk}}/budget">View</a><br>
+	<b>Budget</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/budget">View</a><br>
 {%endif%}
 {%if app.demographics%}
-	<b>Demographics</b>: <a href="{{base_url}}grants/download/{{app.pk}}/demographics">View</a><br>
+	<b>Demographics</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/demographics">View</a><br>
 {%endif%}
 {%if app.funding_sources%}
-	<b>Funding sources</b>: <a href="{{base_url}}grants/download/{{app.pk}}/funding">View</a><br>
+	<b>Funding sources</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/funding">View</a><br>
 {%endif%}
 
 {% if app.fiscal_letter %}
-	<b>Fiscal sponsor letter</b>: <a href="{{base_url}}grants/download/{{app.fiscal_letter_name}}">View</a><br>
+	<b>Fiscal sponsor letter</b>: <a href="{{base_url}}grants/view-file/{{app.fiscal_letter_name}}">View</a><br>
 {% endif %}
 
 </div>
