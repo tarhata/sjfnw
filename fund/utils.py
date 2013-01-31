@@ -22,7 +22,7 @@ def UpdateStory(membership_id, time):
   if search:
     story = search[0]
   else:
-    story = models.NewsItem(date = time, membership=membership, summary = membership.member.first_name + 'news!!!')
+    story = models.NewsItem(date = time, membership=membership, summary = '')
   
   #tally today's steps
   steps = models.Step.objects.filter(completed__range=(today_min, today_max)).select_related('donor')
