@@ -4,6 +4,17 @@
 var autosave_timer;
 var upload_url_timer;
 
+var status_texts = { //for ajax error messages
+  400: '400 Bad request',
+  401: '401 Unauthorized',
+  403: '403 Forbidden',
+  404: '404 Not found',
+  408: '408 Request timeout',
+  500: '500 Internal server error',
+  503: '503 Service unavailable',
+  504: '504 Gateway timeout',
+}
+
 function confirmation() { //confirmation window before discarding a draft
 	var conf = confirm("Discard this draft?  It cannot be recovered.")
 	if (conf){
@@ -37,7 +48,15 @@ function autoSave(){
 			document.getElementById('autosaved').innerHTML=da;
 		},
 		error:function(jqXHR, textStatus, errorThrown){
-			document.getElementById('autosaved').innerHTML=textStatus+' '+errorThrown;
+			var errortext = ''
+      if (status_texts[jqXHR.status]) {
+        errortext = status_texts[jqXHR.status]
+      } else if (textStatus=='timeout') {
+        errortext = 'Request timeout'
+      } else {
+        errortext = 'Unknown error'
+      }
+      document.getElementById('autosaved').innerHTML='Error: ' + errortext;
 		},
 	});
 }
@@ -331,12 +350,12 @@ $(document).ready(function() {
     <tr>
 			<td></td>
 			<td>{{form.budget.errors}}</td>
-			<td></td>
+			<td>Uploaded file:</td>
 		</tr>
 		<tr>
 			<td>Budget:</td>
 			<td>{{form.budget}}</td>
-			<td>{% if files.budget %}<a href="/grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% endif %}</td>
+			<td>{% if files.budget %}<a href="/grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% else %}<i>none</i>{% endif %}</td>
 		</tr>
     <tr>
 			<td></td>
@@ -346,7 +365,7 @@ $(document).ready(function() {
 		<tr>
 			<td>Demographics:</td>
 			<td>{{form.demographics}}</td>
-			<td>{% if files.demographics %}<a href="/grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% endif %}</td>
+			<td>{% if files.demographics %}<a href="/grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% else %}<i>none</i>{% endif %}</td>
 		</tr>
     <tr>
 			<td></td>
@@ -356,7 +375,7 @@ $(document).ready(function() {
 		<tr>
 			<td>Funding sources:</td>
 			<td>{{form.funding_sources}}</td>
-			<td>{% if files.funding_sources %}<a href="/grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% endif %}</td>
+			<td>{% if files.funding_sources %}<a href="/grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% else %}<i>none</i>{% endif %}</td>
 		</tr>
 	</table>
   {% endautoescape %}
