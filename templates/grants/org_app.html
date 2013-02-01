@@ -15,13 +15,6 @@ var status_texts = { //for ajax error messages
   504: '504 Gateway timeout',
 }
 
-function confirmation() { //confirmation window before discarding a draft
-	var conf = confirm("Discard this draft?  It cannot be recovered.")
-	if (conf){
-		window.location = "/apply/"+{{cycle.pk}}+"/DELETE"
-	}
-}
-
 function autoSave(){
 	$.ajax({
 		url:"/apply/"+{{cycle.pk}}+"/autosave/",
@@ -345,7 +338,9 @@ $(document).ready(function() {
 	</tr></table>
 	</div>
 	<h4>File uploads</h4>
-	Note: Files are not autosaved.<br><br>
+	<ul><li>Files are not autosaved</li>
+	<li>If an incomplete form is submitted, those files will be saved along with the draft</li>
+	<li>Uploaded files overwrite any previously saved files</li></ul>
   <table>
     <tr>
 			<td></td>
@@ -389,5 +384,4 @@ $(document).ready(function() {
   
   <div align="center"><input type="submit" value="Submit Application" /></div>
 </form>
-<div align="right"><button type="button" onclick="confirmation()">Discard</button></div>
 {% endblock %}
