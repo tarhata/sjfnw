@@ -39,6 +39,7 @@ urlpatterns = patterns('',
     (r'^org/support/?', 'grants.views.OrgSupport'),
     
     #application
+    (r'^apply/?$', 'django.views.generic.simple.redirect_to', {'url':'/org/'}),
     (r'^apply/(?P<cycle_id>\d+)/?$','grants.views.Apply'),
     (r'^apply/(?P<cycle_id>\d+)/autosave/?$','grants.views.AutoSaveApp'),
     (r'^apply/(?P<cycle_id>\d+)/upload-file/?$','grants.views.AutoSaveFile'),
