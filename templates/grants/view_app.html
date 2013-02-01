@@ -1,69 +1,81 @@
 {%extends 'grants/base.html'%}
 {%block content%}
-<div id="fontfree">
-<div align="center">
-<h2>{{app.organization}}</h2>
-Submitted {{app.submission_time}}</div>
-<br>
-{{form.address.label}}: {{app.address}} {{app.city}}, {{app.state}} {{app.zip}}<br>
-{{form.telephone_number.label}}: {{app.telephone_number}},  {{form.fax_number.label}}: {{app.fax_number}}<br>
-{{form.email_address.label}}: {{app.email_address}}<br>
-{{form.website.label}}: {{app.website}}<br>
-{{form.contact_person.help_text}}: {{app.contact_person}}, {{app.contact_person_title}}<br>
-<br>
-{{form.status.label}}: {{app.status}}<br>
-{{form.ein.label}}: {{app.ein}}<br>
-{{form.founded.label}}: {{app.founded}}<br>
-<br>
-{{form.amount_requested.label}}: {{app.amount_requested}}<br>
-{{form.support_type.label}}: {{app.support_type}}<br>
-{{form.grant_period.label}}: {{app.grant_period}}<br>
-{{form.start_year.label}}: {{app.start_year}}<br>
-{{form.budget_last.label}}: ${{app.budget_last}}<br>
-{{form.budget_current.label}}: ${{app.budget_current}}<br>
-<br>
-{{form.project_title.label}}: {{app.project_title|default:"N/A"}} <br>
-{%if app.project_budget%}{{form.project_budget.label}}: ${{app.project_budget}}{%endif%}
-<br>
-{{form.mission.label}}: {{app.mission}}<br>
-{{form.grant_request.label}}: {{app.grant_request}}<br>
-<br>
-{{form.fiscal_org.label}}: {{app.fiscal_org|default:"N/A"}}<br>
-{%if app.fiscal_org%}
-{{form.fiscal_person.label}}: {{app.fiscal_person}}<br>
-{{form.fiscal_telephone.label}}: {{app.fiscal_telephone}}<br>
-{{form.fiscal_email.label}}: {{app.fiscal_email}}<br>
-{{form.fiscal_address.label}}: {{app.fiscal_address}}<br>
-{%endif%}
-<h3>Narrative</h3>
-{{form.narrative1.label|safe}}<br>
-{{app.narrative1}}<br><br>
-{{form.narrative2.label|safe}}<br>
-{{app.narrative2}}<br><br>
-{{form.narrative3.label|safe}}<br>
-{{app.narrative3}}<br><br>
-{{form.narrative4.label|safe}}<br>
-{{app.narrative4}}<br><br>
-{{form.narrative5.label|safe}}<br>
-{{app.narrative5}}<br><br>
-{{form.collab_ref1_name.help_text}}<br>
-{{app.collab_ref1_name}}, {{app.collab_ref1_org}}<br><br>
-{{form.narrative5.label|safe}}<br>
-{{app.narrative5}}<br><br>
-<h3>Files</h3>
-{%if app.budget %}
-<b>Budget</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/budget">View</a><br>
-{%endif%}
-{%if app.demographics%}
-<b>Demographics</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/demographics">View</a><br>
-{%endif%}
-{%if app.funding_sources%}
-<b>Funding sources</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/funding">View</a><br>
-{%endif%}
+{% autoescape off %}
+<div class="formwrapper">
+  <div align="center">
+    <h2>{{app.organization}} - {{app.grant_cycle}}</h2>
+    Submitted {{app.submission_time}}
+  </div>
+  <h4>Contact information</h4><!-- Contact information -->
+  <p>{{form.address.label}}: {{app.address}} {{app.city}}, {{app.state}} {{app.zip}}</p>
+  <p>{{form.telephone_number.label}}: {{app.telephone_number}},<p>{{form.fax_number.label}}: {{app.fax_number}}</p>
+  <p>{{form.email_address.label}}: {{app.email_address}}</p>
+  <p>{{form.website.label}}: {{app.website}}</p>
+  <p>{{form.contact_person.help_text}}: {{app.contact_person}}, {{app.contact_person_title}}</p>
+  <h4>Organization information</h4><!-- Organization information -->
+  <p>{{form.status.label}}: {{app.status}}</p>
+  <p>{{form.ein.label}}: {{app.ein}}</p>
+  <p>{{form.founded.label}}: {{app.founded}}</p>
+  <h4>Grant and budget information</h4><!-- Grant and budget information -->
+  <p>{{form.contact_person.help_text}}: {{app.contact_person}}, {{app.contact_person_title}}
+  <p>{{form.amount_requested.label}}: {{app.amount_requested}}</p>
+  <p>{{form.support_type.label}}: {{app.support_type}}</p>
+  <p>{{form.grant_period.label}}: {{app.grant_period}}</p>
+  <p>{{form.start_year.label}}: {{app.start_year}}</p>
+  <p>{{form.budget_last.label}}: ${{app.budget_last}}</p>
+  <p>{{form.budget_current.label}}: ${{app.budget_current}}</p>
+  <p>{{form.project_title.label}}: {{app.project_title|default:"N/A"}}</p>
+  {%if app.project_budget%}<p>{{form.project_budget.label}}: ${{app.project_budget}}</p>{%endif%}
+  <p>{{form.mission.label}}: {{app.mission}}</p>
+  <p>{{form.grant_request.label}}: {{app.grant_request}}</p>
+  {%if app.fiscal_org%}
+    <h4>Fiscal sponsor information (if applicable)</h4><!-- Fiscal sponsor info -->
+    <p>{{form.fiscal_org.label}}: {{app.fiscal_org|default:"N/A"}}</p>
+    <p>{{form.fiscal_person.label}}: {{app.fiscal_person}}</p>
+    <p>{{form.fiscal_telephone.label}}: {{app.fiscal_telephone}}</p>
+    <p>{{form.fiscal_email.label}}: {{app.fiscal_email}}</p>
+    <p>{{form.fiscal_address.label}}: {{app.fiscal_address}}</p>
+  {% endif %}
+  
+  <h3>Narrative</h3><!-- Narrative -->
+  
+  <p>{{form.narrative1.label}}</p>
+  <p>{{app.narrative1}}</p>
+  <p>{{form.narrative2.label}}</p>
+  <p>{{app.narrative2}}</p>
+  <p>{{form.narrative3.label}}</p>
+  <p>{{app.narrative3}}</p>
+  <p>{{form.narrative4.label}}</p>
+  <p>{{app.narrative4}}</p>
+  <p>{{form.narrative5.label}}</p>
+  <p>{{app.narrative5}}</p>
+  <p>{{form.collab_ref1_name.help_text}}</p>
+  <p>1. {{app.collab_ref1_name}}, {{app.collab_ref1_org}}. {{app.collab_ref1_phone|add:" "}}{{app.collab_ref1_email}}</p>
+  <p>2. {{app.collab_ref2_name}}, {{app.collab_ref2_org}}. {{app.collab_ref2_phone|add:" "}}{{app.collab_ref2_email}}</p>
+  <p>{{form.narrative6.label}}</p>
+  <p>{{app.narrative6}}</p>
+  <p>{{form.racial_justice_ref1_name.help_text}}
+  {% if app.racial_justice_ref1_org %}
+    <p>1. {{app.racial_justice_ref1_name}}, {{app.racial_justice_ref1_org}}. {{app.racial_justice_ref1_phone|add:" "}}{{app.racial_justice_ref1_email}}</p>
+    {% if app.racial_justice_ref2_name %}
+      <p>2. {{app.racial_justice_ref2_name}}, {{app.racial_justice_ref2_org}}. {{app.racial_justice_ref2_phone|add:" "}}{{app.racial_justice_ref2_email}}</p>
+    {% endif %}
+  {% else %}N/A{% endif %}
+  <h3>Files</h3>
+  {%if app.budget %}
+  <b>Budget</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/budget">View</a></p>
+  {%endif%}
+  {%if app.demographics%}
+  <b>Demographics</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/demographics">View</a></p>
+  {%endif%}
+  {%if app.funding_sources%}
+  <b>Funding sources</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/funding">View</a></p>
+  {%endif%}
 
-{% if app.fiscal_letter %}
-<b>Fiscal sponsor letter</b>: <a href="{{base_url}}grants/view-file/{{app.fiscal_letter_name}}">View</a><br>
-{% endif %}
+  {% if app.fiscal_letter %}
+  <b>Fiscal sponsor letter</b>: <a href="{{base_url}}grants/view-file/{{app.fiscal_letter_name}}">View</a></p>
+  {% endif %}
 
 </div>
+{% endautoescape %}
 {%endblock%}

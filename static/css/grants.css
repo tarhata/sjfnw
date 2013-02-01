@@ -27,6 +27,8 @@ div.formwrapper {
 	width:725px;
 	/*border:1px solid;*/
 	border-color:#CCC;
+  word-wrap: break-word;
+  line-spacing:120%;
 }
 
 div#autosaved {
