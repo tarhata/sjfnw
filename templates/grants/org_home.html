@@ -17,16 +17,18 @@
 
 <h4>Currently accepting applications</h4>
 
-<ul>{% if open or applied %}
-{% for ope in open %}
-<li>{{ope}} - <a href="{% url grants.views.Apply ope.pk %}">open until {{ope.close|date:"m/d/y"}}</a></li>
-{% endfor %}
-{% for appl in applied %}
-<li>{{appl}} - application submitted</li>
-{% endfor %}
+<ul>
+{% if open or applied %}
+  {% for ope in open %}
+    <li>{{ope}} - <a href="{% url grants.views.Apply ope.pk %}">open until {{ope.close|date:"m/d/y"}}</a></li>
+  {% endfor %}
+  {% for appl in applied %}
+    <li>{{appl}} - application submitted</li>
+  {% endfor %}
 {% else %}
-<li>No grants are being accepted at this time.</li>
-{% endif %}</ul>
+  <li>No grants are being accepted at this time.</li>
+{% endif %}
+</ul>
 
 <h4>Upcoming grant cycles</h4>
 
@@ -39,9 +41,9 @@
 <h4>Recent grant cycles</h4>
 
 <ul>{%for cl in closed%}
-<li>{{cl}} - open {{cl.open|date:"m/d/y"}} to {{cl.close|date:"m/d/y"}}
+  <li>{{cl}} - open {{cl.open|date:"m/d/y"}} to {{cl.close|date:"m/d/y"}}
 {% empty %}
-<li>No grant cycles closed in the last 6 months.</li>
+  <li>No grant cycles closed in the last 6 months.</li>
 {% endfor %}</ul>
 
 {% endblock %}
