@@ -198,6 +198,7 @@ def Apply(request, cycle_id): # /apply/[cycle_id]
       mod = saved.modified
     except models.DraftGrantApplication.DoesNotExist:
       dict = model_to_dict(grantee)
+      saved = False
       mod = ''
     dict['organization'] = grantee
     dict['grant_cycle'] = cycle
