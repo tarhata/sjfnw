@@ -3,3 +3,8 @@
   margin-bottom:10px;
   color:#333;
 }
+
+p.help {
+  font-size:12px !important;
+  margin-left:5px;
+}

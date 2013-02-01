@@ -60,14 +60,8 @@ class MembershipInline(admin.TabularInline):
   model = Membership
   formset = fund.forms.MembershipInlineFormset
   extra = 0
-  fieldsets = (None, {
-    'classes': ('collapse',),
-    'fields': ('member', 'approved', 'leader',)
-  }),
-
-class MemberInline(admin.TabularInline):
-  model = Member
-  extra = 1
+  can_delete = False
+  fields = ('member', 'approved', 'leader',)
 
 class ProjectResourcesInline(admin.TabularInline):
   model = ProjectResource
@@ -145,9 +139,29 @@ class GrantAppAdmin(admin.ModelAdmin):
 class DraftAdmin(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified')
 
+def view_grant_link(obj):
+  return '<a href="/grants/view/' + str(obj.pk) + '/">' + str(obj.submission_time) + '</a>'
+  
+class GrantAppInline(admin.TabularInline):
+  model = GrantApplication
+  extra = 0
+  max_num = 0
+  can_delete = False
+  readonly_fields = ('submission_time', 'grant_cycle', 'screening_status')
+  fieldsets = (
+    ('fuck this?', {
+      'fields': ('submission_time', 'grant_cycle', 'screening_status')
+    }),
+  )
+
 class OrganizationAdmin(admin.ModelAdmin):
   list_display = ('name', 'email',)
-  list_editable = ('email',)
+  fields = (
+    ('name', 'email', 'telephone_number'),
+    ('address', 'city', 'state', 'zip'),
+  )
+  readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number', 'fax_number', 'email_address', 'website', 'status', 'ein')
+  inlines = (GrantAppInline,)
 
 ## ADMIN SITES
 
