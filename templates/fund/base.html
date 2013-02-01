@@ -42,12 +42,15 @@
     <div id="content_area">
     {% block content %}{% endblock %}
     </div>
-    <table id="footer"><tr>
+    <table id="footer">
+		<tr>
     <td style="width:25%;"><a href="https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ" target="_blank">feedback</a></td>
     <td style="width:25%;"><a href="/fund/support">support/FAQ</a></td>
     <td style="width:15%;">{% if member %}<a href="/fund/projects">your projects</a>{% endif %}</td>
     <td style="width:35%;"><div id="login">{% if user.is_authenticated %}{{user.email}} | <a href="/fund/logout/">logout</a>{% endif %}</div></td>
-    </tr></table>
+    </tr><tr>
+		<td colspan="4"><div align="center" style="font-size:12px;margin-top:15px;"><a href="http://socialjusticefund.org" target="_blank">socialjusticefund.org</a></div></td>
+		</tr></table>
   </div>
 </body>
 </html>
