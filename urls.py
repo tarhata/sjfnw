@@ -43,7 +43,7 @@ urlpatterns = patterns('',
     (r'^apply/(?P<cycle_id>\d+)/?$','grants.views.Apply'),
     (r'^apply/(?P<cycle_id>\d+)/autosave/?$','grants.views.AutoSaveApp'),
     (r'^apply/(?P<cycle_id>\d+)/upload-file/?$','grants.views.AutoSaveFile'),
-    (r'^apply/(?P<cycle_id>\d+)/DELET/?E$', 'grants.views.DiscardDraft'),
+    (r'^apply/(?P<draft_id>\d+)/DELETE/?$', 'grants.views.DiscardDraft'),
     (r'^get-upload-url/(?P<cycle_id>\d+)/?$','grants.views.RefreshUploadUrl'),
     (r'^org/submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
     

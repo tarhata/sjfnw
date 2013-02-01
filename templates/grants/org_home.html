@@ -1,11 +1,21 @@
 ﻿{% extends 'grants/base.html' %}
+{% block script %}
+<script type="text/javascript">
+function confirmation(draft_pk) { //confirmation window before discarding a draft
+	var conf = confirm("Discard this draft?  It cannot be recovered.")
+	if (conf){
+		window.location = '/apply/'+draft_pk+'/DELETE'
+	}
+}
+</script>
+{% endblock script %}
 {% block content %}
 {% load tz %}
 <div align="center"><h3>{{grantee}}</h3></div>
 
 <h4>Saved drafts</h4>
 	<ul>{% for save in saved %}
-		<li><a href="{% url grants.views.Apply save.grant_cycle.pk %}">{{save.grant_cycle}}</a> - last modified {{save.modified|date:"m/d h:ia"}}</li>
+		<li><a href="{% url grants.views.Apply save.grant_cycle.pk %}">{{save.grant_cycle}}</a> - last modified {{save.modified|date:"m/d h:ia"}} <a onclick="confirmation('{{save.pk}}')">[x]</a></li>
 	{% empty %}<li>None found</li>{% endfor %}</ul>
 
 <h4>Submitted applications</h4>

@@ -261,25 +261,23 @@ def AutoSaveFile(request, cycle_id):
     #get file off the request and save it
     return HttpResponse("")
 
-def DiscardDraft(request, cycle_id):
+def DiscardDraft(request, draft_id):
   try:
     grantee = models.Organization.objects.get(email=request.user.username)
   except models.Organization.DoesNotExist:
     return redirect('/org/nr')
   
-  try:
-    cycle = models.GrantCycle.objects.get(pk=cycle_id)
-  except models.GrantCycle.DoesNotExist:
-    logging.error(str(request.user) + ' discard nonexistent cycle ' + str(cycle_id))
-    raise Http404
-  
   #look for saved draft
   try:
-    saved = models.DraftGrantApplication.objects.get(organization=grantee, grant_cycle=cycle)
-    saved.delete()
+    saved = models.DraftGrantApplication.objects.get(pk = draft_id)
+    if saved.organization == grantee:
+      saved.delete()
+      logging.info('Draft ' + str(draft_id) + ' discarded')
+    else: #trying to delete another person's draft!?
+      logging.warning('Failed attempt to discard draft ' + str(draft_id) + ' by ' + str(grantee))
     return redirect('/org')
   except models.DraftGrantApplication.DoesNotExist:
-    logging.error(str(request.user) + ' discard nonexistent draft, cycle ' + str(cycle_id))
+    logging.error(str(request.user) + ' discard nonexistent draft')
     raise Http404
 
 def RefreshUploadUrl(request, cycle_id):
