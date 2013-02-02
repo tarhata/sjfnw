@@ -14,13 +14,43 @@ def logInTesty(self):
   self.client.login(username = 'testacct@gmail.com', password = 'testy')
 
 """ TESTS TO DO
-      discard draft button
-      submitted apps sorting
-      password reset on live
-      file upload/serving? 
+      
+      try to access pages without being registered
       loading app page for the first time
       brand new org
-      org with profile info saved """
+      org with profile info saved
+      file upload/serving?
+      
+      test functions:
+        discard a draft
+        basic page loads
+      
+      org home page:
+        submitted apps sorting
+        display of submitted, drafts, past-due drafts
+        display/sorting of cycles
+      
+      test error cases:
+        apply to non-existent cycle
+        apply to closed cycle
+        apply to upcoming cycle
+        apply to one you've applied to
+        
+    FIXTURE NEEDS
+      grant cycles: 
+        past, upcoming, several open
+        [might be worth creating in script so we don't have to worry about dates]
+      
+      orgs:
+        brand new
+        has saved profile
+        has applied to 1+ open apps
+        has saved draft that's still open
+        has saved draft that's past-due
+      
+      
+      
+    """
 
 class GrantApplicationTests(      
   
