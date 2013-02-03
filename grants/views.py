@@ -214,13 +214,13 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   else:
     files = ''
 
-  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
-  
+  upload_url = '/apply/' + cycle_id + '/'
+  #test replacement:  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
   return render(request, 'grants/org_app.html',
   {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files}  )
 
 @registered_org()
-def AutoSaveApp(request, organization cycle_id):  # /apply/[cycle_id]/autosave/
+def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
   
   try:
     cycle = models.GrantCycle.objects.get(pk=cycle_id)

@@ -22,10 +22,19 @@ def FindBlob(application, file_type):
   
   #filefield stores key that gets us the blobinfo
   blobinfo_key = str(file_field).split('/', 1)[0]
-  blobinfo = blobstore.BlobReader(blobinfo_key).readlines()
+  logging.info('Info key: ' + blobinfo_key)
+  binfo = blobstore.BlobInfo.get(blobinfo_key)
+  logging.info('Blob creation: ' + str(binfo.creation))
+  logging.info('Blob content type: ' + str(binfo.content_type))
+  return HttpResponse(blobstore.BlobReader(binfo).read(), content_type=binfo.content_type)
+  
+  """
+  for l in blobinfo:
+    print(l)
   #look through the info for the creation time of the blob
   blobinfo_dict =  dict([l.split(': ', 1) for l in blobinfo if l.strip()])
   creation_time = blobinfo_dict['X-AppEngine-Upload-Creation'].strip()
+  #Content-Disposition: form-data; name=file1; filename="ODO.jpg"
   
   if not settings.DEBUG: #convert to datetime for live
     creation_time = datetime.datetime.strptime(creation_time, '%Y-%m-%d %H:%M:%S.%f')
@@ -44,4 +53,4 @@ def FindBlob(application, file_type):
       if timezone.localtime(c) == creation_time:
         return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
   logging.warning('No blob matching the creation time')
-  return Http404
+  return Http404 """
