@@ -1,0 +1,24 @@
+[
+  {
+    "pk": 1, 
+    "model": "grants.grantcycle", 
+    "fields": {
+      "addition": "", 
+      "close": "2023-01-15T00:51:51Z", 
+      "narrative": "", 
+      "open": "2001-09-19T23:51:44Z", 
+      "title": "Open cycle"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "grants.grantcycle", 
+    "fields": {
+      "addition": "", 
+      "close": "2013-05-15T19:57:45Z", 
+      "narrative": "", 
+      "open": "2013-01-01T20:57:44Z", 
+      "title": "General Grant Cycle"
+    }
+  }
+]
