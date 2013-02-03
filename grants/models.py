@@ -7,6 +7,7 @@ from fund.models import GivingProject
 import datetime
 
 class Organization(models.Model):
+  #registration fields
   name = models.CharField(max_length=255)
   email = models.EmailField() #= django username
   
