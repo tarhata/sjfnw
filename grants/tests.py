@@ -1,8 +1,9 @@
 from django.test import TestCase
-from grants import models
-from django.test import TestCase
 from django.contrib.auth.models import User
-import sys
+from django.utils import timezone
+from django.utils.html import strip_tags
+from grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
+import sys, datetime, re
 
 def setPaths():
   #add libs to the path that dev_appserver normally takes care of
@@ -10,9 +11,46 @@ def setPaths():
   sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\webob_1_1_1')
 
 def logInTesty(self):
-  user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')
+  self.user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')
   self.client.login(username = 'testacct@gmail.com', password = 'testy')
 
+class ViewApplicationTests(TestCase):
+  
+  fixtures = ['grants/fixtures/grantapps.json',] 
+  
+  def setUp(self):
+    
+    setPaths()      
+    logInTesty(self)
+    
+    self.cycle = GrantCycle(title= 'Open cycle', open = timezone.now()-datetime.timedelta(days=2), close = timezone.now()+datetime.timedelta(days=2))
+    self.cycle.save()  
+    
+  def test_fields(self):
+    """ Application view vs. form """
+
+    response = self.client.get('/apply/' + str(self.cycle.pk))
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, 'grants/org_app.html')
+    form_labels = []
+    #print('Form labels:\n')
+    for label in re.findall('<span class="label">.+</span>', response.content):
+      #print(strip_tags(label))
+      form_labels.append(strip_tags(label))
+    
+    response = self.client.get('/grants/view/1')
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, 'grants/view_app.html')
+    view_labels = []
+    #print('View labels:\n')
+    for label in re.findall('<span class="label">.+</span>', response.content):
+      #print(strip_tags(label))
+      view_labels.append(strip_tags(label))
+    print('In form but not view:\n')
+    print('\n'.join(set(form_labels).difference(set(view_labels))))
+    """
+    do the same for the view app and compare! """
+    
 """ TESTS TO DO
       
       try to access pages without being registered
@@ -47,12 +85,11 @@ def logInTesty(self):
         has applied to 1+ open apps
         has saved draft that's still open
         has saved draft that's past-due
-      
-      
-      
-    """
 
-class GrantApplicationTests(      
+ """
+
+"""
+class GrantApplicationTests(TestCase)     
   
   #just copied from stackoverflow, needs work
   def test_a_file(self):
@@ -69,9 +106,9 @@ class GrantApplicationTests(
     os.remove(filename)
     self.assertTemplateUsed(response, 'tests/solution_detail.html')
     self.assertContains(response, os.path.basename(filename))
-    
-    
-    
+  """
+
+"""    
 TEPOST_DICTS = [
   valid =  {u'website': [u'asdfsdaf'],
             u'mission': [u'A kmission statement of some importance!'],
@@ -106,4 +143,4 @@ TEPOST_DICTS = [
             u'telephone_number': [u'325'],
             u'organization': [u'1'],
             u'contact_person': [u'asdfsadfasdfasdf'],
-            u'ein': [u'654']}
+            u'ein': [u'654']} """
