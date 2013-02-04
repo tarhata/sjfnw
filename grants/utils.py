@@ -35,13 +35,15 @@ def FindBlob(application, file_type):
     MIME-Version: 1.0
     Content-Length: 7916790
     Content-MD5: OGRkMTkzOGYxZWQ3NjhlMWY4OWNhYjVlMjQ4YWQ1ODc=
-    content-type: application/pdf
-    content-disposition: form-data; name="fiscal_letter"; filename="persuasive technology.pdf"
+    Content-Type: application/pdf
+    Content-Disposition: form-data; name="fiscal_letter"; filename="persuasive technology.pdf"
     X-AppEngine-Upload-Creation: 2013-02-04 20:58:26.170000 """
     
   #look through the info for the creation time of the blob
-  blobinfo_dict =  dict([l.split(': ', 1) for l in reader if l.strip()])
-  creation_time = blobinfo_dict['X-AppEngine-Upload-Creation'].strip()
+  logging.info(str(reader))
+  blobinfo_dict =  dict([l.strip().split(': ', 1) for l in reader if l.strip()])
+  creation_time = blobinfo_dict['X-AppEngine-Upload-Creation']
+  content_disp = blobinfo_dict['Content-Disposition']
   logging.info('Blob dict: ' + str(blobinfo_dict))
   
   if not settings.DEBUG: #convert to datetime for live
@@ -51,6 +53,8 @@ def FindBlob(application, file_type):
   logging.info('Looking for: ' + str(creation_time))
   
   #find blob that matches the creation time
+  
+  response = False
   for b in  blobstore.BlobInfo.all():    
     c = b.creation
     if settings.DEBUG: #local - just compare strings
@@ -59,6 +63,7 @@ def FindBlob(application, file_type):
     else:
       c = timezone.make_aware(c, timezone.utc)
       if timezone.localtime(c) == creation_time:
+        logging.info('Found a match! ' + str(b))
         return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
   logging.warning('No blob matching the creation time')
   return Http404
