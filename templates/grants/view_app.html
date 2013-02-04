@@ -2,7 +2,7 @@
 {%block content%}
 {% autoescape off %}
 <div class="formwrapper">
-  <div align="center">
+  <div align="center"><!-- Title/header -->
     <h2>{{app.organization}} - {{app.grant_cycle}}</h2>
     Submitted {{app.submission_time}}
   </div>
@@ -12,30 +12,41 @@
   <p>{{form.email_address.label}}: {{app.email_address}}</p>
   <p>{{form.website.label}}: {{app.website}}</p>
   <p>{{form.contact_person.help_text}}: {{app.contact_person}}, {{app.contact_person_title}}</p>
+	
   <h4>Organization information</h4><!-- Organization information -->
   <p>{{form.status.label}}: {{app.status}}</p>
   <p>{{form.ein.label}}: {{app.ein}}</p>
   <p>{{form.founded.label}}: {{app.founded}}</p>
-  <h4>Grant and budget information</h4><!-- Grant and budget information -->
-  <p>{{form.contact_person.help_text}}: {{app.contact_person}}, {{app.contact_person_title}}
-  <p>{{form.amount_requested.label}}: {{app.amount_requested}}</p>
-  <p>{{form.support_type.label}}: {{app.support_type}}</p>
-  <p>{{form.grant_period.label}}: {{app.grant_period}}</p>
-  <p>{{form.start_year.label}}: {{app.start_year}}</p>
-  <p>{{form.budget_last.label}}: ${{app.budget_last}}</p>
-  <p>{{form.budget_current.label}}: ${{app.budget_current}}</p>
-  <p>{{form.project_title.label}}: {{app.project_title|default:"N/A"}}</p>
-  {%if app.project_budget%}<p>{{form.project_budget.label}}: ${{app.project_budget}}</p>{%endif%}
-  <p>{{form.mission.label}}: {{app.mission}}</p>
-  <p>{{form.grant_request.label}}: {{app.grant_request}}</p>
-  {%if app.fiscal_org%}
+	<p>{{form.mission.label}}: {{app.mission}}</p>
+	{%if app.fiscal_org%}
     <h4>Fiscal sponsor information (if applicable)</h4><!-- Fiscal sponsor info -->
     <p>{{form.fiscal_org.label}}: {{app.fiscal_org|default:"N/A"}}</p>
     <p>{{form.fiscal_person.label}}: {{app.fiscal_person}}</p>
     <p>{{form.fiscal_telephone.label}}: {{app.fiscal_telephone}}</p>
     <p>{{form.fiscal_email.label}}: {{app.fiscal_email}}</p>
     <p>{{form.fiscal_address.label}}: {{app.fiscal_address}}</p>
+		{% if app.fiscal_letter %}
+			<p>Fiscal sponsor letter: <a href="{{base_url}}grants/view-file/{{app.fiscal_letter_name}}">View</a></p>
+		{% endif %}
   {% endif %}
+	
+  <h4>Grant and budget information</h4><!-- Grant and budget information -->
+  <p>{{form.contact_person.help_text}}: {{app.contact_person}}, {{app.contact_person_title}}
+  
+  
+  <p>{{form.grant_period.label}}: {{app.grant_period}}</p>
+  <p>{{form.start_year.label}}: {{app.start_year}}</p>
+  <p>{{form.budget_last.label}}: ${{app.budget_last}}</p>
+  <p>{{form.budget_current.label}}: ${{app.budget_current}}</p>
+	<p>{{form.previous_grants.label}}: {{app.previous_grants}}</p>
+	<p>{{form.grant_request.label}}: {{app.grant_request}}</p>
+	<p>{{form.amount_requested.label}}: {{app.amount_requested}}</p>
+	<p>{{form.support_type.label}}: {{app.support_type}}</p>
+  <p>{{form.project_title.label}}: {{app.project_title|default:"N/A"}}</p>
+  {%if app.project_budget%}<p>{{form.project_budget.label}}: ${{app.project_budget}}</p>{%endif%}
+  
+  <p>{{form.grant_request.label}}: {{app.grant_request}}</p>
+  
   
   <h3>Narrative</h3><!-- Narrative -->
   
@@ -71,10 +82,6 @@
   {%if app.funding_sources%}
   <b>Funding sources</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/funding">View</a></p>
   {%endif%}
-
-  {% if app.fiscal_letter %}
-  <b>Fiscal sponsor letter</b>: <a href="{{base_url}}grants/view-file/{{app.fiscal_letter_name}}">View</a></p>
-  {% endif %}
 
 </div>
 {% endautoescape %}
