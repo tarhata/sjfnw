@@ -42,9 +42,7 @@ def FindBlob(application, file_type):
   #look through the info for the creation time of the blob
   blobinfo_dict =  dict([l.split(': ', 1) for l in reader if l.strip()])
   creation_time = blobinfo_dict['X-AppEngine-Upload-Creation'].strip()
-  logging.info('Blob creation: ' + creation_time)
-  content_disp = blobinfo_dict['content-disposition'].strip()
-  logging.info('Blob content-disp: ' + content_disp)
+  logging.info('Blob dict: ' + str(blobinfo_dict)
   
   if not settings.DEBUG: #convert to datetime for live
     creation_time = datetime.datetime.strptime(creation_time, '%Y-%m-%d %H:%M:%S.%f')
