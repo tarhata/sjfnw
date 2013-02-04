@@ -63,7 +63,7 @@ def FindBlob(application, file_type):
     else:
       c = timezone.make_aware(c, timezone.utc)
       if timezone.localtime(c) == creation_time:
-        logging.info('Found a match! ' + str(b))
+        logging.info('Found a match! ' + str(b.filename) + str(b.content_type))
         return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
   logging.warning('No blob matching the creation time')
   return Http404
