@@ -148,6 +148,10 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       saved.funding_sources = files_data['funding_sources']
     elif saved.funding_sources:
       files_data['funding_sources'] = saved.funding_sources
+    if files_data.get('fiscal_letter'):
+      saved.fiscal_letter = files_data['fiscal_letter']
+    elif saved.fiscal_letter:
+      files_data['fiscal_letter'] = saved.fiscal_letter
     saved.save()
     mod = saved.modified
     form = models.GrantApplicationForm(post_data, files_data)
@@ -155,14 +159,9 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       logging.info('Application form valid')
       logging.info(request.META['HTTP_REFERER'])
       application = form.save() #save as GrantApp object
-      if application.fiscal_letter:
-        application.fiscal_letter_type = str(application.fiscal_letter).split('.')[-1]
-        application.fiscal_letter_name = str(application.submission_time.year)+str(application.organization)+'FiscalLetter.'+application.fiscal_letter_type
-        application.fiscal_letter_name = application.fiscal_letter_name.replace(' ', '')
-      application.save()
       logging.info("Application form saved, budget: " + str(application.budget))
       #update org profile
-      form2 = models.OrgProfile(request.POST, instance=organization)
+      form2 = models.OrgProfile(post_data, files_data, instance=organization)
       if form2.is_valid():
         form2.save()
         logging.info('Organization profile updated')
@@ -203,19 +202,22 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     files = {'pk': saved.pk}
     name = str(saved.budget).split('/')[-1]
     files['budget'] = name
-    logging.info('Budget name ' + name)
+    logging.debug('Budget name ' + name)
     name = str(saved.demographics).split('/')[-1]
     files['demographics'] = name
-    logging.info('demographics name ' + name)
+    logging.debug('demographics name ' + name)
     name = str(saved.funding_sources).split('/')[-1]
     files['funding_sources'] = name
-    logging.info('funding_sources name ' + name)
+    logging.debug('funding_sources name ' + name)
+    name = str(saved.fiscal_letter).split('/')[-1]
+    files['fiscal_letter'] = name
+    logging.info('fiscal_letter name ' + name)
     logging.info('Files dict: ' + str(files))
   else:
     files = ''
 
-  upload_url = '/apply/' + cycle_id + '/'
-  #test replacement:  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
+  #test replacement: upload_url = '/apply/' + cycle_id + '/'
+  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
   return render(request, 'grants/org_app.html',
   {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files}  )
 
