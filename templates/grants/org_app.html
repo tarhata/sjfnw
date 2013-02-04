@@ -111,67 +111,81 @@ $(document).ready(function() {
     <tr>
       <td>{{form.address.errors}}</td>
       <td>{{form.city.errors}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td>{{form.address.label}}{{form.address}}</td>
       <td>{{form.city.label}}{{form.city}} </td>
     </tr>   
     <tr>
       <td>{{form.state.errors}}</td>
       <td>{{form.zip.errors}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td>{{form.state.label}}{{form.state}}</td>
       <td>{{form.zip.label}}{{form.zip}}</td>
     </tr>    
     <tr>
       <td>{{form.telephone_number.errors}}</td>
       <td>{{form.fax_number.errors}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td>{{form.telephone_number.label}}{{form.telephone_number}}</td>
       <td>{{form.fax_number.label}} {{form.fax_number.help_text}}{{form.fax_number}}</td>
     </tr>    
     <tr>
       <td>{{form.email_address.errors}}</td>
       <td>{{form.website.errors}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td>{{form.email_address.label}}{{form.email_address}}</td>
       <td>{{form.website.label}} {{form.website.help_text}}{{form.website}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td><h4>Organization information</h4></td> <!-- Organization information -->
-    </tr>
-    <tr>
+    </tr><tr>
       <td colspan="2">{{form.status.errors}}{{form.status.label}}{{form.status}}</td>
     </tr> 
     <tr>
       <td>{{form.ein.errors}}</td>
       <td>{{form.founded.errors}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td>{{form.ein.label}}{{form.ein}}</td>
       <td>{{form.founded.label}}{{form.founded}}</td>
     </tr>   
     <tr>
       <td colspan="2">{{form.mission.label}}{{form.mission.errors}}{{form.mission}}</td>
     </tr>
-    <tr>
+		<tr>
+      <td><h4>Fiscal sponsor information (if applicable)</h4></td><!-- Fiscal sponsor info -->
+    </tr><tr>
+      <td>{{form.fiscal_org.errors}}</td>
+      <td>{{form.fiscal_person.errors}}</td>
+    </tr><tr>
+      <td>{{form.fiscal_org.label}}{{form.fiscal_org}}</td>
+      <td>{{form.fiscal_person.label}}{{form.fiscal_person}}</td>
+    </tr><tr>
+      <td>{{form.fiscal_telephone.errors}}</td><td>{{form.fiscal_email.errors}}</td>
+    </tr><tr>
+      <td>{{form.fiscal_telephone.label}}{{form.fiscal_telephone}}</td>
+      <td>{{form.fiscal_email.label}}{{form.fiscal_email}}</td>
+    </tr><tr>
+      <td colspan="2">{{form.fiscal_address.errors}}</td>
+    </tr><tr>
+      <td colspan="2">{{form.fiscal_address.label}}{{form.fiscal_address}}</td>
+    </tr><tr>
+			<td colspan="2">{{form.fiscal_letter.help_text}}</td>
+		</tr><tr>
+			<td>{{form.fiscal_letter.errors}}</td>
+		</tr><tr>	
+			<td>{{form.fiscal_letter}}</td>
+			<td>{% if files.fiscal_letter %}<a href="/grants/draft-file/{{files.pk}}/fiscal_letter" target="_blank">{{files.fiscal_letter}}</a>{% endif %}</td>
+		</tr><tr>
       <td><h4>Grant and budget information</h4></td><!-- Grant and budget information -->
-    </tr>
-    <tr>
+    </tr><tr>
       <td colspan="2">{{form.contact_person.help_text}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
 			<td>{{form.contact_person.errors}}</td>
 			<td>{{form.contact_person_title.errors}}</td>
 		</tr>
 		<tr>
       <td>{{form.contact_person.label}}{{form.contact_person}}</td>
       <td>{{form.contact_person_title.label}}{{form.contact_person_title}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td>{{form.grant_period.errors}}</td>
       <td>{{form.start_year.errors}}</td>
     </tr>  
@@ -179,66 +193,29 @@ $(document).ready(function() {
       <td>{{form.grant_period.label}}{{form.grant_period}}</td>
       <td>{{form.start_year.label}}{{form.start_year}}</td>
     </tr>
-   <tr><td></td><td></td></tr>
-    <tr>
+   <tr><td></td><td></td></tr><tr>
       <td>{{form.budget_last.errors}}</td>
       <td>{{form.budget_current.errors}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td>{{form.budget_last.label}} ${{form.budget_last}} </td>
       <td>{{form.budget_current.label}} ${{form.budget_current}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td colspan="2">{{form.previous_grants.errors}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td colspan="2">{{form.previous_grants.label}} {{form.previous_grants}} </td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td colspan="2">{{form.grant_request.label}}{{form.grant_request.errors}}{{form.grant_request}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td>{{form.amount_requested.errors}}</td><td>{{form.support_type.errors}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td>{{form.amount_requested.label}}{{form.amount_requested}}</td>
       <td>{{form.support_type.label}}{{form.support_type}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td>{{form.project_title.errors}}</td>
       <td>{{form.project_budget.errors}}</td>
-    </tr>
-    <tr>
+    </tr><tr>
       <td>{{form.project_title.label}}{{form.project_title}}</td>
       <td>{{form.project_budget.label}} ${{form.project_budget}}</td>
-    </tr>
-
-    <tr>
-      <td><h4>Fiscal sponsor information (if applicable)</h4></td><!-- Fiscal sponsor info -->
-    </tr>
-
-    <tr>
-      <td>{{form.fiscal_org.errors}}</td>
-      <td>{{form.fiscal_person.errors}}</td>
-    </tr>
-    <tr>
-      <td>{{form.fiscal_org.label}}{{form.fiscal_org}}</td>
-      <td>{{form.fiscal_person.label}}{{form.fiscal_person}}</td>
-    </tr>
-
-    <tr>
-      <td>{{form.fiscal_telephone.errors}}</td><td>{{form.fiscal_email.errors}}</td>
-    </tr>
-    <tr>
-      <td>{{form.fiscal_telephone.label}}{{form.fiscal_telephone}}</td>
-      <td>{{form.fiscal_email.label}}{{form.fiscal_email}}</td>
-    </tr>
-
-    <tr>
-      <td colspan="2">{{form.fiscal_address.errors}}</td>
-    </tr>
-    <tr>
-      <td colspan="2">{{form.fiscal_address.label}}{{form.fiscal_address}}</td>
     </tr>
   </table>
 
@@ -351,8 +328,7 @@ $(document).ready(function() {
 			<td>Budget:</td>
 			<td>{{form.budget}}</td>
 			<td>{% if files.budget %}<a href="/grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% else %}<i>none</i>{% endif %}</td>
-		</tr>
-    <tr>
+		</tr><tr>
 			<td></td>
 			<td>{{form.demographics.errors}}</td>
 			<td></td>
@@ -361,8 +337,7 @@ $(document).ready(function() {
 			<td>Demographics:</td>
 			<td>{{form.demographics}}</td>
 			<td>{% if files.demographics %}<a href="/grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% else %}<i>none</i>{% endif %}</td>
-		</tr>
-    <tr>
+		</tr><tr>
 			<td></td>
 			<td>{{form.funding_sources.errors}}</td>
 			<td></td>
@@ -374,13 +349,6 @@ $(document).ready(function() {
 		</tr>
 	</table>
   {% endautoescape %}
-  <!--
-  
-  <h4>Fiscal sponsor letter (if applicable)</h4>
-  If you are using a fiscal sponsor, please provide a letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund's mission.<br><br>
-  
-{{form.fiscal_letter}}{{form.fiscal_letter.errors}}
-  <br><br>-->
   
   <div align="center"><input type="submit" value="Submit Application" /></div>
 </form>
