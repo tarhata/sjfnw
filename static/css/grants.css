@@ -59,6 +59,10 @@ table#application_form td{
 	width:360px;
 }
 
+div.formwrapper input[type="text"] {
+  width:140px;
+}
+
 input#id_contact_person, input#id_previous_grants {
 	width:300px;
 }
