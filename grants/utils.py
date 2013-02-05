@@ -43,7 +43,7 @@ def FindBlob(application, file_type):
   #look through the contents for the creation time & filename of the blob
   creation_time, filename = False, False
   for l in reader:
-    logging.info(l)
+    #logging.debug(l.strip())
     m = re.match(r"X-AppEngine-Upload-Creation: ([-0-9:. ]+)", l)
     if m:
       creation_time = m.group(1)
@@ -70,11 +70,11 @@ def FindBlob(application, file_type):
       c = timezone.make_aware(c, timezone.utc)
       c = timezone.localtime(c)
     if c == creation_time:
-      logging.info('Found a creation time match! ' + str(b.filename) + str(b.content_type) + str(b.size))
+      logging.info('Found a creation time match! ' + str(b.filename) + ', ' + str(b.size))
       if b.filename == filename:
         logging.info('Filename matches - returning file')
         return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
       else:
-        logging.warning('Creation time matched but filename did not: blobinfo filename was ' + filename + ', found ' + b.filename)
-  logging.warning('No matching blob found')
+        logging.info('Creation time matched but filename did not: blobinfo filename was ' + filename + ', found ' + b.filename)
+  logging.error('No matching blob found')
   raise Http404
