@@ -2,7 +2,7 @@
 from django.http import HttpResponse, Http404
 from django.utils import timezone
 from google.appengine.ext import blobstore
-import datetime, logging
+import datetime, logging, re
 
 def FindBlob(application, file_type):
   """Return file from the Blobstore.
@@ -10,7 +10,7 @@ def FindBlob(application, file_type):
   application: GrantApplication or DraftGrantApplication
   file_type: str indicating which file field """
   
-  #find the file
+  #find the filefield
   if file_type == 'budget':
     file_field = application.budget
   elif file_type == 'demographics':
@@ -23,12 +23,13 @@ def FindBlob(application, file_type):
     logging.warning('Unknown file type ' + file_type)
     return Http404
   
-  #filefield stores key that gets us the blobinfo
+  #filefield stores key that gets the blobinfo
   blobinfo_key = str(file_field).split('/', 1)[0]
-  logging.info('Info key: ' + blobinfo_key)
   binfo = blobstore.BlobInfo.get(blobinfo_key)
-  #all binfo properties refer to the blobinfo itself, not the blob  
-  reader = blobstore.BlobReader(binfo) #reads the info file contents which refer to the actual blob
+  logging.info('Binfo properties: filename ' + binfo.filename + ', size ' + str(binfo.size) + ', type ' + binfo.content_type)
+  #all binfo properties refer to the blobinfo itself, not the blob
+  #reader gets binfo file contents which refer to the actual blob  
+  reader = blobstore.BlobReader(binfo) 
   
   """ example contents:
     Content-Type: application/pdf
@@ -39,31 +40,41 @@ def FindBlob(application, file_type):
     Content-Disposition: form-data; name="fiscal_letter"; filename="persuasive technology.pdf"
     X-AppEngine-Upload-Creation: 2013-02-04 20:58:26.170000 """
     
-  #look through the info for the creation time of the blob
-  logging.info(str(reader))
-  blobinfo_dict =  dict([l.strip().split(': ', 1) for l in reader if l.strip()])
-  creation_time = blobinfo_dict['X-AppEngine-Upload-Creation']
-  content_disp = blobinfo_dict['Content-Disposition']
-  logging.info('Blob dict: ' + str(blobinfo_dict))
-  
+  #look through the contents for the creation time & filename of the blob
+  creation_time, filename = False, False
+  for l in reader:
+    logging.info(l)
+    m = re.match(r"X-AppEngine-Upload-Creation: ([-0-9:. ]+)", l)
+    if m:
+      creation_time = m.group(1)
+      logging.info('Creation time found: ' + str(creation_time))
+    m = re.search(r'filename="(.+)"', l)
+    if m:
+      filename = m.group(1)
+      logging.info('Filename found: ' + str(filename))
+
+  if not (creation_time and filename): #error if not found
+    logging.error("Couldn't extract creation time and filename - filefield " + str(file_field))
+    raise Http404
+
   if not settings.DEBUG: #convert to datetime for live
     creation_time = datetime.datetime.strptime(creation_time, '%Y-%m-%d %H:%M:%S.%f')
     creation_time = timezone.make_aware(creation_time, timezone.get_current_timezone())
   
-  logging.info('Looking for: ' + str(creation_time))
-  
   #find blob that matches the creation time
-  
-  response = False
-  for b in  blobstore.BlobInfo.all():    
+  for b in blobstore.BlobInfo.all():    
     c = b.creation
     if settings.DEBUG: #local - just compare strings
-      if str(timezone.localtime(c)) == creation_time:
-        return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
-    else:
+      c = str(timezone.localtime(c))
+    else:#live - convert blobstore to datetime
       c = timezone.make_aware(c, timezone.utc)
-      if timezone.localtime(c) == creation_time:
-        logging.info('Found a match! ' + str(b.filename) + str(b.content_type))
+      c = timezone.localtime(c)
+    if c == creation_time:
+      logging.info('Found a creation time match! ' + str(b.filename) + str(b.content_type) + str(b.size))
+      if b.filename == filename:
+        logging.info('Filename matches - returning file')
         return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
-  logging.warning('No blob matching the creation time')
-  return Http404
+      else:
+        logging.warning('Creation time matched but filename did not: blobinfo filename was ' + filename + ', found ' + b.filename)
+  logging.warning('No matching blob found')
+  raise Http404
