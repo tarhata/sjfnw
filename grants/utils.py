@@ -2,6 +2,7 @@
 from django.http import HttpResponse, Http404
 from django.utils import timezone
 from google.appengine.ext import blobstore
+from grants.models import DraftGrantApplication
 import datetime, logging, re
 
 def FindBlob(application, file_type):
@@ -17,7 +18,7 @@ def FindBlob(application, file_type):
     file_field = application.demographics
   elif file_type == 'funding':
     file_field = application.funding_sources
-  elif file_type == 'fiscal_letter':
+  elif file_type == 'fiscal':
     file_field = application.fiscal_letter
   else:
     logging.warning('Unknown file type ' + file_type)
@@ -78,3 +79,15 @@ def FindBlob(application, file_type):
         logging.info('Creation time matched but filename did not: blobinfo filename was ' + filename + ', found ' + b.filename)
   logging.error('No matching blob found')
   raise Http404
+
+def AppToDraft(submitted_app):
+  draft = DraftGrantApplication(organization = submitted_app.organization, grant_cycle = submitted_app.grant_cycle)
+  content = model_to_dict(submitted_app, exclude = ['budget', 'demographics', 'funding_sources', 'fiscal_letter', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo'])
+  draft.content = content
+  draft.budget = submitted_app.budget
+  draft.demographics = submitted_app.demographics
+  draft.fiscal_letter = submitted_app.fiscal_letter
+  draft.funding_sources = submitted_app.funding_sources
+  draft.allow_edit = True
+  draft.save()
+  #once tested, delete the app
