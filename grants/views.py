@@ -154,6 +154,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       files_data['fiscal_letter'] = saved.fiscal_letter
     saved.save()
     mod = saved.modified
+    logging.info('Submitting files_data: ' + str(files_data))
     form = models.GrantApplicationForm(post_data, files_data)
     if form.is_valid():
       logging.info('Application form valid')
