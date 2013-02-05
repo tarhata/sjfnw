@@ -162,9 +162,12 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       application = form.save() #save as GrantApp object
       logging.info("Application form saved, budget: " + str(application.budget))
       #update org profile
-      form2 = models.OrgProfile(post_data, files_data, instance=organization)
+      form2 = models.OrgProfile(post_data, instance=organization)
       if form2.is_valid():
         form2.save()
+        if files_data.get('fiscal_letter'):
+          organization.fiscal_letter = files_data['fiscal_letter']
+          organization.save()
         logging.info('Organization profile updated')
       else:
         logging.error('Application error: profile not updated.  User: %s, application id: %s', request.user.email, application.pk)
