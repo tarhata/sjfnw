@@ -38,7 +38,7 @@ class Organization(models.Model):
   status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True)
   ein = models.CharField(max_length=50, verbose_name="Organization's or Fiscal Sponsor Organization's EIN", null=True)
   founded = models.PositiveIntegerField(verbose_name='Year organization founded', null=True)
-  mission_statement = models.TextField(null=True, blank=True)
+  mission = models.TextField(null=True, blank=True)
   
   #fiscal sponsor info (if applicable)
   fiscal_org = models.CharField(verbose_name='Organization name', max_length=255, null=True, blank=True)
@@ -54,7 +54,7 @@ class Organization(models.Model):
 class OrgProfile(ModelForm):
   class Meta:
     model = Organization
-    exclude = ('name', 'email', 'profile_json')
+    exclude = ('name', 'email')
 
 class GrantCycle(models.Model):
   title = models.CharField(max_length=100)
@@ -95,6 +95,8 @@ class DraftGrantApplication(models.Model):
   funding_sources = models.FileField(upload_to='draft/', max_length=255)
   fiscal_letter = models.FileField(upload_to='draft/', max_length=255)
   
+  allow_edit = models.BooleanField(default=False,verbose_name = 'Allow editing/submission after deadline has passed')
+
   def __unicode__(self):
     return self.organization.name + u' saved draft id ' + unicode(self.pk)
 
