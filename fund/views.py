@@ -4,8 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
-from django.db import IntegrityError, connection
-from django.db.models import Sum, Count, Avg, Min, Max
+from django.db import connection
 from django.forms.formsets import formset_factory
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
@@ -20,147 +19,6 @@ import pytz, utils, json, models, datetime, random, logging
 
 if not settings.DEBUG:
   ereporter.register_logger()
-
-#LOGIN & REGISTRATION
-def FundLogin(request):
-  printout=''
-  if request.method=='POST':
-    form = LoginForm(request.POST)
-    username = request.POST['email'].lower()
-    password = request.POST['password']
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            login(request, user)
-            return redirect(Home)
-        else:
-            printout='Your account is not active.  Contact an administrator.'
-            logging.warning("Inactive account tried to log in. Username: "+username)
-    else:
-        printout ="Your login and password didn't match."
-  else:
-    form = LoginForm()
-  return render(request, 'fund/login.html', {'form':form, 'printout':printout})
-
-def Register(request):
-  error_msg = ''
-  if request.method=='POST':
-    register = RegistrationForm(request.POST)
-    if register.is_valid():
-      username = request.POST['email'].lower()
-      password = request.POST['password']
-      if User.objects.filter(username=username):
-        error_msg = 'That email is already registered.  <a href="/fund/login/">Login</a> instead.'
-        logging.info('Email already registered: ' + username)
-      else:
-        created = User.objects.create_user(username, username, password)
-        created.save()
-        fn = request.POST['first_name']
-        ln = request.POST['last_name']
-        gp = request.POST['giving_project']
-        member, cr = models.Member.objects.get_or_create(email=username, defaults = {'first_name':fn, 'last_name':ln})
-        if cr:
-          logging.info('Registration - user and member objects created for '+username)
-        else:
-          logging.info(username + ' registered as User, Member object already existed')
-        if gp:
-          giv = models.GivingProject.objects.get(pk=gp)
-          membership, crs = models.Membership.objects.get_or_create(member = member, giving_project = giv)
-          if crs:
-            membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant.</td><td><img src="/static/images/odo1.png" height=88 width=54></td></tr></table>'
-            logging.info('Set welcome notif for ' + str(membership))
-            membership.save()
-          member.current = membership.pk
-          member.save()
-          logging.info('Registration - membership in ' + str(giv) + 'created or marked as current')
-        user = authenticate(username=username, password=password)
-        if user:
-          if user.is_active:
-            login(request, user)
-            return redirect('/fund/registered')
-          else: #not active
-            error_msg = 'There was a problem with your registration.  Please contact a site admin for assistance.'
-            logging.error('Inactive right after registering. Email: ' + username)
-        else: #email & pw didn't match
-          error_msg = 'There was a problem with your registration.  Please contact a site admin for assistance.'
-          logging.error("Password didn't match right after registering. Email: " + username)
-  else:
-    register = RegistrationForm()
-    
-  return render(request, 'fund/register.html', {'form':register, 'error_msg':error_msg})
-
-@login_required(login_url='/fund/login/')
-def Registered(request):
-  if request.membership_status==0:
-    return redirect(NotMember)
-  elif request.membership_status==1:
-    return redirect(Projects)
-  else:
-    member = models.Member.objects.get(email=request.user.username)
-
-  nship = request.GET.get('sh') or member.current #sh set by Projects, current set by Register
-  try:
-    ship = models.Membership.objects.get(pk=nship, member=member)
-  except models.Membership.DoesNotExist: #only if they manually entered # or something went horribly wrong
-    logging.warning('Membership does not exist right at /registered ' + request.user.username)
-    return redirect(Home)
-  if ship.approved==True: #another precaution
-    logging.warning('Membership approved before check at /registered ' + request.user.username)
-    return redirect(Home)
-  
-  proj = ship.giving_project
-  if proj.pre_approved:
-    app_list = [email.strip().lower() for email in proj.pre_approved.split(',')]
-    logging.info('Checking pre-approval for ' + request.user.username + ' in ' + str(proj) + ', list: ' + proj.pre_approved)
-    if ship.member.email in app_list:
-      ship.approved = True
-      ship.save()
-      member.current = nship
-      member.save()
-      logging.info('Pre-approval succeeded')
-      return redirect(Home)
-
-  return render(request, 'fund/registered.html', {'member':member, 'proj':proj})
-
-#MEMBERSHIP MANAGEMENT
-@login_required(login_url='/fund/login/')
-def Projects(request):
-  logging.info('view')
-  if request.membership_status==0:
-    return redirect(NotMember)
-  else:
-    member = models.Member.objects.get(email=request.user.username)
-  
-  ships = member.membership_set.all()
-  
-  printout = ''
-  if request.method=='POST':
-    form = AddProjectForm(request.POST)
-    if form.is_valid():
-      gp = request.POST['giving_project']
-      giv = models.GivingProject.objects.get(pk=gp)
-      ship, new = models.Membership.objects.get_or_create(member = member, giving_project=giv)
-      if new:
-        return redirect('/fund/registered?sh='+str(ship.pk))
-      else:
-        printout = 'You are already registered with that giving project.'
-  else:
-    form = AddProjectForm()
-  return render(request, 'fund/projects.html', {'member':member, 'form':form, 'printout':printout, 'ships':ships})
-
-@login_required(login_url='/fund/login/')
-@approved_membership()
-def SetCurrent(request, ship_id):
-  member = request.membership.member
-  try:
-    shippy = models.Membership.objects.get(pk=ship_id, member=member, approved=True)
-  except models.Membership.DoesNotExist:
-    return redirect(Projects)
-  
-  member.current=shippy.pk
-  member.save()
-  
-  return redirect(Home)
 
 # MAIN VIEWS
 @login_required(login_url='/fund/login/')
@@ -440,6 +298,147 @@ def ScoringList(request):
     'reviewed':reviewed,
     'in_progress':in_progress })
 
+# LOGIN & REGISTRATION
+def FundLogin(request):
+  printout=''
+  if request.method=='POST':
+    form = LoginForm(request.POST)
+    username = request.POST['email'].lower()
+    password = request.POST['password']
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if user.is_active:
+            login(request, user)
+            return redirect(Home)
+        else:
+            printout='Your account is not active.  Contact an administrator.'
+            logging.warning("Inactive account tried to log in. Username: "+username)
+    else:
+        printout ="Your login and password didn't match."
+  else:
+    form = LoginForm()
+  return render(request, 'fund/login.html', {'form':form, 'printout':printout})
+
+def Register(request):
+  error_msg = ''
+  if request.method=='POST':
+    register = RegistrationForm(request.POST)
+    if register.is_valid():
+      username = request.POST['email'].lower()
+      password = request.POST['password']
+      if User.objects.filter(username=username):
+        error_msg = 'That email is already registered.  <a href="/fund/login/">Login</a> instead.'
+        logging.info('Email already registered: ' + username)
+      else:
+        created = User.objects.create_user(username, username, password)
+        created.save()
+        fn = request.POST['first_name']
+        ln = request.POST['last_name']
+        gp = request.POST['giving_project']
+        member, cr = models.Member.objects.get_or_create(email=username, defaults = {'first_name':fn, 'last_name':ln})
+        if cr:
+          logging.info('Registration - user and member objects created for '+username)
+        else:
+          logging.info(username + ' registered as User, Member object already existed')
+        if gp:
+          giv = models.GivingProject.objects.get(pk=gp)
+          membership, crs = models.Membership.objects.get_or_create(member = member, giving_project = giv)
+          if crs:
+            membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant.</td><td><img src="/static/images/odo1.png" height=88 width=54></td></tr></table>'
+            logging.info('Set welcome notif for ' + str(membership))
+            membership.save()
+          member.current = membership.pk
+          member.save()
+          logging.info('Registration - membership in ' + str(giv) + 'created or marked as current')
+        user = authenticate(username=username, password=password)
+        if user:
+          if user.is_active:
+            login(request, user)
+            return redirect('/fund/registered')
+          else: #not active
+            error_msg = 'There was a problem with your registration.  Please contact a site admin for assistance.'
+            logging.error('Inactive right after registering. Email: ' + username)
+        else: #email & pw didn't match
+          error_msg = 'There was a problem with your registration.  Please contact a site admin for assistance.'
+          logging.error("Password didn't match right after registering. Email: " + username)
+  else:
+    register = RegistrationForm()
+    
+  return render(request, 'fund/register.html', {'form':register, 'error_msg':error_msg})
+
+@login_required(login_url='/fund/login/')
+def Registered(request):
+  if request.membership_status==0:
+    return redirect(NotMember)
+  elif request.membership_status==1:
+    return redirect(Projects)
+  else:
+    member = models.Member.objects.get(email=request.user.username)
+
+  nship = request.GET.get('sh') or member.current #sh set by Projects, current set by Register
+  try:
+    ship = models.Membership.objects.get(pk=nship, member=member)
+  except models.Membership.DoesNotExist: #only if they manually entered # or something went horribly wrong
+    logging.warning('Membership does not exist right at /registered ' + request.user.username)
+    return redirect(Home)
+  if ship.approved==True: #another precaution
+    logging.warning('Membership approved before check at /registered ' + request.user.username)
+    return redirect(Home)
+  
+  proj = ship.giving_project
+  if proj.pre_approved:
+    app_list = [email.strip().lower() for email in proj.pre_approved.split(',')]
+    logging.info('Checking pre-approval for ' + request.user.username + ' in ' + str(proj) + ', list: ' + proj.pre_approved)
+    if ship.member.email in app_list:
+      ship.approved = True
+      ship.save()
+      member.current = nship
+      member.save()
+      logging.info('Pre-approval succeeded')
+      return redirect(Home)
+
+  return render(request, 'fund/registered.html', {'member':member, 'proj':proj})
+
+#MEMBERSHIP MANAGEMENT
+@login_required(login_url='/fund/login/')
+def Projects(request):
+  logging.info('view')
+  if request.membership_status==0:
+    return redirect(NotMember)
+  else:
+    member = models.Member.objects.get(email=request.user.username)
+  
+  ships = member.membership_set.all()
+  
+  printout = ''
+  if request.method=='POST':
+    form = AddProjectForm(request.POST)
+    if form.is_valid():
+      gp = request.POST['giving_project']
+      giv = models.GivingProject.objects.get(pk=gp)
+      ship, new = models.Membership.objects.get_or_create(member = member, giving_project=giv)
+      if new:
+        return redirect('/fund/registered?sh='+str(ship.pk))
+      else:
+        printout = 'You are already registered with that giving project.'
+  else:
+    form = AddProjectForm()
+  return render(request, 'fund/projects.html', {'member':member, 'form':form, 'printout':printout, 'ships':ships})
+
+@login_required(login_url='/fund/login/')
+@approved_membership()
+def SetCurrent(request, ship_id):
+  member = request.membership.member
+  try:
+    shippy = models.Membership.objects.get(pk=ship_id, member=member, approved=True)
+  except models.Membership.DoesNotExist:
+    return redirect(Projects)
+  
+  member.current=shippy.pk
+  member.save()
+  
+  return redirect(Home)
+
 #ERROR & HELP PAGES
 @login_required(login_url='/fund/login/')
 def NotMember(request):
@@ -460,8 +459,13 @@ def Blocked(request):
   return render(request, 'fund/blocked.html', {'contact_url':contact_url})
 
 def Support(request):
-  header = "Support"
-  return render(request, 'fund/support.html', {'header':header})
+  if request.membership_status>1:
+    member = request.membership.member
+  elif request.membership_status==1:
+    member = models.Member.objects.get(email=request.user.username)
+  else:
+    member = False
+  return render(request, 'fund/support.html', {'member':member})
   
 #FORMS
 @login_required(login_url='/fund/login/')
