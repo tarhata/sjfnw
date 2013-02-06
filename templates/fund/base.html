@@ -1,15 +1,13 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-  <title>{% block title %}- Project Central{% endblock %}</title>
+  <title>{% block title %}- Project Central{% endblock %}</title><!-- TITLE -->
   <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=2.0, user-scalable=yes">
   <link rel="stylesheet" type="text/css" href="/static/css/base.css">
   <link rel="stylesheet" type="text/css" href="/static/css/fundraising.css">
   <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
   <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
   <script type="text/javascript"><!--google analytics -->
-
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-28076150-2']);
     
@@ -25,32 +23,27 @@
       ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
-
   </script>
-  {% block script %}{% endblock %}
+  {% block script %}{% endblock %}<!-- SCRIPTS -->
 </head>
 
 <body>
   <div id="page_wrapper">
-    <table id="header">
-    <tr>
-    <td style="width:161px;"><a href="/fund"><img src="/static/images/logo2.png" alt="Project Central logo" height=80 width=160 style="float:left;"></a></td>
-    <td><div align="center" id="header_text">{{header|default:"Project Central"}}</div></td>
-    </tr>
-    </table>
-    {% block top %}{% endblock %}
+    <!-- HEADER -->
+    <table id="header"><tr>
+      <td style="width:161px;"><div align="center" style="padding-bottom:5px;"><a href="/fund"><img src="/static/images/logo2.png" alt="Project Central logo" height=80 width=160"></a></td>
+      {% block header %}{% endblock header %}
+    </tr></table>
+    {% block top %}{% endblock %}<!-- TOP BLOCKS -->
     <div id="content_area">
-    {% block content %}{% endblock %}
+      {% block content %}{% endblock %}<!-- CONTENT -->
     </div>
-    <table id="footer">
-		<tr>
-    <td style="width:25%;"><a href="https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ" target="_blank">feedback</a></td>
-    <td style="width:25%;"><a href="/fund/support">support/FAQ</a></td>
-    <td style="width:15%;">{% if member %}<a href="/fund/projects">your projects</a>{% endif %}</td>
-    <td style="width:35%;"><div id="login">{% if user.is_authenticated %}{{user.email}} | <a href="/fund/logout/">logout</a>{% endif %}</div></td>
-    </tr><tr>
-		<td colspan="4"><div align="center" style="font-size:12px;margin-top:15px;"><a href="http://socialjusticefund.org" target="_blank">socialjusticefund.org</a></div></td>
-		</tr></table>
+    <table id="footer"><tr><!-- FOOTER -->
+      <td style="width:25%;">{% if member %}<a href="/fund/projects">your projects</a>{% endif %}</td>
+      <td style="width:25%;text-align:center;"><a href="/fund/support">support/FAQ</a></td>
+      <td style="width:15%;text-align:right;"><a href="http://socialjusticefund.org" target="_blank">sjf.org</a></td>
+      <td style="width:35%;"><div id="login">{% if user.is_authenticated %}{{user.email|truncatechars:"21"}} | <a href="/fund/logout/">logout</a>{% endif %}</div></td>
+    </tr></table>
   </div>
 </body>
 </html>

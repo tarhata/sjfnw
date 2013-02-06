@@ -81,17 +81,14 @@ def OrgSupport(request):
 # REGISTERED ORG VIEWS
 @login_required(login_url='/org/login/')
 @registered_org()
-def OrgHome(request, organization): # /org
+def OrgHome(request, organization):
     
   saved = models.DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
   submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time')
+  cycles = models.GrantCycle.objects.filter(close__gt=timezone.now()-datetime.timedelta(days=180)).order_by('open')
   submitted_cycles = submitted.values_list('grant_cycle', flat=True)
-  cycles = models.GrantCycle.objects.filter(close__gt=timezone.now()-datetime.timedelta(days=180)).order_by('open') #grants that closed w/in the last 180 days (~6 mos)
   
-  closed = []
-  open = []
-  applied = []
-  upcoming = []
+  closed, open, applied, upcoming = [], [], [], []
   for cycle in cycles:
     status = cycle.get_status()
     if status=='open':
@@ -104,7 +101,15 @@ def OrgHome(request, organization): # /org
     elif status=='upcoming':
       upcoming.append(cycle)
   
-  return render(request, 'grants/org_home.html', {'user':request.user, 'organization':organization, 'submitted':submitted, 'saved':saved, 'cycles':cycles, 'closed':closed, 'open':open, 'upcoming':upcoming, 'applied':applied})
+  return render(request, 'grants/org_home.html', {
+    'organization':organization,
+    'submitted':submitted,
+    'saved':saved,
+    'cycles':cycles,
+    'closed':closed,
+    'open':open,
+    'upcoming':upcoming,
+    'applied':applied})
 
 @login_required(login_url='/org/login/')
 @registered_org()
