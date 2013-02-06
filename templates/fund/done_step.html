@@ -1,109 +1,75 @@
-﻿<table class="form">
-	<tr> <!-- heading -->
-		<td colspan="3"><b>Completing {{step}}</b></td>
+﻿<table class="form" style="width:98%;">
+	<tr>
+    <td style="width:32%;"></td>
+    <td style="width:33%;"></td>
+    <td style="width:33%;"></td>
+  </tr>
+  <tr>
+		<td colspan="3"><b>Completing {{step}}</b></td><!-- Completing step -->
 	</tr>
 	<tr>
-		<td colspan="3">{{form.pledged_amount.errors}}</td>
+		<td colspan="3">{{form.pledged_amount.errors}}<form id = "{{step_id}}_done_step" method="post" action="{{action}}"></td>
 	</tr>
-	<tr style="height:28px;"> 
-		<td>
-			<form id = "{{step_id}}_done_step" method="post" action="{{action}}">
-			<span style="margin-right:10px;">
-				{% if donor.asked %}Asked.{% endif %}
-				<span id = "{{step_id}}_asked">
-					Asked: {{form.asked}}
-				</span>
-			</span>
-		</td>
-		<td>
-			{% if donor.pledged == 0 %}
-				Declined.
-			{% elif donor.pledged %}
-				Pledged ${{donor.pledged}}.
-			{% endif %}
-			<span id = "{{step_id}}_response">
-				Response: {{form.response}}
-			</span>
-		</td>
-		<td>
-			<span id="{{step_id}}_pledge">
-				Pledged: ${{form.pledged_amount}}
-			</span>
-		</td>
+	<tr style="height:28px;">
+		<td colspan="2" style="width:65%">
+      <table style="width:100%;text-align:center;vertical-align:middle;"><!--table: asked, response, pledge -->
+        <tr><!-- row 1: labels -->
+          <td style="width:32%">      
+            {% if donor.asked %}Asked.{% endif %}<div id = "{{step_id}}_asked">Asked<br>{{form.asked}}</div>
+          </td>
+          <td style="width:33%">{% if donor.pledged == 0 %}Declined.{% elif donor.pledged %}Pledged ${{donor.pledged}}.{% endif %}<span id = "{{step_id}}_response">Response<br>{{form.response}}</span></td>
+          <td style="width:33%"><span id="{{step_id}}_pledge">Pledged<br>${{form.pledged_amount}}</span></td>
+        </tr>
+      </table>
+    </td>
+    <td>Contact notes:{{form.notes.errors}}<br>{{form.notes}}</td>
 	</tr>
-	<tr class="{{step_id}}_pledge_follow" style="display:none;padding-top:10px;">  <!-- pledge follow -->
+	<tr class="{{step_id}}_pledge_follow" style="display:none;"><!-- pledge follow -->
 		<td colspan="3">
-			<p>Enter a last name and contact info so that SJF can follow up on the pledge if needed.</p>
-			<table>
-				<tr>
-					<td>
-						Last name
-					</td>
-					<td>
-						Phone number
-					</td>
-					<td>
-						 Email address
-					</td>		
+			<p><br>Enter a last name and contact info so that SJF can follow up on the pledge if needed.</p>
+			<table style="width:100%">	
+        <tr>
+					<td>Last name</td>
+					<td>Phone number</td>
+					<td>Email address</td>
 				</tr>
 				<tr>
-					<td>
-						{{form.last_name.errors}}
-					</td>
-					<td>
-						{{form.phone.errors}}
-					</td>
-					<td>
-						{{form.email.errors}}
-					</td>		
+					<td>{{form.last_name.errors}}</td>
+					<td>{{form.phone.errors}}</td>
+					<td>{{form.email.errors}}</td>
 				</tr>
 				<tr>
-					<td>
-						{{form.last_name}}
-					</td>
-					<td>
-						{{form.phone}}
-					</td>
-					<td>
-						{{form.email}}
-					</td>		
+					<td>{{form.last_name}}</td>
+					<td>{{form.phone}}</td>
+					<td>{{form.email}}</td>
 				</tr>
 			</table>
-		</td>
+    </td>
 	</tr>
 	<tr>
-		<td colspan="2">Contact notes:<br>{{form.notes}}</td>
-		<td>{{form.notes.errors}}</td>
+    <td colspan="3"></td>
+  </tr>
+  <tr><!-- Plan a next step -->
+    <td><b>Plan a next step:</b> (optional)</td>
+		<td colspan="2" rowspan="7" style="vertical-align:bottom;">
+			<div align="center" style="margin-bottom:15px;">{% include 'fund/suggested_steps.html' %}</div>
+    </td>
 	</tr>
-	<tr>  <!-- heading -->
-    <td colspan="2">
-			<br><b>Plan a next step:</b> (optional)
-		</td>
-		<td rowspan="6" style="vertical-align:bottom;">
-			<div align="center" style="margin-bottom:15px;">
-				{% include 'fund/suggested_steps.html' %}
-			</div>
-		</td>
-	</tr>
-	<tr>
-		<th></th>
-		<td>{{form.next_step_date.errors}}</td>
-	</tr>
-	<tr>
-		<th>Date:</th>
+  <tr style="height:15px;"><td></td></tr><!--padding so suggested aren't inline with submit-->
+  <tr>
+		<td>Date:{{form.next_step_date.errors}}</td>
+	</tr><tr>
 		<td>{{form.next_step_date}}</td>
+	</tr><tr>
+		<td>Description:{{form.next_step.errors}}</td>
+	</tr><tr>
+		<td>{{form.next_step}}</form></td><!-- form ends -->
 	</tr>
-	<tr>
-		<th></th>
-		<td>{{form.next_step.errors}}</td>
-	<tr>
-		<th>Description:</th>
-		<td>{{form.next_step}}</form></td>
-	</tr>
-	<tr>
-		<td colspan="2" style="text-align:center">
+  <tr><td></td></tr><!--padding so suggested aren't inline with submit-->
+  <tr>
+		<td colspan="3" style="text-align:center">
 			<button onclick="Submit('{{action}}', '#{{step_id}}_done_step', '{{donor.pk}}-nextstep', 'date', '{{donor.asked}}', '{{donor.pledged}}')">Save</button>
 			<button onclick="location.href='/fund/'">Cancel</button>
-		</td>
+    </td>
 	</tr>
 </table>

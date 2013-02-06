@@ -37,7 +37,6 @@ class NewDonor(forms.Form):
   likelihood = forms.IntegerField(label='*Estimated likelihood (%)', validators=[MaxValueValidator(100)])
   phone = forms.CharField(max_length=15,required=False)
   email = forms.EmailField(required=False)
-
   step_date = forms.DateField(required=False, label='Date', widget=forms.DateInput(attrs={'class':'datePicker', 'readonly':'true'}, format='%Y-%m-%d'))
   step_desc = forms.CharField(required=False, max_length=255, label='Description')
   
@@ -100,7 +99,7 @@ class StepDoneForm(forms.Form):
   phone = forms.CharField(max_length=15,required=False)
   email = forms.EmailField(required=False)
   
-  notes = forms.CharField(max_length=255, required=False,  widget=forms.Textarea(attrs={'rows':2, 'cols':20}))
+  notes = forms.CharField(max_length=255, required=False,  widget=forms.Textarea(attrs={'rows':3, 'cols':20}))
   
   next_step = forms.CharField(max_length=100, required=False)
   next_step_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker', 'readonly':'true'}, format='%m/%d/%Y'))
