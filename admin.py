@@ -19,11 +19,6 @@ import logging
   gp save - remove blank lines in s_steps
   """
 
-class HiddenModelAdmin(admin.ModelAdmin):
-  def get_model_perms(self, request):
-    #Return empty perms dict thus hiding the model from admin index.
-    return {} 
-
 def approve(modeladmin, request, queryset):
   subject, from_email = 'Membership Approved', settings.APP_SEND_EMAIL
   logging.info('Approval button pressed; looking through queryset')
@@ -138,6 +133,7 @@ class GrantAppAdmin(admin.ModelAdmin):
 
 class DraftAdmin(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified')
+  readonly_fields = ('fiscal_letter', 'budget', 'demographics', 'funding_sources')
 
 def view_grant_link(obj):
   return '<a href="/grants/view/' + str(obj.pk) + '/">' + str(obj.submission_time) + '</a>'
@@ -159,8 +155,9 @@ class OrganizationAdmin(admin.ModelAdmin):
   fields = (
     ('name', 'email', 'telephone_number'),
     ('address', 'city', 'state', 'zip'),
+    ('fiscal_letter'),
   )
-  readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number', 'fax_number', 'email_address', 'website', 'status', 'ein')
+  readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number', 'fax_number', 'email_address', 'website', 'status', 'ein', 'fiscal_letter')
   inlines = (GrantAppInline,)
 
 ## ADMIN SITES
