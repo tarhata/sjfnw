@@ -95,16 +95,16 @@ $(document).ready(function() {
 <form action="{{upload_url}}" method="POST" enctype="multipart/form-data">
 
   <div id="test" style="display:none;">
-	TEST ONLY: {{form.errors}}{{form.organization}}{{form.grant_cycle}}
+    TEST ONLY: {{form.errors}}{{form.organization}}{{form.grant_cycle}}
 	</div>
 	
-  <div align="center"><h1>{{cycle}} Application</h1>
-  
-  <div id="last_saved">Last saved: <div id="autosaved">{%if saved %}{{saved|date:"F j, g:ia"}}{%else%}never{% endif %}</div></div>
+  <div align="center">
+    <h1>{{cycle}} Application</h1>
+    <span id="last_saved">Last saved: <span id="autosaved">{%if saved %}{{saved|date:"F j, g:ia"}}{%else%}never{% endif %}</span></span>
 	</div>
   
   {% autoescape off %}
-  <table id="application_form">
+  <table id="application_form"><!-- Form starts -->
     <tr>
       <td><h4>Contact information</h4></td> <!-- Contact information -->
     </tr> 

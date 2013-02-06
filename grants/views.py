@@ -117,15 +117,13 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   
   #check cycle exists
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
-  
-  #check whether cycle is open
-  if cycle.is_open()==False: 
-    return render(request, 'grants/closed.html', {'cycle':cycle})
-  
+
   #check for app already submitted
   subd = models.GrantApplication.objects.filter(organization=organization, grant_cycle=cycle)
   if subd: 
     return render(request, 'grants/already_applied.html', {'organization':organization, 'cycle':cycle})
+  
+  saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = organization, grant_cycle=cycle)
   
   if request.method == 'POST':
     post_data = request.POST.copy()
@@ -140,7 +138,6 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     
     #get or create autosave json, update it from this submission
     dict = json.dumps(post_data)
-    saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = organization, grant_cycle=cycle)
     saved.contents = dict
     if files_data.get('budget'): #if new file, use it and save it
       saved.budget = files_data['budget']
@@ -160,6 +157,8 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       files_data['fiscal_letter'] = saved.fiscal_letter
     saved.save()
     mod = saved.modified
+    if cycle.is_open()==False and not saved.allow_edit: 
+      return render(request, 'grants/closed.html', {'cycle':cycle}) #TODO replace this with a specific page saying that their draft has been saved
     logging.info('Submitting files_data: ' + str(files_data))
     form = models.GrantApplicationForm(post_data, files_data)
     if form.is_valid():
@@ -193,41 +192,39 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       logging.info("Application form invalid")
       
   else: #GET
-    try:
-      saved = models.DraftGrantApplication.objects.get(organization=organization, grant_cycle=cycle)
+    if cycle.is_open()==False and not saved.allow_edit: 
+      return render(request, 'grants/closed.html', {'cycle':cycle})
+    if cr: #just created empty draft
+      dict = model_to_dict(organization)
+      saved.fiscal_letter = organization.fiscal_letter
+      saved.contents = dict
+      saved.save()
+      logging.debug('Created new draft')
+      mod = ''
+    else: #loaded a draft
       dict = json.loads(saved.contents)
       logging.debug('Loading draft: ' + str(dict))
       mod = saved.modified
-    except models.DraftGrantApplication.DoesNotExist:
-      dict = model_to_dict(organization)
-      saved = False
-      mod = ''
     dict['organization'] = organization
     dict['grant_cycle'] = cycle
     dict['screening_status'] = 10
     form = models.GrantApplicationForm(initial=dict)
   
   #get saved files
-  if saved:
-    files = {'pk': saved.pk}
-    name = str(saved.budget).split('/')[-1]
-    files['budget'] = name
-    logging.debug('Budget name ' + name)
-    name = str(saved.demographics).split('/')[-1]
-    files['demographics'] = name
-    logging.debug('demographics name ' + name)
-    name = str(saved.funding_sources).split('/')[-1]
-    files['funding_sources'] = name
-    logging.debug('funding_sources name ' + name)
-    name = str(saved.fiscal_letter).split('/')[-1]
-    files['fiscal_letter'] = name
-    logging.info('fiscal_letter name ' + name)
-    logging.info('Files dict: ' + str(files))
-  else:
-    files = ''
+  files = {'pk': saved.pk}
+  name = str(saved.budget).split('/')[-1]
+  files['budget'] = name
+  name = str(saved.demographics).split('/')[-1]
+  files['demographics'] = name
+  name = str(saved.funding_sources).split('/')[-1]
+  files['funding_sources'] = name
+  name = str(saved.fiscal_letter).split('/')[-1]
+  files['fiscal_letter'] = name
+  logging.info('Files dict: ' + str(files))
 
   #test replacement: upload_url = '/apply/' + cycle_id + '/'
   upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
+  
   return render(request, 'grants/org_app.html',
   {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files}  )
 

@@ -35,11 +35,7 @@ textarea {
   font-family:Arial;
 }
 
-div#autosaved {
-	display:inline
-}
-
-div#last_saved {
+span#last_saved {
 	font-style:italic;
 }
 
