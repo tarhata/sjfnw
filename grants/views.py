@@ -16,7 +16,7 @@ from grants.forms import *
 from grants.decorators import registered_org
 import fund, models, datetime, logging, json, re, utils
 
-#ORG VIEWS
+# PUBLIC ORG VIEWS
 def OrgLogin(request):
   error_msg=''
   if request.method=='POST':
@@ -75,6 +75,10 @@ def OrgRegister(request):
   form = LoginForm()
   return render(request, 'grants/org_login.html', {'form':form, 'register':register, 'rprintout':error_msg})
 
+def OrgSupport(request):
+  return render(request, 'grants/org_support.html')
+
+# REGISTERED ORG VIEWS
 @login_required(login_url='/org/login/')
 @registered_org()
 def OrgHome(request, organization): # /org
@@ -102,9 +106,6 @@ def OrgHome(request, organization): # /org
   
   return render(request, 'grants/org_home.html', {'user':request.user, 'organization':organization, 'submitted':submitted, 'saved':saved, 'cycles':cycles, 'closed':closed, 'open':open, 'upcoming':upcoming, 'applied':applied})
 
-def OrgSupport(request):
-  return render(request, 'grants/org_support.html')
-  
 @login_required(login_url='/org/login/')
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
@@ -235,26 +236,11 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
     raise Http404
   
   if request.method == 'POST':
-    
     #get or create saved json, update it
     dict = json.dumps(request.POST)
     saved, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
     saved.contents = dict
-    saved.save()
-    
-    return HttpResponse("")
-
-def AutoSaveFile(request, cycle_id):
-  try:
-    organization = models.Organization.objects.get(email=request.user.username)
-  except models.Organization.DoesNotExist:
-    logging.error('Organization not found on file autosave. Email = ' + request.user.username)
-    return HttpResponse("Error")
-  
-  if request.method == 'POST':
-    
-    saved, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
-    #get file off the request and save it
+    saved.save()   
     return HttpResponse("")
 
 @registered_org()
@@ -277,7 +263,7 @@ def RefreshUploadUrl(request, cycle_id):
   upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
   return HttpResponse(upload_url)
 
-#APPLICATION
+# VIEW APPS/FILES
 def ViewApplication(request, app_id):
   
   user = request.user
@@ -299,7 +285,7 @@ def ViewFile(request, app_id, file_type):
   
   return utils.FindBlob(application, file_type)
 
-def ViewDraftFile(request, draft_id, file_type): #FINISH
+def ViewDraftFile(request, draft_id, file_type):
   #find the application
   try:
     application = models.DraftGrantApplication.objects.get(pk = draft_id)
@@ -307,10 +293,6 @@ def ViewDraftFile(request, draft_id, file_type): #FINISH
     raise Http404('Draft grant app ' + str(draft_id) + ' not found')
 
   return utils.FindBlob(application, file_type)
-    
-#REPORTING
-
-#Add your views here.  New views should also be added to urls.py under reporting
 
 #CRON
 def DraftWarning(request):
@@ -328,11 +310,3 @@ def DraftWarning(request):
       msg.send()
       logging.info("Email sent to " + to + "regarding draft application soon to expire")
   return HttpResponse("")
-  
-#DEVEL  
-def TestView(request):
-  z = timezone.get_default_timezone()
-  timezone.activate(z)
-  today = timezone.now()
-  logging.error('fake test error')
-  return render(request, 'debug.html', {'now':today, 'tzzz':z})
