@@ -91,6 +91,7 @@ ul.errorlist, ul.errorlist li {
 	margin:0 0 0 0;
 	/* vertical-align:bottom; */
 	padding:0px;
+  display:inline;
 }
 
 /* support */

@@ -127,14 +127,14 @@ $(document).ready(function() {
       <td>{{form.fax_number.errors}}</td>
     </tr><tr>
       <td>{{form.telephone_number.label}}{{form.telephone_number}}</td>
-      <td>{{form.fax_number.label}} {{form.fax_number.help_text}}{{form.fax_number}}</td>
+      <td>{{form.fax_number.label}}{{form.fax_number}}</td>
     </tr>    
     <tr>
       <td>{{form.email_address.errors}}</td>
       <td>{{form.website.errors}}</td>
     </tr><tr>
       <td>{{form.email_address.label}}{{form.email_address}}</td>
-      <td>{{form.website.label}} {{form.website.help_text}}{{form.website}}</td>
+      <td>{{form.website.label}}{{form.website}}</td>
     </tr><tr>
       <td><h4>Organization information</h4></td> <!-- Organization information -->
     </tr><tr>
@@ -148,7 +148,8 @@ $(document).ready(function() {
       <td>{{form.founded.label}}{{form.founded}}</td>
     </tr>   
     <tr>
-      <td colspan="2">{{form.mission.label}}{{form.mission.errors}}{{form.mission}}</td>
+      <td colspan="2"><div class="vertical_cushion">{{form.mission.label}}{{form.mission.errors}}</div>
+      {{form.mission}}</td>
     </tr>
 		<tr>
       <td><h4>Fiscal sponsor information (if applicable)</h4></td><!-- Fiscal sponsor info -->
@@ -168,7 +169,7 @@ $(document).ready(function() {
     </tr><tr>
       <td colspan="2">{{form.fiscal_address.label}}{{form.fiscal_address}}</td>
     </tr><tr>
-			<td colspan="2">{{form.fiscal_letter.help_text}}</td>
+			<td colspan="2"><div class="vertical_cushion">{{form.fiscal_letter.help_text}}</div></td>
 		</tr><tr>
 			<td>{{form.fiscal_letter.errors}}</td>
 		</tr><tr>	
@@ -192,8 +193,7 @@ $(document).ready(function() {
     <tr>
       <td>{{form.grant_period.label}}{{form.grant_period}}</td>
       <td>{{form.start_year.label}}{{form.start_year}}</td>
-    </tr>
-   <tr><td></td><td></td></tr><tr>
+    </tr><tr>
       <td>{{form.budget_last.errors}}</td>
       <td>{{form.budget_current.errors}}</td>
     </tr><tr>
@@ -202,9 +202,10 @@ $(document).ready(function() {
     </tr><tr>
       <td colspan="2">{{form.previous_grants.errors}}</td>
     </tr><tr>
-      <td colspan="2">{{form.previous_grants.label}} {{form.previous_grants}} </td>
+      <td colspan="2">{{form.previous_grants.label}}{{form.previous_grants}}</td>
     </tr><tr>
-      <td colspan="2">{{form.grant_request.label}}{{form.grant_request.errors}}{{form.grant_request}}</td>
+      <td colspan="2"><div class="vertical_cushion">{{form.grant_request.label}}{{form.grant_request.errors}}</div>
+      {{form.grant_request}}</td>
     </tr><tr>
       <td>{{form.amount_requested.errors}}</td><td>{{form.support_type.errors}}</td>
     </tr><tr>
@@ -221,7 +222,7 @@ $(document).ready(function() {
 
   <h4>Narrative</h4><!-- Narrative -->
 
-	Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan.  	Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process.
+	Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan.	Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process.
 	
 	<div class="narrative_q">1. {{form.narrative1.label}}<br><br>
 	{{form.narrative1.errors}}{{form.narrative1}}
@@ -259,11 +260,6 @@ $(document).ready(function() {
 	<td>{{form.collab_ref1_org}}</td>
 	<td>{{form.collab_ref1_phone}}</td>
 	<td>{{form.collab_ref1_email}}</td>
-	</tr><tr class="main_row">
-	<td>{{form.collab_ref2_name.label}}</td>
-	<td>{{form.collab_ref2_org.label}}</td>
-	<td>{{form.collab_ref2_phone.label}}</td>
-	<td>{{form.collab_ref2_email.label}}</td>
 	</tr><tr>
 	<td>{{form.collab_ref2_name.errors}}</td>
 	<td>{{form.collab_ref2_org.errors}}</td>
@@ -297,11 +293,6 @@ $(document).ready(function() {
 	<td>{{form.racial_justice_ref1_org}}</td>
 	<td>{{form.racial_justice_ref1_phone}}</td>
 	<td>{{form.racial_justice_ref1_email}}</td>
-	</tr><tr class="main_row">
-	<td>{{form.racial_justice_ref2_name.label}}</td>
-	<td>{{form.racial_justice_ref2_org.label}}</td>
-	<td>{{form.racial_justice_ref2_phone.label}}</td>
-	<td>{{form.racial_justice_ref2_email.label}}</td>
 	</tr><tr>
 	<td>{{form.racial_justice_ref2_name.errors}}</td>
 	<td>{{form.racial_justice_ref2_org.errors}}</td>
@@ -314,11 +305,12 @@ $(document).ready(function() {
 	<td>{{form.racial_justice_ref2_email}}</td>
 	</tr></table>
 	</div>
-	<h4>File uploads</h4>
+  
+	<h4>File uploads</h4><!-- Files -->
 	<ul><li>Files are not autosaved</li>
 	<li>If an incomplete form is submitted, those files will be saved along with the draft</li>
 	<li>Uploaded files overwrite any previously saved files</li></ul>
-  <table>
+  <table style="width:98%;">
     <tr>
 			<td></td>
 			<td>{{form.budget.errors}}</td>
@@ -349,7 +341,6 @@ $(document).ready(function() {
 		</tr>
 	</table>
   {% endautoescape %}
-  
-  <div align="center"><input type="submit" value="Submit Application" /></div>
+  <div align="center"><input id="grant_submit" type="submit" value="Submit Application"/></div>
 </form>
 {% endblock %}

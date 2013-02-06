@@ -134,9 +134,9 @@ class GrantApplication(models.Model):
   state = models.CharField(max_length=2,choices=STATE_CHOICES)
   zip = models.CharField(max_length=50)
   telephone_number = models.CharField(max_length=20)
-  fax_number = models.CharField(max_length=20, null=True, blank=True, help_text='(optional)')
+  fax_number = models.CharField(max_length=20, null=True, blank=True, verbose_name = 'Fax number (optional)')
   email_address = models.EmailField()
-  website = models.CharField(max_length=50, null=True, blank=True, help_text='(optional)')
+  website = models.CharField(max_length=50, null=True, blank=True, verbose_name = 'Website (optional)')
   
   #org info
   STATUS_CHOICES = (
@@ -165,7 +165,7 @@ class GrantApplication(models.Model):
   budget_current = models.PositiveIntegerField(verbose_name='Org. budget this fiscal year')
   project_title = models.CharField(max_length=250,verbose_name='Project title (if applicable)', null=True, blank=True)
   project_budget = models.PositiveIntegerField(verbose_name='Project budget (if applicable)', null=True, blank=True)
-  grant_request = models.TextField(verbose_name="Summarize the grant request:")
+  grant_request = models.TextField(verbose_name="Summarize the grant request")
   previous_grants = models.CharField(max_length=255, verbose_name="Previous SJF grants awarded (amounts and year)")
   
   #fiscal sponsor

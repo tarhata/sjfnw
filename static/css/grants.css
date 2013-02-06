@@ -31,6 +31,10 @@ div.formwrapper {
   line-spacing:120%;
 }
 
+textarea {
+  font-family:Arial;
+}
+
 div#autosaved {
 	display:inline
 }
@@ -63,7 +67,7 @@ div.formwrapper input[type="text"] {
   width:140px;
 }
 
-input#id_contact_person, input#id_previous_grants {
+input#id_contact_person, input#id_previous_grants, input#id_fiscal_address {
 	width:300px;
 }
 
@@ -77,6 +81,11 @@ table span.label {
 
 textarea {
 	width:98%;
+}
+
+div.vertical_cushion {
+  margin-top:5px;
+  margin-bottom:5px;
 }
 
 div.info_box {
@@ -110,4 +119,10 @@ span.char_counter_ok, span.char_counter_over {
 
 span.char_counter_over {
 	color:red;
+}
+
+input#grant_submit {
+  margin-top:40px;
+  font-size:135%;
+  font-weight:bold;
 }
