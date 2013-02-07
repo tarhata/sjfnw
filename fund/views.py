@@ -780,7 +780,7 @@ def EmailOverdue(request):
   today = datetime.date.today()
   ships = models.Membership.objects.filter(giving_project__fundraising_deadline__gte=today)
   limit = today-datetime.timedelta(days=7)
-  subject, from_email = 'Fundraising Steps', settings.APP_SEND_EMAIL
+  subject, from_email = 'Fundraising Steps', settings.FUND_SEND_EMAIL
   for ship in ships:
     user = ship.member
     if ship.emailed <= limit:
@@ -790,7 +790,7 @@ def EmailOverdue(request):
         to = user.email
         html_content = render_to_string('fund/email_overdue.html', {'login_url':settings.APP_BASE_URL+'fund/login', 'ship':ship, 'num':num, 'step':st, 'base_url':settings.APP_BASE_URL})
         text_content = strip_tags(html_content)
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com'])
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.APP_SUPPORT_EMAIL])
         msg.attach_alternative(html_content, "text/html")
         msg.send()
         ship.emailed = today
@@ -799,7 +799,7 @@ def EmailOverdue(request):
 
 def NewAccounts(request):
   #Sends GP leaders an email saying how many unapproved memberships there are.  Will continue emailing about the same membership until it's approved/deleted.
-  subject, from_email = 'Accounts pending approval', settings.APP_SEND_EMAIL
+  subject, from_email = 'Accounts pending approval', settings.FUND_SEND_EMAIL
   for gp in models.GivingProject.objects.all():
     memberships = models.Membership.objects.filter(giving_project=gp, approved=False).count()
     leaders = models.Membership.objects.filter(giving_project=gp, leader=True)
@@ -808,7 +808,7 @@ def NewAccounts(request):
         to = leader.member.email
         html_content = render_to_string('fund/email_new_accounts.html', {'admin_url':settings.APP_BASE_URL+'admin/fund/membership/', 'count':memberships, 'support_email':settings.APP_SUPPORT_EMAIL})
         text_content = strip_tags(html_content)
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com'])
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.APP_SUPPORT_EMAIL])
         msg.attach_alternative(html_content, "text/html")
         msg.send()
   return HttpResponse("")
@@ -825,12 +825,12 @@ def GiftNotify(request):
     donor.membership.notifications += 'Gift of $'+str(donor.gifted)+' received from '+donor.firstname+' '+donor.lastname+'!<br>'
     donor.membership.save()
   unique = set(members)
-  subject, from_email = 'Gift received', settings.APP_SEND_EMAIL
+  subject, from_email = 'Gift received', settings.FUND_SEND_EMAIL
   for mem in unique:
     to = mem.email
     html_content = render_to_string('fund/email_gift.html', {'login_url':login_url})
     text_content = strip_tags(html_content)
-    msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com'])
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.APP_SUPPORT_EMAIL])
     msg.attach_alternative(html_content, "text/html")
     msg.send()
   donors.update(gift_notified=True)

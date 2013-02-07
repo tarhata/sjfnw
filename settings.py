@@ -51,7 +51,6 @@ MIDDLEWARE_CLASSES = (
 TEMPLATE_CONTEXT_PROCESSORS = (
   'django.contrib.auth.context_processors.auth',
   'django.core.context_processors.request', #only used in fund/base.html js
-  #'django.core.context_processors.media',  MEDIA_URL in templates
   #'django.contrib.messages.context_processors.messages', messages var. not using yet
 )
 
@@ -91,6 +90,7 @@ FILE_UPLOAD_HANDLERS = (
 
 ### CUSTOM SETTINGS
 
-APP_SUPPORT_EMAIL = 'webmaster@socialjusticefund.org' #just email
-APP_SEND_EMAIL = 'sjfnwads@gmail.com' #can include name is_email_valid(email_address)
+FUND_SEND_EMAIL = 'projectcentral@socialjusticefund.org' #send pc emails
+APP_SUPPORT_EMAIL = 'techsupport@socialjusticefund.org' #displayed on support page
+GRANT_SEND_EMAIL = 'sjfnwads@gmail.com' #can include name is_email_valid(email_address)
 SUPPORT_FORM_URL = 'https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ'

@@ -1,4 +1,4 @@
-from django.conf import settings
+﻿from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -163,7 +163,6 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     form = models.GrantApplicationForm(post_data, files_data)
     if form.is_valid():
       logging.info('Application form valid')
-      logging.info(request.META['HTTP_REFERER'])
       application = form.save() #save as GrantApp object
       logging.info("Application form saved, budget: " + str(application.budget))
       #update org profile
@@ -177,11 +176,11 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       else:
         logging.error('Application error: profile not updated.  User: %s, application id: %s', request.user.email, application.pk)
       #email confirmation
-      subject, from_email = 'Grant application submitted', settings.APP_SEND_EMAIL
+      subject, from_email = 'Grant application submitted', settings.GRANT_SEND_EMAIL
       to = organization.email
       html_content = render_to_string('grants/email_submitted.html', {'org':organization, 'cycle':cycle})
       text_content = strip_tags(html_content)
-      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com'])
+      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.APP_SUPPORT_EMAIL])
       msg.attach_alternative(html_content, "text/html")
       msg.send()
       logging.info("Application created; confirmation email sent to " + to)
@@ -296,18 +295,18 @@ def ViewDraftFile(request, draft_id, file_type):
 
   return utils.FindBlob(application, file_type)
 
-#CRON
+# CRON
 def DraftWarning(request):
   drafts = models.DraftGrantApplication.objects.all()
   for draft in drafts:
     time_left = draft.grant_cycle.close - timezone.now()
     logging.debug('Time left: ' + str(time_left))
     if datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3):
-      subject, from_email = 'Grant cycle closing soon', settings.APP_SEND_EMAIL
+      subject, from_email = 'Grant cycle closing soon', settings.GRANT_SEND_EMAIL
       to = draft.organization.email
       html_content = render_to_string('grants/email_submitted.html', {'org':draft.organization, 'cycle':draft.grant_cycle})
       text_content = strip_tags(html_content)
-      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com'])
+      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.APP_SUPPORT_EMAIL])
       msg.attach_alternative(html_content, "text/html")
       msg.send()
       logging.info("Email sent to " + to + "regarding draft application soon to expire")
