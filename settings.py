@@ -72,10 +72,9 @@ STATIC_URL = '/static/'
 USE_TZ = True
 TIME_ZONE = 'America/Los_Angeles'
 
-#settings to try to make error reporting happen
+#django error reporting - doesn't work
 SERVER_EMAIL = 'sjfnwads@gmail.com'
-DEFAULT_FROM_EMAIL = 'sjfnwads@gmail.com'
-ADMINS = (('Aisa', 'sjfnwads@gmail.com'),)
+ADMINS = (('Aisa', 'aisapatino@gmail.com'),)
 
 PREPARE_UPLOAD_BACKEND = 'djangoappengine.storage.prepare_upload'
 DEFAULT_FILE_STORAGE = 'djangoappengine.storage.BlobstoreStorage'
@@ -90,7 +89,8 @@ FILE_UPLOAD_HANDLERS = (
 
 ### CUSTOM SETTINGS
 
+#from emails: fred@example.com or Fred <fred@example.com>
 FUND_SEND_EMAIL = 'projectcentral@socialjusticefund.org' #send pc emails
-APP_SUPPORT_EMAIL = 'techsupport@socialjusticefund.org' #displayed on support page
-GRANT_SEND_EMAIL = 'sjfnwads@gmail.com' #can include name is_email_valid(email_address)
+GRANT_SEND_EMAIL = 'grants@socialjusticefund.org' #can include name is_email_valid(email_address)
+SUPPORT_EMAIL = 'techsupport@socialjusticefund.org' #displayed on support page
 SUPPORT_FORM_URL = 'https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ'

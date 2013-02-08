@@ -465,7 +465,8 @@ def Support(request):
     member = models.Member.objects.get(email=request.user.username)
   else:
     member = False
-  return render(request, 'fund/support.html', {'member':member})
+  
+  return render(request, 'fund/support.html', {'member':member, 'support_email': settings.SUPPORT_EMAIL, 'support_form':settings.SUPPORT_FORM_URL})
   
 #FORMS
 @login_required(login_url='/fund/login/')
@@ -790,7 +791,7 @@ def EmailOverdue(request):
         to = user.email
         html_content = render_to_string('fund/email_overdue.html', {'login_url':settings.APP_BASE_URL+'fund/login', 'ship':ship, 'num':num, 'step':st, 'base_url':settings.APP_BASE_URL})
         text_content = strip_tags(html_content)
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.APP_SUPPORT_EMAIL])
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.SUPPORT_EMAIL])
         msg.attach_alternative(html_content, "text/html")
         msg.send()
         ship.emailed = today
@@ -806,9 +807,9 @@ def NewAccounts(request):
     if memberships>0:
       for leader in leaders:
         to = leader.member.email
-        html_content = render_to_string('fund/email_new_accounts.html', {'admin_url':settings.APP_BASE_URL+'admin/fund/membership/', 'count':memberships, 'support_email':settings.APP_SUPPORT_EMAIL})
+        html_content = render_to_string('fund/email_new_accounts.html', {'admin_url':settings.APP_BASE_URL+'admin/fund/membership/', 'count':memberships, 'support_email':settings.SUPPORT_EMAIL})
         text_content = strip_tags(html_content)
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.APP_SUPPORT_EMAIL])
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.SUPPORT_EMAIL])
         msg.attach_alternative(html_content, "text/html")
         msg.send()
   return HttpResponse("")
@@ -830,7 +831,7 @@ def GiftNotify(request):
     to = mem.email
     html_content = render_to_string('fund/email_gift.html', {'login_url':login_url})
     text_content = strip_tags(html_content)
-    msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.APP_SUPPORT_EMAIL])
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.SUPPORT_EMAIL])
     msg.attach_alternative(html_content, "text/html")
     msg.send()
   donors.update(gift_notified=True)

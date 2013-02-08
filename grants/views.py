@@ -76,7 +76,9 @@ def OrgRegister(request):
   return render(request, 'grants/org_login.html', {'form':form, 'register':register, 'rprintout':error_msg})
 
 def OrgSupport(request):
-  return render(request, 'grants/org_support.html')
+  return render(request, 'grants/org_support.html', {
+  'support_email':settings.SUPPORT_EMAIL,
+  'support_form':settings.SUPPORT_FORM_URL})
 
 # REGISTERED ORG VIEWS
 @login_required(login_url='/org/login/')
@@ -180,7 +182,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       to = organization.email
       html_content = render_to_string('grants/email_submitted.html', {'org':organization, 'cycle':cycle})
       text_content = strip_tags(html_content)
-      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.APP_SUPPORT_EMAIL])
+      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.SUPPORT_EMAIL])
       msg.attach_alternative(html_content, "text/html")
       msg.send()
       logging.info("Application created; confirmation email sent to " + to)
@@ -306,7 +308,7 @@ def DraftWarning(request):
       to = draft.organization.email
       html_content = render_to_string('grants/email_submitted.html', {'org':draft.organization, 'cycle':draft.grant_cycle})
       text_content = strip_tags(html_content)
-      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.APP_SUPPORT_EMAIL])
+      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.SUPPORT_EMAIL])
       msg.attach_alternative(html_content, "text/html")
       msg.send()
       logging.info("Email sent to " + to + "regarding draft application soon to expire")
