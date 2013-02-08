@@ -1,4 +1,4 @@
-﻿/* --- GRANT --- */
+﻿/* base */
 
 div#nav_menu  {
 	text-align:center;
@@ -20,6 +20,13 @@ div#org_wrapper {
 table#org_footer {
 	width:100%;
 	font-size:1em;
+}
+
+/* home page */
+
+div#org_wrapper li {
+  margin-top:5px;
+  margin-bottom:5px;
 }
 
 /* application form */
