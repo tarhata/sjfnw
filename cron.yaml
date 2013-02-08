@@ -11,10 +11,10 @@ cron:
   url: /mail/gifts
   schedule: every day 14:10
 
-- description: warns people with saved drafts when their grant cycle is about to close
+- description: warns orgs with saved drafts when their grant cycle is about to close
   url: /mail/drafts
   schedule: every day 14:15
 
-- description: Hourly exception report
+- description: daily exception report
   url: /_ereporter?sender=sjfnwads@gmail.com&to=aisapatino@gmail.com
   schedule: every day 14:20
