@@ -26,7 +26,7 @@
     <p>{{form.fiscal_email.label}}: {{app.fiscal_email}}</p>
     <p>{{form.fiscal_address.label}}: {{app.fiscal_address}}</p>
 		{% if app.fiscal_letter %}
-			<p>Fiscal sponsor letter: <a href="{{base_url}}grants/view-file/{{app.pk}}/fiscal" target="_blank">View</a></p>
+			<p>Fiscal sponsor letter: <a href="{{fiscal_url}}grants/view-file/{{app.pk}}/fiscal" target="_blank">View</a></p>
 		{% endif %}
   {% endif %}
 	
@@ -74,13 +74,13 @@
   {% else %}N/A{% endif %}
   <h3>Files</h3>
   {%if app.budget %}
-  <b>Budget</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/budget" target="_blank">View</a></p>
+  <b>Budget</b>: <a href="{{budget_url}}grants/view-file/{{app.pk}}/budget" target="_blank">View</a></p>
   {%endif%}
   {%if app.demographics%}
-  <b>Demographics</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/demographics" target="_blank">View</a></p>
+  <b>Demographics</b>: <a href="{{demo_url}}grants/view-file/{{app.pk}}/demographics" target="_blank">View</a></p>
   {%endif%}
   {%if app.funding_sources%}
-  <b>Funding sources</b>: <a href="{{base_url}}grants/view-file/{{app.pk}}/funding" target="_blank">View</a></p>
+  <b>Funding sources</b>: <a href="{{funding_url}}grants/view-file/{{app.pk}}/funding" target="_blank">View</a></p>
   {%endif%}
 
 </div>

@@ -267,15 +267,28 @@ def RefreshUploadUrl(request, cycle_id):
   return HttpResponse(upload_url)
 
 # VIEW APPS/FILES
-def ViewApplication(request, app_id):
-  
+def ViewApplication(request, app_id): 
   user = request.user
   app = get_object_or_404(models.GrantApplication, pk=app_id)
   form = models.GrantApplicationForm(instance = app)
-  base_url = settings.APP_BASE_URL
-  if not settings.DEBUG:
-    base_url = 'https://docs.google.com/viewer?url=' + base_url
-  return render(request, 'grants/view_app.html', {'app':app, 'form':form, 'user':user, 'base_url':base_url})
+  #set up doc viewer for applicable files
+  budget_url, funding_url, demo_url, fiscal_url = '/', '/', '/', '/'
+  if True:#not settings.DEBUG:
+    viewer_url = 'https://docs.google.com/viewer?url=' + settings.APP_BASE_URL
+    viewer_formats = ('jpeg', 'png', 'gif', 'tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf')
+    logging.info('checking for doc viewer compatibility')
+    if str(app.budget).split(".")[-1] in viewer_formats:
+      budget_url =  viewer_url
+    logging.info(str(app.funding_sources).split(".")[-1])
+    if str(app.funding_sources).split(".")[-1] in viewer_formats:
+      funding_url =  viewer_url
+    logging.info(str(app.demographics).split(".")[-1])
+    if str(app.demographics).split(".")[-1] in viewer_formats:
+      demo_url =  viewer_url
+    if app.fiscal_letter and str(app.fiscal_letter).split(".")[-1] in viewer_formats:
+      fiscal_url =  viewer_url      
+  
+  return render(request, 'grants/view_app.html', {'app':app, 'form':form, 'user':user, 'fiscal_url':fiscal_url, 'budget_url':budget_url, 'funding_url':funding_url, 'demo_url':demo_url,})
 
 def ViewFile(request, app_id, file_type):
  
