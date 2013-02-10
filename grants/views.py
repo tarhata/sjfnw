@@ -136,24 +136,28 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       if isinstance(value,(str, unicode)):
           post_data[key] = value.replace('\r', '')
     files_data = request.FILES.copy()
-    logging.info('FILES at start: ' + str(files_data))
+    logging.info('FILES at start: ' + str(files_data.lists()))
     
     #get or create autosave json, update it from this submission
     dict = json.dumps(post_data)
     saved.contents = dict
     if files_data.get('budget'): #if new file, use it and save it
+      logging.info('budget in POST, saving to draft: ' + str(files_data['budget']))
       saved.budget = files_data['budget']
     elif saved.budget: #use draft file if it exists
       files_data['budget'] = saved.budget
     if files_data.get('demographics'):
+      logging.info('demo in POST, saving to draft')
       saved.demographics = files_data['demographics']
     elif saved.demographics:
       files_data['demographics'] = saved.demographics
     if files_data.get('funding_sources'):
+      logging.info('funding in POST, saving to draft')
       saved.funding_sources = files_data['funding_sources']
     elif saved.funding_sources:
       files_data['funding_sources'] = saved.funding_sources
     if files_data.get('fiscal_letter'):
+      logging.info('fiscal in POST, saving to draft')
       saved.fiscal_letter = files_data['fiscal_letter']
     elif saved.fiscal_letter:
       files_data['fiscal_letter'] = saved.fiscal_letter
@@ -161,7 +165,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     mod = saved.modified
     if cycle.is_open()==False and not saved.allow_edit: 
       return render(request, 'grants/closed.html', {'cycle':cycle}) #TODO replace this with a specific page saying that their draft has been saved
-    logging.info('Submitting files_data: ' + str(files_data))
+    logging.info('Submitting files_data: ' + str(files_data.lists()))
     form = models.GrantApplicationForm(post_data, files_data)
     if form.is_valid():
       logging.info('Application form valid')
@@ -223,7 +227,8 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   files['fiscal_letter'] = name
   logging.info('Files dict: ' + str(files))
   file_urls = utils.GetFileURLs(saved)
-  #test replacement: upload_url = '/apply/' + cycle_id + '/'
+  #test replacement:upload_url = '/apply/' + cycle_id + '/'
+  #live:
   upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
   
   return render(request, 'grants/org_app.html',

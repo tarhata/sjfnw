@@ -91,10 +91,8 @@ def GetFileURLs(app):
     logging.info('checking for doc viewer compatibility')
     if str(app.budget).split(".")[-1] in viewer_formats:
       file_urls['budget'] =  viewer_url
-    logging.debug(str(app.funding_sources).split(".")[-1])
     if str(app.funding_sources).split(".")[-1] in viewer_formats:
       file_urls['funding'] =  viewer_url
-    logging.debug(str(app.demographics).split(".")[-1])
     if str(app.demographics).split(".")[-1] in viewer_formats:
       file_urls['demographics'] =  viewer_url
     if app.fiscal_letter and str(app.fiscal_letter).split(".")[-1] in viewer_formats:

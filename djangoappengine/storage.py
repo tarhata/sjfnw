@@ -65,12 +65,12 @@ class BlobstoreStorage(Storage):
         logging.info('.BlobstoreStorage_save on ' + name)
         if hasattr(content, 'file') and hasattr(content.file, 'blobstore_info'):
             data = content.file.blobstore_info
-            logging.info('1st')
+            logging.debug('1st')
         elif hasattr(content, 'blobstore_info'):
             data = content.blobstore_info
-            logging.info('2nd')
+            logging.debug('2nd')
         elif isinstance(content, File):
-            logging.info('3rd, is file')
+            logging.debug('3rd, is file')
             guessed_type = mimetypes.guess_type(name)[0]
             file_name = files.blobstore.create(mime_type=guessed_type or 'application/octet-stream', _blobinfo_uploaded_filename=name)
 
@@ -91,7 +91,7 @@ class BlobstoreStorage(Storage):
             if isinstance(data, BlobInfo):
                 logging.info('data is blobinfo, storing its key')
                 data = data.key()
-            logging.info('returning ' + name.lstrip('/') + ' containing ' + str(data))
+            logging.info('Returning ' + name.lstrip('/') + ' containing ' + str(data))
             #import pdb; pdb.set_trace()
   
             return '%s/%s' % (data, name.lstrip('/'))
@@ -162,6 +162,7 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
 
     def new_file(self, *args, **kwargs):
         #import pdb; pdb.set_trace() 
+        logging.info('BlobstoreFileUploadHandler.new_file')
         super(BlobstoreFileUploadHandler, self).new_file(*args, **kwargs)
         
         blobkey = None # self.content_type_extra.get('blob-key')
@@ -181,6 +182,7 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
         """
         Return a file object if we're activated.
         """
+        logging.info('BlobstoreFileUploadHandler.file_complete')
         if not self.active:
             return
 
@@ -195,6 +197,7 @@ class BlobstoreUploadedFile(UploadedFile):
     """
 
     def __init__(self, blobinfo, charset):
+        logging.info('BlobstoreUploadedFile.__init__')
         super(BlobstoreUploadedFile, self).__init__(
             BlobReader(blobinfo.key()), blobinfo.filename,
             blobinfo.content_type, blobinfo.size, charset)
