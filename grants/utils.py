@@ -71,15 +71,15 @@ def FindBlob(application, file_type):
       c = timezone.make_aware(c, timezone.utc)
       c = timezone.localtime(c)
     if c == creation_time:
-      logging.info('Found a creation time match! ' + str(b.filename) + ', ' + str(b.size))
+      logging.debug('Found a creation time match! ' + str(b.filename) + ', ' + str(b.size))
       if b.filename == filename:
         logging.info('Filename matches - returning file')
-        
         response =  HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
-        response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+        if b.content_type != 'text/plain' and not '.jpg' in filename:
+          response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
         return response
       else:
-        logging.info('Creation time matched but filename did not: blobinfo filename was ' + filename + ', found ' + b.filename)
+        logging.debug('Creation time matched but filename did not: blobinfo filename was ' + filename + ', found ' + b.filename)
   logging.error('No matching blob found')
   raise Http404
 
