@@ -74,7 +74,10 @@ def FindBlob(application, file_type):
       logging.info('Found a creation time match! ' + str(b.filename) + ', ' + str(b.size))
       if b.filename == filename:
         logging.info('Filename matches - returning file')
-        return HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
+        
+        response =  HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
+        response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+        return response
       else:
         logging.info('Creation time matched but filename did not: blobinfo filename was ' + filename + ', found ' + b.filename)
   logging.error('No matching blob found')
