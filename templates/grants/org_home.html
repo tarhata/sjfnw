@@ -15,7 +15,8 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 
 <h4>Saved drafts</h4>
 	<ul>{% for save in saved %}
-		<li><a href="{% url grants.views.Apply save.grant_cycle.pk %}">{{save.grant_cycle}}</a> - last modified {{save.modified|date:"m/d h:ia"}} <a onclick="confirmation('{{save.pk}}')">[x]</a></li>
+		<li>
+		{% if save.editable %}<a href="{% url grants.views.Apply save.grant_cycle.pk %}">{{save.grant_cycle}}</a> - last modified {{save.modified|date:"m/d h:ia"}}{% else %}<i>{{save.grant_cycle}} - cycle closed on {{save.grant_cycle.close|date:"m/d"}}</i>{% endif %} <a onclick="confirmation('{{save.pk}}')">[delete]</a></li>
 	{% empty %}<li>None found</li>{% endfor %}</ul>
 
 <h4>Submitted applications</h4>

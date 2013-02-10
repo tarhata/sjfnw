@@ -99,6 +99,14 @@ class DraftGrantApplication(models.Model):
 
   def __unicode__(self):
     return self.organization.name + u' saved draft id ' + unicode(self.pk)
+  
+  def editable(self):
+    deadline = self.grant_cycle.close
+    now = timezone.now()
+    if deadline > now or self.allow_edit:
+      return True
+    else:
+      return False
 
 class CharLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'
