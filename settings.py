@@ -90,7 +90,7 @@ FILE_UPLOAD_HANDLERS = (
 ### CUSTOM SETTINGS
 
 #from emails: fred@example.com or Fred <fred@example.com>
-FUND_SEND_EMAIL = 'projectcentral@socialjusticefund.org' #send pc emails
-GRANT_SEND_EMAIL = 'grants@socialjusticefund.org' #can include name is_email_valid(email_address)
+FUND_SEND_EMAIL = 'Project Central <projectcentral@socialjusticefund.org>' #send pc emails
+GRANT_SEND_EMAIL = 'Social Justice Fund Grants <grants@socialjusticefund.org>' #can include name is_email_valid(email_address)
 SUPPORT_EMAIL = 'techsupport@socialjusticefund.org' #displayed on support page
 SUPPORT_FORM_URL = 'https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ'
