@@ -222,12 +222,12 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   name = str(saved.fiscal_letter).split('/')[-1]
   files['fiscal_letter'] = name
   logging.info('Files dict: ' + str(files))
-
+  file_urls = utils.GetFileURLs(saved)
   #test replacement: upload_url = '/apply/' + cycle_id + '/'
   upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
   
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files}  )
+  {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls}  )
 
 @registered_org()
 def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
@@ -272,23 +272,9 @@ def ViewApplication(request, app_id):
   app = get_object_or_404(models.GrantApplication, pk=app_id)
   form = models.GrantApplicationForm(instance = app)
   #set up doc viewer for applicable files
-  budget_url, funding_url, demo_url, fiscal_url = '/', '/', '/', '/'
-  if True:#not settings.DEBUG:
-    viewer_url = 'https://docs.google.com/viewer?url=' + settings.APP_BASE_URL
-    viewer_formats = ('jpeg', 'png', 'gif', 'tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf')
-    logging.info('checking for doc viewer compatibility')
-    if str(app.budget).split(".")[-1] in viewer_formats:
-      budget_url =  viewer_url
-    logging.info(str(app.funding_sources).split(".")[-1])
-    if str(app.funding_sources).split(".")[-1] in viewer_formats:
-      funding_url =  viewer_url
-    logging.info(str(app.demographics).split(".")[-1])
-    if str(app.demographics).split(".")[-1] in viewer_formats:
-      demo_url =  viewer_url
-    if app.fiscal_letter and str(app.fiscal_letter).split(".")[-1] in viewer_formats:
-      fiscal_url =  viewer_url      
+  file_urls = utils.GetFileURLs(app)
   
-  return render(request, 'grants/view_app.html', {'app':app, 'form':form, 'user':user, 'fiscal_url':fiscal_url, 'budget_url':budget_url, 'funding_url':funding_url, 'demo_url':demo_url,})
+  return render(request, 'grants/view_app.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls})
 
 def ViewFile(request, app_id, file_type):
  

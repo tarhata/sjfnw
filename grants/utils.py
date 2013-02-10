@@ -83,6 +83,24 @@ def FindBlob(application, file_type):
   logging.error('No matching blob found')
   raise Http404
 
+def GetFileURLs(app):
+  file_urls = {'budget': '/', 'funding':'/', 'demographics':'/', 'fiscal':'/'}
+  if True:#not settings.DEBUG:
+    viewer_url = 'https://docs.google.com/viewer?url=' + settings.APP_BASE_URL
+    viewer_formats = ('jpeg', 'png', 'gif', 'tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf')
+    logging.info('checking for doc viewer compatibility')
+    if str(app.budget).split(".")[-1] in viewer_formats:
+      file_urls['budget'] =  viewer_url
+    logging.debug(str(app.funding_sources).split(".")[-1])
+    if str(app.funding_sources).split(".")[-1] in viewer_formats:
+      file_urls['funding'] =  viewer_url
+    logging.debug(str(app.demographics).split(".")[-1])
+    if str(app.demographics).split(".")[-1] in viewer_formats:
+      file_urls['demographics'] =  viewer_url
+    if app.fiscal_letter and str(app.fiscal_letter).split(".")[-1] in viewer_formats:
+      file_urls['fiscal'] =  viewer_url
+  return file_urls
+  
 def AppToDraft(submitted_app):
   draft = DraftGrantApplication(organization = submitted_app.organization, grant_cycle = submitted_app.grant_cycle)
   content = model_to_dict(submitted_app, exclude = ['budget', 'demographics', 'funding_sources', 'fiscal_letter', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo'])

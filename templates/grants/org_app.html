@@ -174,7 +174,7 @@ $(document).ready(function() {
 			<td>{{form.fiscal_letter.errors}}</td>
 		</tr><tr>	
 			<td>{{form.fiscal_letter}}</td>
-			<td>{% if files.fiscal_letter %}<a href="/grants/draft-file/{{files.pk}}/fiscal" target="_blank">{{files.fiscal_letter}}</a>{% endif %}</td>
+			<td>{% if files.fiscal_letter %}<a href="{{file_urls.fiscal}}grants/draft-file/{{files.pk}}/fiscal" target="_blank">{{files.fiscal_letter}}</a>{% endif %}</td>
 		</tr><tr>
       <td><h4>Grant and budget information</h4></td><!-- Grant and budget information -->
     </tr><tr>
@@ -319,7 +319,7 @@ $(document).ready(function() {
 		<tr>
 			<td>Budget:</td>
 			<td>{{form.budget}}</td>
-			<td>{% if files.budget %}<a href="/grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% else %}<i>none</i>{% endif %}</td>
+			<td>{% if files.budget %}<a href="{{file_urls.budget}}grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% else %}<i>none</i>{% endif %}</td>
 		</tr><tr>
 			<td></td>
 			<td>{{form.demographics.errors}}</td>
@@ -328,7 +328,7 @@ $(document).ready(function() {
 		<tr>
 			<td>Demographics:</td>
 			<td>{{form.demographics}}</td>
-			<td>{% if files.demographics %}<a href="/grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% else %}<i>none</i>{% endif %}</td>
+			<td>{% if files.demographics %}<a href="{{file_urls.demographics}}grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% else %}<i>none</i>{% endif %}</td>
 		</tr><tr>
 			<td></td>
 			<td>{{form.funding_sources.errors}}</td>
@@ -337,7 +337,7 @@ $(document).ready(function() {
 		<tr>
 			<td>Funding sources:</td>
 			<td>{{form.funding_sources}}</td>
-			<td>{% if files.funding_sources %}<a href="/grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% else %}<i>none</i>{% endif %}</td>
+			<td>{% if files.funding_sources %}<a href="{{file_urls.funding}}grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% else %}<i>none</i>{% endif %}</td>
 		</tr>
 	</table>
   {% endautoescape %}
