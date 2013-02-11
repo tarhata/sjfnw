@@ -49,13 +49,12 @@ def Home(request):
   #member/ship info
   membership = request.membership
   member = membership.member
+  logging.debug(str(membership))
   
   #top content
   news = models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date')
   header = membership.giving_project.title
-  
-  logging.debug(str(membership))
-  
+
   #donors
   donors = list(membership.donor_set.all())
   progress = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0, 'pledged':0, 'donated':0} 
@@ -105,7 +104,7 @@ def Home(request):
     progress['contactsremaining'] = 0
   
   notif = membership.notifications
-  if notif == 'specifhjdsjkfh': #only show a notification once
+  if notif and not settings.DEBUG: #on live, only show a notification once
     logging.info('Displaying notification to ' + str(membership) + ': ' + notif)
     membership.notifications=''
     membership.save()
@@ -817,16 +816,14 @@ def NewAccounts(request):
 
 def GiftNotify(request):
   """ Send an email to members letting them know gifts have been received
-      Mark donors as notified
-      Put details in mem notif for main page """
+    Mark donors as notified
+    Put details in membership notif """
 
   donors = models.Donor.objects.filter(gifted__gt=0, gift_notified=False).select_related('membership__member')
-  login_url = settings.APP_BASE_URL + 'fund/login'
   memberships = {}
-  #group all the donors by membership
-  for donor in donors:
+  for donor in donors: #group donors by membership
     if not donor.membership in memberships:
-      memberships[donor.membership] = ()
+      memberships[donor.membership] = []
     memberships[donor.membership].append(donor)
   
   for ship, dlist in memberships.iteritems():
@@ -836,17 +833,19 @@ def GiftNotify(request):
       if d.lastname:
         gift_str += ' '+donor.lastname
       gift_str += '!<br>'
-    ship.notifications = '<table><tr><td>' + gift_str + '</td><td><img src="/static/images/odo1.png" height=86 width=176></td></tr></table>'
+    ship.notifications = '<table><tr><td>' + gift_str + '</td><td><img src="/static/images/odo2.png" height=86 width=176></td></tr></table>'
     ship.save()
-    
+    logging.info('Gift notification set for ' + str(ship))
   
+  login_url = settings.APP_BASE_URL + 'fund/login'
   subject, from_email = 'Gift received', settings.FUND_SEND_EMAIL
-  for mem in unique:
-    to = mem.email
+  for ship in memberships:
+    to = ship.member.email
     html_content = render_to_string('fund/email_gift.html', {'login_url':login_url})
     text_content = strip_tags(html_content)
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.SUPPORT_EMAIL])
     msg.attach_alternative(html_content, "text/html")
     msg.send()
+    logging.info('Emailed gift notification to ' + to)
   donors.update(gift_notified=True)
   return HttpResponse("")

@@ -141,14 +141,15 @@ div#notifications {
   width:80%;
   margin-left:auto;
   margin-right:auto;
-	text-align:center;
 	margin-bottom:25px;
   margin-top:10px;
-  vertical-align:middle;
 }
 
 div#notifications table {
-  width:80%;
+  width:98%;
+  text-align:center;
+  vertical-align:middle;
+  line-height:1.5em;
 }
 
 div.donor {
