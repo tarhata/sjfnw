@@ -1,4 +1,5 @@
-﻿from django.core.exceptions import ValidationError
+﻿from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.forms import ModelForm, Textarea
@@ -148,6 +149,10 @@ NARRATIVE_TEXTS = ['Placeholder for 0',
   'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i><ul>  <li>Summarize your organization\'s analysis of inequality and oppression.</li><li>How does your organization live out that analysis internally?</li><li>How does your organization\'s work impact those systems of oppression in the larger society?</li></ul>', #6
   ]
 
+def validate_file_extension(value):
+  if not str(value).split(".")[-1] in settings.ALLOWED_FILE_TYPES:
+    raise ValidationError(u'That file type is not supported.')
+
 class GrantApplication(models.Model):
   """ Submitted grant application """
   
@@ -209,7 +214,7 @@ class GrantApplication(models.Model):
   fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address', max_length=70, null=True, blank=True)
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
-  fiscal_letter = models.FileField(upload_to='/%Y/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.')
+  fiscal_letter = models.FileField(upload_to='/%Y/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension])
   
   #narrative
   narrative1 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
