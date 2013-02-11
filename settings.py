@@ -76,7 +76,6 @@ TIME_ZONE = 'America/Los_Angeles'
 SERVER_EMAIL = 'sjfnwads@gmail.com'
 ADMINS = (('Aisa', 'aisapatino@gmail.com'),)
 
-PREPARE_UPLOAD_BACKEND = 'djangoappengine.storage.prepare_upload'
 DEFAULT_FILE_STORAGE = 'djangoappengine.storage.BlobstoreStorage'
 SERVE_FILE_BACKEND = 'djangoappengine.storage.serve_file'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024
