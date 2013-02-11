@@ -232,7 +232,7 @@ def ProjectPage(request):
   if project_progress['togo'] < 0:
     project_progress['togo'] = 0
 
-  resources = models.ProjectResource.objects.filter(giving_project = project).select_related('resource')
+  resources = models.ProjectResource.objects.filter(giving_project = project).select_related('resource').order_by('session')
   
   logging.info(resources)
   sectioned = {}
@@ -253,6 +253,7 @@ def ProjectPage(request):
   'steps':steps,
   'membership':membership,
   'project_progress':project_progress,
+  'resources':resources,
   'sectioned':sectioned})
 
 @login_required(login_url='/fund/login/')
