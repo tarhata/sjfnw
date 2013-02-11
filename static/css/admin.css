@@ -6,9 +6,18 @@
 
 p.help {
   font-size:12px !important;
-  margin-left:5px;
+  font-weight:normal;
+}
+
+form .aligned p.help {
+  padding-left:0px !important;
+  margin-left:0px !important;
 }
 
 .inline-group .tabular tr.has_original td {
-padding-top: .5em !important;
+  padding-top: .5em !important;
+}
+
+.module h2, .module caption, .inline-group h2 {
+  font-size:12px;
 }
