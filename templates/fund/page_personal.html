@@ -72,7 +72,7 @@
     console.log('textProgress');
     document.getElementById('chart_div').innerHTML = "<br><br>Haven't contacted: {{progress.contactsremaining}}<br>Talked to: {{progress.talked}}<br>Asked: {{progress.asked}}";
     if ({{progress.estimated}} > 0) {
-      document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: {{progress.togo|default:'0'}}<br>Pledged: {{progress.pledged}}<br>Donated: {{progress.donated}}";
+      document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{progress.togo|default:'0'}}<br>Pledged: ${{progress.pledged}}<br>Donated: ${{progress.donated}}";
     }
   }
 </script>

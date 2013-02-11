@@ -1,11 +1,10 @@
 ﻿{% extends 'fund/blocks.html' %}
-
 {% block title %}Project progress {{block.super}}{% endblock %}
-
 {% block script %}
+<script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
-
+if (Modernizr.inlinesvg) { 
   // Load the Visualization API and the piechart package.
   google.load('visualization', '1.0', {'packages':['corechart']});
 
@@ -40,9 +39,11 @@
     // Instantiate and draw our chart, passing in some options.
     var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
     chart.draw(data, options);
-    drawChart2();             
+    if ({{membership.giving_project.fund_goal}} > 0) {
+      drawChart2();    
+    }
   }
-   function drawChart2() {
+  function drawChart2() {
     
     // Create the data table.
     var data = new google.visualization.DataTable();
@@ -58,22 +59,30 @@
     var chart = new google.visualization.PieChart(document.getElementById('chart_div2'));
     chart.draw(data, options);           
   }
-  
+} else { //browser cannot support charts
+  console.log('Browser does not support charts');
+  textProgress();
+}
+
+function textProgress() {
+  console.log('textProgress');
+  document.getElementById('chart_div').innerHTML = "<br><br>Haven't contacted: {{project_progress.contactsremaining}}<br>Talked to: {{project_progress.talked}}<br>Asked: {{project_progress.asked}}";
+  if ({{membership.giving_project.fund_goal}} > 0) {
+    document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{project_progress.togo|default:'0'}}<br>Pledged: ${{project_progress.pledged}}<br>Donated: ${{project_progress.donated}}";
+  }
+}
 </script>
 {% endblock %}
 
 {% block content %}
 
 <b>PROJECT PROGRESS</b>
-<table style="width:100%;margin-top:10px;">
+<table style="width:90%;margin-left:8%;margin-top:10px;margin-bottom:15px;text-align:center;">
 <tr>
-	<td style="width:50%;">
-    <div align="center">{{project_progress.contacts}} contacts</div>
-    {% if project_progress.contacts > 0 %}<div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:30px;margin-bottom:15px;"></div>{% endif %}
-	<td>
-    <div align="center">${{membership.giving_project.fund_goal}} fundraising goal</div>
-    {% if membership.giving_project.fund_goal > 0 %}<div align="center" id ="chart_div2" style="width:260px;height:110px;;margin-left:25px;margin-bottom:15px;"></div>{% endif %}
-	</td>
+	<td><div align="center">{{project_progress.contacts}} contacts</div><div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
+  {% if membership.giving_project.fund_goal > 0 %}
+  <td><div align="center" title="Fundraising goal as set by the group">${{membership.giving_project.fund_goal}} fundraising goal</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
+  {% endif %}
 </tr>
 </table>
 
