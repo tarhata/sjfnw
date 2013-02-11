@@ -310,34 +310,35 @@ $(document).ready(function() {
 	<ul><li>Files are not autosaved</li>
 	<li>If an incomplete form is submitted, those files will be saved along with the draft</li>
 	<li>Uploaded files overwrite any previously saved files</li></ul>
+  <p>Please download the provided template, fill it out, and upload it once it is complete.  For the budget, you may use your own format if preferred.</p>
   <table style="width:98%;">
     <tr>
 			<td></td>
 			<td>{{form.budget.errors}}</td>
-			<td>Uploaded file:</td>
+			<td></td>
 		</tr>
 		<tr>
-			<td>Budget:</td>
+			<td>Budget: <a href="/static/grant_app/budget.doc" target="_blank">optional template</a></td>
 			<td>{{form.budget}}</td>
-			<td>{% if files.budget %}<a href="{{file_urls.budget}}grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% else %}<i>none</i>{% endif %}</td>
+			<td>{% if files.budget %}<a href="{{file_urls.budget}}grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% endif %}</td>
 		</tr><tr>
 			<td></td>
 			<td>{{form.demographics.errors}}</td>
 			<td></td>
 		</tr>
 		<tr>
-			<td>Demographics:</td>
+			<td>Demographics: <a href="/static/grant_app/demographics.docx" target="_blank">template</a></td>
 			<td>{{form.demographics}}</td>
-			<td>{% if files.demographics %}<a href="{{file_urls.demographics}}grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% else %}<i>none</i>{% endif %}</td>
+			<td>{% if files.demographics %}<a href="{{file_urls.demographics}}grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% endif %}</td>
 		</tr><tr>
 			<td></td>
 			<td>{{form.funding_sources.errors}}</td>
 			<td></td>
 		</tr>
 		<tr>
-			<td>Funding sources:</td>
+			<td>Funding sources:<a href="/static/grant_app/funding_sources.docx" target="_blank">template</a></td>
 			<td>{{form.funding_sources}}</td>
-			<td>{% if files.funding_sources %}<a href="{{file_urls.funding}}grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% else %}<i>none</i>{% endif %}</td>
+			<td>{% if files.funding_sources %}<a href="{{file_urls.funding}}grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% endif %}</td>
 		</tr>
 	</table>
   {% endautoescape %}
