@@ -816,17 +816,30 @@ def NewAccounts(request):
   return HttpResponse("")
 
 def GiftNotify(request):
-  #Sends an email to members letting them know gifts have been received
-  #Marks donors as notified
-  #Puts details in mem notif for main page
-  donors = models.Donor.objects.filter(gifted__gt=0, gift_notified=False)
-  members = []
+  """ Send an email to members letting them know gifts have been received
+      Mark donors as notified
+      Put details in mem notif for main page """
+
+  donors = models.Donor.objects.filter(gifted__gt=0, gift_notified=False).select_related('membership__member')
   login_url = settings.APP_BASE_URL + 'fund/login'
+  memberships = {}
+  #group all the donors by membership
   for donor in donors:
-    members.append(donor.membership.member)
-    donor.membership.notifications += 'Gift of $'+str(donor.gifted)+' received from '+donor.firstname+' '+donor.lastname+'!<br>'
-    donor.membership.save()
-  unique = set(members)
+    if not donor.membership in memberships:
+      memberships[donor.membership] = ()
+    memberships[donor.membership].append(donor)
+  
+  for ship, dlist in memberships.iteritems():
+    gift_str = ''
+    for d in dlist:
+      gift_str += 'Gift of $'+str(d.gifted)+' received from '+d.firstname
+      if d.lastname:
+        gift_str += ' '+donor.lastname
+      gift_str += '!<br>'
+    ship.notifications = '<table><tr><td>' + gift_str + '</td><td><img src="/static/images/odo1.png" height=86 width=176></td></tr></table>'
+    ship.save()
+    
+  
   subject, from_email = 'Gift received', settings.FUND_SEND_EMAIL
   for mem in unique:
     to = mem.email
