@@ -88,7 +88,7 @@ def GetFileURLs(app):
   file_urls = {'budget': '/', 'funding':'/', 'demographics':'/', 'fiscal':'/'}
   if True:#not settings.DEBUG:
     viewer_url = 'https://docs.google.com/viewer?url=' + settings.APP_BASE_URL
-    viewer_formats = ('jpeg', 'png', 'gif', 'tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf')
+    viewer_formats = ('jpeg', 'png', 'gif', 'tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mpeg4', 'mov', 'avi', 'wmv')
     logging.info('checking for doc viewer compatibility')
     if str(app.budget).split(".")[-1] in viewer_formats:
       file_urls['budget'] =  viewer_url

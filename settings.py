@@ -93,3 +93,5 @@ FUND_SEND_EMAIL = 'Project Central <projectcentral@socialjusticefund.org>' #send
 GRANT_SEND_EMAIL = 'Social Justice Fund Grants <grants@socialjusticefund.org>' #can include name is_email_valid(email_address)
 SUPPORT_EMAIL = 'techsupport@socialjusticefund.org' #displayed on support page
 SUPPORT_FORM_URL = 'https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ'
+
+ALLOWED_FILE_TYPES = ('jpeg', 'png', 'gif', 'tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mpeg4', 'mov', 'avi', 'wmv', 'jpg', 'txt')
