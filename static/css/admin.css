@@ -8,3 +8,7 @@ p.help {
   font-size:12px !important;
   margin-left:5px;
 }
+
+.inline-group .tabular tr.has_original td {
+padding-top: .5em !important;
+}
