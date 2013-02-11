@@ -3,8 +3,9 @@ from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.forms import ModelForm, Textarea
 from django.utils import timezone
+from google.appengine.ext import blobstore
 from fund.models import GivingProject
-import datetime
+import datetime, logging
 
 class Organization(models.Model):
   #registration fields
@@ -107,6 +108,32 @@ class DraftGrantApplication(models.Model):
       return True
     else:
       return False
+  
+  """ only deletes blobinfo, not file itself :(
+  def save(self, *args, **kwargs):
+    delete = []
+    try:
+      previous = DraftGrantApplication.objects.get(id=self.id)
+      if previous.budget and previous.budget != self.budget:
+        delete.append(previous.budget)
+      if previous.demographics and previous.demographics != self.demographics:
+        delete.append(previous.demographics)
+      if previous.fiscal_letter and previous.fiscal_letter != self.fiscal_letter:
+        delete.append(previous.fiscal_letter)
+      if previous.funding_sources and previous.funding_sources != self.funding_sources:
+        delete.append(previous.funding_sources)
+    except: pass
+    logging.info('Queued for deletion: ' + str(delete))
+    count = 0
+    for field in delete:
+      key = str(field).split('/', 1)[0]
+      if key:
+        binfo = blobstore.BlobInfo.get(key)
+        binfo.delete()
+        count += 1
+    logging.info('Draft being updated. ' + str(count) + ' old files deleted.')
+    super(DraftGrantApplication, self).save(*args, **kwargs)
+  """
 
 class CharLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'
