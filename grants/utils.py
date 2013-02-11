@@ -2,6 +2,7 @@
 from django.http import HttpResponse, Http404
 from django.utils import timezone
 from google.appengine.ext import blobstore
+from google.appengine.ext.db import Query
 from grants.models import DraftGrantApplication
 import datetime, logging, re
 
@@ -110,3 +111,13 @@ def AppToDraft(submitted_app):
   draft.allow_edit = True
   draft.save()
   #once tested, delete the app
+  
+def DeleteEmptyFiles(request): #/tools/delete-empty
+  """ Delete all 0kb files in the blobstore """
+  infos = blobstore.BlobInfo.all().filter('size =', 0)
+  count = 0
+  for i in infos:
+    count += 1
+    i.delete()
+  logging.info('Deleted ' + str(count) + 'empty files.')
+  return HttpResponse("done")

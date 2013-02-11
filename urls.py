@@ -135,6 +135,7 @@ urlpatterns = patterns('',
   (r'^mail/overdue-step', 'fund.views.EmailOverdue'),
   (r'^mail/new-accounts', 'fund.views.NewAccounts'),
   (r'^mail/gifts', 'fund.views.GiftNotify'),
+  (r'^tools/delete-empty', 'grants.utils.DeleteEmptyFiles'),
 )
 
 #for dev_appserver
