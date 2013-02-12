@@ -232,14 +232,6 @@ def ProjectPage(request):
     project_progress['togo'] = 0
 
   resources = models.ProjectResource.objects.filter(giving_project = project).select_related('resource').order_by('session')
-  
-  logging.info(resources)
-  sectioned = {}
-  for projresource in resources:
-    session = str(projresource.session)
-    if not session in sectioned:
-       sectioned[session] = []
-    sectioned[session].append(projresource.resource)
     
   #base
   header = project.title
@@ -252,8 +244,7 @@ def ProjectPage(request):
   'steps':steps,
   'membership':membership,
   'project_progress':project_progress,
-  'resources':resources,
-  'sectioned':sectioned})
+  'resources':resources})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -344,7 +335,7 @@ def Register(request):
           giv = models.GivingProject.objects.get(pk=gp)
           membership, crs = models.Membership.objects.get_or_create(member = member, giving_project = giv)
           if crs:
-            membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant.</td><td><img src="/static/images/odo1.png" height=88 width=54></td></tr></table>'
+            membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant. I\'ll be here to guide you through the fundraising process and cheer you on.</td><td><img src="/static/images/odo1.png" height=88 width=54></td></tr></table>'
             logging.info('Set welcome notif for ' + str(membership))
             membership.save()
           member.current = membership.pk
@@ -837,7 +828,7 @@ def GiftNotify(request):
     ship.save()
     logging.info('Gift notification set for ' + str(ship))
   
-  login_url = settings.APP_BASE_URL + 'fund/login'
+  login_url = settings.APP_BASE_URL + 'fund/'
   subject, from_email = 'Gift received', settings.FUND_SEND_EMAIL
   for ship in memberships:
     to = ship.member.email
