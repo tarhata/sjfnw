@@ -339,21 +339,27 @@ class MainPageContent(TestCase):
     response = self.client.get('/fund/')
     self.assertTemplateNotUsed('fund/add_estimates.html')
 
-def test_estimates(self):
-   
-  """ 2 contacts w/est
-      logs into post training, gets reg list """
-  
-  membership = models.Membership.objects.get(pk = 2)
-  
-  contact = models.Donor(firstname = 'Anna', membership = membership, amount = 0, likelihood = 0)
-  contact.save()
-  contact = models.Donor(firstname = 'Banana', membership = membership, amount = 567, likelihood = 34)
-  contact.save()
-  
-  response = self.client.get('/fund/')
-  self.assertTemplateNotUsed('fund/add_estimates.html')
+  def test_estimates(self):
+     
+    """ 2 contacts w/est
+        logs into post training, gets reg list """
     
+    membership = models.Membership.objects.get(pk = 2)
+    
+    contact = models.Donor(firstname = 'Anna', membership = membership, amount = 0, likelihood = 0)
+    contact.save()
+    contact = models.Donor(firstname = 'Banana', membership = membership, amount = 567, likelihood = 34)
+    contact.save()
+    
+    response = self.client.get('/fund/')
+    self.assertTemplateNotUsed('fund/add_estimates.html')
+  
+  def test_gift_notification(self):
+    
+    """ add a gift to donor
+        test that notif shows up on next load
+        test that notif is gone on next load """
+  
 """
  TEST IDEAS
   general:

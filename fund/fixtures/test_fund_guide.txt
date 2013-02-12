@@ -1,4 +1,5 @@
 ﻿test_json fixture guide
+* updated 2/11 4pm
 
 GIVING PROJECT
   
@@ -10,9 +11,11 @@ MEMBER
   1 testacct@gmail.com - current 2
   2 newacct@gmail.com - current 1
   
-MEMBERSHIPS -- DONORS -- STEPS
+MEMBERSHIPS
+    DONORS
+        STEPS
  
- 1 testacct@gmail.com & Post - approved true
+  1 testacct@gmail.com & Post - approved true
 
       1 Lauren O'Laughlin - next step 1
       2 Aniseto - next step 2
@@ -25,6 +28,6 @@ MEMBERSHIPS -- DONORS -- STEPS
   3 newacct@gmail.com & Pre - approved true
     no donors
   
-  
-USER 
+USER
+
   created in test code because of passwords
