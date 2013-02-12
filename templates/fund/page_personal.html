@@ -189,16 +189,16 @@
     });
   }
 
-  function trackEvents(url, div_id, request_type) {
+  function trackEvents(url, div_id, request_type) { //analytics events
     console.log('trackEvents', url, div_id, request_type);
     var category;
     var action;
     if (div_id.search('adddonor') > -1) {
       console.log('adddonor');
       if (request_type == 'POST') {
-        action = 'Add - submit';
+        action = 'Add multiple - submit';
       } else {
-        action = 'Add - start';
+        action = 'Add multiple - load';
       }
       if (url.search('addmult') > -1) {
         category = 'Contacts';
@@ -212,25 +212,22 @@
         action = 'Edit';
       } else if (url.search(/done$/) > -1) {
         if (request_type == 'POST') {
-          action = 'Complete - submit';
+          action = 'Complete step - submit';
         } else {
-          action = 'Complete - start';
+          action = 'Complete step - load';
         }
       }  
     } else if (request_type == 'POST') {
       console.log('POST');
       if (url.search(/step$/) > -1) {
         category = 'Steps';
-        action = 'Add single';
+        action = 'Add';
       } else if (url.search(/delete$/) > -1) {
           category = 'Contacts';
           action = 'Delete';
       } else if (url.search(/edit$/) > -1) {
         category = 'Contacts';
         action = 'Edit';
-      } else if (url.search('stepmult') > -1) {
-        category = 'Steps';
-        action = 'Add multiple';
       }
     }
     console.log(category, action)
