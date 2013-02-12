@@ -8,31 +8,21 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from fund.models import *
 from grants.models import *
-import fund.forms
+import fund.forms, fund.utils
 import logging
 
 ## FUND
 
 """ signals needed:
-  membership save - if approval added, send email
   user save - if is_staff, add to group?
   gp save - remove blank lines in s_steps
   """
 
 def approve(modeladmin, request, queryset):
-  subject, from_email = 'Membership Approved', settings.APP_SEND_EMAIL
   logging.info('Approval button pressed; looking through queryset')
   for memship in queryset:
-    logging.info('Looking at ' + memship.member.email)
     if memship.approved == False:
-      to = memship.member.email
-      logging.info('Approved was false, approval for ' + to + ' starting')
-      html_content = render_to_string('fund/email_account_approved.html', {'login_url':settings.APP_BASE_URL + 'fund/login', 'project':memship.giving_project})
-      text_content = strip_tags(html_content)
-      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com']) #bcc for testing
-      msg.attach_alternative(html_content, "text/html")
-      msg.send()    
-      logging.info('Approval email sent to ' + to)      
+      fund.utils.NotifyApproval(memship)  
   queryset.update(approved=True)
   logging.info('Approval queryset updated')    
 

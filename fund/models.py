@@ -3,6 +3,7 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 from django.forms import ModelForm
 from django.utils import timezone
+from utils import NotifyApproval
 import datetime, logging
  
 class GivingProject(models.Model):
@@ -54,6 +55,17 @@ class Membership(models.Model): #relationship b/n member and gp
   
   def __unicode__(self):
     return unicode(self.member)+u', '+unicode(self.giving_project)
+  
+  def save(self, *args, **kwargs):
+    logging.debug('Custom membership save running')
+    try:
+      previous = Membership.objects.get(id=self.id)
+      logging.debug('Previously: ' + str(previous.approved) + ', now: ' + str(self.approved))
+      if self.approved and not previous.approved: #newly approved!
+        logging.debug('Detected approval on save for ' + str(self))
+        NotifyApproval(self)
+    except Membership.DoesNotExist: pass
+    super(Membership, self).save(*args, **kwargs)
     
   def has_overdue(self, next=False): # 1 db query
     cutoff = timezone.now().date() - datetime.timedelta(days=1)
