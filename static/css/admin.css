@@ -21,3 +21,7 @@ form .aligned p.help {
 .module h2, .module caption, .inline-group h2 {
   font-size:12px;
 }
+
+select#id_permissions {
+    height: 400px;
+}

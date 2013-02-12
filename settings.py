@@ -28,9 +28,9 @@ else:
   APP_BASE_URL = 'http://localhost:8080/'
 
 INSTALLED_APPS = (
+  'django.contrib.auth',
   'django.contrib.admin',
   'django.contrib.contenttypes',
-  'django.contrib.auth',
   'django.contrib.sessions',
   'django.contrib.messages',
   'grants',
@@ -53,21 +53,18 @@ TEMPLATE_CONTEXT_PROCESSORS = (
   'django.core.context_processors.request', #only used in fund/base.html js
   #'django.contrib.messages.context_processors.messages', messages var. not using yet
 )
-
 TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), 'templates'),)
+
+STATIC_URL = '/static/'
 
 ROOT_URLCONF = 'urls'
 APPEND_SLASH = False
 
-LOGGING = {
-  'version': 1,
-}
+LOGGING = {'version': 1,}
 
 #djangoappengine email settings
 EMAIL_BACKEND = 'djangoappengine.mail.AsyncEmailBackend'
 EMAIL_QUEUE_NAME = 'default'
-
-STATIC_URL = '/static/'
 
 USE_TZ = True
 TIME_ZONE = 'America/Los_Angeles'

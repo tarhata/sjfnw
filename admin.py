@@ -2,7 +2,8 @@
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User, Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -103,7 +104,6 @@ class MemberAdvanced(admin.ModelAdmin):
   def get_model_perms(self, request):
     #Return empty perms dict thus hiding the model from admin index.
     return {}
-  
 
 def step_membership(obj):
   return obj.donor.membership
@@ -154,7 +154,8 @@ class OrganizationAdmin(admin.ModelAdmin):
 ## ADMIN SITES
 
 #default
-#admin.site.unregister(User) # have to make contrib/auth/admin.py load first..
+admin.site.unregister(User) # have to make contrib/auth/admin.py load first..
+admin.site.unregister(Group)
 admin.site.register(Member, MemberAdvanced)
 admin.site.register(GivingProject, GPAdmin)
 admin.site.register(Membership, MembershipAdmin)
@@ -167,6 +168,8 @@ advanced_admin = AdminSite(name='advanced')
 
 advanced_admin.register(User, UserAdmin)
 advanced_admin.register(Group)
+advanced_admin.register(Permission)
+advanced_admin.register(ContentType)
 
 advanced_admin.register(Member, MemberAdvanced)
 advanced_admin.register(Donor, DonorAdvanced)
