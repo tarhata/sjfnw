@@ -36,11 +36,10 @@ def estimated(obj):
 def pledged(obj):
   return obj.pledged()
 
-class MembershipAdmin(admin.ModelAdmin): #todo add overdue steps filter
+class MembershipAdmin(admin.ModelAdmin):
   list_display = ('member', 'giving_project', estimated, pledged, overdue_steps, 'last_activity', 'approved', 'leader')
   actions = [approve]
-  list_filter = ('approved', 'leader', 'giving_project')
-  #readonly_fields = ('last_activity', 'emailed', 'approved')
+  list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
 
 class MembershipInline(admin.TabularInline):
   model = Membership
@@ -79,7 +78,7 @@ class GPAdmin(admin.ModelAdmin):
   
 class DonorAdmin(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'pledged', 'gifted')
-  list_filter = ('membership__giving_project',)
+  list_filter = ('membership__giving_project', 'asked')
   list_editable = ('gifted',)
   search_fields = ['firstname', 'lastname']
 
@@ -87,17 +86,7 @@ class NewsAdmin(admin.ModelAdmin):
   list_display = ('summary', 'date', 'membership')
   list_filter = ('membership__giving_project',)
 
-  #advanced
-class DonorAdvanced(admin.ModelAdmin):
-  list_display = ('__unicode__', 'membership', 'asked', 'pledged', 'gifted')
-  list_filter = ('asked', 'membership__giving_project')
-  search_fields = ['firstname', 'lastname']
-  
-class MembershipAdvanced(admin.ModelAdmin):
-  list_display = ('member', 'giving_project', estimated, pledged, overdue_steps, 'last_activity', 'approved', 'leader')
-  actions = [approve]
-  list_filter = ('approved', 'leader', 'giving_project')
-
+#advanced only
 class MemberAdvanced(admin.ModelAdmin):
   list_display = ('__unicode__', 'email')
   search_fields = ['first_name', 'last_name', 'email']
@@ -107,11 +96,6 @@ class MemberAdvanced(admin.ModelAdmin):
 
 def step_membership(obj):
   return obj.donor.membership
-
-class MembershipAdvanced(admin.ModelAdmin):
-  list_display = ('member', 'giving_project', estimated, pledged, overdue_steps, 'last_activity', 'approved', 'leader')
-  actions = [approve]
-  list_filter = ('approved', 'leader', 'giving_project') 
 
 class StepAdv(admin.ModelAdmin):
   list_display = ('description', 'donor', step_membership, 'date', 'completed')
@@ -172,8 +156,8 @@ advanced_admin.register(Permission)
 advanced_admin.register(ContentType)
 
 advanced_admin.register(Member, MemberAdvanced)
-advanced_admin.register(Donor, DonorAdvanced)
-advanced_admin.register(Membership, MembershipAdvanced)
+advanced_admin.register(Donor, DonorAdmin)
+advanced_admin.register(Membership, MembershipAdmin)
 advanced_admin.register(GivingProject, GPAdmin)
 advanced_admin.register(NewsItem, NewsAdmin)
 advanced_admin.register(Step, StepAdv)

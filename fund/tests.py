@@ -362,14 +362,10 @@ class MainPageContent(TestCase):
   
 """
  TEST IDEAS
-  general:
-    different starting data? diff user? etc?
-    news story update/create
-    add checks for data, not just response output
-  
-  pages/forms:
-    registration
-    pre & post estimate forms
-    notifications
-    forms in general
+ 
+  registration
+  gift notification & email
+  forms in general
+  update story
+    
 """
