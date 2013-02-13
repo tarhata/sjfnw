@@ -1,0 +1,15 @@
+﻿{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% load url from future %}
+{% load admin_urls %}
+
+{% block content %}
+<h3>Are you sure you want to revert this application into a draft?</h3>
+<p><b>{{application}} - {{application.grant_cycle}} - submitted {{application.submission_time}}</b></p>
+<p>This will delete the application and replace it with a draft.  Screening status and scoring bonuses will be reset to defaults.</p>
+<p>WARNING: Only the authoring organization can read or submit a draft.  Staff will have no access to this content until it has been submitted again by the organization.</p>
+
+<form action="" method="post">
+	<input type="submit" value="Yes, I'm sure" />
+</form>
+{% endblock %}

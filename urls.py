@@ -12,7 +12,9 @@ handler500 = 'views.server_error'
 urlpatterns = patterns('',
 
 ## ADMIN ##
-
+  
+  (r'^admin/grants/grantapplication/(?P<app_id>\d+)/revert', 'grants.views.AppToDraft'),
+  (r'^admin-advanced/grants/grantapplication/(?P<app_id>\d+)/revert', 'grants.views.AppToDraft'),
   (r'^admin/', include(admin.site.urls)),
   (r'^admin-advanced/', include(advanced_admin.urls)),
 

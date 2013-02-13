@@ -301,7 +301,30 @@ def ViewDraftFile(request, draft_id, file_type):
 
   return utils.FindBlob(application, file_type)
 
-# CRON
+# ADMIN
+def AppToDraft(request, app_id):
+  
+  submitted_app = get_object_or_404(models.GrantApplication, pk = app_id)
+  
+  if request.method == 'POST':
+    draft = models.DraftGrantApplication(organization = submitted_app.organization, grant_cycle = submitted_app.grant_cycle)
+    content = model_to_dict(submitted_app, exclude = ['budget', 'demographics', 'funding_sources', 'fiscal_letter', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo'])
+    draft.contents = content
+    draft.budget = submitted_app.budget
+    draft.demographics = submitted_app.demographics
+    draft.fiscal_letter = submitted_app.fiscal_letter
+    draft.funding_sources = submitted_app.funding_sources
+    draft.allow_edit = True
+    draft.save()
+    logging.info('Reverted to draft, draft id ' + str(draft.pk))
+    #submitted_app.delete() #once tested, delete the app
+    #email the org
+    #take back to admin page
+    return redirect('/admin/grants/grantapplication/')
+  #GET
+  return render(request, 'admin/grants/confirm_revert.html', {'application':submitted_app})
+
+    # CRON
 def DraftWarning(request):
   drafts = models.DraftGrantApplication.objects.all()
   for draft in drafts:

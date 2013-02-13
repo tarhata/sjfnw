@@ -100,18 +100,6 @@ def GetFileURLs(app):
       file_urls['fiscal'] =  viewer_url
   return file_urls
   
-def AppToDraft(submitted_app):
-  draft = DraftGrantApplication(organization = submitted_app.organization, grant_cycle = submitted_app.grant_cycle)
-  content = model_to_dict(submitted_app, exclude = ['budget', 'demographics', 'funding_sources', 'fiscal_letter', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo'])
-  draft.content = content
-  draft.budget = submitted_app.budget
-  draft.demographics = submitted_app.demographics
-  draft.fiscal_letter = submitted_app.fiscal_letter
-  draft.funding_sources = submitted_app.funding_sources
-  draft.allow_edit = True
-  draft.save()
-  #once tested, delete the app
-  
 def DeleteEmptyFiles(request): #/tools/delete-empty
   """ Delete all 0kb files in the blobstore """
   infos = blobstore.BlobInfo.all().filter('size =', 0)
