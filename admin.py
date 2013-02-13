@@ -12,7 +12,7 @@ from grants.models import *
 import fund.forms, fund.utils
 import logging
 
-## FUND
+# FUND
 
 """ signals needed:
   user save - if is_staff, add to group?
@@ -52,10 +52,7 @@ class ProjectResourcesInline(admin.TabularInline):
   model = ProjectResource
   extra = 0
   template = 'admin/fund/tabular_projectresource.html'
-  fieldsets = (None, {
-    'classes': ('collapse',),
-    'fields': ('resource', 'session',)
-  }),
+  fields = ('resource', 'session',)
 
 def gp_year(obj):
   return obj.fundraising_deadline.year
@@ -100,15 +97,27 @@ def step_membership(obj):
 class StepAdv(admin.ModelAdmin):
   list_display = ('description', 'donor', step_membership, 'date', 'completed')
 
-## GRANTS
+# GRANTS
 
 class GrantAppAdmin(admin.ModelAdmin):
-  fields = ('screening_status', 'grant_cycle', 'scoring_bonus_poc', 'scoring_bonus_geo')
-  list_display = ('organization', 'submission_time', 'screening_status')  
+  fieldsets = ('Summary', {'fields': (('organization', 'grant_cycle', 'submission_time'), 'view_link')}), ('Admin fields', {'fields': ('screening_status', ('scoring_bonus_poc', 'scoring_bonus_geo'))})
+  readonly_fields = ('organization', 'grant_cycle', 'submission_time', 'view_link')
+  list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')  
+  list_filter = ('grant_cycle', 'screening_status')
 
 class DraftAdmin(admin.ModelAdmin):
-  list_display = ('organization', 'grant_cycle', 'modified')
-  readonly_fields = ('fiscal_letter', 'budget', 'demographics', 'funding_sources')
+  list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'allow_edit')
+  list_filter = ('allow_edit', 'grant_cycle')
+  fields = (
+    ('organization', 'grant_cycle', 'modified'),
+    ('allow_edit'),
+  )
+  readonly_fields = ('fiscal_letter', 'budget', 'demographics', 'funding_sources', 'modified',)
+  
+  def get_readonly_fields(self, request, obj=None):
+    if obj is not None: #editing - lock org & cycle
+      return self.readonly_fields + ('organization', 'grant_cycle')   
+    return self.readonly_fields
 
 def view_grant_link(obj):
   return '<a href="/grants/view/' + str(obj.pk) + '/">' + str(obj.submission_time) + '</a>'
@@ -120,7 +129,7 @@ class GrantAppInline(admin.TabularInline):
   can_delete = False
   readonly_fields = ('submission_time', 'grant_cycle', 'screening_status')
   fieldsets = (
-    ('fuck this?', {
+    ('?', {
       'fields': ('submission_time', 'grant_cycle', 'screening_status')
     }),
   )
@@ -135,7 +144,11 @@ class OrganizationAdmin(admin.ModelAdmin):
   readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number', 'fax_number', 'email_address', 'website', 'status', 'ein', 'fiscal_letter')
   inlines = (GrantAppInline,)
 
-## ADMIN SITES
+class DraftAdv(admin.ModelAdmin):
+  list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'allow_edit')
+  readonly_fields = ('organization', 'grant_cycle', 'modified', 'fiscal_letter', 'budget', 'demographics', 'funding_sources')
+
+# REGISTER
 
 #default
 admin.site.unregister(User) # have to make contrib/auth/admin.py load first..
@@ -167,4 +180,4 @@ advanced_admin.register(Resource)
 advanced_admin.register(GrantCycle)
 advanced_admin.register(Organization, OrganizationAdmin)
 advanced_admin.register(GrantApplication, GrantAppAdmin)
-advanced_admin.register(DraftGrantApplication, DraftAdmin)
+advanced_admin.register(DraftGrantApplication, DraftAdv)

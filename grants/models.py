@@ -100,8 +100,11 @@ class DraftGrantApplication(models.Model):
   allow_edit = models.BooleanField(default=False,verbose_name = 'Allow editing/submission after deadline has passed')
 
   def __unicode__(self):
-    return self.organization.name + u' saved draft id ' + unicode(self.pk)
+    return u'DRAFT - ' + self.organization.name + u' - ' + self.grant_cycle.title
   
+  def overdue(self):
+    return self.grant_cycle.close >= timezone.now()
+
   def editable(self):
     deadline = self.grant_cycle.close
     now = timezone.now()
@@ -157,7 +160,7 @@ class GrantApplication(models.Model):
   """ Submitted grant application """
   
   #automated fields
-  submission_time = models.DateTimeField(auto_now_add=True)
+  submission_time = models.DateTimeField(auto_now_add=True, verbose_name='Submitted')
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
   
@@ -252,8 +255,6 @@ class GrantApplication(models.Model):
   funding_sources = models.FileField(upload_to='/%Y/', max_length=255)
   #timeline?
   
-  
-  
   #admin fields  
   SCREENING_CHOICES = (
     (10, 'Received'),
@@ -266,13 +267,17 @@ class GrantApplication(models.Model):
     (80, 'Grant Paid'),
     (90, 'Closed'),
   )
-  screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10, blank = True, null=True)
+  screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
   giving_project = models.ForeignKey(GivingProject, null=True, blank=True)
   scoring_bonus_poc = models.BooleanField(default=False, verbose_name='Scoring bonus for POC-led?')
   scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity?')
   
   def __unicode__(self):
     return unicode(self.organization)
+  
+  def view_link(self):
+    return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
+  view_link.allow_tags = True
 
 def addCssLabel(label_text):
   return u'<span class="label">' + label_text + u'</span>'
