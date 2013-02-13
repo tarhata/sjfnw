@@ -5,12 +5,8 @@ from django.contrib.auth.decorators import login_required
 from fund.decorators import approved_membership
 from django.shortcuts import get_object_or_404, redirect
 import grants.models
-import models
 import fund.models 
 import grants.models
-
-# Create your views here.
-
 
 @login_required(login_url='/fund/login/')
 @approved_membership()

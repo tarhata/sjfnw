@@ -1,17 +1,14 @@
 from django.db import models
 from django.forms import ModelForm
+from django.forms.widgets import RadioSelect, HiddenInput
 from grants.models import GrantApplication
 from fund.models import Membership
-from django.forms.widgets import RadioSelect, HiddenInput
 
-"""Early sketch of a model & modelform for an individual rating.  Feel free to modify or start from scratch"""
-    
 class ApplicationRating(models.Model):
 
   application = models.ForeignKey(GrantApplication)
   membership = models.ForeignKey(Membership)
   submitted = models.BooleanField(default=False)
-  
   
   RATING_CHOICES = (
     (1, 1),
