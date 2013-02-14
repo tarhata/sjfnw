@@ -304,10 +304,13 @@ def ViewDraftFile(request, draft_id, file_type):
 # ADMIN
 def AppToDraft(request, app_id):
   
-  submitted_app = get_object_or_404(models.GrantApplication, pk = app_id)
+  submitted_app = get_object_or_404(models.GrantApplication, pk = app_id).select_related('organization', 'grant_cycle')
+  organization = submitted_app.organization
+  grant_cycle = submitted_app.grant_cycle
   
   if request.method == 'POST':
-    draft = models.DraftGrantApplication(organization = submitted_app.organization, grant_cycle = submitted_app.grant_cycle)
+    #create draft from app
+    draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
     content = model_to_dict(submitted_app, exclude = ['budget', 'demographics', 'funding_sources', 'fiscal_letter', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo'])
     draft.contents = content
     draft.budget = submitted_app.budget
@@ -316,10 +319,17 @@ def AppToDraft(request, app_id):
     draft.funding_sources = submitted_app.funding_sources
     draft.save()
     logging.info('Reverted to draft, draft id ' + str(draft.pk))
-    #submitted_app.delete() #once tested, delete the app
-    #email the org
-    #take back to admin page
-    return redirect('/admin/grants/grantapplication/')
+    #email notification to org
+    html_content = render_to_string('grants/email_submitted.html', {'org':organization, 'cycle':grant_cycle, 'submission':submitted_app.submission_time})
+    text_content = strip_tags(html_content)
+    msg = EmailMultiAlternatives('Submitted application re-opened for edits', text_content, settings.GRANT_SEND_EMAIL, [organization.email], [settings.SUPPORT_EMAIL])
+    msg.attach_alternative(html_content, "text/html")
+    #delete app
+    submitted_app.delete()
+    msg.send()
+    logging.info("Email sent to " + to + "regarding draft application re-opened")
+    #redirect to draft page
+    return redirect('/admin/grants/draftgrantapplication/'+str(draft.pk)+'/')
   #GET
   return render(request, 'admin/grants/confirm_revert.html', {'application':submitted_app})
 
