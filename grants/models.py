@@ -97,7 +97,7 @@ class DraftGrantApplication(models.Model):
   funding_sources = models.FileField(upload_to='draft/', max_length=255)
   fiscal_letter = models.FileField(upload_to='draft/', max_length=255)
   
-  allow_edit = models.BooleanField(default=False,verbose_name = 'Allow editing/submission after deadline has passed')
+  extended_deadline = models.DateTimeField(verbose_name = 'Allows this draft to be edited/submitted past the grant cycle close.', blank=True, null=True)
 
   def __unicode__(self):
     return u'DRAFT - ' + self.organization.name + u' - ' + self.grant_cycle.title
@@ -108,7 +108,7 @@ class DraftGrantApplication(models.Model):
   def editable(self):
     deadline = self.grant_cycle.close
     now = timezone.now()
-    if deadline > now or self.allow_edit:
+    if deadline > now or (self.extended_deadline and self.extended_deadline > now):
       return True
     else:
       return False

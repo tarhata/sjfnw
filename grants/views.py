@@ -163,7 +163,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       files_data['fiscal_letter'] = saved.fiscal_letter
     saved.save()
     mod = saved.modified
-    if cycle.is_open()==False and not saved.allow_edit: 
+    if not saved.editable: 
       return render(request, 'grants/closed.html', {'cycle':cycle}) #TODO replace this with a specific page saying that their draft has been saved
     logging.info('Submitting files_data: ' + str(files_data.lists()))
     form = models.GrantApplicationForm(post_data, files_data)
@@ -197,7 +197,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       logging.info("Application form invalid")
       
   else: #GET
-    if cycle.is_open()==False and not saved.allow_edit: 
+    if not saved.editable(): 
       return render(request, 'grants/closed.html', {'cycle':cycle})
     if cr: #just created empty draft
       dict = model_to_dict(organization)
@@ -314,7 +314,6 @@ def AppToDraft(request, app_id):
     draft.demographics = submitted_app.demographics
     draft.fiscal_letter = submitted_app.fiscal_letter
     draft.funding_sources = submitted_app.funding_sources
-    draft.allow_edit = True
     draft.save()
     logging.info('Reverted to draft, draft id ' + str(draft.pk))
     #submitted_app.delete() #once tested, delete the app
