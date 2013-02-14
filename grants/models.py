@@ -97,7 +97,7 @@ class DraftGrantApplication(models.Model):
   funding_sources = models.FileField(upload_to='draft/', max_length=255)
   fiscal_letter = models.FileField(upload_to='draft/', max_length=255)
   
-  extended_deadline = models.DateTimeField(verbose_name = 'Allows this draft to be edited/submitted past the grant cycle close.', blank=True, null=True)
+  extended_deadline = models.DateTimeField(help_text = 'Allows this draft to be edited/submitted past the grant cycle close.', blank=True, null=True)
 
   def __unicode__(self):
     return u'DRAFT - ' + self.organization.name + u' - ' + self.grant_cycle.title

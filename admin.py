@@ -35,28 +35,6 @@ def step_membership(obj): #Step list_display
 
 # Fund ModelAdmin
 
-class GivingProjectA(admin.ModelAdmin):
-  list_display = ('title', gp_year)
-  fields = (
-    ('title', 'public'),
-    ('fundraising_training', 'fundraising_deadline'),
-    'fund_goal',
-    'calendar',
-    'suggested_steps',
-    'pre_approved',
-   )
-  inlines = ['ProjectResourcesInline', 'MembershipInline']
-  
-class MemberAdvanced(admin.ModelAdmin): #advanced only
-  list_display = ('__unicode__', 'email')
-  search_fields = ['first_name', 'last_name', 'email']
-
-class MembershipA(admin.ModelAdmin):
-  list_display = ('member', 'giving_project', 'estimated', 'pledged', 'overdue_steps', 'last_activity', 'approved', 'leader')
-  readonly_list = ('estimated', 'pledged', 'has_overdue')
-  actions = [approve]
-  list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
-
 class MembershipInline(admin.TabularInline): #GP
   model = Membership
   formset = fund.forms.MembershipInlineFormset
@@ -69,6 +47,28 @@ class ProjectResourcesInline(admin.TabularInline): #GP
   extra = 0
   template = 'admin/fund/tabular_projectresource.html'
   fields = ('resource', 'session',)
+
+class GivingProjectA(admin.ModelAdmin):
+  list_display = ('title', gp_year)
+  fields = (
+    ('title', 'public'),
+    ('fundraising_training', 'fundraising_deadline'),
+    'fund_goal',
+    'calendar',
+    'suggested_steps',
+    'pre_approved',
+   )
+  inlines = [ProjectResourcesInline, MembershipInline]
+  
+class MemberAdvanced(admin.ModelAdmin): #advanced only
+  list_display = ('__unicode__', 'email')
+  search_fields = ['first_name', 'last_name', 'email']
+
+class MembershipA(admin.ModelAdmin):
+  list_display = ('member', 'giving_project', 'estimated', 'pledged', 'has_overdue', 'last_activity', 'approved', 'leader')
+  readonly_list = ('estimated', 'pledged', 'has_overdue',)
+  actions = [approve]
+  list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
  
 class DonorA(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'pledged', 'gifted')
@@ -85,21 +85,12 @@ class StepAdv(admin.ModelAdmin): #adv only
 
 # Grant ModelAdmin
 
-class OrganizationA(admin.ModelAdmin):
-  list_display = ('name', 'email',)
+class GrantCycleA(admin.ModelAdmin):
+  list_display = ('title', 'open', 'close')
   fields = (
-    ('name', 'email', 'telephone_number'),
-    ('address', 'city', 'state', 'zip'),
-    ('fiscal_letter'),
+    ('title', 'open', 'close'),
+    ('addition', 'narrative')
   )
-  readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number', 'fax_number', 'email_address', 'website', 'status', 'ein', 'fiscal_letter')
-  inlines = ('GrantApplicationInline',)
-
-class GrantApplicationA(admin.ModelAdmin):
-  fieldsets = ('Summary', {'fields': (('organization', 'grant_cycle', 'submission_time'), 'view_link')}), ('Admin fields', {'fields': ('screening_status', ('scoring_bonus_poc', 'scoring_bonus_geo'), revert_grant)})
-  readonly_fields = ('organization', 'grant_cycle', 'submission_time', 'view_link', revert_grant)
-  list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')  
-  list_filter = ('grant_cycle', 'screening_status')
 
 class GrantApplicationInline(admin.TabularInline): #Org
   model = GrantApplication
@@ -108,11 +99,27 @@ class GrantApplicationInline(admin.TabularInline): #Org
   can_delete = False
   readonly_fields = ('submission_time', 'grant_cycle', 'screening_status')
   fields = ('submission_time', 'grant_cycle', 'screening_status')
+  
+class OrganizationA(admin.ModelAdmin):
+  list_display = ('name', 'email',)
+  fields = (
+    ('name', 'email', 'telephone_number'),
+    ('address', 'city', 'state', 'zip'),
+    ('fiscal_letter'),
+  )
+  readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number', 'fax_number', 'email_address', 'website', 'status', 'ein', 'fiscal_letter')
+  inlines = (GrantApplicationInline,)
+
+class GrantApplicationA(admin.ModelAdmin):
+  fieldsets = ('Summary', {'fields': (('organization', 'grant_cycle', 'submission_time'), 'view_link')}), ('Admin fields', {'fields': ('screening_status', ('scoring_bonus_poc', 'scoring_bonus_geo'), revert_grant)})
+  readonly_fields = ('organization', 'grant_cycle', 'submission_time', 'view_link', revert_grant)
+  list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')  
+  list_filter = ('grant_cycle', 'screening_status')
 
 class DraftGrantApplicationA(admin.ModelAdmin):
-  list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'allow_edit')
-  list_filter = ('allow_edit', 'grant_cycle')
-  fields = (('organization', 'grant_cycle', 'modified'), ('allow_edit'))
+  list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
+  list_filter = ('grant_cycle',) #extended
+  fields = (('organization', 'grant_cycle', 'modified'), ('extended_deadline'))
   readonly_fields = ('fiscal_letter', 'budget', 'demographics', 'funding_sources', 'modified',)
   
   def get_readonly_fields(self, request, obj=None):
@@ -121,27 +128,27 @@ class DraftGrantApplicationA(admin.ModelAdmin):
     return self.readonly_fields
 
 class DraftAdv(admin.ModelAdmin):
-  list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'allow_edit')
+  list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
   readonly_fields = ('organization', 'grant_cycle', 'modified', 'fiscal_letter', 'budget', 'demographics', 'funding_sources')
 
-# Register
+# Register - basic
 
- # default
 admin.site.unregister(User)
 admin.site.unregister(Group)
-admin.site.register(Member, MemberAdvanced)
+
 admin.site.register(GivingProject, GivingProjectA)
 admin.site.register(Membership, MembershipA)
 admin.site.register(NewsItem, NewsA)
 admin.site.register(Donor, DonorA)
 admin.site.register(Resource)
 
-admin.site.register(GrantCycle)
+admin.site.register(GrantCycle, GrantCycleA)
 admin.site.register(Organization, OrganizationA)
 admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
 
- # advanced
+# Register - Advanced
+
 advanced_admin = AdminSite(name='advanced')
 
 advanced_admin.register(User, UserAdmin)
@@ -158,7 +165,7 @@ advanced_admin.register(Step, StepAdv)
 advanced_admin.register(ProjectResource)
 advanced_admin.register(Resource)
 
-advanced_admin.register(GrantCycle)
+advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationA)
 advanced_admin.register(GrantApplication, GrantApplicationA)
 advanced_admin.register(DraftGrantApplication, DraftAdv)
