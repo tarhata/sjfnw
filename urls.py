@@ -31,7 +31,7 @@ urlpatterns = patterns('',
   (r'^logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/org'}),
 
   #reset password
-  (r'^org/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'grants/reset.html', 'from_email':settings.GRANTS_FROM_EMAIL, 'email_template_name':'grants/password_reset_email.html'}),
+  (r'^org/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'grants/reset.html', 'from_email':settings.GRANT_EMAIL, 'email_template_name':'grants/password_reset_email.html'}),
   (r'^org/reset-sent/?', 'django.contrib.auth.views.password_reset_done', {'template_name':'grants/password_reset_done.html'}),
   (r'^org/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'grants/password_reset_confirm.html'}),
   (r'^org/reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'grants/password_reset_complete.html'}),
@@ -101,7 +101,7 @@ urlpatterns = patterns('',
   (r'^fund/registered/?$', 'fund.views.Registered'),
   
   #reset password
-  (r'^fund/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'fund/reset.html', 'from_email':settings.FUND_FROM_EMAIL, 'email_template_name':'fund/password_reset_email.html', 'subject_template_name':'registration/password_reset_subject.txt'}),
+  (r'^fund/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'fund/reset.html', 'from_email':settings.FUND_EMAIL, 'email_template_name':'fund/password_reset_email.html', 'subject_template_name':'registration/password_reset_subject.txt'}),
   (r'^fund/reset-sent/?', 'django.contrib.auth.views.password_reset_done', {'template_name':'fund/password_reset_done.html'}),
   (r'^fund/reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'fund/password_reset_confirm.html'}),
   (r'^fund/reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'fund/password_reset_complete.html'}),

@@ -182,7 +182,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       else:
         logging.error('Application error: profile not updated.  User: %s, application id: %s', request.user.email, application.pk)
       #email confirmation
-      subject, from_email = 'Grant application submitted', settings.GRANT_SEND_EMAIL
+      subject, from_email = 'Grant application submitted', settings.GRANT_EMAIL
       to = organization.email
       html_content = render_to_string('grants/email_submitted.html', {'org':organization, 'cycle':cycle})
       text_content = strip_tags(html_content)
@@ -322,7 +322,7 @@ def AppToDraft(request, app_id):
     #email notification to org
     html_content = render_to_string('grants/email_submitted.html', {'org':organization, 'cycle':grant_cycle, 'submission':submitted_app.submission_time})
     text_content = strip_tags(html_content)
-    msg = EmailMultiAlternatives('Submitted application re-opened for edits', text_content, settings.GRANT_SEND_EMAIL, [organization.email], [settings.SUPPORT_EMAIL])
+    msg = EmailMultiAlternatives('Submitted application re-opened for edits', text_content, settings.GRANT_EMAIL, [organization.email], [settings.SUPPORT_EMAIL])
     msg.attach_alternative(html_content, "text/html")
     #delete app
     submitted_app.delete()
@@ -340,7 +340,7 @@ def DraftWarning(request):
     time_left = draft.grant_cycle.close - timezone.now()
     logging.debug('Time left: ' + str(time_left))
     if datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3):
-      subject, from_email = 'Grant cycle closing soon', settings.GRANT_SEND_EMAIL
+      subject, from_email = 'Grant cycle closing soon', settings.GRANT_EMAIL
       to = draft.organization.email
       html_content = render_to_string('grants/email_submitted.html', {'org':draft.organization, 'cycle':draft.grant_cycle})
       text_content = strip_tags(html_content)

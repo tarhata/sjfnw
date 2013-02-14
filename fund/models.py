@@ -27,7 +27,7 @@ class GivingProject(models.Model):
     return self.fundraising_training <= timezone.now()
   
   def save(self, *args, **kwargs):
-    logging.info(self.suggested_steps.count('\r'))
+    logging.debug(self.suggested_steps.count('\r'))
     self.suggested_steps = self.suggested_steps.replace('\r', '')
     super(GivingProject, self).save(*args, **kwargs)
     

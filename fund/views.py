@@ -772,7 +772,7 @@ def EmailOverdue(request):
   today = datetime.date.today()
   ships = models.Membership.objects.filter(giving_project__fundraising_deadline__gte=today)
   limit = today-datetime.timedelta(days=7)
-  subject, from_email = 'Fundraising Steps', settings.FUND_SEND_EMAIL
+  subject, from_email = 'Fundraising Steps', settings.FUND_EMAIL
   for ship in ships:
     user = ship.member
     if ship.emailed <= limit:
@@ -791,7 +791,7 @@ def EmailOverdue(request):
 
 def NewAccounts(request):
   #Sends GP leaders an email saying how many unapproved memberships there are.  Will continue emailing about the same membership until it's approved/deleted.
-  subject, from_email = 'Accounts pending approval', settings.FUND_SEND_EMAIL
+  subject, from_email = 'Accounts pending approval', settings.FUND_EMAIL
   for gp in models.GivingProject.objects.all():
     memberships = models.Membership.objects.filter(giving_project=gp, approved=False).count()
     leaders = models.Membership.objects.filter(giving_project=gp, leader=True)
@@ -829,7 +829,7 @@ def GiftNotify(request):
     logging.info('Gift notification set for ' + str(ship))
   
   login_url = settings.APP_BASE_URL + 'fund/'
-  subject, from_email = 'Gift received', settings.FUND_SEND_EMAIL
+  subject, from_email = 'Gift received', settings.FUND_EMAIL
   for ship in memberships:
     to = ship.member.email
     html_content = render_to_string('fund/email_gift.html', {'login_url':login_url})

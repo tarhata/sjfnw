@@ -68,7 +68,7 @@ def UpdateStory(membership_id, time):
   return HttpResponse("success")
 
 def NotifyApproval(membership):
-  subject, from_email = 'Membership Approved', settings.FUND_SEND_EMAIL
+  subject, from_email = 'Membership Approved', settings.FUND_EMAIL
   to = membership.member.email
   html_content = render_to_string('fund/email_account_approved.html', {'login_url':settings.APP_BASE_URL + 'fund/login', 'project':membership.giving_project})
   text_content = strip_tags(html_content)
