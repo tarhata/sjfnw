@@ -433,8 +433,7 @@ def SetCurrent(request, ship_id):
 #ERROR & HELP PAGES
 @login_required(login_url='/fund/login/')
 def NotMember(request):
-  contact_url=settings.SUPPORT_FORM_URL
-  return render(request, 'fund/not_member.html', {'contact_url':contact_url})
+  return render(request, 'fund/not_member.html', {'contact_url':'/fund/support#contact'})
 
 @login_required(login_url='/fund/login/')
 def NotApproved(request):
@@ -446,17 +445,14 @@ def NotApproved(request):
   return render(request, 'fund/not_approved.html')
 
 def Blocked(request):
-  contact_url = settings.SUPPORT_FORM_URL
-  return render(request, 'fund/blocked.html', {'contact_url':contact_url})
+  return render(request, 'fund/blocked.html', {'contact_url':'/fund/support#contact'})
 
 def Support(request):
+  member = False
   if request.membership_status>1:
     member = request.membership.member
   elif request.membership_status==1:
     member = models.Member.objects.get(email=request.user.username)
-  else:
-    member = False
-  
   return render(request, 'fund/support.html', {'member':member, 'support_email': settings.SUPPORT_EMAIL, 'support_form':settings.SUPPORT_FORM_URL})
   
 #FORMS

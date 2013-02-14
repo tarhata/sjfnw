@@ -65,5 +65,7 @@ class MembershipMiddleware(object):
             member.current=membership.pk
             member.save()
           else: #no approved GPs
-            request.membership_status = 2        
+            request.membership_status = 2
+      else:
+        request.membership_status = -1 #not logged in
     return None
