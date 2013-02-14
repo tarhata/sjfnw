@@ -1,5 +1,5 @@
 application: sjf-nw
-version: 1
+version: devel
 runtime: python27
 api_version: 1
 threadsafe: yes
