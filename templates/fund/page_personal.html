@@ -5,67 +5,65 @@
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
   var text_progress = false;
-  if ('{{progress}}') {
-    if (Modernizr.inlinesvg) { 
-      
-      var options = {chartArea: {left:0, top:8, width:'100%', height:'85%'},
-                       legend: {alignment:'center', textStyle: {fontSize:11}},
-                       tooltip: {showColorCode: false, textStyle: {fontSize:14}},
-                       slices: [{color: 'green'}, {color:'#D18316'}, {color: '#8B0E04'}],
-                       pieSliceText: 'none',
-                       pieSliceTextStyle: {fontSize:14},
-                       reverseCategories: true,
-                       sliceVisibilityThreshold:0,
-                       }
-                       
-      function drawChart() {
+	if (Modernizr.inlinesvg) { 
+		
+		var options = {chartArea: {left:0, top:8, width:'100%', height:'85%'},
+										 legend: {alignment:'center', textStyle: {fontSize:11}},
+										 tooltip: {showColorCode: false, textStyle: {fontSize:14}},
+										 slices: [{color: 'green'}, {color:'#D18316'}, {color: '#8B0E04'}],
+										 pieSliceText: 'none',
+										 pieSliceTextStyle: {fontSize:14},
+										 reverseCategories: true,
+										 sliceVisibilityThreshold:0,
+										 }
+										 
+		function drawChart() {
 
-        // Create the data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Status');
-        data.addColumn('number', 'Contacts');
-        data.addRows([
-          ["Haven't contacted", {{progress.contactsremaining}}],
-          ["Talked to", {{progress.talked}}],
-          ['Asked', {{progress.asked}}],
-        ]);
+			// Create the data table.
+			var data = new google.visualization.DataTable();
+			data.addColumn('string', 'Status');
+			data.addColumn('number', 'Contacts');
+			data.addRows([
+				["Haven't contacted", {{progress.contactsremaining}}],
+				["Talked to", {{progress.talked}}],
+				['Asked', {{progress.asked}}],
+			]);
 
-        // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-        chart.draw(data, options);
-        if ({{progress.estimated}} > 0) {
-          drawChart2();
-        }
-      }
-      
-      function drawChart2() {
+			// Instantiate and draw our chart, passing in some options.
+			var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+			chart.draw(data, options);
+			if ({{progress.estimated}} > 0) {
+				drawChart2();
+			}
+		}
+		
+		function drawChart2() {
 
-        // Create the data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Status');
-        data.addColumn('number', 'Amount');
-        data.addRows([
-          ['Remaining', {{progress.togo|default:'0'}}],
-          ["Pledged", {{progress.pledged}}],
-          ['Donated', {{progress.donated}}],
-        ]);
-        
-        // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.PieChart(document.getElementById('chart_div2'));
-        chart.draw(data, options);           
-      }
+			// Create the data table.
+			var data = new google.visualization.DataTable();
+			data.addColumn('string', 'Status');
+			data.addColumn('number', 'Amount');
+			data.addRows([
+				['Remaining', {{progress.togo|default:'0'}}],
+				["Pledged", {{progress.pledged}}],
+				['Donated', {{progress.donated}}],
+			]);
 			
-			// Load the Visualization API and the piechart package.
-      google.load('visualization', '1.0', {'packages':['corechart']});
+			// Instantiate and draw our chart, passing in some options.
+			var chart = new google.visualization.PieChart(document.getElementById('chart_div2'));
+			chart.draw(data, options);           
+		}
+		
+		// Load the Visualization API and the piechart package.
+		google.load('visualization', '1.0', {'packages':['corechart']});
 
-      // Set a callback to run when the Google Visualization API is loaded.
-      google.setOnLoadCallback(drawChart);
-			
-    } else { //browser cannot support charts
-      console.log('Browser does not support charts; text_progress = true');
-      text_progress = true;
-    }
-  }
+		// Set a callback to run when the Google Visualization API is loaded.
+		google.setOnLoadCallback(drawChart);
+		
+	} else { //browser cannot support charts
+		console.log('Browser does not support charts; text_progress = true');
+		text_progress = true;
+	}
 
   function textProgress() {
     console.log('textProgress');
