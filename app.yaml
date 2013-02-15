@@ -9,9 +9,6 @@ builtins:
 - appstats: on
 - deferred: on
 
-inbound_services:
-- warmup
-
 libraries:
 - name: django
   version: "1.4"
