@@ -169,7 +169,7 @@
         }
         if (date) { datepicker();}
         endProcessing();
-        trackEvents(sub_url, div_id, 'POST');
+        setTimeout(trackEvents(sub_url, div_id, 'POST'), 250);
       },
       error:function(jqXHR, textStatus, errorThrown){
         endProcessing();
