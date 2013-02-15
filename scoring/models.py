@@ -10,18 +10,11 @@ class ApplicationRating(models.Model):
   membership = models.ForeignKey(Membership)
   submitted = models.BooleanField(default=False)
   
-  RATING_CHOICES = (
-    (1, 1),
-    (2, 2),
-    (3, 3),
-    (4, 4),
-    (5, 5),
-  )
-  program = models.PositiveIntegerField(choices=RATING_CHOICES, null=True, default=1)
-  diversity = models.PositiveIntegerField(choices=RATING_CHOICES, null=True, default=1)
-  soundness = models.PositiveIntegerField(choices=RATING_CHOICES, null=True, default=1)
-  lack_of_access = models.PositiveIntegerField(choices=RATING_CHOICES, null=True, default=1)
-  collaboration = models.PositiveIntegerField(choices=RATING_CHOICES, null=True, default=1)
+  program = models.DecimalField(null=True, blank=True)
+  diversity = models.DecimalField(null=True, blank=True)
+  soundness = models.DecimalField(null=True, blank=True)
+  lack_of_access = models.DecimalField(null=True, blank=True)
+  collaboration = models.DecimalField(null=True, blank=True)
   
   comments = models.TextField()
   
