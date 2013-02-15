@@ -156,7 +156,8 @@
       data:$(form_id).serialize(),
       timeout: 10000,
       success:function(data, textStatus, jqXHR){
-        if (jqXHR.responseText=="success") {
+        trackEvents(sub_url, div_id, 'POST');
+				if (jqXHR.responseText=="success") {
           location.href='/fund/';
         } else {
           document.getElementById(div_id).innerHTML=jqXHR.responseText;
@@ -169,7 +170,6 @@
         }
         if (date) { datepicker();}
         endProcessing();
-        setTimeout(trackEvents(sub_url, div_id, 'POST'), 250);
       },
       error:function(jqXHR, textStatus, errorThrown){
         endProcessing();
