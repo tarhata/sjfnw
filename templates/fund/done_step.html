@@ -1,4 +1,5 @@
-﻿<table class="form" style="width:98%;">
+﻿<form id = "{{step_id}}_done_step" method="post" action="{{action}}">
+<table class="form" style="width:98%;">
 	<tr>
     <td style="width:32%;"></td>
     <td style="width:33%;"></td>
@@ -8,7 +9,7 @@
 		<td colspan="3"><b>Completing {{step}}</b></td><!-- Completing step -->
 	</tr>
 	<tr>
-		<td colspan="3">{{form.pledged_amount.errors}}<form id = "{{step_id}}_done_step" method="post" action="{{action}}"></td>
+		<td colspan="3">{{form.pledged_amount.errors}}</td>
 	</tr>
 	<tr style="height:28px;">
 		<td colspan="2" style="width:65%">
@@ -63,13 +64,11 @@
 	</tr><tr>
 		<td>Description:{{form.next_step.errors}}</td>
 	</tr><tr>
-		<td>{{form.next_step}}</form></td><!-- form ends -->
-	</tr>
-  <tr><td></td></tr><!--padding so suggested aren't inline with submit-->
-  <tr>
-		<td colspan="3" style="text-align:center">
-			<button onclick="Submit('{{action}}', '#{{step_id}}_done_step', '{{donor.pk}}-nextstep', 'date', '{{donor.asked}}', '{{donor.pledged}}')">Save</button>
-			<button onclick="location.href='/fund/'">Cancel</button>
-    </td>
+		<td>{{form.next_step}}</td><!-- form ends -->
 	</tr>
 </table>
+</form>
+<div align="center">
+	<button onclick="Submit('{{action}}', '#{{step_id}}_done_step', '{{donor.pk}}-nextstep', 'date', '{{donor.asked}}', '{{donor.pledged}}')">Save</button>
+	<button onclick="location.href='/fund/'">Cancel</button>
+</div>

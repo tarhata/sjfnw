@@ -56,15 +56,18 @@ class Membership(models.Model): #relationship b/n member and gp
   def __unicode__(self):
     return unicode(self.member)+u', '+unicode(self.giving_project)
   
-  def save(self, *args, **kwargs):
+  def save(self, skip=False, *args, **kwargs):
     logging.debug('Custom membership save running')
-    try:
-      previous = Membership.objects.get(id=self.id)
-      logging.debug('Previously: ' + str(previous.approved) + ', now: ' + str(self.approved))
-      if self.approved and not previous.approved: #newly approved!
-        logging.debug('Detected approval on save for ' + str(self))
-        NotifyApproval(self)
-    except Membership.DoesNotExist: pass
+    if skip:
+      logging.info('Skipping checks')
+    else:
+      try:
+        previous = Membership.objects.get(id=self.id)
+        logging.debug('Previously: ' + str(previous.approved) + ', now: ' + str(self.approved))
+        if self.approved and not previous.approved: #newly approved!
+          logging.debug('Detected approval on save for ' + str(self))
+          NotifyApproval(self)
+      except Membership.DoesNotExist: pass
     super(Membership, self).save(*args, **kwargs)
     
   def has_overdue(self, next=False): # 1 db query
@@ -157,8 +160,10 @@ def make_custom_datefield(f):
   """date selector implementation from http://strattonbrazil.blogspot.com/2011/03/using-jquery-uis-date-picker-on-all.html """
   formfield = f.formfield()
   if isinstance(f, models.DateField):
-      formfield.widget.format = '%m/%d/%Y'
-      formfield.widget.attrs.update({'class':'datePicker', 'readonly':'true'})
+    formfield.error_messages['invalid'] = 'Please enter a date in mm/dd/yyyy format.'
+    formfield.widget.format = '%m/%d/%Y'
+    formfield.widget.input_formats = ['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y', '%n-%j-%Y']
+    formfield.widget.attrs.update({'class':'datePicker'})
   return formfield
     
 class DonorForm(ModelForm): #used to edit, creation uses custom form

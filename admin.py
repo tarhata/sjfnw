@@ -133,7 +133,7 @@ class DraftAdv(admin.ModelAdmin):
 
 # Register - basic
 
-admin.site.unregister(User)
+#admin.site.unregister(User)
 admin.site.unregister(Group)
 
 admin.site.register(GivingProject, GivingProjectA)
