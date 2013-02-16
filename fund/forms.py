@@ -30,30 +30,6 @@ class RegistrationForm(forms.Form):
 class AddProjectForm(forms.Form):
   giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date()), empty_label="Select a giving project")
 
-class NewDonor(forms.Form):
-  firstname = forms.CharField(max_length=100, label='*First name')
-  lastname = forms.CharField(max_length=100, required=False, label='Last name')
-  amount = forms.IntegerField(label='*Estimated donation ($)')
-  likelihood = forms.IntegerField(label='*Estimated likelihood (%)', validators=[MaxValueValidator(100)])
-  phone = forms.CharField(max_length=15,required=False)
-  email = forms.EmailField(required=False)
-  step_date = forms.DateField(required=False, label='Date', widget=forms.DateInput(attrs={'class':'datePicker'}, format = '%m/%d/%Y', input_formats = ['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y', '%n-%j-%Y']))
-  step_desc = forms.CharField(required=False, max_length=255, label='Description')
-  
-  def clean(self): #step should be both empty or both entered
-    logging.info("clean called on newdonor")
-    cleaned_data = super(NewDonor, self).clean()
-    date = cleaned_data.get("step_date")
-    desc = cleaned_data.get("step_desc")
-    msg = "This field is required."
-    if date and not desc:
-      self._errors["step_desc"] = self.error_class([msg])
-      del cleaned_data["step_desc"]
-    elif desc and not date:
-      self._errors["step_date"] = self.error_class([msg])
-      del cleaned_data["step_date"]
-    return cleaned_data
-
 class MassDonor(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
   lastname = forms.CharField(max_length=100, required=False, label='Last name')
@@ -70,7 +46,7 @@ class DonorEstimates(forms.Form):
   likelihood = forms.IntegerField(label='*Estimated likelihood (%)', widget=forms.TextInput(attrs={'class':'half'}))
   
 class MassStep(forms.Form):
-  date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker'}, format = '%m/%d/%Y', input_formats = ['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y', '%n-%j-%Y']))
+  date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker'}, format = '%m/%d/%Y'))
   description = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'onfocus':'showSuggestions(this.id)'}))
   donor = forms.ModelChoiceField(queryset=models.Donor.objects.all(), widget=forms.HiddenInput())
   
@@ -102,7 +78,7 @@ class StepDoneForm(forms.Form):
   notes = forms.CharField(max_length=255, required=False,  widget=forms.Textarea(attrs={'rows':3, 'cols':20}))
   
   next_step = forms.CharField(max_length=100, required=False)
-  next_step_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker'}, format = '%m/%d/%Y', input_formats = ['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y', '%n-%j-%Y']))
+  next_step_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker'}, format = '%m/%d/%Y'))
   
   def clean(self):
     cleaned_data = super(StepDoneForm, self).clean()
