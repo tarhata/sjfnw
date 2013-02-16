@@ -1,6 +1,6 @@
 {% extends 'fund/blocks.html' %}
 <head>
-	<link href="index.css" type="text/css" rel="stylesheet" />
+  <link href="index.css" type="text/css" rel="stylesheet" />
 </head>
 
 {% block title %}Grants {{block.super}}{% endblock %}
@@ -14,32 +14,32 @@
 
 {% block content %}
 {% if not unreviewed and not reviewed and not in_progress %}
-	Grants are not available yet.
+  Grants are not available yet.
 {% else %}
-	<div>
-		Pending
-		<ul>
-		{% for grant in unreviewed %}
-			<li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
-		{% endfor %}
-		 </ul>
-	</div>
-	<div>
-		In Process
-		<ul>
-		{% for grant in in_progress %}
-			<li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
-		{% endfor %}
-		 </ul>
-	</div>
-	<div>
-		Submitted
-		<ul>
-		{% for grant in reviewed %}
-			<li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
-		{% endfor %}
-		 </ul>
-	</div>
+  <div>
+    Pending
+    <ul>
+    {% for grant in unreviewed %}
+      <li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
+    {% endfor %}
+     </ul>
+  </div>
+  <div>
+    In Process
+    <ul>
+    {% for grant in in_progress %}
+      <li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
+    {% endfor %}
+     </ul>
+  </div>
+  <div>
+    Submitted
+    <ul>
+    {% for grant in reviewed %}
+      <li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
+    {% endfor %}
+     </ul>
+  </div>
 {% endif %}
 
 {% endblock %}
