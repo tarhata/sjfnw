@@ -163,7 +163,7 @@ def make_custom_datefield(f):
     formfield.error_messages['invalid'] = 'Please enter a date in mm/dd/yyyy format.'
     formfield.widget.format = '%m/%d/%Y'
     formfield.widget.input_formats = ['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y', '%n-%j-%Y']
-    formfield.widget.attrs.update({'class':'datePicker', 'onclick':'$(self.id).datepicker("show");'})
+    formfield.widget.attrs.update({'class':'datePicker'})
   return formfield
     
 class DonorForm(ModelForm): #used to edit, creation uses custom form
