@@ -94,9 +94,10 @@
 
   function datepicker() { //date input fields
     $.datepicker.setDefaults({
-      dateFormat: 'yy-mm-dd',
+      dateFormat: 'mm/dd/yy',
       minDate: 0,
       hideIfNoPrevNext: true,
+      constrainInput: false,
     });
     $( ".datePicker" ).datepicker();
   }

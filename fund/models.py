@@ -160,8 +160,10 @@ def make_custom_datefield(f):
   """date selector implementation from http://strattonbrazil.blogspot.com/2011/03/using-jquery-uis-date-picker-on-all.html """
   formfield = f.formfield()
   if isinstance(f, models.DateField):
-      formfield.widget.format = '%m/%d/%Y'
-      formfield.widget.attrs.update({'class':'datePicker', 'readonly':'true'})
+    formfield.error_messages['invalid'] = 'Please enter a date in mm/dd/yyyy format.'
+    formfield.widget.format = '%m/%d/%Y'
+    formfield.widget.input_formats = ['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y', '%n-%j-%Y']
+    formfield.widget.attrs.update({'class':'datePicker', 'onclick':'$(self.id).datepicker("show");'})
   return formfield
     
 class DonorForm(ModelForm): #used to edit, creation uses custom form
