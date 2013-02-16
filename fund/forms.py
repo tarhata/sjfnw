@@ -1,9 +1,8 @@
 ﻿from django import forms
-from django.forms import ModelForm
-import models, datetime
-from django.utils import timezone
-import logging
 from django.core.validators import MaxValueValidator
+from django.forms import ModelForm
+from django.utils import timezone
+import models, datetime, logging
 
 class LoginForm(forms.Form):
   email = forms.EmailField()
@@ -46,7 +45,7 @@ class DonorEstimates(forms.Form):
   likelihood = forms.IntegerField(label='*Estimated likelihood (%)', widget=forms.TextInput(attrs={'class':'half'}))
   
 class MassStep(forms.Form):
-  date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker'}, format = '%m/%d/%Y'))
+  date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker'}, format = '%m/%d/%Y'), error_messages = {'invalid':'Please enter a date in mm/dd/yyyy format.'})
   description = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'onfocus':'showSuggestions(this.id)'}))
   donor = forms.ModelChoiceField(queryset=models.Donor.objects.all(), widget=forms.HiddenInput())
   
@@ -60,7 +59,7 @@ class MassStep(forms.Form):
         self._errors["description"] = self.error_class([msg])
         del cleaned_data["description"]
     elif desc: # desc, no date - invalid
-      self._errors["date"] = self.error_class([msg])
+      self._errors["date"] = self.error_class(['Please enter a date in mm/dd/yyyy format.'])
       del cleaned_data["date"]
     else: #neither - valid, but not wanted in data
       cleaned_data = []
@@ -78,7 +77,7 @@ class StepDoneForm(forms.Form):
   notes = forms.CharField(max_length=255, required=False,  widget=forms.Textarea(attrs={'rows':3, 'cols':20}))
   
   next_step = forms.CharField(max_length=100, required=False)
-  next_step_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker'}, format = '%m/%d/%Y'))
+  next_step_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker', 'input_formats':"['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y', '%n-%j-%Y']"}, format = '%m/%d/%Y'), error_messages = {'invalid':'Please enter a date in mm/dd/yyyy format.'})
   
   def clean(self):
     cleaned_data = super(StepDoneForm, self).clean()
@@ -101,7 +100,7 @@ class StepDoneForm(forms.Form):
         logging.debug('Pledged without contact info')
         self._errors["phone"] = self.error_class(["Enter a phone number or email."])
     if next_step and not next_step_date: #next step - date missing
-      self._errors["next_step_date"] = self.error_class(["Enter a date."])
+      self._errors["next_step_date"] = self.error_class(["Enter a date in mm/dd/yyyy format."])
       del cleaned_data["next_step"]
     elif next_step_date and not next_step: #next step - desc missing
       self._errors["next_step"] = self.error_class(["Enter a description."])
