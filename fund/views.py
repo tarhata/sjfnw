@@ -617,7 +617,7 @@ def AddMultStep(request):
   suggested = membership.giving_project.suggested_steps.splitlines()
   
   for donor in membership.donor_set.all():
-    if not donor.next_step and donor.pledged == None:
+    if (not donor.next_step) and (donor.pledged == None):
       initiald.append({'donor': donor})
       dlist.append(donor)
       size = size +1
@@ -746,7 +746,7 @@ def DoneStep(request, donor_id, step_id):
         form2.donor = donor
         ns = form2.save()
         logging.info(form2)
-        donor.next_step = form2  
+        donor.next_step = ns  
       donor.save()
       return HttpResponse("success")
   else: #GET - fill form with initial data
