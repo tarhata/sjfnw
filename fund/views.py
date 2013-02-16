@@ -382,7 +382,7 @@ def Registered(request):
     logging.info('Checking pre-approval for ' + request.user.username + ' in ' + str(proj) + ', list: ' + proj.pre_approved)
     if ship.member.email in app_list:
       ship.approved = True
-      ship.save()
+      ship.save(skip=True)
       member.current = nship
       member.save()
       logging.info('Pre-approval succeeded')
