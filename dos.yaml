@@ -1,0 +1,3 @@
+﻿blacklist:
+- subnet: 5.63.151.190
+  description: checks.panopta.com
