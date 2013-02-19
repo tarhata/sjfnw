@@ -393,7 +393,7 @@ def Registered(request):
 #MEMBERSHIP MANAGEMENT
 @login_required(login_url='/fund/login/')
 def Projects(request):
-  logging.info('view')
+
   if request.membership_status==0:
     return redirect(NotMember)
   else:
