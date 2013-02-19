@@ -1,4 +1,6 @@
-﻿from django.conf import settings
+﻿from django.contrib.auth.models import User
+from django.core.validators import MaxLengthValidator
+from django.conf import settings
 from django.http import HttpResponse, Http404
 from django.utils import timezone
 from google.appengine.ext import blobstore
@@ -109,3 +111,19 @@ def DeleteEmptyFiles(request): #/tools/delete-empty
     i.delete()
   logging.info('Deleted ' + str(count) + 'empty files.')
   return HttpResponse("done")
+
+#User username length patch
+def patch_user_model(model):
+  field = model._meta.get_field("username")
+
+  field.max_length = 100
+  field.help_text = "Required, 100 characters or fewer. Only letters, numbers, and @, ., +, -, or _ characters."
+
+  # patch model field validator because validator doesn't change if we change
+  # max_length
+  for v in field.validators:
+      if isinstance(v, MaxLengthValidator):
+          v.limit_value = MAX_USERNAME_LENGTH()
+
+if User._meta.get_field("username").max_length != 100:
+    patch_user_model(User)
