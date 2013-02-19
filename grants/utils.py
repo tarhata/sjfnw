@@ -123,7 +123,7 @@ def patch_user_model(model):
   # max_length
   for v in field.validators:
       if isinstance(v, MaxLengthValidator):
-          v.limit_value = MAX_USERNAME_LENGTH()
+          v.limit_value = 100
 
 if User._meta.get_field("username").max_length != 100:
     patch_user_model(User)
