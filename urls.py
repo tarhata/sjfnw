@@ -20,7 +20,7 @@ urlpatterns = patterns('',
 
 ## LANDING ##    
 
-  (r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
+  (r'^/?$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
   
 ## GRANTS - ORGANIZATION VIEWS ##
   
