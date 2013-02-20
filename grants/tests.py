@@ -46,9 +46,10 @@ def logInNewbie(self): #'Fresh New Org' pk 1
   user = User.objects.create_user('newacct@gmail.com', 'newacct@gmail.com', 'noob')
   self.client.login(username = 'newacct@gmail.com', password = 'noob')
 
+TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'fund.middleware.MembershipMiddleware',)
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyTests(TestCase):
-  
-  """Submitting the application form"""
   
   fixtures = ['grants/fixtures/test_grants.json',] 
   
@@ -62,7 +63,13 @@ class ApplyTests(TestCase):
   @override_settings(MEDIA_ROOT = 'media/')
   @override_settings(FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_post_valid_app(self):
-    #check 0 submitted apps
+    """ Updates org profile
+        Creates a new application object
+        Does not leave a draft object """
+    
+    self.assertEqual(0, GrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
+    self.assertFalse(self.org.mission)
     
     #fake form submit using same txt for all 3 files
     form_data = {u'website': [u'asdfsdaf'],
@@ -75,7 +82,6 @@ class ApplyTests(TestCase):
             u'zip': [u'654'],
             u'start_year': [u'sdfsadfdsf'],
             u'project_budget': [u''],
-            u'grant_cycle': [u'2'],
             u'support_type': [u'General support'],
             u'state': [u'OR'],
             u'fiscal_org': [u''],
@@ -97,7 +103,6 @@ class ApplyTests(TestCase):
             u'budget_current': [u'62561'],
             u'fiscal_address': [u''],
             u'telephone_number': [u'325'],
-            u'organization': [u'1'],
             u'contact_person': [u'asdfsadfasdfasdf'],
             u'contact_person_title': [u'Dr Mr'],
             u'ein': [u'654'],
@@ -111,6 +116,8 @@ class ApplyTests(TestCase):
             u"collab_ref1_email": [u"adsasd@gjadslf.com"],
             u'screening_status': [u'10'],
     }
+    form_data['grant_cycle'] = u'1'
+    form_data['organization'] = u'1',
     budget =  open('grants/fixtures/test_grants_guide.txt')
     form_data['budget'] = budget
     funding_sources =  open('static/grant_app/funding.doc')
@@ -123,22 +130,25 @@ class ApplyTests(TestCase):
     budget.close()
     funding_sources.close()
     demographics.close()
-    print(response.context)
-    print(", ".join(t.name for t in response.templates))
+    
+    self.org = Organization.objects.get(pk = 1)
+    self.assertEqual(self.org.mission, u'A kmission statement of some importance!')
+    self.assertEqual(1, GrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
     #self.assertTemplateUsed(response, 'grants/submitted.html')
     self.assertEqual(response.status_code, 302)
 
 class PageLoadTests(TestCase):
     
-  def test_load_first_app(self):
+  def load_first_app(self):
     pass
     #expect empty form
   
-  def test_load_second_app(self):
+  def load_second_app(self):
     pass
     #expect profile fields
   
-  def test_load_home_page(self):
+  def load_home_page(self):
     pass
     """ submitted apps sorting
         display of submitted, drafts, past-due drafts
@@ -152,7 +162,7 @@ class BlockedLoadTests(TestCase):
         
 class DraftTests(TestCase):
    #can't test autosave here..?
-  def test_discard(self):
+  def discard(self):
     pass
     #discard a draft
     
