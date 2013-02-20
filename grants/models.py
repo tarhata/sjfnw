@@ -250,9 +250,9 @@ class GrantApplication(models.Model):
   racial_justice_ref2_email = models.EmailField(verbose_name='Email', blank=True) 
   
   #files
-  budget = models.FileField(upload_to='/%Y/', max_length=255)
-  demographics = models.FileField(upload_to='/%Y/', max_length=255)
-  funding_sources = models.FileField(upload_to='/%Y/', max_length=255)
+  budget = models.FileField(upload_to='%Y/', max_length=255)
+  demographics = models.FileField(upload_to='%Y/', max_length=255)
+  funding_sources = models.FileField(upload_to='%Y/', max_length=255)
   #timeline?
   
   #admin fields  
