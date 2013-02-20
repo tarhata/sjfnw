@@ -1,0 +1,18 @@
+﻿GRANT CYCLES
+
+  1 Open cycle
+  2 Another open cycle
+  3 Closed cycle
+  4 Upcoming cycle
+  5 Let's have a kiki [open]
+
+* For all but closed, set the dates in setUp
+  
+ORGANIZATIONS
+
+  1 Fresh New Org - newacct@gmail.com
+    (nothing associated)
+  
+  2 OfficeMax Foundation - testacct@gmail.com
+    Drafts:     1 (cycle 2), 2 (cycle 3)
+    Submitted:  1 (cycle 1)
