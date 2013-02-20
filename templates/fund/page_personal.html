@@ -121,7 +121,7 @@
           if (dasked) {
             completeLoaded(pks[1], dasked, dpledged);
           }
-        } else if (div_id == 'adddonor') {
+        } else if (div_id == 'addmult') {
           document.getElementById(div_id).style.borderColor="#555";
         }
         datepicker();
@@ -191,8 +191,8 @@
     console.log('trackEvents', url, div_id, request_type);
     var category;
     var action;
-    if (div_id.search('adddonor') > -1) {
-      //console.log('adddonor');
+    if (div_id.search('addmult') > -1) {
+      console.log('addmult');
       if (request_type == 'POST') {
         action = 'Add multiple - submit';
       } else {
@@ -273,14 +273,15 @@
     $.ajax({
       url:'/fund/addmult',
       type:"POST",
-      data:$('#addmult').serialize(),
+      data:$('#addcontacts').serialize(),
       timeout: 10000,
       success:function(data, textStatus, jqXHR){
         endProcessing();
         if (jqXHR.responseText=="success") {
-          location.href= '/fund/?load=stepmult';
+					trackEvents('/fund/addmult',' addmult', 'POST');
+          setTimeout(function() {location.href= '/fund/?load=stepmult';}, 200);
         } else {
-          document.getElementById('adddonor').innerHTML=jqXHR.responseText;
+          document.getElementById('addmult').innerHTML=jqXHR.responseText;
         }
       },
       error:function(jqXHR, textStatus, errorThrown){
@@ -293,12 +294,12 @@
         } else {
           errortext = 'Unknown error'
         }
-        document.getElementById('adddonor').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + get_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
+        document.getElementById('addmult').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: /fund/addmult<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
       },
     });
   }
 
-  function cancelHide(div_id, replace) { //hide adddonor div
+  function cancelHide(div_id, replace) { //hide addmult div
     replace = replace || '';
     var div = document.getElementById(div_id)
     div.innerHTML=replace;
@@ -454,9 +455,9 @@
 {% endif %}
 
 <b>YOUR CONTACTS & NEXT STEPS</b>
-{% if donor_list.0 and load != 'stepmult' %} <!--only show if mass add won't be showing -->
-  <div class="edit_done">[<a onclick="loadView('/fund/addmult', 'adddonor')">add contacts</a>]</div>
-  <div class="donor indent" id="adddonor"></div><!--forms for adding contacts go here when requested-->
+{% if donor_list.0 %} <!--only show if mass form won't be showing -->
+  <div class="edit_done">[<a onclick="loadView('/fund/addmult', 'addmult')">add contacts</a>]</div>
+	<div class="donor indent" id="addmult"></div>
 {% endif %}
 
 {% for dict in donor_list %} <!-- per contact -->
@@ -523,15 +524,14 @@
     
   </div> <!-- ends donor_details -->
 </div> <!-- ends donor -->
-
 {% empty %} <!--no contacts yet -->
   {% if fd %} <!-- add estimates -->
     {% include 'fund/add_estimates.html' %}  
   {% else %} <!-- add contacts -->
-    <div class="donors" id="adddonor">
-      <p>You don't have any contacts yet!  Get started by adding some.  You'll be able to add, change or remove contacts at any time.</p>
-      {% include mult_template %}
-    </div>
+		<div class="donor indent" id="addmult">
+		<p>You don't have any contacts yet!  Get started by adding some.  You'll be able to add, change or remove contacts at any time.</p>
+		{% include mult_template %}
+		</div>
   {% endif %}
 {% endfor %} <!--ends contacts check-->
 

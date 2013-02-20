@@ -5,16 +5,16 @@ from django.utils import timezone
 import models, datetime, logging
 
 class LoginForm(forms.Form):
-  email = forms.EmailField()
+  email = forms.EmailField(max_length=100)
   password = forms.CharField(widget=forms.PasswordInput())
 
 class RegistrationForm(forms.Form):
   first_name = forms.CharField(max_length=100)
   last_name = forms.CharField(max_length=100)
-  email = forms.EmailField()
+  email = forms.EmailField(max_length=100)
   password = forms.CharField(widget=forms.PasswordInput())
   passwordtwo = forms.CharField(widget=forms.PasswordInput(), label="Re-enter password")
-  giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date()), empty_label="Select a giving project", required=False)
+  giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date(), public=True), empty_label="Select a giving project", required=False)
   
   def clean(self): #make sure passwords match
     cleaned_data = super(RegistrationForm, self).clean()

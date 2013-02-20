@@ -41,7 +41,7 @@ def Home(request):
     loadto = donor + '-nextstep'
   elif load_form == 'stepmult':
     load = '/fund/stepmult'
-    loadto = 'adddonor'
+    loadto = 'addmult'
   else:  
     load = ''
     loadto = ''
