@@ -125,52 +125,64 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   if subd: 
     return render(request, 'grants/already_applied.html', {'organization':organization, 'cycle':cycle})
   
+  #get or create draft
   saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = organization, grant_cycle=cycle)
   
-  if request.method == 'POST':
+  #check if draft can be submitted
+  if not saved.editable: 
+    return render(request, 'grants/closed.html', {'cycle':cycle})
+
+  if request.method == 'POST': #POST
+
+    #fix newline multiplying
     post_data = request.POST.copy()
-    for key in post_data: #fix newline multiplying
+    for key in post_data:
       if key.startswith('_') or key == u'csrfmiddlewaretoken':
-          continue
+        continue
       value = post_data[key]
       if isinstance(value,(str, unicode)):
-          post_data[key] = value.replace('\r', '')
-    files_data = request.FILES.copy()
-    logging.info('FILES at start: ' + str(files_data.lists()))
+        post_data[key] = value.replace('\r', '')
     
-    #get or create autosave json, update it from this submission
+    #update draft from this submission
     dict = json.dumps(post_data)
     saved.contents = dict
-    if files_data.get('budget'): #if new file, use it and save it
-      logging.info('budget in POST, saving to draft: ' + str(files_data['budget']))
+    
+    #update draft files or pull them into the post
+    files_data = request.FILES.copy()
+    logging.debug('FILES at start: ' + str(files_data.lists()))
+    if files_data.get('budget'):
+      logging.debug('budget in POST, saving to draft: ' + str(files_data['budget']))
       saved.budget = files_data['budget']
-    elif saved.budget: #use draft file if it exists
+    elif saved.budget:
       files_data['budget'] = saved.budget
     if files_data.get('demographics'):
-      logging.info('demo in POST, saving to draft')
+      logging.debug('demo in POST, saving to draft')
       saved.demographics = files_data['demographics']
     elif saved.demographics:
       files_data['demographics'] = saved.demographics
     if files_data.get('funding_sources'):
-      logging.info('funding in POST, saving to draft')
+      logging.debug('funding in POST, saving to draft')
       saved.funding_sources = files_data['funding_sources']
     elif saved.funding_sources:
       files_data['funding_sources'] = saved.funding_sources
     if files_data.get('fiscal_letter'):
-      logging.info('fiscal in POST, saving to draft')
+      logging.debug('fiscal in POST, saving to draft')
       saved.fiscal_letter = files_data['fiscal_letter']
     elif saved.fiscal_letter:
       files_data['fiscal_letter'] = saved.fiscal_letter
     saved.save()
     mod = saved.modified
-    if not saved.editable: 
-      return render(request, 'grants/closed.html', {'cycle':cycle}) #TODO replace this with a specific page saying that their draft has been saved
+    
+    #submit form
     logging.info('Submitting files_data: ' + str(files_data.lists()))
     form = models.GrantApplicationForm(post_data, files_data)
-    if form.is_valid():
+    
+    if form.is_valid(): #VALID SUBMISSION
       logging.info('Application form valid')
-      application = form.save() #save as GrantApp object
-      logging.info("Application form saved, budget: " + str(application.budget))
+      
+      #save as GrantApplication object
+      application = form.save()
+
       #update org profile
       form2 = models.OrgProfile(post_data, instance=organization)
       if form2.is_valid():
@@ -180,8 +192,9 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
           organization.save()
         logging.info('Organization profile updated')
       else:
-        logging.error('Application error: profile not updated.  User: %s, application id: %s', request.user.email, application.pk)
-      #email confirmation
+        logging.error('Org profile not updated.  User: %s, application id: %s', request.user.email, application.pk)
+      
+      #send email confirmation
       subject, from_email = 'Grant application submitted', settings.GRANT_EMAIL
       to = organization.email
       html_content = render_to_string('grants/email_submitted.html', {'org':organization, 'cycle':cycle})
@@ -190,29 +203,36 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       msg.attach_alternative(html_content, "text/html")
       msg.send()
       logging.info("Application created; confirmation email sent to " + to)
-      #delete json obj
+      
+      #delete draft
       saved.delete()
+      
       return redirect('/org/submitted')
-    else:
+    
+    else: #INVALID SUBMISSION
       logging.info("Application form invalid")
       
   else: #GET
-    if not saved.editable(): 
-      return render(request, 'grants/closed.html', {'cycle':cycle})
-    if cr: #just created empty draft
+    
+    #get initial data
+    if cr: #load profile
       dict = model_to_dict(organization)
       saved.fiscal_letter = organization.fiscal_letter
       saved.contents = dict
       saved.save()
       logging.debug('Created new draft')
-      mod = ''
-    else: #loaded a draft
+      mod = ''   
+    else: #load a draft
       dict = json.loads(saved.contents)
       logging.debug('Loading draft: ' + str(dict))
       mod = saved.modified
+    
+    #fill in fkeys TODO handle this on post
     dict['organization'] = organization
     dict['grant_cycle'] = cycle
     dict['screening_status'] = 10
+    
+    #create form
     form = models.GrantApplicationForm(initial=dict)
   
   #get saved files
@@ -227,7 +247,9 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   files['fiscal_letter'] = name
   logging.info('Files dict: ' + str(files))
   file_urls = utils.GetFileURLs(saved)
-  #test replacement:upload_url = '/apply/' + cycle_id + '/'
+  
+  #upload url
+  #test replacement:  upload_url = '/apply/' + cycle_id + '/'
   #live:
   upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
   
@@ -319,7 +341,7 @@ def AppToDraft(request, app_id):
     draft.funding_sources = submitted_app.funding_sources
     draft.save()
     logging.info('Reverted to draft, draft id ' + str(draft.pk))
-    #email notification to org
+    #email notification to org TODO replace template
     html_content = render_to_string('grants/email_submitted.html', {'org':organization, 'cycle':grant_cycle, 'submission':submitted_app.submission_time})
     text_content = strip_tags(html_content)
     msg = EmailMultiAlternatives('Submitted application re-opened for edits', text_content, settings.GRANT_EMAIL, [organization.email], [settings.SUPPORT_EMAIL])
@@ -333,7 +355,7 @@ def AppToDraft(request, app_id):
   #GET
   return render(request, 'admin/grants/confirm_revert.html', {'application':submitted_app})
 
-    # CRON
+# CRON
 def DraftWarning(request):
   drafts = models.DraftGrantApplication.objects.all()
   for draft in drafts:
@@ -342,7 +364,7 @@ def DraftWarning(request):
     if datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3):
       subject, from_email = 'Grant cycle closing soon', settings.GRANT_EMAIL
       to = draft.organization.email
-      html_content = render_to_string('grants/email_submitted.html', {'org':draft.organization, 'cycle':draft.grant_cycle})
+      html_content = render_to_string('grants/email_draft_warning.html', {'org':draft.organization, 'cycle':draft.grant_cycle})
       text_content = strip_tags(html_content)
       msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.SUPPORT_EMAIL])
       msg.attach_alternative(html_content, "text/html")
