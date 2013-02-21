@@ -7,42 +7,45 @@ from grants.models import GrantApplication, DraftGrantApplication, Organization,
 import sys, datetime, re
 
 def setPaths():
-  #add libs to the path that dev_appserver normally takes care of
+  """ add libs to the path that dev_appserver normally takes care of """
   sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\yaml\lib')
-  sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\webob_1_1_1')
+  sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\webob_0_9')
 
-def setCycleDates():
-  #open, open, closed, upcoming, open
+def setCycleDates(just_open = False):
+  """ Updates grant cycle dates to make sure they have the expected statuses:
+      open, open, closed, upcoming, open """
+      
   now = timezone.now()
   ten_days = datetime.timedelta(days=10)
-  twenty_days = datetime.timedelta(days=20)
   
   cycle = GrantCycle.objects.get(pk=1)
   cycle.open = now - ten_days
   cycle.close = now + ten_days
   cycle.save()
-  cycle = GrantCycle.objects.get(pk=2)
-  cycle.open = now - ten_days
-  cycle.close = now + ten_days
-  cycle.save()
-  cycle = GrantCycle.objects.get(pk=3)
-  cycle.open = now - twenty_days
-  cycle.close = now - ten_days
-  cycle.save()
-  cycle = GrantCycle.objects.get(pk=4)
-  cycle.open = now + ten_days
-  cycle.close = now + twenty_days
-  cycle.save()
-  cycle = GrantCycle.objects.get(pk=5)
-  cycle.open = now - twenty_days
-  cycle.close = now + ten_days
-  cycle.save()
+  if not just_open:
+    twenty_days = datetime.timedelta(days=20)
+    cycle = GrantCycle.objects.get(pk=2)
+    cycle.open = now - ten_days
+    cycle.close = now + ten_days
+    cycle.save()
+    cycle = GrantCycle.objects.get(pk=3)
+    cycle.open = now - twenty_days
+    cycle.close = now - ten_days
+    cycle.save()
+    cycle = GrantCycle.objects.get(pk=4)
+    cycle.open = now + ten_days
+    cycle.close = now + twenty_days
+    cycle.save()
+    cycle = GrantCycle.objects.get(pk=5)
+    cycle.open = now - twenty_days
+    cycle.close = now + ten_days
+    cycle.save()
 
-def logInTesty(self): #'OfficeMax Foundation' pk 2. Submitted 1, draft 1
+def logInTesty(self): # 2 OfficeMax Foundation
   self.user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')
   self.client.login(username = 'testacct@gmail.com', password = 'testy')
 
-def logInNewbie(self): #'Fresh New Org' pk 1
+def logInNewbie(self): # 1 Fresh New Org
   user = User.objects.create_user('newacct@gmail.com', 'newacct@gmail.com', 'noob')
   self.client.login(username = 'newacct@gmail.com', password = 'noob')
 
@@ -51,27 +54,34 @@ TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyTests(TestCase):
   
+  """ Submitting an application """
+  
+  """ TODO
+        apply with deadline extension
+        validate fiscal
+        validate collab 
+        possibly using draft-saved files """
+
   fixtures = ['grants/fixtures/test_grants.json',] 
   
   def setUp(self):
     setPaths()
-    logInNewbie(self)
     setCycleDates()
-    self.org = Organization.objects.get(pk = 1)
   
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage')
-  @override_settings(MEDIA_ROOT = 'media/')
-  @override_settings(FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_post_valid_app(self):
-    """ Updates org profile
+    """ (Does not test blobstore file handling)
+        Updates org profile
         Creates a new application object
-        Does not leave a draft object """
+        No draft object """
     
+    logInNewbie(self)
+    
+    org = Organization.objects.get(pk = 1)
     self.assertEqual(0, GrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
-    self.assertFalse(self.org.mission)
+    self.assertFalse(org.mission)
     
-    #fake form submit using same txt for all 3 files
     form_data = {u'website': [u'asdfsdaf'],
             u'mission': [u'A kmission statement of some importance!'],
             u'founded': [u'351'],
@@ -124,42 +134,105 @@ class ApplyTests(TestCase):
     form_data['funding_sources'] = funding_sources
     demographics = open('static/css/admin.css')
     form_data['demographics'] = demographics
-    
-    #POST
-    response = self.client.post('/apply/1/', form_data)
+
+    response = self.client.post('/apply/1/', form_data, follow=True)
     budget.close()
     funding_sources.close()
     demographics.close()
     
-    self.org = Organization.objects.get(pk = 1)
-    self.assertEqual(self.org.mission, u'A kmission statement of some importance!')
+    org = Organization.objects.get(pk = 1)
+    self.assertEqual(org.mission, u'A kmission statement of some importance!')
     self.assertEqual(1, GrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
-    #self.assertTemplateUsed(response, 'grants/submitted.html')
-    self.assertEqual(response.status_code, 302)
+    self.assertTemplateUsed(response, 'grants/submitted.html')
 
-class PageLoadTests(TestCase):
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class ApplyBlockedTests(TestCase):
+
+  """ Attempting to access an invalid application/cycle """
+  
+  fixtures = ['grants/fixtures/test_grants.json',] 
+  
+  def setUp(self):
+    setPaths()
+    setCycleDates()
+
+  def test_closed_cycle(self):
+    logInTesty(self)
+    response = self.client.get('/apply/3/')
+    self.assertTemplateUsed('grants/closed.html')
+  
+  def test_already_submitted(self):
+    """ Returns already applied page
+        Does not create a draft """
+
+    logInTesty(self)
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
     
-  def load_first_app(self):
-    pass
-    #expect empty form
+    response = self.client.get('/apply/1/')
+    
+    self.assertTemplateUsed('grants/already-applied.html')
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
+    
+  """apply to non-existent cycle
+    apply to upcoming cycle"""
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)    
+class StartApplicationTests(TestCase):
   
-  def load_second_app(self):
-    pass
-    #expect profile fields
+  """Starting (loading) an application for an open cycle."""
   
-  def load_home_page(self):
-    pass
-    """ submitted apps sorting
+  fixtures = ['grants/fixtures/test_grants.json',] 
+  
+  def setUp(self):
+    setPaths()
+    setCycleDates()
+
+  def test_load_first_app(self):
+    """ Brand new org starting an application
+        Page loads
+        Form is blank
+        Draft is created """
+
+    logInNewbie(self)
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
+     
+    response = self.client.get('/apply/1/')
+    
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed('grants/org_app.html')
+    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
+    self.assertEqual('', response.context['saved']) #make sure we didn't load a draft
+
+  def test_load_second_app(self):
+    """ Org with profile starting an application
+        Page loads
+        Form has stuff from profile
+        Draft is created """
+        
+    logInTesty(self)
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
+     
+    response = self.client.get('/apply/5/')
+    
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed('grants/org_app.html')
+    org = Organization.objects.get(pk=2)
+    self.assertContains(response, org.mission)
+    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
+    self.assertEqual('', response.context['saved']) #make sure we didn't load a draft
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class HomePageTests(TestCase):
+  
+  """ Viewing data on the home page
+        submitted apps sorting
         display of submitted, drafts, past-due drafts
         display/sorting of cycles"""
+  def load_home_page(self):
+    pass
 
-class BlockedLoadTests(TestCase):
-  """apply to non-existent cycle
-    apply to closed cycle
-    apply to upcoming cycle
-    apply to one you've applied to"""
-        
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftTests(TestCase):
    #can't test autosave here..?
   def discard(self):
@@ -167,35 +240,15 @@ class DraftTests(TestCase):
     #discard a draft
     
 """ TESTS TO DO
-      
-    try to access pages without being registered
-    file upload/serving?
-   
-    FIXTURE NEEDS
-      orgs:
-        brand new
-        has saved profile
-        has applied to 1+ open apps
-        has saved draft that's still open
-        has saved draft that's past-due
+    
+  try to access pages without being registered
+  file upload/serving?
+ 
+  FIXTURE NEEDS
+    orgs:
+      brand new
+      has saved profile
+      has applied to 1+ open apps
+      has saved draft that's still open
+      has saved draft that's past-due
  """
-
-"""
-class GrantApplicationTests(TestCase)     
-  
-  #just copied from stackoverflow, needs work
-  def test_a_file(self):
-    import tempfile
-    import os
-    filename = tempfile.mkstemp()[1]
-    f = open(filename, 'w')
-    f.write('These are the file contents')
-    f.close()
-    f = open(filename, 'r')
-    post_data = {'file': f}
-    response = self.client.post('/apply/4/', post_data)
-    f.close()
-    os.remove(filename)
-    self.assertTemplateUsed(response, 'tests/solution_detail.html')
-    self.assertContains(response, os.path.basename(filename))
-  """
