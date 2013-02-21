@@ -6,7 +6,7 @@ import sys
 def setPaths():
   #add libs to the path that dev_appserver normally takes care of
   sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\yaml\lib')
-  sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\webob_1_1_1')
+  sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\webob-1.2.3')
 
 def logInTesty(self):
   user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')

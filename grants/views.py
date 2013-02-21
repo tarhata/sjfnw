@@ -121,8 +121,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
 
   #check for app already submitted
-  subd = models.GrantApplication.objects.filter(organization=organization, grant_cycle=cycle)
-  if subd: 
+  if models.GrantApplication.objects.filter(organization=organization, grant_cycle=cycle):
     return render(request, 'grants/already_applied.html', {'organization':organization, 'cycle':cycle})
   
   #get or create draft
@@ -249,9 +248,9 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   file_urls = utils.GetFileURLs(saved)
   
   #upload url
-  #test replacement:  upload_url = '/apply/' + cycle_id + '/'
-  #live:
-  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
+  #test replacement:  
+  upload_url = '/apply/' + cycle_id + '/'
+  #live:  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
   
   return render(request, 'grants/org_app.html',
   {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls}  )
