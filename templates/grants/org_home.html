@@ -49,7 +49,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 	<li>No upcoming grant cycles.</li>
 {% endfor %}</ul>
 
-<h4>Recent grant cycles</h4>
+<h4>Recently closed grant cycles</h4>
 
 <ul>{%for cl in closed%}
   <li>{{cl}} - open {{cl.open|date:"m/d/y"}} to {{cl.close|date:"m/d/y"}}

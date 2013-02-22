@@ -31,8 +31,8 @@
 		{% block content %} {% endblock %}	
 		<br><br><br>
 		<table id="org_footer"><tr>
-			<td style="width:50%;"><a href="{% url grants.views.OrgSupport %}">support</a></td>
-			<td style="width:5%;"></td>
+			<td style="width:25%;"><a href="{% url grants.views.OrgSupport %}">support</a></td>
+			<td style="width:25%;"><a href="http://socialjusticefund.org">socialjusticefund.org</a></td>
 			<td style="width:45%;text-align:right;">
 			{% if user.is_authenticated %}
 				{{user.email}} | <a href="/logout">log out</a>
