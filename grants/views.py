@@ -142,7 +142,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
         continue
       value = post_data[key]
       if isinstance(value,(str, unicode)):
-        post_data[key] = unicode(quopri.decodestring(value), 'iso_8859-2')
+        post_data[key] = unicode(quopri.decodestring(value))
         post_data[key] = value.replace('\r', '')
     logging.info("POST: after decoding" + str(post_data))
      
