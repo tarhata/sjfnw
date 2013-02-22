@@ -208,7 +208,7 @@ class GrantApplication(models.Model):
   budget_current = models.PositiveIntegerField(verbose_name='Org. budget this fiscal year')
   project_title = models.CharField(max_length=250,verbose_name='Project title (if applicable)', null=True, blank=True)
   project_budget = models.PositiveIntegerField(verbose_name='Project budget (if applicable)', null=True, blank=True)
-  grant_request = models.TextField(verbose_name="Summarize the grant request")
+  grant_request = models.TextField(verbose_name="Briefly summarize the grant request")
   previous_grants = models.CharField(max_length=255, verbose_name="Previous SJF grants awarded (amounts and year)", blank=True)
   
   #fiscal sponsor
@@ -217,7 +217,7 @@ class GrantApplication(models.Model):
   fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address', max_length=70, null=True, blank=True)
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
-  fiscal_letter = models.FileField(upload_to='/%Y/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension])
+  fiscal_letter = models.FileField(upload_to='%Y/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255)
   
   #narrative
   narrative1 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
