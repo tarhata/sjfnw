@@ -57,7 +57,7 @@ function autoSave(){
 function charLimitDisplay(area, limit){
 	var counter = document.getElementById(area.name + '_counter');
 	var diff = limit - area.value.length;
-  if (diff > 0) {
+  if (diff >= 0) {
     counter.innerHTML = diff + ' characters remaining';
     counter.className = 'char_counter_ok';
   } else {
