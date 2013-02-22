@@ -184,21 +184,21 @@ def Home(request):
     suggested = membership.giving_project.suggested_steps.splitlines()
     suggested = filter(None, suggested) #move this to the admin save    
     
-    return render(request, 'fund/page_personal.html', 
-    {'1active':'true',
-    'header':header,
-    'donor_list': donor_list,
-    'progress':progress,
-    'member':member,
-    'news':news,
-    'steps':upcoming_steps,
-    'membership':membership,
-    'notif':notif,
-    'suggested':suggested,
-    'formset':formset,
-    'load':load,
-    'loadto':loadto,
-    'mult_template':mult_template})
+    return render(request, 'fund/page_personal.html', {
+      '1active':'true',
+      'header':header,
+      'donor_list': donor_list,
+      'progress':progress,
+      'member':member,
+      'news':news,
+      'steps':upcoming_steps,
+      'membership':membership,
+      'notif':notif,
+      'suggested':suggested,
+      'formset':formset,
+      'load':load,
+      'loadto':loadto,
+      'mult_template':mult_template})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -465,6 +465,8 @@ def AddMult(request):
   else:
     ContactFormset = formset_factory(MassDonorPre, extra=5)
   if request.method=='POST':
+    membership.last_activity = timezone.now()
+    membership.save()
     formset = ContactFormset(request.POST)
     if formset.is_valid():
       for form in formset.cleaned_data:
@@ -496,6 +498,8 @@ def AddEstimates(request):
       dlist.append(donor)
   EstFormset = formset_factory(DonorEstimates, extra=0)
   if request.method=='POST':
+    membership.last_activity = timezone.now()
+    membership.save()
     formset = EstFormset(request.POST)
     logging.debug('Adding estimates - posted: ' + str(request.POST))
     if formset.is_valid():
@@ -529,21 +533,20 @@ def EditDonor(request, donor_id):
   est = request.membership.giving_project.require_estimates() #showing estimates t/f
   
   if request.method == 'POST':
+    request.membership.last_activity = timezone.now()
+    request.membership.save()
     if est:
       form = models.DonorForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
     else:
       form = models.DonorPreForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
     if form.is_valid():
       form.save()
-      request.membership.last_activity = timezone.now()
-      request.membership.save()
       return HttpResponse("success")
   else:
     if est:
       form = models.DonorForm(instance=donor, auto_id = str(donor.pk) + '_id_%s')
     else:
-      form = models.DonorPreForm(instance=donor, auto_id = str(donor.pk) + '_id_%s')
-      
+      form = models.DonorPreForm(instance=donor, auto_id = str(donor.pk) + '_id_%s')  
   return render(request, 'fund/edit_contact.html', { 'form': form, 'pk': donor.pk, 'action':'/fund/'+str(donor_id)+'/edit'})
 
 @login_required(login_url='/fund/login/')
@@ -587,6 +590,8 @@ def AddStep(request, donor_id):
   divid = donor_id+'-addstep'
   
   if request.method == 'POST':
+    membership.last_activity = timezone.now()
+    membership.save()
     form = models.StepForm(request.POST, auto_id = str(donor.pk) + '_id_%s')
     has_step = donor.next_step
     logging.info('Single step - POST: ' + str(request.POST))
@@ -599,8 +604,6 @@ def AddStep(request, donor_id):
       logging.info('Single step - form valid, step saved')
       donor.next_step = step
       donor.save()
-      membership.last_activity = timezone.now()
-      membership.save()
       return HttpResponse("success")
   else: 
     form = models.StepForm(auto_id = str(donor.pk) + '_id_%s')
@@ -623,6 +626,8 @@ def AddMultStep(request):
       size = size +1
   StepFormSet = formset_factory(MassStep, extra=0)
   if request.method=='POST':
+    membership.last_activity = timezone.now()
+    membership.save()
     formset = StepFormSet(request.POST)
     logging.debug('Multiple steps - posted: ' + str(request.POST))
     if formset.is_valid():
@@ -667,12 +672,12 @@ def EditStep(request, donor_id, step_id):
   divid = donor_id+'-nextstep'
   
   if request.method == 'POST':
-      form = models.StepForm(request.POST, instance=step, auto_id = str(step.pk) + '_id_%s')
-      if form.is_valid():
-        request.membership.last_activity = timezone.now()
-        request.membership.save()
-        form.save()
-        return HttpResponse("success")
+    request.membership.last_activity = timezone.now()
+    request.membership.save()
+    form = models.StepForm(request.POST, instance=step, auto_id = str(step.pk) + '_id_%s')
+    if form.is_valid():
+      form.save()
+      return HttpResponse("success")
   else:
     form = models.StepForm(instance=step, auto_id = str(step.pk) + '_id_%s')
     
@@ -700,10 +705,10 @@ def DoneStep(request, donor_id, step_id):
   action='/fund/'+str(donor_id)+'/'+str(step_id)+'/done'
 
   if request.method == 'POST':
+    membership.last_activity = timezone.now()
+    membership.save()
     form = StepDoneForm(request.POST, auto_id = str(step.pk) + '_id_%s')
     if form.is_valid():
-      membership.last_activity = timezone.now()
-      membership.save()
       step.completed = timezone.now()
       donor.talked = True
       donor.notes = form.cleaned_data['notes']
