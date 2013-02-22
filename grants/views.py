@@ -144,8 +144,10 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       if isinstance(value,(str, unicode)):
         post_data[key] = value.replace('\r', '')
         logging.info("Decoding: " + value)
-        post_data[key] = unicode(quopri.decodestring(value), 'utf-8')
-        logging.info("Decoded: " + post_data[key])
+        post_data[key] = quopri.decodestring(value)
+        logging.info("Quopri'd: " + post_data[key])
+        post_data[key] = unicode(post_data[key], 'utf-8')
+        logging.info("Unicoded: " + post_data[key])
      
     #update draft from this submission
     dict = json.dumps(post_data)
