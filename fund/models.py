@@ -48,8 +48,8 @@ class Membership(models.Model): #relationship b/n member and gp
   approved = models.BooleanField(default=False)
   leader = models.BooleanField(default=False)
   
-  emailed = models.DateField(default='2000-01-01', help_text='Last time this member was sent an overdue steps reminder')
-  last_activity = models.DateField(default='2000-01-01', help_text='Last activity by this user on this membership.')
+  emailed = models.DateField(blank=True, null=True, help_text='Last time this member was sent an overdue steps reminder')
+  last_activity = models.DateField(blank=True, null=True, help_text='Last activity by this user on this membership.')
   
   notifications = models.TextField(default='', blank=True)
   

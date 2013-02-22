@@ -9,7 +9,7 @@ if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.geten
     'default': {
       'ENGINE': 'google.appengine.ext.django.backends.rdbms',
       'INSTANCE': 'sjf-northwest:sjf',
-      'NAME': 'sjf_devel',
+      'NAME': 'sjfdb',
     }
   }
   DEBUG = False

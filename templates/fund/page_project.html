@@ -100,12 +100,13 @@ No news yet!
   <iframe src="https://www.google.com/calendar/embed?showTitle=0&amp;showCalendars=0&amp;showTz=0&amp;height=400&amp;wkst=2&amp;bgcolor=%23FFFFFF&amp;src={{membership.giving_project.calendar}}&amp;color=%232F6309&amp;ctz=America%2FLos_Angeles" style=" border-width:0; font-family:Verdana;" width="550" height="400" frameborder="0" scrolling="no"></iframe>
 </div>
 {% endif %}
+
 {% if resources %}
 <b>RESOURCES</b>
 <div class="indent">
 {% for p_r in resources %}
   {% ifchanged p_r.session %}{{p_r.session}}{% endifchanged %}
-  <div class="indent"><a href="{{p_r.resource.link}}" target = "_blank">{{p_r.resource.title}}</a>{% if p_r.resource.summary %} - {{p_r.resource.summary}}{% endif %}</div>
+  <div class="indent"><a href="{{p_r.resource.link}}" onClick="_gaq.push(['_trackEvent', 'Resources', '{{p_r.resource.title}}']);" target = "_blank">{{p_r.resource.title}}</a>{% if p_r.resource.summary %} - {{p_r.resource.summary}}{% endif %}</div>
 {% endfor %}
 </div>
 {% endif %}
