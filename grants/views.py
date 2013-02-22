@@ -136,7 +136,6 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
     #fix newline multiplying
     post_data = request.POST.copy()
-    logging.info("raw POST: " + str(post_data))
     skip_decode = [u'fiscal_letter', u'demographics', u'budget', u'funding_sources']
     for key in post_data:
       if key.startswith('_') or key == u'csrfmiddlewaretoken':
