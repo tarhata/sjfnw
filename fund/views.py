@@ -771,7 +771,7 @@ def EmailOverdue(request):
   subject, from_email = 'Fundraising Steps', settings.FUND_EMAIL
   for ship in ships:
     user = ship.member
-    if ship.emailed <= limit:
+    if not ship.emailed or (ship.emailed <= limit):
       num, st = ship.has_overdue(next=True)
       if num>0 and st:
         logging.info(user.email + ' has overdue step(s), emailing.')
