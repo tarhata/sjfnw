@@ -134,7 +134,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
   if request.method == 'POST': #POST
 
-    #fix newline multiplying
+    #fix newline multiplying and quopri
     post_data = request.POST.copy()
     skip_decode = [u'fiscal_letter', u'demographics', u'budget', u'funding_sources']
     for key in post_data:
@@ -143,11 +143,10 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       value = post_data[key]
       if isinstance(value,(str, unicode)):
         post_data[key] = value.replace('\r', '')
-        logging.info("Decoding: " + value)
-        post_data[key] = quopri.decodestring(value)
-        logging.info("Quopri'd: " + post_data[key])
-        post_data[key] = unicode(post_data[key], 'utf-8')
-        logging.info("Unicoded: " + post_data[key])
+        if not key in skip_decode:
+          logging.info("Decoding: " + value)
+          post_data[key] = quopri.decodestring(value)
+          logging.info("Quopri'd: " + post_data[key])
      
     #update draft from this submission
     dict = json.dumps(post_data)
