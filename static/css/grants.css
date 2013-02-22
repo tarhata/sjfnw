@@ -40,6 +40,7 @@ div.formwrapper {
 
 textarea {
   font-family:Arial;
+  width:98%;
 }
 
 span#last_saved {
@@ -80,10 +81,6 @@ input#id_ein {
 
 table span.label {
 	margin-right:8px;
-}
-
-textarea {
-	width:98%;
 }
 
 div.vertical_cushion {
