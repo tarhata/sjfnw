@@ -132,15 +132,21 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     return render(request, 'grants/closed.html', {'cycle':cycle})
 
   if request.method == 'POST': #POST
-
+    
     #fix newline multiplying
     post_data = request.POST.copy()
+    
+    #debug
+    logging.info("Start of POST: 1:\n" + str(post_data['narrative1']) + "\n2:\n" + str(post_data['narrative2']) + "\n3:\n" + str(post_data['narrative3']))
+    
     for key in post_data:
       if key.startswith('_') or key == u'csrfmiddlewaretoken':
         continue
       value = post_data[key]
       if isinstance(value,(str, unicode)):
         post_data[key] = value.replace('\r', '')
+    
+    logging.info("After newline sub: 1:\n" + str(post_data['narrative1']) + "\n2:\n" + str(post_data['narrative2']) + "\n3:\n" + str(post_data['narrative3']))
     
     #update draft from this submission
     dict = json.dumps(post_data)
@@ -210,6 +216,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     
     else: #INVALID SUBMISSION
       logging.info("Application form invalid")
+      logging.info(form.errors)
       
   else: #GET
     
@@ -248,12 +255,12 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   file_urls = utils.GetFileURLs(saved)
   
   #upload url
-  #test replacement:  
-  upload_url = '/apply/' + cycle_id + '/'
-  #live:  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
+  #test replacement:  upload_url = '/apply/' + cycle_id + '/'
+  #live:  
+  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
   
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls}  )
+  {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls})
 
 @registered_org()
 def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
@@ -266,6 +273,7 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
   
   if request.method == 'POST':
     #get or create saved json, update it
+    logging.info("Autosaving, narrative 1 is:\n" + request.POST['narrative1'])
     dict = json.dumps(request.POST)
     saved, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
     saved.contents = dict
