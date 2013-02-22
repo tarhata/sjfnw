@@ -137,7 +137,20 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     post_data = request.POST.copy()
     
     #debug
-    logging.info("Start of POST: 1:\n" + str(post_data['narrative1']) + "\n2:\n" + str(post_data['narrative2']) + "\n3:\n" + str(post_data['narrative3']))
+    
+    logging.info("Start of POST:")
+    logz = "1: " + str(post_data.get('narrative1') or 'empty')
+    logz = logz.replace("\r", "<r>")
+    logz = logz.replace("\n", "<n>")
+    logging.info(logz)
+    logz = "2: " + str(post_data.get('narrative2') or 'empty')
+    logz = logz.replace("\r", "<r>")
+    logz = logz.replace("\n", "<n>")
+    logging.info(logz)
+    logz = "3: " + str(post_data.get('narrative3') or 'empty')
+    logz = logz.replace("\r", "<r>")
+    logz = logz.replace("\n", "<n>")
+    logging.info(logz)
     
     for key in post_data:
       if key.startswith('_') or key == u'csrfmiddlewaretoken':
@@ -146,7 +159,19 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       if isinstance(value,(str, unicode)):
         post_data[key] = value.replace('\r', '')
     
-    logging.info("After newline sub: 1:\n" + str(post_data['narrative1']) + "\n2:\n" + str(post_data['narrative2']) + "\n3:\n" + str(post_data['narrative3']))
+    logging.info("After newline sub")
+    logz = "1: " + str(post_data.get('narrative1') or 'empty')
+    logz = logz.replace("\r", "<r>")
+    logz = logz.replace("\n", "<n>")
+    logging.info(logz)
+    logz = "2: " + str(post_data.get('narrative2') or 'empty')
+    logz = logz.replace("\r", "<r>")
+    logz = logz.replace("\n", "<n>")
+    logging.info(logz)
+    logz = "3: " + str(post_data.get('narrative3') or 'empty')
+    logz = logz.replace("\r", "<r>")
+    logz = logz.replace("\n", "<n>")
+    logging.info(logz)
     
     #update draft from this submission
     dict = json.dumps(post_data)
@@ -273,7 +298,19 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
   
   if request.method == 'POST':
     #get or create saved json, update it
-    logging.info("Autosaving, narrative 1 is:\n" + request.POST['narrative1'])
+    logging.info("Autosaving")
+    logz = "1: " + str(request.POST.get('narrative1') or 'empty')
+    logz = logz.replace("\r", "<r>")
+    logz = logz.replace("\n", "<n>")
+    logging.info(logz)
+    logz = "2: " + str(request.POST.get('narrative2') or 'empty')
+    logz = logz.replace("\r", "<r>")
+    logz = logz.replace("\n", "<n>")
+    logging.info(logz)
+    logz = "3: " + str(request.POST.get('narrative3') or 'empty')
+    logz = logz.replace("\r", "<r>")
+    logz = logz.replace("\n", "<n>")
+    logging.info(logz)
     dict = json.dumps(request.POST)
     saved, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
     saved.contents = dict
