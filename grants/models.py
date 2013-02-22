@@ -209,7 +209,7 @@ class GrantApplication(models.Model):
   project_title = models.CharField(max_length=250,verbose_name='Project title (if applicable)', null=True, blank=True)
   project_budget = models.PositiveIntegerField(verbose_name='Project budget (if applicable)', null=True, blank=True)
   grant_request = models.TextField(verbose_name="Summarize the grant request")
-  previous_grants = models.CharField(max_length=255, verbose_name="Previous SJF grants awarded (amounts and year)")
+  previous_grants = models.CharField(max_length=255, verbose_name="Previous SJF grants awarded (amounts and year)", blank=True)
   
   #fiscal sponsor
   fiscal_org = models.CharField(verbose_name='Fiscal org. name', max_length=255, null=True, blank=True)
