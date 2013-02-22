@@ -1,10 +1,10 @@
-﻿from django.conf.urls import patterns, include
-from django.views.generic.simple import direct_to_template
-from admin import advanced_admin
+﻿from django.conf import settings
+from django.conf.urls import patterns, include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.views.generic.simple import direct_to_template
+from admin import advanced_admin
 import grants, fund
-from django.conf import settings
 
 handler404 = 'views.page_not_found'
 handler500 = 'views.server_error'
