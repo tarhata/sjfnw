@@ -1,0 +1,16 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block form_top %}
+NOTE: Once a User is created, this person will not be able to register on Project Central or the grants portal with the same email.<br>
+If they need to use one of those apps, a Member or Organization object will have to be created for them through the admin site.<br><br>
+  {% if not is_popup %}
+    <p>{% trans "First, enter a username and password. Then, you'll be able to edit more user options." %}</p>
+  {% else %}
+    <p>{% trans "Enter a username and password." %}</p>
+  {% endif %}
+{% endblock %}
+
+{% block after_field_sets %}
+<script type="text/javascript">document.getElementById("id_username").focus();</script>
+{% endblock %}
