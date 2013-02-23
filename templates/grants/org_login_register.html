@@ -6,7 +6,7 @@
 		<tr>
 			<td style="padding-top:0px;padding-right:10px">
 				LOGIN<br>
-				{%if printout%}<ul class="errorlist">{{printout}}</ul>{%endif%}
+				{%if login_errors%}<ul class="errorlist">{{login_errors|safe}}</ul>{%endif%}
 				<form method="post" action="/org/login/">
 					<table id="login_table">
 					<tr>
@@ -31,7 +31,7 @@
 			</td>
 			<td style="padding-left:10px;padding-right:10px">
 			REGISTER<br>
-				{%if rprintout%}<ul class="errorlist">{{rprintout|safe}}</ul>{%endif%}
+				{% if register_errors %}<ul class="errorlist">{{register_errors|safe}}</ul>{%endif%}
 				<form method="post" action="/org/register/">
 					<table>
 						<tr>

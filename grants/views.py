@@ -19,64 +19,65 @@ import datetime, logging, json, re, quopri
 
 # PUBLIC ORG VIEWS
 def OrgLogin(request):
-  error_msg=''
+  login_errors=''
   if request.method=='POST':
     form = LoginForm(request.POST)
     email = request.POST['email'].lower()
     password = request.POST['password']
     user = authenticate(username=email, password=password)
-    if user is not None:
+    if user:
       if user.is_active:
         login(request, user)
         return redirect(OrgHome)
       else:
-        error_msg='Your account is inactive. Please contact an administrator.'
+        login_errors='Your account is inactive. Please contact an administrator.'
         logging.warning('Inactive org account tried to log in, username: ' + email)
     else:
-      error_msg ="Your password didn't match. Please try again."
+      login_errors ="Your password didn't match. Please try again."
   else:
     form = LoginForm()
   register = RegisterForm()
-  return render(request, 'grants/org_login.html', {'form':form, 'register':register, 'printout':error_msg})
+  return render(request, 'grants/org_login_register.html', {'form':form, 'register':register, 'login_errors':login_errors})
 
 def OrgRegister(request):
-  error_msg=''
+  register_error=''
   if request.method=='POST':
     register = RegisterForm(request.POST)
     if register.is_valid():
       username_email = request.POST['email'].lower()
       password = request.POST['password']
       org = request.POST['organization']
-
      #check org already registered
       if models.Organization.objects.filter(name=org) or models.Organization.objects.filter(email=username_email):
-        error_msg = 'That organization is already registered. Log in instead.'
+        register_error = 'That organization is already registered. Log in instead.'
         logging.warning(org + 'tried to re-register under ' + username_email)
+      #check User already exists, but not as an org
+      elif User.objects.filter(username=username_email):
+          register_error = 'That email is registered with Project Central. Please register using a different email.'
+          logging.warning('User already exists, but not Org: ' + username_email)
+      #clear to register
       else:
-        #check User already exists, but not as an org
-        if User.objects.filter(username=username_email):
-          error_msg = 'That email is registered with Project Central. Please register using a different email.'
-        else:
-          created = User.objects.create_user(username_email, username_email, password)
-          logging.info('Created new User ' + username_email)
-          user = authenticate(username=username_email, password=password)
-          if user:
-            if user.is_active:
-              login(request, user)
-              orgg = models.Organization(name=org, email=username_email)
-              orgg.save()
-              logging.info('Created new org ' + org)
-              return redirect(OrgHome)
-            else:
-              error_msg='Your account is not active.  Please contact an administrator.'
-              logging.error('Inactive acct right after registration, account: ' + username_email)
+        #create User and Organization
+        created = User.objects.create_user(username_email, username_email, password)
+        new_org = models.Organization(name=org, email=username_email)
+        new_org.save()
+        logging.info('Registration - created user and org for ' + username_email)
+        #try to log in
+        user = authenticate(username=username_email, password=password)
+        if user:
+          if user.is_active:
+            login(request, user)
+            return redirect(OrgHome)
           else:
-            logging.error('Password not working at registration, account:  ' + username_email)
-            error_msg='Your password was incorrect.  <a href="/org/support#register-password">More info</a>.'
+            error_msg='Your account is not active. Please contact an administrator.'
+            logging.error('Inactive right after registration, account: ' + username_email)
+        else:
+          error_msg='There was a problem with your registration.  Please <a href=""/org/support#contact">contact a site admin</a> for assistance.'
+          logging.error('Password not working at registration, account:  ' + username_email)
   else: #GET
     register = RegisterForm()
   form = LoginForm()
-  return render(request, 'grants/org_login.html', {'form':form, 'register':register, 'rprintout':error_msg})
+  return render(request, 'grants/org_login_register.html', {'form':form, 'register':register, 'register_errors':register_errors})
 
 def OrgSupport(request):
   return render(request, 'grants/org_support.html', {

@@ -292,68 +292,72 @@ def ScoringList(request):
 
 # LOGIN & REGISTRATION
 def FundLogin(request):
-  printout=''
+  error_msg=''
   if request.method=='POST':
     form = LoginForm(request.POST)
     username = request.POST['email'].lower()
     password = request.POST['password']
     user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            login(request, user)
-            return redirect(Home)
-        else:
-            printout='Your account is not active.  Contact an administrator.'
-            logging.warning("Inactive account tried to log in. Username: "+username)
+    if user:
+      if user.is_active:
+        login(request, user)
+        return redirect(Home)
+      else:
+        error_msg='Your account is not active.  Contact an administrator.'
+        logging.warning("Inactive account tried to log in. Username: "+username)
     else:
-        printout ="Your login and password didn't match."
+      error_msg ="Your login and password didn't match."
   else:
     form = LoginForm()
-  return render(request, 'fund/login.html', {'form':form, 'printout':printout})
+  return render(request, 'fund/login.html', {'form':form, 'error_msg':error_msg})
 
 def Register(request):
   error_msg = ''
   if request.method=='POST':
     register = RegistrationForm(request.POST)
     if register.is_valid():
-      username = request.POST['email'].lower()
-      password = request.POST['password']
-      if User.objects.filter(username=username):
+      username_email = request.POST['email'].lower()
+      password = request.POST['password']     
+      #check Member already
+      if models.Member.objects.filter(email = username_email):
         error_msg = 'That email is already registered.  <a href="/fund/login/">Login</a> instead.'
-        logging.info('Email already registered: ' + username)
+        logging.info(username_email + ' tried to re-register')
+      #check User already but not Member
+      elif User.objects.filter(username=username_email):
+        error_msg = 'That email is already registered through the grants portal.  Please use a different email address'
+        logging.warning('User already exists, but not Member: ' + username_email)
+      #clear to register
       else:
-        created = User.objects.create_user(username, username, password)
-        created.save()
+        #create User and Member
+        new_user = User.objects.create_user(username_email, username_email, password)
+        new_user.save()
         fn = request.POST['first_name']
         ln = request.POST['last_name']
         gp = request.POST['giving_project']
-        member, cr = models.Member.objects.get_or_create(email=username, defaults = {'first_name':fn, 'last_name':ln})
-        if cr:
-          logging.info('Registration - user and member objects created for '+username)
-        else:
-          logging.info(username + ' registered as User, Member object already existed')
-        if gp:
+        member = models.Member(email = username_email, first_name = fn, last_name = ln)
+        member.save()
+        logging.info('Registration - user and member objects created for ' + username_email)
+        if gp: #create Membership
           giv = models.GivingProject.objects.get(pk=gp)
-          membership, crs = models.Membership.objects.get_or_create(member = member, giving_project = giv)
-          if crs:
-            membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant. I\'ll be here to guide you through the fundraising process and cheer you on.</td><td><img src="/static/images/odo1.png" height=88 width=54></td></tr></table>'
-            logging.info('Set welcome notif for ' + str(membership))
-            membership.save()
+          membership = models.Membership.objects(member = member, giving_project = giv)
+          membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant. I\'ll be here to guide you through the fundraising process and cheer you on.</td><td><img src="/static/images/odo1.png" height=88 width=54></td></tr></table>'
+          membership.save()
           member.current = membership.pk
           member.save()
-          logging.info('Registration - membership in ' + str(giv) + 'created or marked as current')
-        user = authenticate(username=username, password=password)
+          logging.info('Registration - membership in ' + str(giv) + 'created, welcome message set')
+        #try to log in
+        user = authenticate(username=username_email, password=password)
         if user:
           if user.is_active:
             login(request, user)
             return redirect('/fund/registered')
           else: #not active
-            error_msg = 'There was a problem with your registration.  Please contact a site admin for assistance.'
-            logging.error('Inactive right after registering. Email: ' + username)
+            error_msg = 'Your account is not active. Please contact a site admin for assistance.'
+            logging.error('Inactive right after registering. Email: ' + username_email)
         else: #email & pw didn't match
-          error_msg = 'There was a problem with your registration.  Please contact a site admin for assistance.'
-          logging.error("Password didn't match right after registering. Email: " + username)
-  else:
+          error_msg = 'There was a problem with your registration.  Please <a href="/fund/support#contact">contact a site admin</a> for assistance.'
+          logging.error("Password didn't match right after registering. Email: " + username_email)
+  else: #GET
     register = RegistrationForm()
     
   return render(request, 'fund/register.html', {'form':register, 'error_msg':error_msg})
