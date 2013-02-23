@@ -173,9 +173,6 @@ class DonorForm(ModelForm): #used to edit, creation uses custom form
     widgets = {
       'notes': forms.Textarea(attrs={'cols': 25, 'rows': 4}),
     }
-  def __init__(self, *args, **kwargs):
-    super(DonorForm, self).__init__(*args, **kwargs)
-    self.fields['amount'].localize = True
 
 class DonorPreForm(ModelForm): #for editing prior to fund training
   class Meta:

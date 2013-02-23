@@ -62,10 +62,6 @@ APPEND_SLASH = False
 
 LOGGING = {'version': 1,}
 
-USE_THOUSAND_SEPARATOR = True
-NUMBER_GROUPING = 3
-USE_L10N = True
-
 #djangoappengine email settings
 EMAIL_BACKEND = 'djangoappengine.mail.AsyncEmailBackend'
 EMAIL_QUEUE_NAME = 'default'
