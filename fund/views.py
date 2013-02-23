@@ -459,7 +459,8 @@ def Support(request):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def AddMult(request):
-  est = request.membership.giving_project.require_estimates() #showing estimates t/f
+  membership = request.membership
+  est = membership.giving_project.require_estimates() #showing estimates t/f
   if est:
     ContactFormset = formset_factory(MassDonor, extra=5)
   else:
@@ -472,9 +473,9 @@ def AddMult(request):
       for form in formset.cleaned_data:
         if form:
           if est:
-            contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], amount= form['amount'], likelihood= form['likelihood'], membership = request.membership)
+            contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], amount= form['amount'], likelihood= form['likelihood'], membership = membership)
           else:
-            contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], membership = request.membership)
+            contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], membership = membership)
           contact.save()
       return HttpResponse("success")
   else:

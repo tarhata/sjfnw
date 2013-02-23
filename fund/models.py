@@ -197,7 +197,7 @@ class Step(models.Model):
   def __unicode__(self):
     return unicode(self.date.strftime('%m/%d/%y')) + u' -  ' + self.description
     
-class StepForm(ModelForm):
+class StepForm(ModelForm): #for adding a step
   formfield_callback = make_custom_datefield #date input
   
   class Meta:

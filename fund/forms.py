@@ -1,6 +1,5 @@
 ﻿from django import forms
 from django.core.validators import MaxValueValidator
-from django.forms import ModelForm
 from django.utils import timezone
 import models, datetime, logging
 
@@ -27,12 +26,12 @@ class RegistrationForm(forms.Form):
     return cleaned_data    
 
 class AddProjectForm(forms.Form):
-  giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date()), empty_label="Select a giving project")
+  giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date(), public=True), empty_label="Select a giving project")
 
 class MassDonor(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
   lastname = forms.CharField(max_length=100, required=False, label='Last name')
-  amount = forms.IntegerField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}))
+  amount = forms.IntegerField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}), localize=True)
   likelihood = forms.IntegerField(label='*Estimated likelihood (%)', validators=[MaxValueValidator(100)], widget=forms.TextInput(attrs={'class':'half'}))
 
 class MassDonorPre(forms.Form):
