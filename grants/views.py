@@ -367,11 +367,6 @@ def AppToDraft(request, app_id):
     draft.funding_sources = submitted_app.funding_sources
     draft.save()
     logging.info('Reverted to draft, draft id ' + str(draft.pk))
-    #email notification to org TODO replace template
-    html_content = render_to_string('grants/email_submitted.html', {'org':organization, 'cycle':grant_cycle, 'submission':submitted_app.submission_time})
-    text_content = strip_tags(html_content)
-    msg = EmailMultiAlternatives('Submitted application re-opened for edits', text_content, settings.GRANT_EMAIL, [organization.email], [settings.SUPPORT_EMAIL])
-    msg.attach_alternative(html_content, "text/html")
     #delete app
     submitted_app.delete()
     msg.send()
