@@ -150,8 +150,11 @@ $(document).ready(function() {
     <tr>
       <td colspan="2"><div class="vertical_cushion">{{form.mission.label}}{{form.mission.errors}}</div>
       {{form.mission}}</td>
-    </tr>
-		<tr>
+    </tr><tr>
+      <td colspan="2">{{form.previous_grants.errors}}</td>
+    </tr><tr>
+      <td colspan="2">{{form.previous_grants.label}}{{form.previous_grants}}</td>
+    </tr><tr>
       <td><h4>Fiscal sponsor information (if applicable)</h4></td><!-- Fiscal sponsor info -->
     </tr><tr>
       <td>{{form.fiscal_org.errors}}</td>
@@ -176,7 +179,21 @@ $(document).ready(function() {
 			<td>{{form.fiscal_letter}}</td>
 			<td>{% if files.fiscal_letter %}<a href="{{file_urls.fiscal}}grants/draft-file/{{files.pk}}/fiscal" target="_blank">{{files.fiscal_letter}}</a>{% endif %}</td>
 		</tr><tr>
-      <td><h4>Grant and budget information</h4></td><!-- Grant and budget information -->
+      <td><h4>Budget information</h4></td><!-- Budget information -->
+    </tr><tr>
+			<td>{{form.start_year.label}}{{form.start_year}}</td>
+			<td>{{form.start_year.errors}}</td>
+    </tr><tr>
+      <td>{{form.budget_last.errors}}</td>
+      <td>{{form.budget_current.errors}}</td>
+    </tr><tr>
+      <td>{{form.budget_last.label}} ${{form.budget_last}} </td>
+      <td>{{form.budget_current.label}} ${{form.budget_current}}</td>
+    </tr><tr>
+      <td><h4>Grant information</h4></td><!-- Grant information -->
+    </tr><tr>
+      <td colspan="2"><div class="vertical_cushion">{{form.grant_request.label}}{{form.grant_request.errors}}</div>
+      {{form.grant_request}}</td>
     </tr><tr>
       <td colspan="2">{{form.contact_person.help_text}}</td>
     </tr><tr>
@@ -187,25 +204,7 @@ $(document).ready(function() {
       <td>{{form.contact_person.label}}{{form.contact_person}}</td>
       <td>{{form.contact_person_title.label}}{{form.contact_person_title}}</td>
     </tr><tr>
-      <td>{{form.grant_period.errors}}</td>
-      <td>{{form.start_year.errors}}</td>
-    </tr>  
-    <tr>
-      <td>{{form.grant_period.label}}{{form.grant_period}}</td>
-      <td>{{form.start_year.label}}{{form.start_year}}</td>
-    </tr><tr>
-      <td>{{form.budget_last.errors}}</td>
-      <td>{{form.budget_current.errors}}</td>
-    </tr><tr>
-      <td>{{form.budget_last.label}} ${{form.budget_last}} </td>
-      <td>{{form.budget_current.label}} ${{form.budget_current}}</td>
-    </tr><tr>
-      <td colspan="2">{{form.previous_grants.errors}}</td>
-    </tr><tr>
-      <td colspan="2">{{form.previous_grants.label}}{{form.previous_grants}}</td>
-    </tr><tr>
-      <td colspan="2"><div class="vertical_cushion">{{form.grant_request.label}}{{form.grant_request.errors}}</div>
-      {{form.grant_request}}</td>
+      <td colspan="2">{{form.grant_period.label}}{{form.grant_period}}{{form.grant_period.errors}}</td>
     </tr><tr>
       <td>{{form.amount_requested.errors}}</td><td>{{form.support_type.errors}}</td>
     </tr><tr>

@@ -192,24 +192,27 @@ class GrantApplication(models.Model):
   ein = models.CharField(max_length=50, verbose_name="Organization or Fiscal Sponsor EIN")
   founded = models.PositiveIntegerField(verbose_name='Year founded')
   mission = models.TextField(verbose_name="Mission statement")
+  previous_grants = models.CharField(max_length=255, verbose_name="Previous SJF grants awarded (amounts and year)", blank=True)
   
-  #grant & financial info
+  #budget info
+  start_year = models.CharField(max_length=250,verbose_name='Start date of fiscal year')
+  budget_last = models.PositiveIntegerField(verbose_name='Org. budget last fiscal year')
+  budget_current = models.PositiveIntegerField(verbose_name='Org. budget this fiscal year')
+  
+  #this grant info
+  grant_request = models.TextField(verbose_name="Briefly summarize the grant request")
   contact_person = models.CharField(max_length=250, verbose_name= 'Name', help_text='Contact person for this grant application')
   contact_person_title = models.CharField(max_length=100, verbose_name='Title')
+  grant_period = models.CharField(max_length=250, blank=True, verbose_name='Grant period (if different than fiscal year)')
   amount_requested = models.PositiveIntegerField(verbose_name='Amount requested $')
   SUPPORT_CHOICES = (
     ('General support', 'General support'),   
     ('Project support', 'Project support'),
   )
   support_type = models.CharField(max_length=50, choices=SUPPORT_CHOICES)
-  grant_period = models.CharField(max_length=250)
-  start_year = models.CharField(max_length=250,verbose_name='Start date of fiscal year')
-  budget_last = models.PositiveIntegerField(verbose_name='Org. budget last fiscal year')
-  budget_current = models.PositiveIntegerField(verbose_name='Org. budget this fiscal year')
   project_title = models.CharField(max_length=250,verbose_name='Project title (if applicable)', null=True, blank=True)
   project_budget = models.PositiveIntegerField(verbose_name='Project budget (if applicable)', null=True, blank=True)
-  grant_request = models.TextField(verbose_name="Briefly summarize the grant request")
-  previous_grants = models.CharField(max_length=255, verbose_name="Previous SJF grants awarded (amounts and year)", blank=True)
+  
   
   #fiscal sponsor
   fiscal_org = models.CharField(verbose_name='Fiscal org. name', max_length=255, null=True, blank=True)
