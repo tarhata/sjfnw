@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.mail import EmailMultiAlternatives
 from django.db import connection
 from django.forms.formsets import formset_factory
@@ -96,10 +97,10 @@ def Home(request):
     progress['bar'] = 100*progress['asked']/progress['contacts']
     progress['contactsremaining'] = progress['contacts'] - progress['talked'] -  progress['asked']
     progress['togo'] = progress['estimated'] - progress['pledged'] -  progress['donated']
-    progress['header'] = '$' + str(progress['estimated']) + ' fundraising goal'
+    progress['header'] = '$%s fundraising goal' % intcomma(progress['estimated'])
     if progress['togo'] < 0:
       progress['togo'] = 0
-      progress['header'] = '$' + str(progress['pledged'] + progress['donated']) + ' raised'
+      progress['header'] = '$%s raised' % intcomma(progress['pledged'] + progress['donated'])
   else:
     progress['contactsremaining'] = 0
   
