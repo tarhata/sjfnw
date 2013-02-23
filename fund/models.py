@@ -23,13 +23,13 @@ class GivingProject(models.Model):
   def __unicode__(self):
     return self.title+' '+unicode(self.fundraising_deadline.year)
   
-  def require_estimates(self):
-    return self.fundraising_training <= timezone.now()
-  
   def save(self, *args, **kwargs):
     logging.debug(self.suggested_steps.count('\r'))
     self.suggested_steps = self.suggested_steps.replace('\r', '')
     super(GivingProject, self).save(*args, **kwargs)
+  
+  def require_estimates(self):
+    return self.fundraising_training <= timezone.now()
     
 class Member(models.Model):
   email = models.EmailField()
@@ -173,6 +173,9 @@ class DonorForm(ModelForm): #used to edit, creation uses custom form
     widgets = {
       'notes': forms.Textarea(attrs={'cols': 25, 'rows': 4}),
     }
+  def __init__(self, *args, **kwargs):
+    super(DonorForm, self).__init__(*args, **kwargs)
+    self.fields['amount'].localize = True
 
 class DonorPreForm(ModelForm): #for editing prior to fund training
   class Meta:
