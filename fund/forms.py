@@ -1,5 +1,6 @@
 ﻿from django import forms
-from django.core.validators import MaxValueValidator
+from django.core import validators
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 import models, datetime, logging
 
@@ -28,11 +29,51 @@ class RegistrationForm(forms.Form):
 class AddProjectForm(forms.Form):
   giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date(), public=True), empty_label="Select a giving project")
 
+class IntegerCommaField(forms.Field):
+  """ Allows commas separating thousands
+  (Mostly copied from IntegerField) """
+  
+  default_error_messages = {
+    'invalid': u'Enter a number.',
+    'max_value': u'Must be less than or equal to %(limit_value)s.',
+    'min_value': u'Must be greater than or equal to %(limit_value)s.',
+  }
+  
+  def __init__(self, max_value=None, min_value=None, *args, **kwargs):
+    self.max_value, self.min_value = max_value, min_value
+    super(IntegerCommaField, self).__init__(*args, **kwargs)
+
+    if max_value is not None:
+      self.validators.append(validators.MaxValueValidator(max_value))
+    if min_value is not None:
+      self.validators.append(validators.MinValueValidator(min_value))
+  
+  def to_python(self, value):
+    """
+    Validates that int() can be called on the input. Returns the result
+    of int(). Returns None for empty values.
+    """
+    value = super(IntegerCommaField, self).to_python(value)
+    if value in validators.EMPTY_VALUES:
+      return None
+    try:
+      value = int(str(value))
+    except (ValueError, TypeError):
+      raise ValidationError(self.error_messages['invalid'])
+    return value
+
+  def clean(self, value):
+    if isinstance(value, (str, unicode)):
+      logging.info("Value was " + value)
+      value = value.replace(",", "")
+      logging.info("Value is " + value)
+    return super(IntegerCommaField, self).clean(value)
+
 class MassDonor(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
   lastname = forms.CharField(max_length=100, required=False, label='Last name')
-  amount = forms.IntegerField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}))
-  likelihood = forms.IntegerField(label='*Estimated likelihood (%)', validators=[MaxValueValidator(100)], widget=forms.TextInput(attrs={'class':'half'}))
+  amount = IntegerCommaField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}))
+  likelihood = forms.IntegerField(label='*Estimated likelihood (%)', validators=[validators.MaxValueValidator(100)], widget=forms.TextInput(attrs={'class':'half'}))
 
 class MassDonorPre(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
@@ -40,7 +81,7 @@ class MassDonorPre(forms.Form):
 
 class DonorEstimates(forms.Form):
   donor = forms.ModelChoiceField(queryset=models.Donor.objects.all(), widget=forms.HiddenInput())
-  amount = forms.IntegerField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}))
+  amount = IntegerCommaField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}))
   likelihood = forms.IntegerField(label='*Estimated likelihood (%)', widget=forms.TextInput(attrs={'class':'half'}))
   
 class MassStep(forms.Form):
@@ -67,7 +108,7 @@ class MassStep(forms.Form):
 class StepDoneForm(forms.Form):
   asked = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'onchange':'askedToggled(this)'}))
   response = forms.ChoiceField(choices=((1, 'Pledged'), (2, 'Unsure'), (3, 'Declined')), initial=2, widget=forms.Select(attrs={'onchange':'responseSelected(this)'}))
-  pledged_amount = forms.IntegerField(required=False, min_value=0, error_messages={'min_value': 'Pledge amounts cannot be negative'}, widget=forms.TextInput(attrs = {'onchange':'pledgeEntered(this)', 'size':10}))
+  pledged_amount = IntegerCommaField(required=False, min_value=0, error_messages={'min_value': 'Pledge amounts cannot be negative'}, widget=forms.TextInput(attrs = {'onchange':'pledgeEntered(this)', 'size':10}))
   
   last_name = forms.CharField(max_length=255, required=False)
   phone = forms.CharField(max_length=15,required=False)
