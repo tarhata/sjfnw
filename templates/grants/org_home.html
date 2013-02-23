@@ -16,7 +16,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 <h4>Saved drafts</h4>
 	<ul>{% for save in saved %}
 		<li>
-		{% if save.editable %}<a href="{% url grants.views.Apply save.grant_cycle.pk %}">{{save.grant_cycle}}</a> - last modified {{save.modified|date:"m/d h:ia"}}{% else %}<i>{{save.grant_cycle}} - cycle closed on {{save.grant_cycle.close|date:"m/d"}}</i>{% endif %} <a onclick="confirmation('{{save.pk}}')">[delete]</a></li>
+		{% if save.editable %}<a href="{% url grants.views.Apply save.grant_cycle.pk %}">{{save.grant_cycle}}</a>,  last modified {{save.modified|date:"m/d h:ia"}} - due {{save.grant_cycle.close|date:"m/d h:ia"}}{% else %}<i>{{save.grant_cycle}} - cycle closed on {{save.grant_cycle.close|date:"m/d"}}</i>{% endif %} <a onclick="confirmation('{{save.pk}}')">[delete]</a></li>
 	{% empty %}<li>None found</li>{% endfor %}</ul>
 
 <h4>Submitted applications</h4>
@@ -34,7 +34,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
     <li>{{ope}} - <a href="{% url grants.views.Apply ope.pk %}">open until {{ope.close|date:"m/d/y"}}</a></li>
   {% endfor %}
   {% for appl in applied %}
-    <li>{{appl}} - application submitted</li>
+    <li>{{appl}} - open until {{appl.close|date:"m/d/y"}} - application submitted</li>
   {% endfor %}
 {% else %}
   <li>No grants are being accepted at this time.</li>

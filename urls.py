@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic.simple import direct_to_template
 from admin import advanced_admin
-import grants, fund
+import grants, fund, views
 
 handler404 = 'views.page_not_found'
 handler500 = 'views.server_error'
@@ -16,7 +16,9 @@ urlpatterns = patterns('',
   (r'^admin/grants/grantapplication/(?P<app_id>\d+)/revert', 'grants.views.AppToDraft'),
   (r'^admin-advanced/grants/grantapplication/(?P<app_id>\d+)/revert', 'grants.views.AppToDraft'),
   (r'^admin/', include(admin.site.urls)),
+  (r'^admin$', views.admin_redirect),
   (r'^admin-advanced/', include(advanced_admin.urls)),
+  (r'^admin-advanced$', views.admin_adv_redirect),
 
 ## LANDING ##    
 

@@ -156,26 +156,27 @@ class ApplyBlockedTests(TestCase):
   def setUp(self):
     setPaths()
     setCycleDates()
+    logInTesty(self)
 
   def test_closed_cycle(self):
-    logInTesty(self)
     response = self.client.get('/apply/3/')
     self.assertTemplateUsed('grants/closed.html')
   
   def test_already_submitted(self):
-    """ Returns already applied page
-        Does not create a draft """
-
-    logInTesty(self)
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
     
     response = self.client.get('/apply/1/')
     
     self.assertTemplateUsed('grants/already-applied.html')
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
-    
-  """apply to non-existent cycle
-    apply to upcoming cycle"""
+  
+  def test_upcoming(self):
+    response = self.client.get('/apply/4/')
+    self.assertTemplateUsed('grants/closed.html')
+  
+  def test_nonexistent(self):
+    response = self.client.get('/apply/79/')
+    self.assertEqual(404, response.status_code)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)    
 class StartApplicationTests(TestCase):

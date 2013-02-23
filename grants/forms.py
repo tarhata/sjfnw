@@ -6,7 +6,7 @@ class LoginForm(forms.Form):
   password = forms.CharField(widget=forms.PasswordInput())
 
 class RegisterForm(forms.Form):
-  email = forms.EmailField()
+  email = forms.EmailField(max_length=100)
   password = forms.CharField(widget=forms.PasswordInput())
   passwordtwo = forms.CharField(widget=forms.PasswordInput(), label="Re-enter password")
   organization = forms.CharField()

@@ -62,16 +62,16 @@ APPEND_SLASH = False
 
 LOGGING = {'version': 1,}
 
+USE_THOUSAND_SEPARATOR = True
+NUMBER_GROUPING = 3
+USE_L10N = True
+
 #djangoappengine email settings
 EMAIL_BACKEND = 'djangoappengine.mail.AsyncEmailBackend'
 EMAIL_QUEUE_NAME = 'default'
 
 USE_TZ = True
 TIME_ZONE = 'America/Los_Angeles'
-
-#django error reporting - doesn't work
-SERVER_EMAIL = 'sjfnwads@gmail.com'
-ADMINS = (('Aisa', 'aisapatino@gmail.com'),)
 
 DEFAULT_FILE_STORAGE = 'djangoappengine.storage.BlobstoreStorage'
 SERVE_FILE_BACKEND = 'djangoappengine.storage.serve_file'
@@ -86,8 +86,9 @@ FILE_UPLOAD_HANDLERS = (
 ### CUSTOM SETTINGS
 
 #from emails: fred@example.com or Fred <fred@example.com>
-FUND_EMAIL = 'Project Central <projectcentral@socialjusticefund.org>' #send pc emails
-GRANT_EMAIL = 'Social Justice Fund Grants <grants@socialjusticefund.org>' #can include name is_email_valid(email_address)
+FUND_EMAIL = 'Project Central <projectcentral@socialjusticefund.org>'
+GRANT_EMAIL = 'Social Justice Fund Grants <grants@socialjusticefund.org>'
+
 SUPPORT_EMAIL = 'techsupport@socialjusticefund.org' #displayed on support page
 SUPPORT_FORM_URL = 'https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ'
 

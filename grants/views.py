@@ -53,25 +53,27 @@ def OrgRegister(request):
         error_msg = 'That organization is already registered. Log in instead.'
         logging.warning(org + 'tried to re-register under ' + username_email)
       else:
-        #allow existing Users to register as orgs?
-        if not User.objects.filter(username=username_email):
+        #check User already exists, but not as an org
+        if User.objects.filter(username=username_email):
+          error_msg = 'That email is registered with Project Central. Please register using a different email.'
+        else:
           created = User.objects.create_user(username_email, username_email, password)
           logging.info('Created new User ' + username_email)
-        user = authenticate(username=username_email, password=password)
-        if user:
-          if user.is_active:
-            login(request, user)
-            orgg = models.Organization(name=org, email=username_email)
-            orgg.save()
-            logging.info('Created new org ' + org)
-            return redirect(OrgHome)
+          user = authenticate(username=username_email, password=password)
+          if user:
+            if user.is_active:
+              login(request, user)
+              orgg = models.Organization(name=org, email=username_email)
+              orgg.save()
+              logging.info('Created new org ' + org)
+              return redirect(OrgHome)
+            else:
+              error_msg='Your account is not active.  Please contact an administrator.'
+              logging.error('Inactive acct right after registration, account: ' + username_email)
           else:
-            error_msg='Your account is not active.  Please contact an administrator.'
-            logging.error('Inactive acct right after registration, account: ' + username_email)
-        else:
-          logging.error('Password not working at registration, account:  ' + username_email)
-          error_msg='Your password was incorrect.  <a href="/org/support#register-password">More info</a>.'
-  else:
+            logging.error('Password not working at registration, account:  ' + username_email)
+            error_msg='Your password was incorrect.  <a href="/org/support#register-password">More info</a>.'
+  else: #GET
     register = RegisterForm()
   form = LoginForm()
   return render(request, 'grants/org_login.html', {'form':form, 'register':register, 'rprintout':error_msg})
@@ -142,11 +144,30 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
         continue
       value = post_data[key]
       if isinstance(value,(str, unicode)):
-        post_data[key] = value.replace('\r', '')
+        new_value = value.replace('\r', '')
         if not key in skip_decode:
           logging.info("Decoding: " + value)
-          post_data[key] = quopri.decodestring(value)
-          logging.info("Quopri'd: " + post_data[key])
+          try:
+            new_value = quopri.decodestring(value)
+            logging.info("Quopri'd: " + new_value)
+          except:
+            logging.warning("Quopri failed")
+          if isinstance(new_value, str):
+            try:
+              new_value = unicode(new_value, 'ISO-8859-1')
+              logging.info('Unicoded: ' + new_value)
+            except:
+              logging.warning("Failed to unicode ISO-8859-1")
+              try:
+                new_value = unicode(new_value, 'utf8')
+                logging.info('Unicoded: ' + new_value)
+              except:
+                logging.warning('Failed to unicode utf8')
+          elif isinstance(new_value, unicode):
+            logging.info("It's unicode!")
+          else:
+            logging.info("What is it...")
+        post_data[key] = new_value
      
     #update draft from this submission
     dict = json.dumps(post_data)
@@ -348,11 +369,6 @@ def AppToDraft(request, app_id):
     draft.funding_sources = submitted_app.funding_sources
     draft.save()
     logging.info('Reverted to draft, draft id ' + str(draft.pk))
-    #email notification to org TODO replace template
-    html_content = render_to_string('grants/email_submitted.html', {'org':organization, 'cycle':grant_cycle, 'submission':submitted_app.submission_time})
-    text_content = strip_tags(html_content)
-    msg = EmailMultiAlternatives('Submitted application re-opened for edits', text_content, settings.GRANT_EMAIL, [organization.email], [settings.SUPPORT_EMAIL])
-    msg.attach_alternative(html_content, "text/html")
     #delete app
     submitted_app.delete()
     msg.send()

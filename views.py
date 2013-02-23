@@ -1,4 +1,5 @@
 ﻿from django import http
+from django.shortcuts import redirect
 from django.template import RequestContext, loader
 import logging
 
@@ -37,3 +38,11 @@ def server_error(request):
   template_name = '500.html'
   t = loader.get_template(template_name)
   return http.HttpResponseNotFound(t.render(RequestContext(request, {'title_addition': title_addition, 'contact_url':contact_url})))
+
+#admin -> admin/
+def admin_redirect(request):
+  return redirect('/admin/')
+
+#admin-advanced -> admin-advanced/
+def admin_adv_redirect(request):
+  return redirect('/admin-advanced/')
