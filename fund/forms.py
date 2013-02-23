@@ -40,7 +40,7 @@ class MassDonorPre(forms.Form):
 
 class DonorEstimates(forms.Form):
   donor = forms.ModelChoiceField(queryset=models.Donor.objects.all(), widget=forms.HiddenInput())
-  amount = forms.IntegerField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}), localize=True)
+  amount = forms.IntegerField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}))
   likelihood = forms.IntegerField(label='*Estimated likelihood (%)', widget=forms.TextInput(attrs={'class':'half'}))
   
 class MassStep(forms.Form):
@@ -67,7 +67,7 @@ class MassStep(forms.Form):
 class StepDoneForm(forms.Form):
   asked = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'onchange':'askedToggled(this)'}))
   response = forms.ChoiceField(choices=((1, 'Pledged'), (2, 'Unsure'), (3, 'Declined')), initial=2, widget=forms.Select(attrs={'onchange':'responseSelected(this)'}))
-  pledged_amount = forms.IntegerField(required=False, min_value=0, error_messages={'min_value': 'Pledge amounts cannot be negative'}, widget=forms.TextInput(attrs = {'onchange':'pledgeEntered(this)', 'size':10}), localize=True)
+  pledged_amount = forms.IntegerField(required=False, min_value=0, error_messages={'min_value': 'Pledge amounts cannot be negative'}, widget=forms.TextInput(attrs = {'onchange':'pledgeEntered(this)', 'size':10}))
   
   last_name = forms.CharField(max_length=255, required=False)
   phone = forms.CharField(max_length=15,required=False)
@@ -115,7 +115,8 @@ class MembershipInlineFormset(forms.models.BaseInlineFormSet):
         if form.cleaned_data and not form.cleaned_data.get('DELETE', False) and form.cleaned_data['leader']:
           leader += 1
       except AttributeError:
-        # annoyingly, if a subform is invalid Django explicity raises an AttributeError for cleaned_data
+        # annoyingly, if a subform is invalid Django explicity raises
+        # an AttributeError for cleaned_data
         pass
     if leader < 1:
       raise forms.ValidationError('You must have at least one leader')

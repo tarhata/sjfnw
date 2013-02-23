@@ -1,8 +1,6 @@
 ﻿{% extends 'fund/blocks.html' %}
 {% block title %}My fundraising {{block.super}}{% endblock %}
 {% block script %}
-{% load l10n %}
-{% localize off %} <!--commas will mess up the js-->
 <script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
@@ -18,6 +16,7 @@
 										reverseCategories: true,
 										sliceVisibilityThreshold:0,
                   }
+                     
     function drawChart() {
 
       // Create the data table.
@@ -435,7 +434,6 @@
     }
   });
 </script>
-{% endlocalize %}
 {% endblock %}
 {% block content %}
 <div id="form_saved"></div>
