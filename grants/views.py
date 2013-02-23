@@ -142,14 +142,30 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
         continue
       value = post_data[key]
       if isinstance(value,(str, unicode)):
-        post_data[key] = value.replace('\r', '')
+        new_value = value.replace('\r', '')
         if not key in skip_decode:
           logging.info("Decoding: " + value)
-          post_data[key] = quopri.decodestring(value)
-          logging.info("Quopri'd: " + post_data[key])
-          if isinstance(post_data[key], str):
-            post_data[key] = unicode(post_data[key], 'iso_8859-2')
-            logging.info('Unicoded: ' + post_data[key])
+          try:
+            new_value = quopri.decodestring(value)
+            logging.info("Quopri'd: " + new_value)
+          except:
+            logging.warning("Quopri failed")
+          if isinstance(new_value, str):
+            try:
+              new_value = unicode(new_value, 'ISO-8859-1')
+              logging.info('Unicoded: ' + new_value)
+            except:
+              logging.warning("Failed to unicode ISO-8859-1")
+              try:
+                new_value = unicode(new_value, 'utf8')
+                logging.info('Unicoded: ' + new_value)
+              except:
+                logging.warning('Failed to unicode utf8')
+          elif isinstance(new_value, unicode):
+            logging.info("It's unicode!")
+          else:
+            logging.info("What is it...")
+        post_data[key] = new_value
      
     #update draft from this submission
     dict = json.dumps(post_data)

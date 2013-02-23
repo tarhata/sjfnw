@@ -92,7 +92,7 @@ $(document).ready(function() {
 {% block content %}
 {% load tz %}
 <div class="formwrapper">
-<form action="{{upload_url}}" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
+<form action="{{upload_url}}" method="POST" enctype="multipart/form-data">
 
   <div id="test" style="display:none;">
     TEST ONLY: {{form.errors}}{{form.organization}}{{form.grant_cycle}}
