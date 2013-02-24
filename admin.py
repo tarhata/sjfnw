@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from fund.models import *
 from grants.models import *
+from utils import IntegerCommaField
 import fund.forms, fund.utils
 import logging
 
@@ -48,6 +49,12 @@ class ProjectResourcesInline(admin.TabularInline): #GP
   template = 'admin/fund/tabular_projectresource.html'
   fields = ('resource', 'session',)
 
+class GivingProjectAdminForm(ModelForm):
+  fund_goal = IntegerCommaField(label='Fundraising goal', initial=0, help_text='Fundraising goal agreed upon by the group. If 0, it will not be displayed to members and they won\'t see a group progress chart for money raised.')
+
+  class Meta:
+    model = GivingProject
+
 class GivingProjectA(admin.ModelAdmin):
   list_display = ('title', gp_year)
   fields = (
@@ -59,6 +66,8 @@ class GivingProjectA(admin.ModelAdmin):
     'pre_approved',
    )
   inlines = [ProjectResourcesInline, MembershipInline]
+  form = GivingProjectAdminForm
+    
   
 class MemberAdvanced(admin.ModelAdmin): #advanced only
   list_display = ('__unicode__', 'email')
@@ -75,6 +84,10 @@ class DonorA(admin.ModelAdmin):
   list_filter = ('membership__giving_project', 'asked')
   list_editable = ('gifted',)
   search_fields = ['firstname', 'lastname']
+  def get_form(self, request, obj=None, **kwargs):
+    form = super(GivingProjectA, self).get_form(request, obj, **kwargs)
+    logging.info("Form is " + str(form))
+    return form
 
 class NewsA(admin.ModelAdmin):
   list_display = ('summary', 'date', 'membership')
