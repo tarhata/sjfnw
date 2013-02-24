@@ -8,8 +8,6 @@ from utils import NotifyApproval
 from sjfnw.utils import IntegerCommaField
 
 def custom_integer_field(f, **kwargs):
-  #hack because I don't know of a better way..
-  logging.info(f.verbose_name)
   if f.verbose_name == '*Amount to ask ($)':
     return IntegerCommaField(**kwargs)
   else:
