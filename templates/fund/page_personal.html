@@ -459,7 +459,7 @@
   <div class="edit_done">[<a onclick="loadView('/fund/addmult', 'addmult')">add contacts</a>]</div>
 	<div class="donor indent" id="addmult"></div>
 {% endif %}
-
+{% load humanize %}
 {% for dict in donor_list %} <!-- per contact -->
   <div class="donor indent" id="donor-{{dict.donor.pk}}">
     <a class="{%if dict.donor.pledged != None%}pledged{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{dict.donor.lastname}}</b></a><br>
@@ -472,7 +472,7 @@
       {% if dict.donor.pledged == None and dict.donor.gifted == 0 %}
         No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
       {% else %}
-        <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.gifted %}Donated ${{dict.donor.gifted}}.{% elif dict.donor.pledged != None %}{% if dict.donor.pledged > 0 %}Pledged ${{dict.donor.pledged}}.{% else %}Declined to donate.{%endif%}{% endif %}
+        <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.gifted %}Donated ${{dict.donor.gifted|intcomma}}.{% elif dict.donor.pledged != None %}{% if dict.donor.pledged > 0 %}Pledged ${{dict.donor.pledged|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
       {% endif %}
       </div>
     {% endif %}
@@ -481,21 +481,21 @@
   
     <table>
       {% if dict.donor.gifted %}
-        <tr><td>Donated:</td><td>${{dict.donor.gifted}}</td></tr>
-        <tr><td>Original estimation:</td><td>${{dict.donor.estimated}}</td></tr>
+        <tr><td>Donated:</td><td>${{dict.donor.gifted|intcomma}}</td></tr>
+        <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
       {% elif dict.donor.pledged != None%}
         {% if dict.donor.pledged > 0 %}
-          <tr><td>Pledged:</td><td>${{dict.donor.pledged}}</td></tr>
+          <tr><td>Pledged:</td><td>${{dict.donor.pledged|intcomma}}</td></tr>
         {% else %}
           <tr><td colspan="2">Declined to donate.</td></tr>
         {% endif %}
-        <tr><td>Original estimation:</td><td>${{dict.donor.estimated}}</td></tr>
+        <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
       {% else %}
         {% if dict.donor.asked %}
           <tr><td colspan="2">Asked; awaiting response.</td></tr>
         {% endif %}
         {% if dict.donor.amount %}
-          <tr><td>Amount to ask:</td><td>${{dict.donor.amount}}</td></tr>
+          <tr><td>Amount to ask:</td><td>${{dict.donor.amount|intcomma}}</td></tr>
           <tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
         {% endif %}
       {% endif %}

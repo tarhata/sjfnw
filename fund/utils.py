@@ -1,5 +1,6 @@
 ﻿from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from django.contrib.humanize.templatetags.humanize import intcomma
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -59,7 +60,7 @@ def UpdateStory(membership_id, time):
   else:
     logging.error('News update with 0 talked, 0 asked. Story pk: ' + str(story.pk))
   if pledged > 0:
-    summary += ' and got $' + str(pledged) + ' in pledges'
+    summary += ' and got $' + intcomma(pledged) + ' in pledges'
   summary += '.'
   logging.info(summary)
   story.summary = summary
