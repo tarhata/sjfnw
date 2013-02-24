@@ -84,10 +84,6 @@ class DonorA(admin.ModelAdmin):
   list_filter = ('membership__giving_project', 'asked')
   list_editable = ('gifted',)
   search_fields = ['firstname', 'lastname']
-  def get_form(self, request, obj=None, **kwargs):
-    form = super(GivingProjectA, self).get_form(request, obj, **kwargs)
-    logging.info("Form is " + str(form))
-    return form
 
 class NewsA(admin.ModelAdmin):
   list_display = ('summary', 'date', 'membership')
