@@ -153,7 +153,7 @@ NARRATIVE_TEXTS = ['Placeholder for 0',
   ]
 
 def validate_file_extension(value):
-  if not str(value).split(".")[-1] in settings.ALLOWED_FILE_TYPES:
+  if not str(value).lower().split(".")[-1] in settings.ALLOWED_FILE_TYPES:
     raise ValidationError(u'That file type is not supported.')
 
 class GrantApplication(models.Model):

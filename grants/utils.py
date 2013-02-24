@@ -78,7 +78,7 @@ def FindBlob(application, file_type):
       if b.filename == filename:
         logging.info('Filename matches - returning file')
         response =  HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
-        if b.content_type != 'text/plain' and not '.jpg' in filename:
+        if b.content_type != 'text/plain' and not '.jpg' in filename.lower():
           response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
         return response
       else:
@@ -91,13 +91,13 @@ def GetFileURLs(app):
   if True:#not settings.DEBUG:
     viewer_url = 'https://docs.google.com/viewer?url=' + settings.APP_BASE_URL
     viewer_formats = ('jpeg', 'png', 'gif', 'tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mpeg4', 'mov', 'avi', 'wmv')
-    if str(app.budget).split(".")[-1] in viewer_formats:
+    if str(app.budget).lower().split(".")[-1] in viewer_formats:
       file_urls['budget'] =  viewer_url
-    if str(app.funding_sources).split(".")[-1] in viewer_formats:
+    if str(app.funding_sources).lower().split(".")[-1] in viewer_formats:
       file_urls['funding'] =  viewer_url
-    if str(app.demographics).split(".")[-1] in viewer_formats:
+    if str(app.demographics).lower().split(".")[-1] in viewer_formats:
       file_urls['demographics'] =  viewer_url
-    if app.fiscal_letter and str(app.fiscal_letter).split(".")[-1] in viewer_formats:
+    if app.fiscal_letter and str(app.fiscal_letter).lower().split(".")[-1] in viewer_formats:
       file_urls['fiscal'] =  viewer_url
   return file_urls
   
