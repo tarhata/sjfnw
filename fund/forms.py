@@ -3,6 +3,7 @@ from django.core import validators
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 import models, datetime, logging
+from sjfnw.utils import IntegerCommaField
 
 class LoginForm(forms.Form):
   email = forms.EmailField(max_length=100)
@@ -28,46 +29,6 @@ class RegistrationForm(forms.Form):
 
 class AddProjectForm(forms.Form):
   giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date(), public=True), empty_label="Select a giving project")
-
-class IntegerCommaField(forms.Field):
-  """ Allows commas separating thousands
-  (Mostly copied from IntegerField) """
-  
-  default_error_messages = {
-    'invalid': u'Enter a number.',
-    'max_value': u'Must be less than or equal to %(limit_value)s.',
-    'min_value': u'Must be greater than or equal to %(limit_value)s.',
-  }
-  
-  def __init__(self, max_value=None, min_value=None, *args, **kwargs):
-    self.max_value, self.min_value = max_value, min_value
-    super(IntegerCommaField, self).__init__(*args, **kwargs)
-
-    if max_value is not None:
-      self.validators.append(validators.MaxValueValidator(max_value))
-    if min_value is not None:
-      self.validators.append(validators.MinValueValidator(min_value))
-  
-  def to_python(self, value):
-    """
-    Validates that int() can be called on the input. Returns the result
-    of int(). Returns None for empty values.
-    """
-    value = super(IntegerCommaField, self).to_python(value)
-    if value in validators.EMPTY_VALUES:
-      return None
-    try:
-      value = int(str(value))
-    except (ValueError, TypeError):
-      raise ValidationError(self.error_messages['invalid'])
-    return value
-
-  def clean(self, value):
-    if isinstance(value, (str, unicode)):
-      logging.info("Value was " + value)
-      value = value.replace(",", "")
-      logging.info("Value is " + value)
-    return super(IntegerCommaField, self).clean(value)
 
 class MassDonor(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
