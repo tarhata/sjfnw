@@ -1,6 +1,6 @@
 {%extends 'grants/base.html'%}
 {%block content%}
-{% autoescape off %}
+{% autoescape off %}{% load humanize %}
 <div class="formwrapper">
   <div align="center"><!-- Title/header -->
     <h2>{{app.organization}} - {{app.grant_cycle}}</h2>
@@ -32,23 +32,18 @@
 	
   <h4>Grant and budget information</h4><!-- Grant and budget information -->
   <p>{{form.contact_person.help_text}}: {{app.contact_person}}, {{app.contact_person_title}}
-  
-  
   <p>{{form.grant_period.label}}: {{app.grant_period}}</p>
   <p>{{form.start_year.label}}: {{app.start_year}}</p>
-  <p>{{form.budget_last.label}}: ${{app.budget_last}}</p>
-  <p>{{form.budget_current.label}}: ${{app.budget_current}}</p>
+  <p>{{form.budget_last.label}}: ${{app.budget_last|intcomma}}</p>
+  <p>{{form.budget_current.label}}: ${{app.budget_current|intcomma}}</p>
 	<p>{{form.previous_grants.label}}: {{app.previous_grants}}</p>
 	<p>{{form.grant_request.label}}: {{app.grant_request}}</p>
-	<p>{{form.amount_requested.label}}: {{app.amount_requested}}</p>
+	<p>{{form.amount_requested.label}}: {{app.amount_requested|intcomma}}</p>
 	<p>{{form.support_type.label}}: {{app.support_type}}</p>
   <p>{{form.project_title.label}}: {{app.project_title|default:"N/A"}}</p>
-  {%if app.project_budget%}<p>{{form.project_budget.label}}: ${{app.project_budget}}</p>{%endif%}
+  {%if app.project_budget%}<p>{{form.project_budget.label}}: ${{app.project_budget|intcomma}}</p>{%endif%}
   
-  <p>{{form.grant_request.label}}: {{app.grant_request}}</p>
-  
-  
-  <h3>Narrative</h3><!-- Narrative -->
+	<h3>Narrative</h3><!-- Narrative -->
   
   <p>{{form.narrative1.label}}</p>
   <p>{{app.narrative1}}</p>
