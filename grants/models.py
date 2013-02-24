@@ -6,7 +6,9 @@ from django.forms import ModelForm, Textarea
 from django.utils import timezone
 from google.appengine.ext import blobstore
 from fund.models import GivingProject
+from sjfnw.utils import IntegerCommaField
 import datetime, logging
+
 
 class Organization(models.Model):
   #registration fields
@@ -283,10 +285,17 @@ class GrantApplication(models.Model):
   view_link.allow_tags = True
 
 def addCssLabel(label_text):
-  return u'<span class="label">' + label_text + u'</span>'
+  return u'<span class="label">' + (label_text or '') + u'</span>'
+
+def custom_integer_field(f, **kwargs):
+  if isinstance(f, models.PositiveIntegerField) and f.verbose_name != 'Year founded':
+    label = f.verbose_name
+    return IntegerCommaField(label = label)
+  else:
+    return f.formfield()
 
 class GrantApplicationForm(ModelForm):
-  
+  formfield_callback = custom_integer_field
   class Meta:
     model = GrantApplication
     widgets = {
