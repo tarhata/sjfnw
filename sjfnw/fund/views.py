@@ -15,7 +15,7 @@ from django.utils.html import strip_tags
 from decorators import approved_membership
 from forms import *
 from google.appengine.ext import deferred, ereporter
-import grants.models, scoring.models
+from sjfnw import grants.models, scoring.models
 import pytz, utils, json, models, datetime, random, logging
 
 if not settings.DEBUG:

@@ -49,7 +49,7 @@ def logInNewbie(self): # 1 Fresh New Org
   user = User.objects.create_user('newacct@gmail.com', 'newacct@gmail.com', 'noob')
   self.client.login(username = 'newacct@gmail.com', password = 'noob')
 
-TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'fund.middleware.MembershipMiddleware',)
+TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'sjfnw.fund.middleware.MembershipMiddleware',)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyTests(TestCase):

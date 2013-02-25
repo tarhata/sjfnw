@@ -3,7 +3,8 @@ from django.core import validators
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from sjfnw.utils import IntegerCommaField
-import models, datetime, logging
+import models
+import datetime, logging
 
 class LoginForm(forms.Form):
   email = forms.EmailField(max_length=100)

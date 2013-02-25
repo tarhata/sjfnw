@@ -14,7 +14,8 @@ from django.utils.html import strip_tags
 from google.appengine.ext import blobstore
 from forms import LoginForm, RegisterForm
 from decorators import registered_org
-import fund, models, utils
+from sjfnw import fund
+import models, utils
 import datetime, logging, json, re, quopri
 
 # PUBLIC ORG VIEWS

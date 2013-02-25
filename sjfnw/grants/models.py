@@ -5,7 +5,7 @@ from django.db import models
 from django.forms import ModelForm, Textarea
 from django.utils import timezone
 from google.appengine.ext import blobstore
-from fund.models import GivingProject
+from sjfnw.fund.models import GivingProject
 from sjfnw.utils import IntegerCommaField
 import datetime, logging
 
