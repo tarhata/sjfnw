@@ -1,6 +1,8 @@
-﻿import os
+﻿import os, sys
+PROJECT_ROOT = os.path.dirname(__file__)
+sys.path.insert(0, PROJECT_ROOT)
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'sjfnw.wsgi.application'
 
 SECRET_KEY = '*r-$b*8hglm+959&7x043hlm6-&6-3d3vfc4((7yd0dbrakhvi'
 
@@ -34,9 +36,10 @@ INSTALLED_APPS = (
   'django.contrib.humanize',
   'django.contrib.sessions',
   'django.contrib.messages',
-  'grants',
-  'fund',
-  'scoring',
+  'sjfnw.grants',
+  'sjfnw.fund',
+  'sjfnw.scoring',
+  'pytz',
   'djangoappengine', # last so it can override a few manage.py commands
 )
 
@@ -46,7 +49,7 @@ MIDDLEWARE_CLASSES = (
   'django.contrib.sessions.middleware.SessionMiddleware',
   'django.contrib.auth.middleware.AuthenticationMiddleware',
   'django.contrib.messages.middleware.MessageMiddleware',
-  'fund.middleware.MembershipMiddleware',
+  'sjfnw.fund.middleware.MembershipMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -58,7 +61,7 @@ TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), 'templates'),)
 
 STATIC_URL = '/static/'
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'sjfnw.urls'
 APPEND_SLASH = False
 
 LOGGING = {'version': 1,}
