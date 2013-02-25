@@ -3,9 +3,9 @@ from django.db import models
 from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.utils import timezone
-import datetime, logging
-from utils import NotifyApproval
 from sjfnw.utils import IntegerCommaField
+from utils import NotifyApproval
+import datetime, logging
 
 def custom_integer_field(f, **kwargs):
   if f.verbose_name == '*Amount to ask ($)':

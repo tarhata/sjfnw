@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.utils import timezone
 from django.utils.html import strip_tags
-from grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
+from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
 import sys, datetime, re
 
 def setPaths():

@@ -12,8 +12,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
-from fund.decorators import approved_membership
-from fund.forms import *
+from decorators import approved_membership
+from forms import *
 from google.appengine.ext import deferred, ereporter
 import grants.models, scoring.models
 import pytz, utils, json, models, datetime, random, logging

@@ -1,6 +1,6 @@
 from django.test import TestCase
-from fund import models
 from django.contrib.auth.models import User
+import models
 import sys
 
 def setPaths():

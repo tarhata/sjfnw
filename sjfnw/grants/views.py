@@ -12,8 +12,8 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore
-from grants.forms import *
-from grants.decorators import registered_org
+from forms import LoginForm, RegisterForm
+from decorators import registered_org
 import fund, models, utils
 import datetime, logging, json, re, quopri
 

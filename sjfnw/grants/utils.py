@@ -4,8 +4,7 @@ from django.conf import settings
 from django.http import HttpResponse, Http404
 from django.utils import timezone
 from google.appengine.ext import blobstore
-from google.appengine.ext.db import Query
-from grants.models import DraftGrantApplication
+from models import DraftGrantApplication
 import datetime, logging, re
 
 def FindBlob(application, file_type):
