@@ -1,9 +1,9 @@
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect, render_to_response
-from fund.decorators import approved_membership
-from grants.models import GrantApplication, GrantApplicationForm
-import fund.models
+from sjfnw.fund.decorators import approved_membership
+from sjfnw.grants.models import GrantApplication, GrantApplicationForm
+import sjfnw.fund.models
 import logging
 
 # Scoring input

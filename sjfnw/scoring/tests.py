@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from scoring import models
+import models
 import sys
 
 """

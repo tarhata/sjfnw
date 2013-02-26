@@ -1,8 +1,8 @@
 from django.db import models
 from django.forms import ModelForm
 from django.forms.widgets import RadioSelect, HiddenInput
-from grants.models import GrantApplication
-from fund.models import Membership
+from sjfnw.grants.models import GrantApplication
+from sjfnw.fund.models import Membership
 
 class ApplicationRating(models.Model):
 

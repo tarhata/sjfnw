@@ -15,7 +15,8 @@ from django.utils.html import strip_tags
 from decorators import approved_membership
 from forms import *
 from google.appengine.ext import deferred, ereporter
-from sjfnw import grants.models, scoring.models
+from sjfnw.grants.models import GrantApplication
+from sjfnw.scoring.models import ApplicationRating
 import pytz, utils, json, models, datetime, random, logging
 
 if not settings.DEBUG:
@@ -262,7 +263,7 @@ def ScoringList(request):
   #base
   header = project.title
   
-  grant_list = grants.models.GrantApplication.objects.filter(giving_project = project) #TEMP want to filter by gp
+  grant_list = GrantApplication.objects.filter(giving_project = project) #TEMP want to filter by gp
   logging.info("grant list:" + str(grant_list))
   
   unreviewed = []
@@ -270,12 +271,12 @@ def ScoringList(request):
   in_progress = []
   for grant in grant_list:
     try: 
-      review = scoring.models.ApplicationRating.objects.get(application = grant, membership = membership)
+      review =ApplicationRating.objects.get(application = grant, membership = membership)
       if review.submitted:
         reviewed.append(grant)
       else: 
         in_progress.append(grant)
-    except scoring.models.ApplicationRating.DoesNotExist:
+    except ApplicationRating.DoesNotExist:
       unreviewed.append(grant)
   
   return render(request, 'fund/scoring_list.html',

@@ -6,11 +6,6 @@ from django.utils.html import strip_tags
 from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
 import sys, datetime, re
 
-def setPaths():
-  """ add libs to the path that dev_appserver normally takes care of """
-  sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\yaml\lib')
-  sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\webob_0_9')
-
 def setCycleDates(just_open = False):
   """ Updates grant cycle dates to make sure they have the expected statuses:
       open, open, closed, upcoming, open """
@@ -62,10 +57,9 @@ class ApplyTests(TestCase):
         validate collab 
         possibly using draft-saved files """
 
-  fixtures = ['grants/fixtures/test_grants.json',] 
+  fixtures = ['test_grants.json',] 
   
   def setUp(self):
-    setPaths()
     setCycleDates()
   
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
@@ -128,11 +122,11 @@ class ApplyTests(TestCase):
     }
     form_data['grant_cycle'] = u'1'
     form_data['organization'] = u'1',
-    budget =  open('grants/fixtures/test_grants_guide.txt')
+    budget =  open('sjfnw/grants/fixtures/test_grants_guide.txt')
     form_data['budget'] = budget
-    funding_sources =  open('static/grant_app/funding.doc')
+    funding_sources =  open('sjfnw/static/grant_app/funding.doc')
     form_data['funding_sources'] = funding_sources
-    demographics = open('static/css/admin.css')
+    demographics = open('sjfnw/static/css/admin.css')
     form_data['demographics'] = demographics
 
     response = self.client.post('/apply/1/', form_data, follow=True)
@@ -151,10 +145,9 @@ class ApplyBlockedTests(TestCase):
 
   """ Attempting to access an invalid application/cycle """
   
-  fixtures = ['grants/fixtures/test_grants.json',] 
+  fixtures = ['test_grants.json',] 
   
   def setUp(self):
-    setPaths()
     setCycleDates()
     logInTesty(self)
 
@@ -183,10 +176,9 @@ class StartApplicationTests(TestCase):
   
   """Starting (loading) an application for an open cycle."""
   
-  fixtures = ['grants/fixtures/test_grants.json',] 
+  fixtures = ['test_grants.json',] 
   
   def setUp(self):
-    setPaths()
     setCycleDates()
 
   def test_load_first_app(self):
