@@ -1,0 +1,113 @@
+﻿{% extends 'fund/blocks.html' %}
+{% block title %}Project progress {{block.super}}{% endblock %}
+{% block script %}
+<script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+if (Modernizr.inlinesvg) { 
+  
+  var options = {chartArea: {left:0, top:8, width:'100%', height:'85%'},
+                   legend: {alignment:'center', textStyle: {fontSize:11}},
+                   tooltip: {showColorCode: false, textStyle: {fontSize:14}},
+                   slices: [{color: 'green'}, {color:'#D18316'}, {color: '#8B0E04'}],
+                   pieSliceText: 'none',
+                   pieSliceTextStyle: {fontSize:14},
+                   reverseCategories: true,
+                   sliceVisibilityThreshold:0,
+                   }                  
+  function drawChart() {
+
+    // Create the data table.
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Status');
+    data.addColumn('number', 'Contacts');
+    data.addRows([
+      ["Haven't contacted", {{project_progress.contactsremaining}}],
+      ["Talked to", {{project_progress.talked}}],
+      ['Asked', {{project_progress.asked}}],
+    ]);
+
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+    chart.draw(data, options);
+    if ({{membership.giving_project.fund_goal}} > 0) {
+      drawChart2();    
+    }
+  }
+  function drawChart2() {
+    
+    // Create the data table.
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Status');
+    data.addColumn('number', 'Amount');
+    data.addRows([
+      ["Remaining", {{project_progress.togo|default:'0'}}],
+      ["Pledged", {{project_progress.pledged}}],
+      ['Donated', {{project_progress.donated}}],
+    ]);
+    
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.PieChart(document.getElementById('chart_div2'));
+    chart.draw(data, options);           
+  }
+  
+  // Load the Visualization API and the piechart package.
+  google.load('visualization', '1.0', {'packages':['corechart']});
+
+  // Set a callback to run when the Google Visualization API is loaded.
+  google.setOnLoadCallback(drawChart);
+  
+} else { //browser cannot support charts
+  console.log('Browser does not support charts');
+  textProgress();
+}
+
+function textProgress() {
+  console.log('textProgress');
+  document.getElementById('chart_div').innerHTML = "<br><br>Haven't contacted: {{project_progress.contactsremaining}}<br>Talked to: {{project_progress.talked}}<br>Asked: {{project_progress.asked}}";
+  if ({{membership.giving_project.fund_goal}} > 0) {
+    document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{project_progress.togo|default:'0'}}<br>Pledged: ${{project_progress.pledged}}<br>Donated: ${{project_progress.donated}}";
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+{% load humanize %}
+<b>PROJECT PROGRESS</b>
+<table style="width:90%;margin-left:8%;margin-top:10px;margin-bottom:15px;text-align:center;">
+<tr>
+  <td><div align="center">{{project_progress.contacts}} contacts</div><div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
+  {% if membership.giving_project.fund_goal > 0 %}
+  <td><div align="center" title="Fundraising goal as set by the group">${{membership.giving_project.fund_goal|intcomma}} fundraising goal</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
+  {% endif %}
+</tr>
+</table>
+
+<b>NEWS</b>
+<div class="indent">
+{% for new in news %}
+{{new.date|date:"n/d/y"}} - {{new.summary}}
+<br><br>
+{% empty %}
+No news yet!
+{% endfor %}
+</div>
+
+{% if membership.giving_project.calendar %}
+<b>SCHEDULE</b>
+<div class="indent">
+  <iframe src="https://www.google.com/calendar/embed?showTitle=0&amp;showCalendars=0&amp;showTz=0&amp;height=400&amp;wkst=2&amp;bgcolor=%23FFFFFF&amp;src={{membership.giving_project.calendar}}&amp;color=%232F6309&amp;ctz=America%2FLos_Angeles" style=" border-width:0; font-family:Verdana;" width="550" height="400" frameborder="0" scrolling="no"></iframe>
+</div>
+{% endif %}
+
+{% if resources %}
+<b>RESOURCES</b>
+<div class="indent">
+{% for p_r in resources %}
+  {% ifchanged p_r.session %}{{p_r.session}}{% endifchanged %}
+  <div class="indent"><a href="{{p_r.resource.link}}" onClick="_gaq.push(['_trackEvent', 'Resources', '{{p_r.resource.title}}']);" target = "_blank">{{p_r.resource.title}}</a>{% if p_r.resource.summary %} - {{p_r.resource.summary}}{% endif %}</div>
+{% endfor %}
+</div>
+{% endif %}
+{% endblock %}
