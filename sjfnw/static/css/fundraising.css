@@ -17,6 +17,12 @@ div#content_area {
 	padding:15px;
 }
 
+div#content_area span.header{
+	text-transform:uppercase;
+  font-weight:bold;
+  font-size:inherit;
+}
+
 /* header & bar */
 
 table#header {

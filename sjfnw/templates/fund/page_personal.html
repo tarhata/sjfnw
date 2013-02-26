@@ -279,7 +279,7 @@
         endProcessing();
         if (jqXHR.responseText=="success") {
 					trackEvents('/fund/addmult',' addmult', 'POST');
-          setTimeout(function() {location.href= '/fund/?load=stepmult';}, 200);
+          setTimeout(function() {location.href= '/fund/?load=stepmult#your-contacts';}, 200);
         } else {
           document.getElementById('addmult').innerHTML=jqXHR.responseText;
         }
@@ -443,7 +443,7 @@
 {% endif %}
 
 {% if donor_list.0 %}
-<b>YOUR PROGRESS</b>
+<span class="header">YOUR PROGRESS</span>
 <table style="width:90%;margin-left:8%;margin-top:10px;margin-bottom:15px;text-align:center;">
 <tr>
   <td><div align="center">{{progress.contacts}} contacts</div><div align="center" id ="chart_div" style="width:240px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
@@ -454,7 +454,7 @@
 </table>
 {% endif %}
 
-<b>YOUR CONTACTS & NEXT STEPS</b>
+<span class="header" id="your-contacts">YOUR CONTACTS & NEXT STEPS</span>
 {% if donor_list.0 %} <!--only show if mass form won't be showing -->
   <div class="edit_done">[<a onclick="loadView('/fund/addmult', 'addmult')">add contacts</a>]</div>
 	<div class="donor indent" id="addmult"></div>
