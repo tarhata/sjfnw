@@ -96,13 +96,25 @@ div.block_header {
 	text-align:center;
 }
 
+div.block-step {
+	margin:10px;
+  height:30px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
 div.block-item {
 	margin:10px;
+  max-height:45px;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 div.block-bottom {
   position:absolute;
   bottom: 3px;
+  margin:10px;
 }
 
 div#blockline_container {
