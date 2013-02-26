@@ -124,7 +124,7 @@ class ApplyTests(TestCase):
     form_data['organization'] = u'1',
     budget =  open('sjfnw/grants/fixtures/test_grants_guide.txt')
     form_data['budget'] = budget
-    funding_sources =  open('sjfnw/static/grant_app/funding.doc')
+    funding_sources =  open('sjfnw/static/grant_app/funding_sources.doc')
     form_data['funding_sources'] = funding_sources
     demographics = open('sjfnw/static/css/admin.css')
     form_data['demographics'] = demographics
@@ -134,11 +134,13 @@ class ApplyTests(TestCase):
     funding_sources.close()
     demographics.close()
     
+    #form = response.context['form']
+    #print(form.errors)
     org = Organization.objects.get(pk = 1)
+    self.assertTemplateUsed(response, 'grants/submitted.html')
     self.assertEqual(org.mission, u'A kmission statement of some importance!')
     self.assertEqual(1, GrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
-    self.assertTemplateUsed(response, 'grants/submitted.html')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyBlockedTests(TestCase):
