@@ -1,12 +1,7 @@
-from django.test import TestCase
 from django.contrib.auth.models import User
+from django.test import TestCase
+from django.test.utils import override_settings
 import models
-import sys
-
-def setPaths():
-  #add libs to the path that dev_appserver normally takes care of
-  sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\yaml\lib')
-  sys.path.append('C:\Program Files (x86)\Google\google_appengine\lib\webob-1.2.3')
 
 def logInTesty(self):
   user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')
@@ -16,12 +11,14 @@ def logInNewbie(self):
   user = User.objects.create_user('newacct@gmail.com', 'newacct@gmail.com', 'noob')
   self.client.login(username = 'newacct@gmail.com', password = 'noob')
 
+TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'sjfnw.fund.middleware.MembershipMiddleware',)
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class StepCompleteTest(TestCase):
   
-  fixtures = ['fund/fixtures/test_fund.json',]
+  fixtures = ['test_fund.json',]
   
-  def setUp(self):
-    setPaths()      
+  def setUp(self):    
     logInTesty(self)
     
   def test_valid_asked(self):
@@ -259,7 +256,7 @@ class StepCompleteTest(TestCase):
     response = self.client.post('/fund/1/1/done', form_data)
     
     self.assertTemplateUsed(response, 'fund/done_step.html')
-    self.assertFormError(response, 'form', 'next_step_date', "Enter a date.")
+    self.assertFormError(response, 'form', 'next_step_date', "Enter a date in mm/dd/yyyy format.")
     
     step1 = models.Step.objects.get(pk=1)
     self.assertIsNone(step1.completed)
@@ -278,13 +275,13 @@ class StepCompleteTest(TestCase):
     
     step1 = models.Step.objects.get(pk=1)
     self.assertIsNone(step1.completed)
-       
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)    
 class MainPageContent(TestCase):      
   
-  fixtures = ['fund/fixtures/test_fund.json',]
+  fixtures = ['test_fund.json',]
   
   def setUp(self):
-    setPaths()
     logInNewbie(self)    
     
   def test_new(self):
