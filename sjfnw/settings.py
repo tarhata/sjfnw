@@ -1,6 +1,4 @@
-﻿import os, sys
-PROJECT_ROOT = os.path.dirname(__file__)
-sys.path.insert(0, PROJECT_ROOT)
+﻿import os, sys,logging
 
 WSGI_APPLICATION = 'sjfnw.wsgi.application'
 
