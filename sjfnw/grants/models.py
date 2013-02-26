@@ -290,7 +290,8 @@ def addCssLabel(label_text):
 def custom_integer_field(f, **kwargs):
   if isinstance(f, models.PositiveIntegerField) and f.verbose_name != 'Year founded':
     label = f.verbose_name
-    return IntegerCommaField(label = label)
+    required = not f.blank
+    return IntegerCommaField(label = label, required = required)
   else:
     return f.formfield()
 
