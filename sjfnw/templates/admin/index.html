@@ -11,7 +11,6 @@
 
 {% block content %}
 <div id="content-main">
-
 {% if app_list %}
     {% for app in app_list %}
         <div class="module">
@@ -45,6 +44,18 @@
 
 {% block sidebar %}
 <div id="content-related">
+	<div class="module" id="links-module">
+		<h2>Links</h2>
+		<h3><a href="/fund" target="_blank">Project Central</a></h3>
+		<h3><a href="/org" target="_blank">Grant Portal</a></h3>
+		<br>
+	</div>
+	<div class="module" id="resources-module">
+		<h2>Additional resources</h2>
+		<h3><a href="https://docs.google.com/forms/d/1srZAM_D4FDDt-AjJuOHqQlaysxJ5qH8kVKFOvsWZBVE/viewform?entry.1708036642={{user.username}}&entry.1767194948&entry.1155321034&entry.1319351054">Request a feature</a></h3>
+		<h3><a href="mailto:techsupport@socialjusticefund.org">Email tech support</a></h3>
+		<br>
+	</div>
     <div class="module" id="recent-actions-module">
         <h2>{% trans 'Recent Actions' %}</h2>
         <h3>{% trans 'My Actions' %}</h3>
