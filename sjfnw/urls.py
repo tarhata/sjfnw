@@ -43,6 +43,7 @@ urlpatterns = patterns('',
   (r'^org/support/?', 'grants.views.OrgSupport'),
   
   #application
+  (r'^pre-apply/(?P<cycle_id>\d+)/?$','grants.views.PreApply'),
   (r'^apply/?$', 'django.views.generic.simple.redirect_to', {'url':'/org/'}),
   (r'^apply/(?P<cycle_id>\d+)/?$','grants.views.Apply'),
   (r'^apply/(?P<cycle_id>\d+)/autosave/?$','grants.views.AutoSaveApp'),

@@ -1,0 +1,30 @@
+﻿{% extends 'grants/base.html' %}
+{% block script %}
+<script type="text/javascript">
+	$(document).ready(function() {
+		console.log('sup');
+		div_id = 'test-this';
+		$.ajax({
+      url:'{{info_page}}',
+      type:"GET",
+      timeout: 10000,
+			beforeSend: function(request){
+				request.setRequestHeader("Origin", "http://localhost:8080/pre-apply/5");
+			},
+      success:function(data, textStatus, jqXHR){
+        console.log('success!');
+        document.getElementById(div_id).innerHTML=jqXHR.responseText;
+      },
+      error:function(jqXHR, textStatus, errorThrown){
+        console.log('failure!');
+				document.getElementById(div_id).innerHTML='Oh shit';
+      },
+    });
+	});
+</script>
+{% endblock %}
+
+{% block content %}
+<!--<iframe src="{{info_page}}"></iframe>-->
+<div id="test-this">testing</div>
+{% endblock %}

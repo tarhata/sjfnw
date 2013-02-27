@@ -18,6 +18,9 @@ from sjfnw import fund
 import models, utils
 import datetime, logging, json, re, quopri
 
+# CONSTANTS
+LOGIN_URL = '/org/login/'
+
 # PUBLIC ORG VIEWS
 def OrgLogin(request):
   login_errors=''
@@ -86,7 +89,7 @@ def OrgSupport(request):
   'support_form':settings.SUPPORT_FORM_URL})
 
 # REGISTERED ORG VIEWS
-@login_required(login_url='/org/login/')
+@login_required(login_url=LOGIN_URL)
 @registered_org()
 def OrgHome(request, organization):
 
@@ -118,7 +121,12 @@ def OrgHome(request, organization):
     'upcoming':upcoming,
     'applied':applied})
 
-@login_required(login_url='/org/login/')
+#@login_required(login_url=LOGIN_URL)
+#@registered_org()
+def PreApply(request, cycle_id): #organization, 
+  return render(request, 'grants/pre_apply.html', {'info_page':'http://socialjusticefund.org/grant-app'})
+
+@login_required(login_url=LOGIN_URL)
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
