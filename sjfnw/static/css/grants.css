@@ -126,3 +126,9 @@ input#grant_submit {
   font-size:135%;
   font-weight:bold;
 }
+
+iframe { /* cycle info pages */
+  width:100%;
+  height:auto;
+  border:0px;
+}
