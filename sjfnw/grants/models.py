@@ -64,23 +64,20 @@ class GrantCycle(models.Model):
   title = models.CharField(max_length=100)
   open = models.DateTimeField()
   close = models.DateTimeField()
-  addition = models.TextField(null=True,blank=True)
-  narrative = models.TextField(null=True,blank=True)
+  extra_question = models.TextField(blank=True)
+  info_page = models.URLField(blank=True)
   
   def __unicode__(self):
     return self.title
   
   def is_open(self):
-    if self.open<timezone.now()<self.close:
-      return True
-    else:
-      return False
+    return (self.open < timezone.now() < self.close)
   
   def get_status(self):
     today = timezone.now()
-    if self.close<today:
+    if self.close < today:
       return 'closed'
-    elif self.open>today:
+    elif self.open > today:
       return 'upcoming'
     else:
       return 'open'

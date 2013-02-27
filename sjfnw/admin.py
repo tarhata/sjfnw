@@ -98,7 +98,7 @@ class GrantCycleA(admin.ModelAdmin):
   list_display = ('title', 'open', 'close')
   fields = (
     ('title', 'open', 'close'),
-    ('addition', 'narrative')
+    'extra_question',
   )
 
 class GrantApplicationInline(admin.TabularInline): #Org
