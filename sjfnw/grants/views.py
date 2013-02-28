@@ -124,7 +124,7 @@ def OrgHome(request, organization):
 #@login_required(login_url=LOGIN_URL)
 #@registered_org()
 def PreApply(request, cycle_id): #organization, 
-  return render(request, 'grants/pre_apply.html', {'info_page':'http://socialjusticefund.org/grant-app'})
+  return render(request, 'grants/pre_apply.html', {'info_page':'http://socialjusticefund.org/grant-app/test-instructions'})
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()

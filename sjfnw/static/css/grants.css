@@ -121,7 +121,7 @@ span.char_counter_over {
 	color:red;
 }
 
-input#grant_submit {
+input#grant_submit, button#apply-now {
   margin-top:40px;
   font-size:135%;
   font-weight:bold;
@@ -129,6 +129,6 @@ input#grant_submit {
 
 iframe { /* cycle info pages */
   width:100%;
-  height:auto;
+  height:700px;
   border:0px;
 }
