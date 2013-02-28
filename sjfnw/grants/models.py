@@ -291,29 +291,26 @@ def custom_integer_field(f, **kwargs):
     required = not f.blank
     return IntegerCommaField(label = label, required = required)
   else:
-    return f.formfield()
+    return f.formfield(**kwargs)
 
 class GrantApplicationForm(ModelForm):
   formfield_callback = custom_integer_field
   class Meta:
     model = GrantApplication
     widgets = {
-          'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 300)'}),
-          'grant_request': Textarea(attrs={'rows': 3}),
-          'narrative1': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[1]) + ')'}),
-          'narrative2': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[2]) + ')'}),
-          'narrative3': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[3]) + ')'}),
-          'narrative4': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[4]) + ')'}),
-          'narrative5': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
-          'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[6]) + ')'}),
-        }
+      'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 300)'}),
+      'grant_request': Textarea(attrs={'rows': 3}),
+      'narrative1': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[1]) + ')'}),
+      'narrative2': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[2]) + ')'}),
+      'narrative3': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[3]) + ')'}),
+      'narrative4': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[4]) + ')'}),
+      'narrative5': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
+      'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[6]) + ')'}),
+      'cycle_question': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
+    }
   
   def __init__(self, *args, **kwargs):
     super(GrantApplicationForm, self).__init__(*args, **kwargs)
-    for key in self.fields:
-      if self.fields[key].required:
-        self.fields[key].widget.attrs['class'] = 'required'
-      self.fields[key].label = addCssLabel(self.fields[key].label)
   
   def clean(self):
     cleaned_data = super(GrantApplicationForm, self).clean()
@@ -358,6 +355,7 @@ class GrantApplicationForm(ModelForm):
     logging.info(cycle.extra_question)
     logging.info(answer)
     if cycle.extra_question and not answer:
+      logging.info('Missing answer')
       self._errors["cycle_question"] = '<div class="form_error">This field is required.</div>'
       
     return cleaned_data
