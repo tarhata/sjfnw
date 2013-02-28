@@ -16,12 +16,12 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 <h4>Saved drafts</h4>
 	<ul>{% for save in saved %}
 		<li>
-		{% if save.editable %}<a href="{% url grants.views.Apply save.grant_cycle.pk %}">{{save.grant_cycle}}</a>,  last modified {{save.modified|date:"m/d h:ia"}} - due {{save.grant_cycle.close|date:"m/d h:ia"}}{% else %}<i>{{save.grant_cycle}} - cycle closed on {{save.grant_cycle.close|date:"m/d"}}</i>{% endif %} <a onclick="confirmation('{{save.pk}}')">[delete]</a></li>
+		{% if save.editable %}<a href="{% url grants.views.Apply save.grant_cycle.pk %}">{{save.grant_cycle}}</a>,  last modified {{save.modified|date:"n/d g:ia"}} - due {{save.grant_cycle.close|date:"n/d g:ia"}}{% else %}<i>{{save.grant_cycle}} - cycle closed on {{save.grant_cycle.close|date:"n/d"}}</i>{% endif %} <a onclick="confirmation('{{save.pk}}')">[delete]</a></li>
 	{% empty %}<li>None found</li>{% endfor %}</ul>
 
 <h4>Submitted applications</h4>
 	<ul>{%if submitted%}{%for sub in submitted%}
-		<li><a href="{% url grants.views.ViewApplication sub.pk %}">{{sub.grant_cycle}} - submitted {{sub.submission_time|date:"m/d/y"}}</a></li>
+		<li><a href="{% url grants.views.ViewApplication sub.pk %}">{{sub.grant_cycle}} - submitted {{sub.submission_time|date:"n/d/y"}}</a></li>
 	{%endfor%}{%else%}<li>None found</li>{%endif%}</ul>
 
 <div align="center"><h3>SJF grant cycles</h3></div>
@@ -31,10 +31,10 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 <ul>
 {% if open or applied %}
   {% for ope in open %}
-    <li>{{ope}} - <a href="{% url grants.views.Apply ope.pk %}">open until {{ope.close|date:"m/d/y"}}</a></li>
+    <li>{{ope}} - <a href="{% url grants.views.Apply ope.pk %}">open until {{ope.close|date:"n/d/y"}}</a></li>
   {% endfor %}
   {% for appl in applied %}
-    <li>{{appl}} - open until {{appl.close|date:"m/d/y"}} - application submitted</li>
+    <li>{{appl}} - open until {{appl.close|date:"n/d/y"}} - application submitted</li>
   {% endfor %}
 {% else %}
   <li>No grants are being accepted at this time.</li>
@@ -44,7 +44,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 <h4>Upcoming grant cycles</h4>
 
 <ul>{%for up in upcoming%}
-	<li>{{up}} - open {{up.open|date:"m/d/y"}} to {{up.close|date:"m/d/y"}}</li>
+	<li>{{up}} - open {{up.open|date:"n/d/y"}} to {{up.close|date:"n/d/y"}}</li>
 {% empty %}
 	<li>No upcoming grant cycles.</li>
 {% endfor %}</ul>
@@ -52,9 +52,21 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 <h4>Recently closed grant cycles</h4>
 
 <ul>{%for cl in closed%}
-  <li>{{cl}} - open {{cl.open|date:"m/d/y"}} to {{cl.close|date:"m/d/y"}}
+  <li>{{cl}} - open {{cl.open|date:"n/d/y"}} to {{cl.close|date:"n/d/y"}}
 {% empty %}
   <li>No grant cycles closed in the last 6 months.</li>
 {% endfor %}</ul>
 
+<div align="center"><h3>Eligibility Information & Resources</h3></div>
+To be eligible for any Social Justice Fund grant program, an organization must:
+<ul><li>Be a nonprofit organization with 501(c)3 or 501(c)4 status as determined by the IRS, or be a federally recognized American Indian tribal government or agency. Groups sponsored by 501(c)3 or 501(c)4 organizations or by federally recognized tribal governments can also apply.</li>
+<li>Be led by people who are most directly affected by the problems that the organization or project is addressing.</li>
+<li>Carry out most of its work in Idaho, Montana, Oregon, Washington, and/or Wyoming.</li>
+<li>Satisfy evaluation requirements for all previous Social Justice Fund grants.</li></ul>
+
+Additional information:
+<ul><li><a href="http://www.socialjusticefund.org/sites/default/files/SJF%202012%20Grant%20Guidelines.pdf" target="_blank">Social Justice Fund 2012 Grant Guidelines</a></li>
+<li><a href="http://www.socialjusticefund.org/sites/default/files/SJF%20Grantmaking%20Case%20Statement.pdf" target="_blank">SJF Grantmaking Case Statement</a> and <a href="http://www.socialjusticefund.org/sites/default/files/SJF%20Granting%20Criteria%20-%20for%20Grant%20Reviewers_0.pdf" target="_blank">SJF Granting Criteria</a> (used by our volunteer grantmakers to help guide their screening process)</li></ul>
+
+<p>If you have any questions, contact Program Director, Mijo Lee by <a href="mailto:mijo@socialjusticefund.org">email</a> or by calling (206) 624-4081.</p>
 {% endblock %}
