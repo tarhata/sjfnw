@@ -66,6 +66,7 @@ class GrantCycle(models.Model):
   close = models.DateTimeField()
   extra_question = models.TextField(blank=True)
   info_page = models.URLField(blank=True)
+  email_signature = models.TextField(blank=True)
   
   def __unicode__(self):
     return self.title
@@ -141,7 +142,7 @@ class DraftGrantApplication(models.Model):
 class CharLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'
 
-NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 2700]
+NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 2700, 1800]
 NARRATIVE_TEXTS = ['Placeholder for 0',
   'Describe your organization\'s mission, history and major accomplishments.', #1
   'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ul><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ul>', #2
@@ -227,8 +228,8 @@ class GrantApplication(models.Model):
   narrative3 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[3])], verbose_name = NARRATIVE_TEXTS[3])
   narrative4 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[4])], verbose_name = NARRATIVE_TEXTS[4])
   narrative5 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[5])], verbose_name = NARRATIVE_TEXTS[5])
-
   narrative6 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
+  cycle_question = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[7])], blank=True)
   
   #references
   collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.', verbose_name='Name', max_length = 150)
@@ -316,6 +317,8 @@ class GrantApplicationForm(ModelForm):
   
   def clean(self):
     cleaned_data = super(GrantApplicationForm, self).clean()
+    
+    #collab refs - require phone or email
     phone = cleaned_data.get('collab_ref1_phone')
     email = cleaned_data.get('collab_ref1_email')
     if not phone and not email:
@@ -324,13 +327,13 @@ class GrantApplicationForm(ModelForm):
     email = cleaned_data.get('collab_ref2_email')
     if not phone and not email:
        self._errors["collab_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
+    
+    #racial justice refs - require full set if any
     name = cleaned_data.get('racial_justice_ref1_name')
     org = cleaned_data.get('racial_justice_ref1_org')
     phone = cleaned_data.get('racial_justice_ref1_phone')
     email = cleaned_data.get('racial_justice_ref1_email')
     if name or org or phone or email:
-      #require whole set
-      #not removing from cleaned_data
       if not name:
         self._errors["racial_justice_ref1_name"] = '<div class="form_error">Enter a contact person.</div>'
       if not org:
@@ -342,15 +345,21 @@ class GrantApplicationForm(ModelForm):
     phone = cleaned_data.get('racial_justice_ref2_phone')
     email = cleaned_data.get('racial_justice_ref2_email')
     if name or org or phone or email:
-      #require whole set
-      #not removing from cleaned_data
       if not name:
         self._errors["racial_justice_ref2_name"] = '<div class="form_error">Enter a contact person.</div>'
       if not org:
         self._errors["racial_justice_ref2_org"] = '<div class="form_error">Enter the organization name.</div>'
       if not phone and not email:
         self._errors["racial_justice_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'    
-  
+    
+    #require cycle question if given
+    cycle = cleaned_data.get('grant_cycle')
+    answer = cleaned_data.get('cycle_question')
+    logging.info(cycle.extra_question)
+    logging.info(answer)
+    if cycle.extra_question and not answer:
+      self._errors["cycle_question"] = '<div class="form_error">This field is required.</div>'
+      
     return cleaned_data
 
 """

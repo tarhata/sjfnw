@@ -305,6 +305,12 @@ $(document).ready(function() {
 	</tr></table>
 	</div>
   
+	{% if cycle.extra_question %}
+	<div class="narrative_q">7. {{cycle.extra_question}}
+	{{form.cycle_question.errors}}{{form.cycle_question}}
+	</div>
+	{% endif %}
+	
 	<h4>File uploads</h4><!-- Files -->
 	<ul><li>Files are not autosaved</li>
 	<li>If an incomplete form is submitted, those files will be saved along with the draft</li>
