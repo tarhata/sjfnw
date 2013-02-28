@@ -19,7 +19,7 @@ import models, utils
 import datetime, logging, json, re, quopri
 
 # CONSTANTS
-LOGIN_URL = '/org/login/'
+LOGIN_URL = '/apply/login/'
 
 # PUBLIC ORG VIEWS
 def OrgLogin(request):
@@ -76,7 +76,7 @@ def OrgRegister(request):
             error_msg='Your account is not active. Please contact an administrator.'
             logging.error('Inactive right after registration, account: ' + username_email)
         else:
-          error_msg='There was a problem with your registration.  Please <a href=""/org/support#contact">contact a site admin</a> for assistance.'
+          error_msg='There was a problem with your registration.  Please <a href=""/apply/support#contact">contact a site admin</a> for assistance.'
           logging.error('Password not working at registration, account:  ' + username_email)
   else: #GET
     register = RegisterForm()
@@ -228,7 +228,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       #delete draft
       saved.delete()
 
-      return redirect('/org/submitted')
+      return redirect('/apply/submitted')
 
     else: #INVALID SUBMISSION
       logging.info("Application form invalid")
@@ -238,12 +238,15 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
     #get initial data
     if cr: #load profile
-      dict = model_to_dict(organization)
+      dict = model_to_dict(organization, exclude = ['fiscal_letter',])
       saved.fiscal_letter = organization.fiscal_letter
-      saved.contents = dict
+      saved.contents = json.dumps(dict)
       saved.save()
       logging.debug('Created new draft')
       mod = ''
+      if cycle.info_page: #redirect to instructions first
+        return render(request, 'grants/pre_apply.html', {'cycle':cycle})
+
     else: #load a draft
       dict = json.loads(saved.contents)
       logging.debug('Loading draft: ' + str(dict))
@@ -307,7 +310,7 @@ def DiscardDraft(request, organization, draft_id):
       logging.info('Draft ' + str(draft_id) + ' discarded')
     else: #trying to delete another person's draft!?
       logging.warning('Failed attempt to discard draft ' + str(draft_id) + ' by ' + str(organization))
-    return redirect('/org')
+    return redirect(OrgHome)
   except models.DraftGrantApplication.DoesNotExist:
     logging.error(str(request.user) + ' discard nonexistent draft')
     raise Http404

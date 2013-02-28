@@ -1,5 +1,5 @@
 ﻿{% extends 'grants/base.html' %}
 {% block content %}
-<iframe src="{{info_page}}"></iframe>
-<div align="center"><button id="apply-now" onclick="location.href='{{apply_url}}'">Apply now</button></div>
+<div align="center"><button id="apply-now" onclick="location.href='/apply/{{cycle.pk}}'">Continue to application</button></div>
+<iframe src="{{cycle.info_page}}"></iframe>
 {% endblock %}

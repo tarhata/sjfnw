@@ -315,7 +315,8 @@ class GrantApplicationForm(ModelForm):
   
   def __init__(self, *args, **kwargs):
     super(GrantApplicationForm, self).__init__(*args, **kwargs)
-  
+    self.fields[key].label = addCssLabel(self.fields[key].label)
+
   def clean(self):
     cleaned_data = super(GrantApplicationForm, self).clean()
     
