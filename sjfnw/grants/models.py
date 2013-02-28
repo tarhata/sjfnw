@@ -263,17 +263,21 @@ class GrantApplication(models.Model):
     (10, 'Received'),
     (20, 'Incomplete'),
     (30, 'Complete'),
-    (40, 'Proposal Denied'),
-    (50, 'Proposal Accepted'), #cutoff for gp view
-    (60, 'Grant Denied'),  
-    (70, 'Grant Issued'),
-    (80, 'Grant Paid'),
-    (90, 'Closed'),
+    (40, 'Pre-screened out'),
+    (50, 'Pre-screened in'), #readable, scorable
+    (60, 'Screened out'), 
+    (70, 'Site visit awarded'), #site visit reports
+    (80, 'Grant denied'),
+    (90, 'Grant issued'),
+    (100, 'Grant paid'),
+    (110, 'Year-end report overdue'),
+    (120, 'Year-end report received'),
+    (130, 'Closed'),
   )
   screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
   giving_project = models.ForeignKey(GivingProject, null=True, blank=True)
-  scoring_bonus_poc = models.BooleanField(default=False, verbose_name='Scoring bonus for POC-led?')
-  scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity?')
+  scoring_bonus_poc = models.BooleanField(default=False, verbose_name='Scoring bonus for POC-led')
+  scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity')
   
   def __unicode__(self):
     return unicode(self.organization)
