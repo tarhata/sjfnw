@@ -306,7 +306,7 @@ class GrantApplicationForm(ModelForm):
       'narrative4': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[4]) + ')'}),
       'narrative5': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
       'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[6]) + ')'}),
-      'cycle_question': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
+      'cycle_question': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[7]) + ')'}),
     }
   
   def __init__(self, *args, **kwargs):
@@ -359,21 +359,3 @@ class GrantApplicationForm(ModelForm):
       self._errors["cycle_question"] = '<div class="form_error">This field is required.</div>'
       
     return cleaned_data
-
-"""
-class SJFSettings(models.Model):
-  name = models.CharField(max_length=100, default="SJF Settings", unique=True)
-  
-  support_email = models.EmailField(help_text = 'Address displayed on the site for technical support.')
-  fund_from_email = models.EmailField(help_text = 'Address from which fundraising app emails are sent.')
-  grant_from_email = models.EmailField(help_text = 'Address from which grant app emails are sent.')
-  
-  narrative_heading = models.TextField(help_text = 'Paragraph displayed at the start of the narratives section.', default = 'Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan. Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process.')
-  narrative1 = models.TextField()
-  narrative2 = models.TextField()
-  narrative3 = models.TextField()
-  narrative4 = models.TextField()
-  narrative5 = models.TextField()
-  narrative6 = models.TextField()
-  narrative7 = models.TextField()
-  """

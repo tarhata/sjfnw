@@ -162,21 +162,6 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
             logging.info("Quopri'd: " + new_value)
           except:
             logging.warning("Quopri failed")
-          if isinstance(new_value, str):
-            try:
-              new_value = unicode(new_value, 'ISO-8859-1')
-              logging.info('Unicoded: ' + new_value)
-            except:
-              logging.warning("Failed to unicode ISO-8859-1")
-              try:
-                new_value = unicode(new_value, 'utf8')
-                logging.info('Unicoded: ' + new_value)
-              except:
-                logging.warning('Failed to unicode utf8')
-          elif isinstance(new_value, unicode):
-            logging.info("It's unicode!")
-          else:
-            logging.info("What is it...")
         post_data[key] = new_value
      
     #update draft from this submission
@@ -287,7 +272,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
   #upload url
   #test replacement:  upload_url = '/apply/' + cycle_id + '/'
-  #live:
+  #live:  
   upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
 
   return render(request, 'grants/org_app.html',

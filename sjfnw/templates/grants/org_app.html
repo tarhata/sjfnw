@@ -308,6 +308,7 @@ $(document).ready(function() {
 	{% if cycle.extra_question %}
 	<div class="narrative_q">7. {{cycle.extra_question}}
 	{{form.cycle_question.errors}}{{form.cycle_question}}
+	<span class="char_counter" id="cycle_question_counter">{{limits.7}}</span>
 	</div>
 	{% endif %}
 	
