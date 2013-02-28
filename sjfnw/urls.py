@@ -27,29 +27,29 @@ urlpatterns = patterns('',
 ## GRANTS - ORGANIZATION VIEWS ##
   
   #login, logout, registration
-  (r'^org/login/?$', 'grants.views.OrgLogin'),
-  (r'^org/register/?$', 'grants.views.OrgRegister'),
-  (r'^org/nr', direct_to_template, {'template': 'grants/not_grantee.html'}),
-  (r'^logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/org'}),
+  (r'^apply/login/?$', 'grants.views.OrgLogin'),
+  (r'^apply/register/?$', 'grants.views.OrgRegister'),
+  (r'^apply/nr', direct_to_template, {'template': 'grants/not_grantee.html'}),
+  (r'^logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/apply'}),
 
   #reset password
-  (r'^org/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'grants/reset.html', 'from_email':settings.GRANT_EMAIL, 'email_template_name':'grants/password_reset_email.html', 'post_reset_redirect':'/org/reset-sent'}),
-  (r'^org/reset-sent/?', 'django.contrib.auth.views.password_reset_done', {'template_name':'grants/password_reset_done.html'}),
-  (r'^org/reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'grants/password_reset_confirm.html'}, 'org-reset'),
-  (r'^org/reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'grants/password_reset_complete.html'}),
+  (r'^apply/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'grants/reset.html', 'from_email':settings.GRANT_EMAIL, 'email_template_name':'grants/password_reset_email.html', 'post_reset_redirect':'/apply/reset-sent'}),
+  (r'^apply/reset-sent/?', 'django.contrib.auth.views.password_reset_done', {'template_name':'grants/password_reset_done.html'}),
+  (r'^apply/reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'grants/password_reset_confirm.html'}, 'org-reset'),
+  (r'^apply/reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'grants/password_reset_complete.html'}),
    
    #main pages
-  (r'^org/?$','grants.views.OrgHome'),
-  (r'^org/support/?', 'grants.views.OrgSupport'),
+  (r'^apply/?$','grants.views.OrgHome'),
+  (r'^apply/support/?', 'grants.views.OrgSupport'),
   
   #application
   (r'^apply/info/(?P<cycle_id>\d+)/?$','grants.views.PreApply'),
-  (r'^apply/?$', 'django.views.generic.simple.redirect_to', {'url':'/org/'}),
+  (r'^apply/?$', 'django.views.generic.simple.redirect_to', {'url':'/apply/'}),
   (r'^apply/(?P<cycle_id>\d+)/?$','grants.views.Apply'),
   (r'^apply/(?P<cycle_id>\d+)/autosave/?$','grants.views.AutoSaveApp'),
   (r'^apply/(?P<draft_id>\d+)/DELETE/?$', 'grants.views.DiscardDraft'),
   (r'^get-upload-url/(?P<cycle_id>\d+)/?$','grants.views.RefreshUploadUrl'),
-  (r'^org/submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
+  (r'^apply/submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
   
   #cron
   (r'^mail/drafts/?', 'grants.views.DraftWarning'),

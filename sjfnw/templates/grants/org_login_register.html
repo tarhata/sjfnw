@@ -7,7 +7,7 @@
 			<td style="padding-top:0px;padding-right:10px">
 				LOGIN<br>
 				{%if login_errors%}<ul class="errorlist">{{login_errors|safe}}</ul>{%endif%}
-				<form method="post" action="/org/login/">
+				<form method="post" action="/apply/login/">
 					<table id="login_table">
 					<tr>
 						<td colspan="2">{{ form.email.errors }}</td>
@@ -27,12 +27,12 @@
 					<input type="submit" value="Login" />
 				</form>
 				<br><br>
-				<div class="helptext"><a href="/org/reset">Can't access your account?</a></div>
+				<div class="helptext"><a href="/apply/reset">Can't access your account?</a></div>
 			</td>
 			<td style="padding-left:10px;padding-right:10px">
 			REGISTER<br>
 				{% if register_errors %}<ul class="errorlist">{{register_errors|safe}}</ul>{%endif%}
-				<form method="post" action="/org/register/">
+				<form method="post" action="/apply/register/">
 					<table>
 						<tr>
 							<td colspan="2">{{ register.email.errors }}</td>

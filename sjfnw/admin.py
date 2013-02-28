@@ -98,6 +98,7 @@ class GrantCycleA(admin.ModelAdmin):
   list_display = ('title', 'open', 'close')
   fields = (
     ('title', 'open', 'close'),
+    ('info_page', 'email_signature'),
     'extra_question',
   )
 

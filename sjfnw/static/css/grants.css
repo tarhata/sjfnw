@@ -127,6 +127,12 @@ input#grant_submit, button#apply-now {
   font-weight:bold;
 }
 
+button#apply-now {
+  margin-bottom:20px;
+  font-size:135%;
+  font-weight:bold;
+}
+
 iframe { /* cycle info pages */
   width:100%;
   height:700px;
