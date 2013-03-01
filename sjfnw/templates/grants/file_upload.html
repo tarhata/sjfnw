@@ -1,0 +1,17 @@
+﻿
+<script type="text/javascript">
+function displayUpload(iid) {
+	iframe = document.getElementById(iid);
+	console.log(iframe.contentDocument.body.innerHTML);
+	//.contentDocument.body.innerHTML);
+	file_input = document.getElementById('AAAA');
+	console.log(file_input);
+}
+</script>
+
+<h1>Test file upload thingybobber</h1>
+<iframe class="upload" id="upload-budget" name="upload-budget" onload="displayUpload('upload-budget');"></iframe>
+<form id="budget_upload" action="/apply/3/add-file" enctype="multipart/form-data" target="upload-budget">
+Budget: <input type="file" id="AAAA" />
+<input type="submit" value="Submit" id="submit_button"/>
+</form>

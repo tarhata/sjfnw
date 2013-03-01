@@ -43,6 +43,8 @@ urlpatterns = patterns('',
   (r'^apply/support/?', 'grants.views.OrgSupport'),
   
   #application
+  (r'^apply/test/?$', direct_to_template, {'template': 'grants/file_upload.html'}),
+  (r'^apply/(?P<cycle_id>\d+)/add-file/?$', 'grants.views.AddFile'),
   (r'^apply/info/(?P<cycle_id>\d+)/?$','grants.views.PreApply'),
   (r'^apply/?$', 'django.views.generic.simple.redirect_to', {'url':'/apply/'}),
   (r'^apply/(?P<cycle_id>\d+)/?$','grants.views.Apply'),

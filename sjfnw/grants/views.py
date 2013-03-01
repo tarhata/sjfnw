@@ -130,6 +130,9 @@ def PreApply(request, cycle_id):
   logging.info(cycle.info_page)
   return render(request, 'grants/pre_apply.html', {'cycle':cycle})
 
+def AddFile(request, cycle_id):
+  return HttpResponse("lol fail")
+
 @login_required(login_url=LOGIN_URL)
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
