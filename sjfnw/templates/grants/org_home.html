@@ -11,53 +11,96 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 {% endblock script %}
 {% block content %}
 {% load tz %}
-<div align="center"><h3>{{organization}}</h3></div>
 
-<h4>Saved drafts</h4>
-	<ul>{% for save in saved %}
-		<li>
-		{% if save.editable %}<a href="{% url grants.views.Apply save.grant_cycle.pk %}">{{save.grant_cycle}}</a>,  last modified {{save.modified|date:"n/d g:ia"}} - due {{save.grant_cycle.close|date:"n/d g:ia"}}{% else %}<i>{{save.grant_cycle}} - cycle closed on {{save.grant_cycle.close|date:"n/d"}}</i>{% endif %} <a onclick="confirmation('{{save.pk}}')">[delete]</a></li>
-	{% empty %}<li>None found</li>{% endfor %}</ul>
+<div class="section"><div align="center"><h3>{{organization}}</h3></div>
 
-<h4>Submitted applications</h4>
-	<ul>{%if submitted%}{%for sub in submitted%}
-		<li><a href="{% url grants.views.ViewApplication sub.pk %}">{{sub.grant_cycle}} - submitted {{sub.submission_time|date:"n/d/y"}}</a></li>
-	{%endfor%}{%else%}<li>None found</li>{%endif%}</ul>
+<h4>Saved drafts</h4><!-- Drafts -->
+	<ul><table class="list">
+	{% for save in saved %}
+		<tr>
+		{% if save.editable %}
+		<td><li>{{save.grant_cycle}}</li></td>
+		<td><a href="{% url grants.views.Apply save.grant_cycle.pk %}">edit draft</a></td>
+		<td>modified {{save.modified|date:"n/j g:iA"|lower}}</td>
+		<td>due {{save.grant_cycle.close|date:"n/j g:iA"|lower}}</td>
+		{% else %}
+		<td><i><li>{{save.grant_cycle}}</li></td>
+		<td colspan="3">cycle closed on {{save.grant_cycle.close|date:"n/j"}}</i></td>
+		{% endif %}
+		<td>[<a title="discard draft" onclick="confirmation('{{save.pk}}')">x</a>]</td>
+		</tr>
+	{% empty %}
+		<li>None found</li>
+	{% endfor %}
+	</table></ul>
 
-<div align="center"><h3>SJF grant cycles</h3></div>
+<h4>Submitted applications</h4><!-- Submitted -->
+	<ul>
+	{%if submitted%}
+	<table class="list">
+	{%for sub in submitted%}
+		<tr><td><li>{{sub.grant_cycle}}</li></td>
+		<td><a href="{% url grants.views.ViewApplication sub.pk %}">view</a></td>
+		<td>submitted {{sub.submission_time|date:"n/j/y"}}</td>
+		</tr>
+	{%endfor%}
+	</table>
+	{%else%}
+	<li>None found</li>
+	{%endif%}
+	</ul>
 
-<h4>Currently accepting applications</h4>
+</div>
 
+<div class="section"><div align="center"><h3>SJF grant cycles</h3></div><!-- CYCLES -->
+
+<h4>Currently accepting applications</h4><!-- Open -->
 <ul>
 {% if open or applied %}
+	<table class="list">
   {% for ope in open %}
-    <li>{{ope}} - <a href="{% url grants.views.Apply ope.pk %}">open until {{ope.close|date:"n/d/y"}}</a></li>
+		<tr><td><li>{% if ope.info_page %}<a href="/apply/info/{{ope.pk}}" target="_blank">{{ope}}</a>{% else %}{{ope}}{% endif %}</li></td>
+		<td><b><a href="{% url grants.views.Apply ope.pk %}">apply</a></b></td>
+		<td>closes {{ope.close|date:"n/j/y"}}</a></td>
+		</tr>
   {% endfor %}
   {% for appl in applied %}
-    <li>{{appl}} - open until {{appl.close|date:"n/d/y"}} - application submitted</li>
+    <tr><td><li>{% if appl.info_page %}<a href="/apply/info/{{appl.pk}}" target="_blank">{{appl}}</a>{% else %}{{appl}}{% endif %}</li></td>
+		<td>application submitted</td>
+		<td>closes {{appl.close|date:"n/j/y"}}</td>
+		</tr>
   {% endfor %}
+	</table>
 {% else %}
   <li>No grants are being accepted at this time.</li>
 {% endif %}
 </ul>
 
-<h4>Upcoming grant cycles</h4>
-
-<ul>{%for up in upcoming%}
-	<li>{{up}} - open {{up.open|date:"n/d/y"}} to {{up.close|date:"n/d/y"}}</li>
+<h4>Upcoming grant cycles</h4><!-- Upcoming -->
+<ul><table class="list">
+{%for up in upcoming%}
+	<tr>
+	<td><li>{% if up.info_page %}<a href="/apply/info/{{up.pk}}" target="_blank">{{up}}</a>{% else %}{{up}}{% endif %}</li></td>
+	<td>open {{up.open|date:"n/j/y"}} to {{up.close|date:"n/j/y"}}</td>
+	</tr>
 {% empty %}
-	<li>No upcoming grant cycles.</li>
-{% endfor %}</ul>
+	<tr><td><li>No upcoming grant cycles.</li></td></tr>
+{% endfor %}
+</table></ul>
 
-<h4>Recently closed grant cycles</h4>
-
-<ul>{%for cl in closed%}
-  <li>{{cl}} - open {{cl.open|date:"n/d/y"}} to {{cl.close|date:"n/d/y"}}
+<h4>Recently closed grant cycles</h4><!-- Closed -->
+<ul><table class="list">
+{%for cl in closed%}
+	<tr><td><li>{{cl}}<li></td>
+	<td>open {{cl.open|date:"n/j/y"}} to {{cl.close|date:"n/j/y"}}</td></tr>
 {% empty %}
-  <li>No grant cycles closed in the last 6 months.</li>
-{% endfor %}</ul>
+  <tr><td><li>No grant cycles closed in the last 6 months.</li></td></tr>
+{% endfor %}
+</table></ul>
+</div>
 
-<div align="center"><h3>Eligibility Information & Resources</h3></div>
+<div class="section"><div align="center"><h3>Eligibility Information & Resources</h3></div>
+<br>
 To be eligible for any Social Justice Fund grant program, an organization must:
 <ul><li>Be a nonprofit organization with 501(c)3 or 501(c)4 status as determined by the IRS, or be a federally recognized American Indian tribal government or agency. Groups sponsored by 501(c)3 or 501(c)4 organizations or by federally recognized tribal governments can also apply.</li>
 <li>Be led by people who are most directly affected by the problems that the organization or project is addressing.</li>
@@ -69,4 +112,6 @@ Additional information:
 <li><a href="http://www.socialjusticefund.org/sites/default/files/SJF%20Grantmaking%20Case%20Statement.pdf" target="_blank">SJF Grantmaking Case Statement</a> and <a href="http://www.socialjusticefund.org/sites/default/files/SJF%20Granting%20Criteria%20-%20for%20Grant%20Reviewers_0.pdf" target="_blank">SJF Granting Criteria</a> (used by our volunteer grantmakers to help guide their screening process)</li></ul>
 
 <p>If you have any questions, contact Program Director, Mijo Lee by <a href="mailto:mijo@socialjusticefund.org">email</a> or by calling (206) 624-4081.</p>
+</div>
+
 {% endblock %}
