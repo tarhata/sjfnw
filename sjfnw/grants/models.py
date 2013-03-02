@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.forms import ModelForm, Textarea
+from django.forms.widgets import FileInput
 from django.utils import timezone
 from google.appengine.ext import blobstore
 from sjfnw.fund.models import GivingProject
@@ -311,6 +312,10 @@ class GrantApplicationForm(ModelForm):
       'narrative5': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
       'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[6]) + ')'}),
       'cycle_question': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[7]) + ')'}),
+      'budget': FileInput(attrs={'onchange':'fileChanged(self.id);'}),
+      'demographics': FileInput(attrs={'onchange':'fileChanged(self.id);'}),
+      'funding_sources': FileInput(attrs={'onchange':'fileChanged(self.id);'}),
+      'fiscal_letter': FileInput(attrs={'onchange':'fileChanged(self.id);'}),
     }
   
   def __init__(self, *args, **kwargs):

@@ -2,7 +2,6 @@
 {% block script %}
 <script type="text/javascript">
 var autosave_timer;
-var upload_url_timer;
 
 var status_texts = { //for ajax error messages
   400: '400 Bad request',
@@ -68,12 +67,37 @@ function charLimitDisplay(area, limit){
 
 function getUploadURL() {
 	$.ajax({
-		url: '/get-upload-url/{{cycle.pk}}',
+		url: '/get-upload-url/{{draft.pk}}',
 		success: function(data) {
-			document.forms[0].action = data;
-			window.setTimeout("getUploadURL()", 540000);
+			document.forms[1].action = data;
+			document.getElementById('hidden_file_submit').click()
 		},
 	});
+}
+
+function fileChanged(field_id) {
+	console.log(field_id);
+	getUploadURL();
+}
+
+function displayUpload() {
+	var iframe = document.getElementById("id_upload_frame");
+	var results = iframe.contentDocument.body.innerHTML
+	console.log(results);
+	var file_input = document.getElementById('id_' + results);
+	console.log(file_input);
+	if (results && file_input){
+		//check for success
+		file_input.style.display="none"; //hide file input
+		var span = document.getElementById('budget_status');
+		span.innerHTML = results;
+		span.style.display="inline-block";//show file status, set text/link
+		//change "upload" to "remove"
+		var button = document.getElementById('submit_button');
+		button.value = "Remove";
+		//change form action
+		// or error message
+	}
 }
 
 $(document).ready(function() {
@@ -92,7 +116,7 @@ $(document).ready(function() {
 {% block content %}
 {% load tz %}
 <div class="formwrapper">
-<form action="{{upload_url}}" method="POST" enctype="multipart/form-data">
+<form id="non_file" action="" method="POST">
 
   <div id="test" style="display:none;">
     TEST ONLY: {{form.errors}}{{form.organization}}{{form.grant_cycle}}
@@ -173,12 +197,7 @@ $(document).ready(function() {
     </tr><tr>
       <td colspan="2">{{form.fiscal_address.label}}{{form.fiscal_address}}</td>
     </tr><tr>
-			<td colspan="2"><div class="vertical_cushion">{{form.fiscal_letter.help_text}}</div></td>
-		</tr><tr>
-			<td>{{form.fiscal_letter.errors}}</td>
-		</tr><tr>	
-			<td>{{form.fiscal_letter}}</td>
-			<td>{% if files.fiscal_letter %}<a href="{{file_urls.fiscal}}grants/draft-file/{{files.pk}}/fiscal" target="_blank">{{files.fiscal_letter}}</a>{% endif %}</td>
+			<td colspan="2">* Upload fiscal letter at the bottom of the form if applicable.</td>
 		</tr><tr>
       <td><h4>Budget information</h4></td><!-- Budget information -->
     </tr><tr>
@@ -191,6 +210,8 @@ $(document).ready(function() {
       <td>{{form.budget_last.label}} ${{form.budget_last}} </td>
       <td>{{form.budget_current.label}} ${{form.budget_current}}</td>
     </tr><tr>
+			<td colspan="2">* Upload budget files at the bottom of the form.</td>
+		</tr><tr>
       <td><h4>Grant information</h4></td><!-- Grant information -->
     </tr><tr>
       <td colspan="2"><div class="vertical_cushion">{{form.grant_request.label}}{{form.grant_request.errors}}</div>
@@ -312,43 +333,51 @@ $(document).ready(function() {
 	<span class="char_counter" id="cycle_question_counter">{{limits.7}}</span>
 	</div>
 	{% endif %}
-	
+</form>
+
+<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="displayUpload();"></iframe><!--hidden iframe for file submissions -->
+
+<form id="files_form" action="{{upload_url}}" target="upload_frame" method="POST" enctype="multipart/form-data">	
 	<h4>File uploads</h4><!-- Files -->
-	<ul><li>Files are not autosaved</li>
-	<li>If an incomplete form is submitted, those files will be saved along with the draft</li>
-	<li>Uploaded files overwrite any previously saved files</li></ul>
   <p>Please download the provided template, fill it out, and upload it once it is complete.  For the budget, you may use your own format if preferred.</p>
   <table style="width:98%;">
     <tr>
-			<td></td>
-			<td>{{form.budget.errors}}</td>
-			<td></td>
+			<td colspan="4">{{form.budget.errors}}</td>
 		</tr>
 		<tr>
-			<td>Budget: <a href="/static/grant_app/budget.doc" target="_blank">optional template</a></td>
+			<td>Budget:</td>
+			<td><a href="/static/grant_app/budget.doc" target="_blank">optional template</a></td>
 			<td>{{form.budget}}</td>
 			<td>{% if files.budget %}<a href="{{file_urls.budget}}grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% endif %}</td>
 		</tr><tr>
-			<td></td>
-			<td>{{form.demographics.errors}}</td>
-			<td></td>
+			<td colspan="4">{{form.demographics.errors}}</td>
 		</tr>
 		<tr>
-			<td>Organizational Diversity Chart: <a href="/static/grant_app/diversity_chart.doc" target="_blank">template</a></td>
+			<td>Organizational Diversity Chart:</td>
+			<td><a href="/static/grant_app/diversity_chart.doc" target="_blank">template</a></td>
 			<td>{{form.demographics}}</td>
 			<td>{% if files.demographics %}<a href="{{file_urls.demographics}}grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% endif %}</td>
 		</tr><tr>
-			<td></td>
-			<td>{{form.funding_sources.errors}}</td>
-			<td></td>
+			<td colspan="4">{{form.funding_sources.errors}}</td>
 		</tr>
 		<tr>
-			<td>Funding sources:<a href="/static/grant_app/funding_sources.doc" target="_blank">template</a></td>
+			<td>Funding sources:</td>
+			<td><a href="/static/grant_app/funding_sources.doc" target="_blank">template</a></td>
 			<td>{{form.funding_sources}}</td>
 			<td>{% if files.funding_sources %}<a href="{{file_urls.funding}}grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% endif %}</td>
 		</tr>
+		<tr>
+			<td colspan="4"><div class="vertical_cushion">{{form.fiscal_letter.help_text}}</div></td>
+		</tr><tr>
+			<td colspan="4">{{form.fiscal_letter.errors}}</td>
+		</tr><tr>	
+			<td>Fiscal letter:</td>
+			<td></td>
+			<td>{{form.fiscal_letter}}</td>
+			<td>{% if files.fiscal_letter %}<a href="{{file_urls.fiscal}}grants/draft-file/{{files.pk}}/fiscal" target="_blank">{{files.fiscal_letter}}</a>{% endif %}</td>
+		</tr>
 	</table>
   {% endautoescape %}
-  <div align="center"><input id="grant_submit" type="submit" value="Submit Application"/></div>
+  <div align="center"><input id="hidden_file_submit" type="submit" value="Submit files"/></div>
 </form>
 {% endblock %}

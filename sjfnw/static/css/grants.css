@@ -60,6 +60,19 @@ div.formwrapper h1 {
   margin-bottom:.25em;
 }
 
+/* hide text of file inputs 
+div.formwrapper input[type="file"] { 
+  color: transparent;
+  width: 95px;
+}
+*/
+
+iframe.upload {
+  height:0;
+  width:0;
+  border:none;
+}
+
 textarea {
   font-family:Arial;
   width:98%;

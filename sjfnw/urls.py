@@ -44,13 +44,13 @@ urlpatterns = patterns('',
   
   #application
   (r'^apply/test/?$', direct_to_template, {'template': 'grants/file_upload.html'}),
-  (r'^apply/(?P<cycle_id>\d+)/add-file/?$', 'grants.views.AddFile'),
+  (r'^apply/(?P<draft_id>\d+)/add-file/?$', 'grants.views.AddFile'),
   (r'^apply/info/(?P<cycle_id>\d+)/?$','grants.views.PreApply'),
   (r'^apply/?$', 'django.views.generic.simple.redirect_to', {'url':'/apply/'}),
   (r'^apply/(?P<cycle_id>\d+)/?$','grants.views.Apply'),
   (r'^apply/(?P<cycle_id>\d+)/autosave/?$','grants.views.AutoSaveApp'),
   (r'^apply/(?P<draft_id>\d+)/DELETE/?$', 'grants.views.DiscardDraft'),
-  (r'^get-upload-url/(?P<cycle_id>\d+)/?$','grants.views.RefreshUploadUrl'),
+  (r'^get-upload-url/(?P<draft_id>\d+)/?$','grants.views.RefreshUploadUrl'),
   (r'^apply/submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
   
   #cron

@@ -130,8 +130,29 @@ def PreApply(request, cycle_id):
   logging.info(cycle.info_page)
   return render(request, 'grants/pre_apply.html', {'cycle':cycle})
 
-def AddFile(request, cycle_id):
-  return HttpResponse("lol fail")
+def AddFile(request, draft_id):
+  draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
+  logging.debug('AddFile called: ' + str(request.FILES.lists()))
+  msg = False
+  if request.FILES.get('budget'):
+    draft.budget = request.FILES['budget']
+    msg = 'budget'
+  elif request.FILES.get('demographics'):
+    draft.demographics = request.FILES['demographics']
+    msg = 'demographics'
+  elif request.FILES.get('funding_sources'):
+    draft.funding_sources = request.FILES['funding_sources']
+    msg = 'funding_sources'
+  elif request.FILES.get('fiscal_letter'):
+    draft.fiscal_letter = request.FILES['fiscal_letter']
+    msg = 'fiscal_letter'
+  draft.save()
+  if msg:
+    name = getattr(draft, msg)
+    name = str(name).split('/')[-1]
+    return HttpResponse(msg + ":" + name)
+  else:
+    return HttpRepsonse("ERRORRRRRR")
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()
@@ -172,8 +193,8 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
         post_data[key] = new_value
      
     #update draft from this submission
-    dict = json.dumps(post_data)
-    saved.contents = dict
+    #dict = json.dumps(post_data)
+    #saved.contents = dict
 
     #update draft files or pull them into the post
     files_data = request.FILES.copy()
@@ -200,10 +221,15 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       files_data['fiscal_letter'] = saved.fiscal_letter
     saved.save()
     mod = saved.modified
-
+    
+    formd = json.loads(saved.contents)
+    formd['organization'] = organization.pk
+    formd['grant_cycle'] = cycle.pk
+    formd['screening_status'] = 10
+    logging.info(formd)
     #submit form
     logging.info('Submitting files_data: ' + str(files_data.lists()))
-    form = models.GrantApplicationForm(post_data, files_data)
+    form = models.GrantApplicationForm(formd, files_data)
 
     if form.is_valid(): #VALID SUBMISSION
       logging.info('Application form valid')
@@ -286,7 +312,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
 
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls})
+  {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls, 'draft':saved})
 
 @registered_org()
 def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
@@ -322,8 +348,8 @@ def DiscardDraft(request, organization, draft_id):
     logging.error(str(request.user) + ' discard nonexistent draft')
     raise Http404
 
-def RefreshUploadUrl(request, cycle_id):
-  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
+def RefreshUploadUrl(request, draft_id):
+  upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file')
   return HttpResponse(upload_url)
 
 # VIEW APPS/FILES
