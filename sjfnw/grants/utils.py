@@ -86,7 +86,7 @@ def FindBlob(application, file_type):
   raise Http404
 
 def GetFileURLs(app):
-  file_urls = {'budget': '/', 'funding':'/', 'demographics':'/', 'fiscal':'/'}
+  file_urls = {'budget': '/', 'funding_sources':'/', 'demographics':'/', 'fiscal_letter':'/'}
   logging.info(app.budget)
   if True:#not settings.DEBUG:
     viewer_url = 'https://docs.google.com/viewer?url=' + settings.APP_BASE_URL
@@ -94,11 +94,11 @@ def GetFileURLs(app):
     if str(app.budget).lower().split(".")[-1] in viewer_formats:
       file_urls['budget'] =  viewer_url
     if str(app.funding_sources).lower().split(".")[-1] in viewer_formats:
-      file_urls['funding'] =  viewer_url
+      file_urls['funding_sources'] =  viewer_url
     if str(app.demographics).lower().split(".")[-1] in viewer_formats:
       file_urls['demographics'] =  viewer_url
     if app.fiscal_letter and str(app.fiscal_letter).lower().split(".")[-1] in viewer_formats:
-      file_urls['fiscal'] =  viewer_url
+      file_urls['fiscal_letter'] =  viewer_url
   return file_urls
   
 def DeleteEmptyFiles(request): #/tools/delete-empty

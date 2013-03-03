@@ -266,7 +266,7 @@ def AddFile(request, draft_id):
   """ Upload a file (saves to draft, included when submitting)
     Template needs: link domain, draft pk, field name or id, file name """
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
-  logging.debug('AddFile called: ' + str(request.FILES.lists()))
+  logging.info('AddFile called: ' + str(request.FILES.lists()))
   msg = False
   if request.FILES.get('budget'):
     draft.budget = request.FILES['budget']
@@ -287,8 +287,8 @@ def AddFile(request, draft_id):
   name = str(name).split('/')[-1]
   
   file_urls = utils.GetFileURLs(draft)
-  content = msg + ':<a href="' + file_urls[msg] + '">' + name + '</a>'
-  logging.info(content)
+  content = msg + '~~<a href="' + file_urls[msg] + '">' + name + '</a>'
+  logging.info("AddFile returning: " + content)
   return HttpResponse(content)
 
 def RefreshUploadUrl(request, draft_id):
@@ -296,6 +296,12 @@ def RefreshUploadUrl(request, draft_id):
   upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file')
   return HttpResponse(upload_url)
 
+def DiscardFile(request, filefield):
+  """ Takes the string stored in the django file field
+    Queues file for deletion """
+    
+    pass
+    
 @registered_org()
 def DiscardDraft(request, organization, draft_id):
 

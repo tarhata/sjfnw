@@ -313,10 +313,10 @@ class GrantApplicationForm(ModelForm):
       'narrative5': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
       'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[6]) + ')'}),
       'cycle_question': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[7]) + ')'}),
-      'budget': FileInput(attrs={'onchange':'fileChanged(self.id);'}),
-      'demographics': FileInput(attrs={'onchange':'fileChanged(self.id);'}),
-      'funding_sources': FileInput(attrs={'onchange':'fileChanged(self.id);'}),
-      'fiscal_letter': FileInput(attrs={'onchange':'fileChanged(self.id);'}),
+      'budget': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'demographics': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'funding_sources': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'fiscal_letter': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
     }
   
   def __init__(self, *args, **kwargs):

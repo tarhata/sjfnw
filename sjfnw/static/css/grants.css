@@ -60,12 +60,10 @@ div.formwrapper h1 {
   margin-bottom:.25em;
 }
 
-/* hide text of file inputs 
 div.formwrapper input[type="file"] { 
   color: transparent;
   width: 95px;
 }
-*/
 
 iframe.upload {
   height:0;
@@ -104,6 +102,13 @@ table#application_form td{
 
 div.formwrapper input[type="text"] {
   width:140px;
+}
+
+img.info {
+  cursor:help;
+  width:10px;
+  height:10px;
+  vertical-align:text-bottom;
 }
 
 input#id_contact_person, input#id_previous_grants, input#id_fiscal_address {
