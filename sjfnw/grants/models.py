@@ -68,6 +68,7 @@ class GrantCycle(models.Model):
   extra_question = models.TextField(blank=True)
   info_page = models.URLField(blank=True)
   email_signature = models.TextField(blank=True)
+  conflicts = models.TextField(blank=True, help_text="Track any conflicts of interest (automatic & personally declared) that occurred during this cycle.")
   
   def __unicode__(self):
     return self.title
@@ -192,7 +193,7 @@ class GrantApplication(models.Model):
   status = models.CharField(max_length=50, choices=STATUS_CHOICES)
   ein = models.CharField(max_length=50, verbose_name="Organization or Fiscal Sponsor EIN")
   founded = models.PositiveIntegerField(verbose_name='Year founded')
-  mission = models.TextField(verbose_name="Mission statement")
+  mission = models.TextField(verbose_name="Mission statement", validators=[CharLimitValidator(750)])
   previous_grants = models.CharField(max_length=255, verbose_name="Previous SJF grants awarded (amounts and year)", blank=True)
   
   #budget info
@@ -201,7 +202,7 @@ class GrantApplication(models.Model):
   budget_current = models.PositiveIntegerField(verbose_name='Org. budget this fiscal year')
   
   #this grant info
-  grant_request = models.TextField(verbose_name="Briefly summarize the grant request")
+  grant_request = models.TextField(verbose_name="Briefly summarize the grant request", validators=[CharLimitValidator(600)])
   contact_person = models.CharField(max_length=250, verbose_name= 'Name', help_text='Contact person for this grant application')
   contact_person_title = models.CharField(max_length=100, verbose_name='Title')
   grant_period = models.CharField(max_length=250, blank=True, verbose_name='Grant period (if different than fiscal year)')
@@ -303,8 +304,8 @@ class GrantApplicationForm(ModelForm):
   class Meta:
     model = GrantApplication
     widgets = {
-      'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 300)'}),
-      'grant_request': Textarea(attrs={'rows': 3}),
+      'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 750)'}),
+      'grant_request': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 600)'}),
       'narrative1': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[1]) + ')'}),
       'narrative2': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[2]) + ')'}),
       'narrative3': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[3]) + ')'}),

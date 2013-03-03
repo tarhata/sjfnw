@@ -100,6 +100,7 @@ class GrantCycleA(admin.ModelAdmin):
     ('title', 'open', 'close'),
     ('info_page', 'email_signature'),
     'extra_question',
+    'conflicts',
   )
 
 class GrantApplicationInline(admin.TabularInline): #Org
