@@ -87,6 +87,7 @@ def FindBlob(application, file_type):
 
 def GetFileURLs(app):
   file_urls = {'budget': '/', 'funding':'/', 'demographics':'/', 'fiscal':'/'}
+  logging.info(app.budget)
   if True:#not settings.DEBUG:
     viewer_url = 'https://docs.google.com/viewer?url=' + settings.APP_BASE_URL
     viewer_formats = ('jpeg', 'png', 'gif', 'tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mpeg4', 'mov', 'avi', 'wmv')

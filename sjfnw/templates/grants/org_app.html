@@ -84,8 +84,9 @@ function displayUpload() {
 	var iframe = document.getElementById("id_upload_frame");
 	var results = iframe.contentDocument.body.innerHTML
 	console.log(results);
+	var field_name = results.match(/\w:/);
+	//finish
 	var file_input = document.getElementById('id_' + results);
-	console.log(file_input);
 	if (results && file_input){
 		//check for success
 		file_input.style.display="none"; //hide file input
@@ -337,7 +338,7 @@ $(document).ready(function() {
 
 <iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="displayUpload();"></iframe><!--hidden iframe for file submissions -->
 
-<form id="files_form" action="{{upload_url}}" target="upload_frame" method="POST" enctype="multipart/form-data">	
+<form id="files_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data">	
 	<h4>File uploads</h4><!-- Files -->
   <p>Please download the provided template, fill it out, and upload it once it is complete.  For the budget, you may use your own format if preferred.</p>
   <table style="width:98%;">
