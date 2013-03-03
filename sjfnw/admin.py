@@ -94,6 +94,14 @@ class StepAdv(admin.ModelAdmin): #adv only
 
 # Grant ModelAdmin
 
+class GrantApplicationCycleInline(admin.TabularInline): #Cycle
+  model = GrantApplication
+  extra = 0
+  max_num = 0
+  can_delete = False
+  readonly_fields = ('organization', 'submission_time', 'screening_status')
+  fields = ('organization', 'submission_time', 'screening_status')
+
 class GrantCycleA(admin.ModelAdmin):
   list_display = ('title', 'open', 'close')
   fields = (
@@ -102,6 +110,7 @@ class GrantCycleA(admin.ModelAdmin):
     'extra_question',
     'conflicts',
   )
+  inlines = (GrantApplicationCycleInline,)
 
 class GrantApplicationInline(admin.TabularInline): #Org
   model = GrantApplication
