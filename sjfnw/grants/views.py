@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore
-from forms import LoginForm, RegisterForm
+from forms import LoginForm, RegisterForm, GrantApplicationFormy
 from decorators import registered_org
 from sjfnw import fund
 import models, utils
@@ -250,6 +250,10 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
   return render(request, 'grants/org_app.html',
   {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
+
+def TestApply(request):
+  form = GrantApplicationFormy()
+  return render(request, 'grants/file_upload.html', {'form':form})
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()

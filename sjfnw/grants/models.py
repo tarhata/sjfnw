@@ -153,11 +153,32 @@ NARRATIVE_TEXTS = ['Placeholder for 0',
   'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organizations role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
   'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i><ul>  <li>Summarize your organization\'s analysis of inequality and oppression.</li><li>How does your organization live out that analysis internally?</li><li>How does your organization\'s work impact those systems of oppression in the larger society?</li></ul>', #6
   ]
+STATE_CHOICES = (('OR', 'OR'), ('WA', 'WA'), ('ID', 'ID'), ('WY', 'WY'), ('MT', 'MT'),)
+STATUS_CHOICES = (
+  ('Tribal government', 'Federally recognized American Indian tribal government'),   
+  ('501c3', '501(c)3 organization as recognized by the IRS'),
+  ('501c4', '501(c)4 organization as recognized by the IRS'),
+  ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),)
+SUPPORT_CHOICES = (('General support', 'General support'), ('Project support', 'Project support'),)
+SCREENING_CHOICES = (
+  (10, 'Received'),
+  (20, 'Incomplete'),
+  (30, 'Complete'),
+  (40, 'Pre-screened out'),
+  (50, 'Pre-screened in'), #readable, scorable
+  (60, 'Screened out'), 
+  (70, 'Site visit awarded'), #site visit reports
+  (80, 'Grant denied'),
+  (90, 'Grant issued'),
+  (100, 'Grant paid'),
+  (110, 'Year-end report overdue'),
+  (120, 'Year-end report received'),
+  (130, 'Closed'),)
 
 def validate_file_extension(value):
   if not str(value).lower().split(".")[-1] in settings.ALLOWED_FILE_TYPES:
     raise ValidationError(u'That file type is not supported.')
-
+  
 class GrantApplication(models.Model):
   """ Submitted grant application """
   
@@ -169,13 +190,6 @@ class GrantApplication(models.Model):
   #contact info
   address = models.CharField(max_length=100)
   city = models.CharField(max_length=50)
-  STATE_CHOICES = (
-    ('OR', 'OR'),
-    ('WA', 'WA'),
-    ('ID', 'ID'),
-    ('WY', 'WY'),
-    ('MT', 'MT'),
-  )
   state = models.CharField(max_length=2,choices=STATE_CHOICES)
   zip = models.CharField(max_length=50)
   telephone_number = models.CharField(max_length=20)
@@ -184,12 +198,6 @@ class GrantApplication(models.Model):
   website = models.CharField(max_length=50, null=True, blank=True, verbose_name = 'Website (optional)')
   
   #org info
-  STATUS_CHOICES = (
-    ('Tribal government', 'Federally recognized American Indian tribal government'),   
-    ('501c3', '501(c)3 organization as recognized by the IRS'),
-    ('501c4', '501(c)4 organization as recognized by the IRS'),
-    ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),
-  )
   status = models.CharField(max_length=50, choices=STATUS_CHOICES)
   ein = models.CharField(max_length=50, verbose_name="Organization or Fiscal Sponsor EIN")
   founded = models.PositiveIntegerField(verbose_name='Year founded')
@@ -207,14 +215,10 @@ class GrantApplication(models.Model):
   contact_person_title = models.CharField(max_length=100, verbose_name='Title')
   grant_period = models.CharField(max_length=250, blank=True, verbose_name='Grant period (if different than fiscal year)')
   amount_requested = models.PositiveIntegerField(verbose_name='Amount requested $')
-  SUPPORT_CHOICES = (
-    ('General support', 'General support'),   
-    ('Project support', 'Project support'),
-  )
+  
   support_type = models.CharField(max_length=50, choices=SUPPORT_CHOICES)
   project_title = models.CharField(max_length=250,verbose_name='Project title (if applicable)', null=True, blank=True)
   project_budget = models.PositiveIntegerField(verbose_name='Project budget (if applicable)', null=True, blank=True)
-  
   
   #fiscal sponsor
   fiscal_org = models.CharField(verbose_name='Fiscal org. name', max_length=255, null=True, blank=True)
@@ -260,22 +264,7 @@ class GrantApplication(models.Model):
   funding_sources = models.FileField(upload_to='%Y/', max_length=255)
   #timeline?
   
-  #admin fields  
-  SCREENING_CHOICES = (
-    (10, 'Received'),
-    (20, 'Incomplete'),
-    (30, 'Complete'),
-    (40, 'Pre-screened out'),
-    (50, 'Pre-screened in'), #readable, scorable
-    (60, 'Screened out'), 
-    (70, 'Site visit awarded'), #site visit reports
-    (80, 'Grant denied'),
-    (90, 'Grant issued'),
-    (100, 'Grant paid'),
-    (110, 'Year-end report overdue'),
-    (120, 'Year-end report received'),
-    (130, 'Closed'),
-  )
+  #admin fields
   screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
   giving_project = models.ForeignKey(GivingProject, null=True, blank=True)
   scoring_bonus_poc = models.BooleanField(default=False, verbose_name='Scoring bonus for POC-led')

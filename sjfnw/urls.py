@@ -52,6 +52,7 @@ urlpatterns = patterns('',
   (r'^get-upload-url/(?P<draft_id>\d+)/?$','grants.views.RefreshUploadUrl'),
   (r'^apply/submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
   (r'^org/?', 'grants.views.RedirToApply'),
+  (r'^apply/test/?', 'grants.views.TestApply'),
   
   #cron
   (r'^mail/drafts/?', 'grants.views.DraftWarning'),
