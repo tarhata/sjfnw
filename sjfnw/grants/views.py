@@ -135,6 +135,9 @@ def PreApply(request, cycle_id):
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   """Get or submit the whole application form """
   
+  referer = request.META.get('HTTP_REFERER')
+  logging.info(referer)
+  
   #check cycle exists
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
 
@@ -143,19 +146,20 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     return render(request, 'grants/already_applied.html', {'organization':organization, 'cycle':cycle})
 
   #get or create draft
-  saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = organization, grant_cycle=cycle)
-
+  draft, cr = models.DraftGrantApplication.objects.get_or_create(organization = organization, grant_cycle=cycle)
+  profiled = False
+  
   #check if draft can be submitted
-  if not saved.editable:
+  if not draft.editable:
     return render(request, 'grants/closed.html', {'cycle':cycle})
 
   if request.method == 'POST': #POST
 
     #get files from draft
-    files_data = model_to_dict(saved, fields = ['fiscal_letter', 'budget', 'demographics', 'funding_sources'])
+    files_data = model_to_dict(draft, fields = ['fiscal_letter', 'budget', 'demographics', 'funding_sources'])
     
     #get other fields from draft
-    post_data = json.loads(saved.contents)
+    post_data = json.loads(draft.contents)
     
     #set the auto fields
     post_data['organization'] = organization.pk
@@ -194,7 +198,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       logging.info("Application created; confirmation email sent to " + to)
 
       #delete draft
-      saved.delete()
+      draft.delete()
       
       #success page
       return redirect('/apply/submitted')
@@ -208,17 +212,21 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     #get initial data
     if cr: #load profile
       dict = model_to_dict(organization, exclude = ['fiscal_letter',])
-      saved.fiscal_letter = organization.fiscal_letter
-      saved.contents = json.dumps(dict)
-      saved.save()
+      draft.fiscal_letter = organization.fiscal_letter
+      draft.contents = json.dumps(dict)
+      draft.save()
       logging.debug('Created new draft')
       if cycle.info_page: #redirect to instructions first
         return render(request, 'grants/pre_apply.html', {'cycle':cycle})
 
     else: #load a draft
-      dict = json.loads(saved.contents)
+      dict = json.loads(draft.contents)
       logging.debug('Loading draft: ' + str(dict))
-
+    
+    #try to determine initial load - cheaty way
+    if organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
+      profiled = True
+    
     #fill in fkeys TODO handle this on post
     dict['organization'] = organization
     dict['grant_cycle'] = cycle
@@ -227,21 +235,21 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     #create form
     form = models.GrantApplicationForm(initial=dict)
 
-  #get saved files
-  files = {'pk': saved.pk}
-  name = str(saved.budget).split('/')[-1]
+  #get draft files
+  files = {'pk': draft.pk}
+  name = str(draft.budget).split('/')[-1]
   files['budget'] = name
-  name = str(saved.demographics).split('/')[-1]
+  name = str(draft.demographics).split('/')[-1]
   files['demographics'] = name
-  name = str(saved.funding_sources).split('/')[-1]
+  name = str(draft.funding_sources).split('/')[-1]
   files['funding_sources'] = name
-  name = str(saved.fiscal_letter).split('/')[-1]
+  name = str(draft.fiscal_letter).split('/')[-1]
   files['fiscal_letter'] = name
   logging.info('Files dict: ' + str(files))
-  file_urls = utils.GetFileURLs(saved)
+  file_urls = utils.GetFileURLs(draft)
 
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls, 'draft':saved})
+  {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()

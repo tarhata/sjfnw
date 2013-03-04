@@ -154,6 +154,7 @@ $(document).ready(function() {
 		<table id="application_form"><!-- Form starts -->
 			<tr>
 				<td><h4>Contact information</h4></td> <!-- Contact information -->
+				<td>{% if profiled %}<div id="autofilled" title="As a convenience, some information has been automatically filled in based on your most recent submitted application.  It can be removed or overwritten as needed.">Pre-filled <img class="info" src="/static/images/info.png"></div>{% endif %}</td>
 			</tr> 
 			<tr>
 				<td>{{form.address.errors}}</td>
@@ -185,7 +186,7 @@ $(document).ready(function() {
 			</tr><tr>
 				<td><h4>Organization information</h4></td> <!-- Organization information -->
 			</tr><tr>
-				<td colspan="2">{{form.status.errors}}{{form.status.label}}{{form.status}}</td>
+				<td colspan="2">{{form.status.label}}{{form.status}}{{form.status.errors}}</td>
 			</tr> 
 			<tr>
 				<td>{{form.ein.errors}}</td>
@@ -219,7 +220,7 @@ $(document).ready(function() {
 			</tr><tr>
 				<td colspan="2">{{form.fiscal_address.label}}{{form.fiscal_address}}</td>
 			</tr><tr>
-				<td colspan="2">* Upload fiscal letter at the bottom of the form if applicable.</td>
+				<td colspan="2" style="height:28px;">* Upload fiscal letter at the bottom of the form if applicable.</td>
 			</tr><tr>
 				<td><h4>Budget information</h4></td><!-- Budget information -->
 			</tr><tr>
@@ -232,7 +233,7 @@ $(document).ready(function() {
 				<td>{{form.budget_last.label}} ${{form.budget_last}} </td>
 				<td>{{form.budget_current.label}} ${{form.budget_current}}</td>
 			</tr><tr>
-				<td colspan="2">* Upload budget files at the bottom of the form.</td>
+				<td colspan="2" style="height:28px;">* Upload budget files at the bottom of the form.</td>
 			</tr><tr>
 				<td><h4>Grant information</h4></td><!-- Grant information -->
 			</tr><tr>
