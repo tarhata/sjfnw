@@ -196,7 +196,7 @@ $(document).ready(function() {
 				<td>{{form.founded.label}}{{form.founded}}</td>
 			</tr>   
 			<tr>
-				<td colspan="2"><div class="vertical_cushion">{{form.mission.label}}{{form.mission.errors}}</div>
+				<td colspan="2"><div class="vertical_cushion">{{form.mission.label}}{{form.mission.errors}}<span class="char_counter" id="mission_counter">750</span></div>
 				{{form.mission}}</td>
 			</tr><tr>
 				<td colspan="2">{{form.previous_grants.errors}}</td>
@@ -237,7 +237,7 @@ $(document).ready(function() {
 			</tr><tr>
 				<td><h4>Grant information</h4></td><!-- Grant information -->
 			</tr><tr>
-				<td colspan="2"><div class="vertical_cushion">{{form.grant_request.label}}{{form.grant_request.errors}}</div>
+				<td colspan="2"><div class="vertical_cushion">{{form.grant_request.label}}{{form.grant_request.errors}}<span class="char_counter" id="grant_request_counter">600</span></div>
 				{{form.grant_request}}</td>
 			</tr><tr>
 				<td colspan="2">{{form.contact_person.help_text}}</td>
