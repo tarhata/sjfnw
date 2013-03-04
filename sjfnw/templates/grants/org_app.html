@@ -1,8 +1,8 @@
 ﻿{% extends 'grants/base.html' %}
 {% block script %}
 <script type="text/javascript">
+// autosaving
 var autosave_timer;
-
 var status_texts = { //for ajax error messages
   400: '400 Bad request',
   401: '401 Unauthorized',
@@ -14,12 +14,16 @@ var status_texts = { //for ajax error messages
   504: '504 Gateway timeout',
 }
 
-function autoSave(){
+function autoSave(submit){
 	$.ajax({
 		url:"/apply/"+{{cycle.pk}}+"/autosave/",
 		type:"POST",
 		data:$('form').serialize(),
 		success:function(){
+			if (submit) {
+				var submit_all = document.getElementById('hidden_submit_app');
+				submit_all.click();
+			}
 			var monthNames = [ "January", "February", "March", "April", "May", "June",
 			"July", "August", "September", "October", "November", "December" ];
 			var d = new Date();
@@ -53,6 +57,7 @@ function autoSave(){
 	});
 }
 
+// character limits
 function charLimitDisplay(area, limit){
 	var counter = document.getElementById(area.name + '_counter');
 	var diff = limit - area.value.length;
@@ -65,7 +70,28 @@ function charLimitDisplay(area, limit){
   } 
 }
 
-function getUploadURL() {
+// file uploads
+var uploading = false;
+var uploading_span;
+var file_fields;
+
+function fileChanged(field_id) { //file selected
+	if (uploading) {
+		console.log('Upload in progress; returning');
+		return false;
+	}
+	console.log(field_id + " onchange");
+	var file = document.getElementById(field_id).value;
+	console.log("Value: " + file);
+	if (file) {
+		uploading = true;
+		uploading_span = document.getElementById(field_id.replace('id_', '') + '_uploaded');
+		uploading_span.innerHTML = '<img src="/static/images/ajaxloader2.gif" height="16" width="16">';
+		getUploadURL();
+	}
+}
+
+function getUploadURL() { //get a url for it
 	$.ajax({
 		url: '/get-upload-url/{{draft.pk}}',
 		success: function(data) {
@@ -75,30 +101,22 @@ function getUploadURL() {
 	});
 }
 
-function fileChanged(field_id) {
-	console.log(field_id + " onchange");
-	getUploadURL();
-}
-
-var iframe;
-var file_fields;
-
-function fileUploaded() {
-	console.log("The iframe changed!?!?! Its contents are...");
+function fileUploaded(iframe) { //process response
 	var results = iframe.contentDocument.body.innerHTML;
-	console.log(results);
+	console.log("The iframe changed! New contents: " + results);
 	if (results) {
 		var field_name = results.split("~~")[0];
 		var linky = results.split("~~")[1];
 		var file_input = document.getElementById('id_' + field_name);
 		if (file_input && linky) {
-			var span = document.getElementById(field_name + '_uploaded');
-			if (span) {
-				span.innerHTML = linky;
-			} else {
-				console.log('Ughs');
-			}
+			uploading_span.innerHTML = linky;
+		} else {
+			uploading_span.innerHTML = 'There was an error uploading your file. Try again or <a href="/apply/support">contact us</a>.';
 		}
+		file_fields.each(function(index) {
+			this.value = '';
+		});
+		uploading = false;
 	}
 }
 
@@ -112,6 +130,7 @@ $(document).ready(function() {
 		charLimitDisplay(area, limit);
 	});
 	iframe = document.getElementById("id_upload_frame");
+	file_fields = $('input[type=file]');
 });
 </script>
 {%endblock%}
@@ -119,7 +138,7 @@ $(document).ready(function() {
 {% block content %}
 {% load tz %}
 <div class="formwrapper">
-	<form id="non_file" action="" method="POST">
+	<form id="non_file" action="/apply/{{cycle.pk}}/" method="POST">
 
 		<div id="test" style="display:none;">
 			TEST ONLY: {{form.errors}}{{form.organization}}{{form.grant_cycle}}
@@ -128,7 +147,7 @@ $(document).ready(function() {
 		<div align="center">
 			<h1>{{cycle}} Application</h1>
 			{% if cycle.info_page %}<a href="/apply/info/{{cycle.pk}}" target="_blank">application instructions</a><br><br>{% endif %}
-			<span id="last_saved">Last saved: <span id="autosaved">{%if saved %}{{saved|date:"F j, g:ia"}}{%else%}never{% endif %}</span></span>
+			<span id="last_saved">Last saved: <span id="autosaved">{{draft.modified|date:"F j, g:ia"}}</span></span>
 		</div>
 		
 		{% autoescape off %}
@@ -336,9 +355,11 @@ $(document).ready(function() {
 		<span class="char_counter" id="cycle_question_counter">{{limits.7}}</span>
 		</div>
 		{% endif %}
+		
+		<input id="hidden_submit_app" type="submit" value="Submit EVERYTHING" style="display:none;"/>
 	</form>
 
-	<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="fileUploaded();"></iframe><!--hidden iframe for file submissions -->
+	<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="fileUploaded(this);"></iframe><!--hidden iframe for file submissions -->
 
 	<form id="files_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data">	
 		<h4>File uploads</h4><!-- Files -->
@@ -351,7 +372,7 @@ $(document).ready(function() {
 				<td>Budget</td>
 				<td><a href="/static/grant_app/budget.doc" target="_blank">optional template</a></td>
 				<td>{{form.budget}}</td>
-				<td><span id="budget_uploaded">{% if files.budget %}<a href="{{file_urls.budget}}grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% endif %}</span></td>
+				<td><span id="budget_uploaded">{% if files.budget %}<a href="{{file_urls.budget}}grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
 			</tr><tr>
 				<td colspan="4">{{form.demographics.errors}}</td>
 			</tr>
@@ -359,7 +380,7 @@ $(document).ready(function() {
 				<td>Diversity chart</td>
 				<td><a href="/static/grant_app/diversity_chart.doc" target="_blank">template</a></td>
 				<td>{{form.demographics}}</td>
-				<td><span id="demographics_uploaded">{% if files.demographics %}<a href="{{file_urls.demographics}}grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% endif %}</span></td>
+				<td><span id="demographics_uploaded">{% if files.demographics %}<a href="{{file_urls.demographics}}grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
 			</tr><tr>
 				<td colspan="4">{{form.funding_sources.errors}}</td>
 			</tr>
@@ -367,16 +388,20 @@ $(document).ready(function() {
 				<td>Funding sources</td>
 				<td><a href="/static/grant_app/funding_sources.doc" target="_blank">template</a></td>
 				<td>{{form.funding_sources}}</td>
-				<td><span id="funding_sources_uploaded">{% if files.funding_sources %}<a href="{{file_urls.funding_sources}}grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% endif %}</span></td>
+				<td><span id="funding_sources_uploaded">{% if files.funding_sources %}<a href="{{file_urls.funding_sources}}grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
 			</tr><tr>	
 				<td>Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
 				<td></td>
 				<td>{{form.fiscal_letter}}</td>
-				<td><span id="fiscal_letter_uploaded">{% if files.fiscal_letter %}<a href="{{file_urls.fiscal_letter}}grants/draft-file/{{files.pk}}/fiscal" target="_blank">{{files.fiscal_letter}}</a>{% endif %}</span></td>
+				<td><span id="fiscal_letter_uploaded">{% if files.fiscal_letter %}<a href="{{file_urls.fiscal_letter}}grants/draft-file/{{files.pk}}/fiscal" target="_blank">{{files.fiscal_letter}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
 			</tr>
 		</table>
 		{% endautoescape %}
 		<div align="center"><input id="hidden_file_submit" type="submit" value="Submit files" style="display:none;"/></div>
 	</form>
+	<div align="center">
+		<img id="ajax_loading" src="/static/images/ajaxloader.gif" style="display:none;"><br>
+		<button onclick="autoSave(submit=true);">Submit application</button>
+	</div>
 </div>
 {% endblock %}

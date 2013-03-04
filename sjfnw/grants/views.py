@@ -164,7 +164,6 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     logging.info(formd)
     
     #submit form
-    logging.info('Submitting files_data: ' + str(files_data.lists()))
     form = models.GrantApplicationForm(formd, files_data)
 
     if form.is_valid(): #VALID SUBMISSION
@@ -213,14 +212,12 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       saved.contents = json.dumps(dict)
       saved.save()
       logging.debug('Created new draft')
-      mod = ''
       if cycle.info_page: #redirect to instructions first
         return render(request, 'grants/pre_apply.html', {'cycle':cycle})
 
     else: #load a draft
       dict = json.loads(saved.contents)
       logging.debug('Loading draft: ' + str(dict))
-      mod = saved.modified
 
     #fill in fkeys TODO handle this on post
     dict['organization'] = organization
@@ -244,7 +241,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   file_urls = utils.GetFileURLs(saved)
 
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls, 'draft':saved})
+  {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls, 'draft':saved})
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()
@@ -282,7 +279,7 @@ def AddFile(request, draft_id):
     msg = 'fiscal_letter'
   draft.save()
   if not msg:
-    return HttpRepsonse("ERRORRRRRR")
+    return HttpResponse("ERRORRRRRR")
   name = getattr(draft, msg)
   name = str(name).split('/')[-1]
   
@@ -299,8 +296,7 @@ def RefreshUploadUrl(request, draft_id):
 def DiscardFile(request, filefield):
   """ Takes the string stored in the django file field
     Queues file for deletion """
-    
-    pass
+  pass
     
 @registered_org()
 def DiscardDraft(request, organization, draft_id):
