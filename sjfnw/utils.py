@@ -1,5 +1,6 @@
 ﻿from django import forms
 from django.core import validators
+from django.core.exceptions import ValidationError
 import logging
 
 class IntegerCommaField(forms.Field):

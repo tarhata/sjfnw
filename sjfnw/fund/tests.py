@@ -75,7 +75,7 @@ class StepCompleteTest(TestCase):
     self.assertEqual(pre_count + 1, models.Step.objects.count())
     self.assertEqual(1, models.Step.objects.filter(description = 'A BRAND NEW STEP').count())
   
-  def test_valid_response(self):
+  def test_valid_response(self): #TO DO
     """ TO DO
     contact that was already asked
     add a response 
@@ -128,6 +128,28 @@ class StepCompleteTest(TestCase):
     donor1 = models.Donor.objects.get(pk=1)
     self.assertEqual(donor1.lastname, 'Sozzity')
     self.assertEqual(donor1.phone, '206-555-5898')
+  
+  def test_valid_followup_comma(self):
+  
+    """ testing the comma integer field """
+    
+    form_data = {'asked': 'on',
+      'response': 1,
+      'pledged_amount': '5,000',
+      'last_name': 'Sozzity',
+      'phone': '206-555-5898',
+      'email': '',
+      'notes': '',
+      'next_step': 'A BRAND NEW STEP',
+      'next_step_date': '2013-01-25'}
+  
+    response = self.client.post('/fund/1/1/done', form_data)
+    self.assertEqual(response.content, "success")
+    
+    donor1 = models.Donor.objects.get(pk=1)
+    self.assertEqual(donor1.lastname, 'Sozzity')
+    self.assertEqual(donor1.phone, '206-555-5898')
+    self.assertEqual(donor1.pledged, 5000)
   
   def test_valid_hiddendata1(self):
     
