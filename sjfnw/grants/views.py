@@ -341,6 +341,10 @@ def ViewDraftFile(request, draft_id, file_type):
   return utils.FindBlob(application, file_type)
 
 # ADMIN
+
+def RedirToApply(request):
+  return redirect('/apply/')
+
 def AppToDraft(request, app_id):
 
   submitted_app = get_object_or_404(models.GrantApplication, pk = app_id).select_related('organization', 'grant_cycle')
