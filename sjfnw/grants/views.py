@@ -155,16 +155,16 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     files_data = model_to_dict(saved, fields = ['fiscal_letter', 'budget', 'demographics', 'funding_sources'])
     
     #get other fields from draft
-    formd = json.loads(saved.contents)
+    post_data = json.loads(saved.contents)
     
     #set the auto fields
-    formd['organization'] = organization.pk
-    formd['grant_cycle'] = cycle.pk
-    formd['screening_status'] = 10
-    logging.info(formd)
+    post_data['organization'] = organization.pk
+    post_data['grant_cycle'] = cycle.pk
+    post_data['screening_status'] = 10
+    logging.info(post_data)
     
     #submit form
-    form = models.GrantApplicationForm(formd, files_data)
+    form = models.GrantApplicationForm(post_data, files_data)
 
     if form.is_valid(): #VALID SUBMISSION
       logging.info('Application form valid')
