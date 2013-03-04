@@ -1,0 +1,7 @@
+﻿{% extends 'grants/base.html' %}
+{% block content %}
+{% if cycle.is_open %}
+<div align="center"><button id="apply-now" onclick="location.href='/apply/{{cycle.pk}}'">Continue to application</button></div>
+{% endif %}
+<iframe class="info_frame" src="{{cycle.info_page}}"></iframe>
+{% endblock %}

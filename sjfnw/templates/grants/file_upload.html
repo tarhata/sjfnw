@@ -1,0 +1,36 @@
+﻿
+<script type="text/javascript">
+function displayUpload(iid) {
+	var iframe = document.getElementById(iid);
+	var results = iframe.contentDocument.body.innerHTML
+	console.log(results);
+	var file_input = document.getElementById('id_budget');
+	console.log(file_input);
+	if (results && file_input){
+		//check for success
+		file_input.style.display="none"; //hide file input
+		var span = document.getElementById('budget_status');
+		span.innerHTML = results;
+		span.style.display="inline-block";//show file status, set text/link
+		//change "upload" to "remove"
+		var button = document.getElementById('submit_button');
+		button.value = "Remove";
+		//change form action
+		// or error message
+	}
+}
+
+function fileSelected(input_id) {
+	console.log(input_id);
+	document.getElementById('submit_button').click()
+}
+</script>
+
+<h1>Test file upload thingybobber</h1>
+<iframe class="upload" id="upload-budget" name="upload-budget" onload="displayUpload('upload-budget');"></iframe>
+
+<form id="budget_upload" action="/apply/9/add-file" enctype="multipart/form-data" target="upload-budget" method="POST">
+Budget: <input type="file" name="budget" id="id_budget" onchange="fileSelected(self.id);"/>
+<span id="budget_status" style="width:238px;display:none;">File link</span>
+<input type="submit" value="Submit" id="submit_button"/>
+</form>

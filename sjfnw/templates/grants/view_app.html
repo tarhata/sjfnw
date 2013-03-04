@@ -26,7 +26,7 @@
     <p>{{form.fiscal_email.label}}: {{app.fiscal_email}}</p>
     <p>{{form.fiscal_address.label}}: {{app.fiscal_address}}</p>
 		{% if app.fiscal_letter %}
-			<p>Fiscal sponsor letter: <a href="{{file_urls.fiscal}}grants/view-file/{{app.pk}}/fiscal" target="_blank">View</a></p>
+			<p>Fiscal sponsor letter: <a href="{{file_urls.fiscal_letter}}grants/view-file/{{app.pk}}/fiscal" target="_blank">View</a></p>
 		{% endif %}
   {% endif %}
 	
@@ -75,7 +75,7 @@
   <b>Demographics</b>: <a href="{{file_urls.demographics}}grants/view-file/{{app.pk}}/demographics" target="_blank">View</a></p>
   {%endif%}
   {%if app.funding_sources%}
-  <b>Funding sources</b>: <a href="{{file_urls.funding}}grants/view-file/{{app.pk}}/funding" target="_blank">View</a></p>
+  <b>Funding sources</b>: <a href="{{file_urls.funding_sources}}grants/view-file/{{app.pk}}/funding" target="_blank">View</a></p>
   {%endif%}
 
 </div>

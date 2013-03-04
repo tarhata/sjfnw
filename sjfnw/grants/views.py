@@ -18,6 +18,9 @@ from sjfnw import fund
 import models, utils
 import datetime, logging, json, re, quopri
 
+# CONSTANTS
+LOGIN_URL = '/apply/login/'
+
 # PUBLIC ORG VIEWS
 def OrgLogin(request):
   login_errors=''
@@ -73,7 +76,7 @@ def OrgRegister(request):
             error_msg='Your account is not active. Please contact an administrator.'
             logging.error('Inactive right after registration, account: ' + username_email)
         else:
-          error_msg='There was a problem with your registration.  Please <a href=""/org/support#contact">contact a site admin</a> for assistance.'
+          error_msg='There was a problem with your registration.  Please <a href=""/apply/support#contact">contact a site admin</a> for assistance.'
           logging.error('Password not working at registration, account:  ' + username_email)
   else: #GET
     register = RegisterForm()
@@ -86,7 +89,7 @@ def OrgSupport(request):
   'support_form':settings.SUPPORT_FORM_URL})
 
 # REGISTERED ORG VIEWS
-@login_required(login_url='/org/login/')
+@login_required(login_url=LOGIN_URL)
 @registered_org()
 def OrgHome(request, organization):
 
@@ -118,10 +121,23 @@ def OrgHome(request, organization):
     'upcoming':upcoming,
     'applied':applied})
 
-@login_required(login_url='/org/login/')
+#@login_required(login_url=LOGIN_URL)
+#@registered_org()
+def PreApply(request, cycle_id):
+  cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
+  if not cycle.info_page:
+    raise Http404
+  logging.info(cycle.info_page)
+  return render(request, 'grants/pre_apply.html', {'cycle':cycle})
+
+@login_required(login_url=LOGIN_URL)
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
-
+  """Get or submit the whole application form """
+  
+  referer = request.META.get('HTTP_REFERER')
+  logging.info(referer)
+  
   #check cycle exists
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
 
@@ -130,79 +146,28 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     return render(request, 'grants/already_applied.html', {'organization':organization, 'cycle':cycle})
 
   #get or create draft
-  saved, cr = models.DraftGrantApplication.objects.get_or_create(organization = organization, grant_cycle=cycle)
-
+  draft, cr = models.DraftGrantApplication.objects.get_or_create(organization = organization, grant_cycle=cycle)
+  profiled = False
+  
   #check if draft can be submitted
-  if not saved.editable:
+  if not draft.editable:
     return render(request, 'grants/closed.html', {'cycle':cycle})
 
   if request.method == 'POST': #POST
 
-    #fix newline multiplying and quopri
-    post_data = request.POST.copy()
-    skip_decode = [u'fiscal_letter', u'demographics', u'budget', u'funding_sources']
-    for key in post_data:
-      if key.startswith('_') or key == u'csrfmiddlewaretoken':
-        continue
-      value = post_data[key]
-      if isinstance(value,(str, unicode)):
-        new_value = value.replace('\r', '')
-        if not key in skip_decode:
-          logging.info("Decoding: " + value)
-          try:
-            new_value = quopri.decodestring(value)
-            logging.info("Quopri'd: " + new_value)
-          except:
-            logging.warning("Quopri failed")
-          if isinstance(new_value, str):
-            try:
-              new_value = unicode(new_value, 'ISO-8859-1')
-              logging.info('Unicoded: ' + new_value)
-            except:
-              logging.warning("Failed to unicode ISO-8859-1")
-              try:
-                new_value = unicode(new_value, 'utf8')
-                logging.info('Unicoded: ' + new_value)
-              except:
-                logging.warning('Failed to unicode utf8')
-          elif isinstance(new_value, unicode):
-            logging.info("It's unicode!")
-          else:
-            logging.info("What is it...")
-        post_data[key] = new_value
-     
-    #update draft from this submission
-    dict = json.dumps(post_data)
-    saved.contents = dict
-
-    #update draft files or pull them into the post
-    files_data = request.FILES.copy()
-    logging.debug('FILES at start: ' + str(files_data.lists()))
-    if files_data.get('budget'):
-      logging.debug('budget in POST, saving to draft: ' + str(files_data['budget']))
-      saved.budget = files_data['budget']
-    elif saved.budget:
-      files_data['budget'] = saved.budget
-    if files_data.get('demographics'):
-      logging.debug('demo in POST, saving to draft')
-      saved.demographics = files_data['demographics']
-    elif saved.demographics:
-      files_data['demographics'] = saved.demographics
-    if files_data.get('funding_sources'):
-      logging.debug('funding in POST, saving to draft')
-      saved.funding_sources = files_data['funding_sources']
-    elif saved.funding_sources:
-      files_data['funding_sources'] = saved.funding_sources
-    if files_data.get('fiscal_letter'):
-      logging.debug('fiscal in POST, saving to draft')
-      saved.fiscal_letter = files_data['fiscal_letter']
-    elif saved.fiscal_letter:
-      files_data['fiscal_letter'] = saved.fiscal_letter
-    saved.save()
-    mod = saved.modified
-
+    #get files from draft
+    files_data = model_to_dict(draft, fields = ['fiscal_letter', 'budget', 'demographics', 'funding_sources'])
+    
+    #get other fields from draft
+    post_data = json.loads(draft.contents)
+    
+    #set the auto fields
+    post_data['organization'] = organization.pk
+    post_data['grant_cycle'] = cycle.pk
+    post_data['screening_status'] = 10
+    logging.info(post_data)
+    
     #submit form
-    logging.info('Submitting files_data: ' + str(files_data.lists()))
     form = models.GrantApplicationForm(post_data, files_data)
 
     if form.is_valid(): #VALID SUBMISSION
@@ -233,9 +198,10 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       logging.info("Application created; confirmation email sent to " + to)
 
       #delete draft
-      saved.delete()
-
-      return redirect('/org/submitted')
+      draft.delete()
+      
+      #success page
+      return redirect('/apply/submitted')
 
     else: #INVALID SUBMISSION
       logging.info("Application form invalid")
@@ -245,17 +211,22 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
     #get initial data
     if cr: #load profile
-      dict = model_to_dict(organization)
-      saved.fiscal_letter = organization.fiscal_letter
-      saved.contents = dict
-      saved.save()
+      dict = model_to_dict(organization, exclude = ['fiscal_letter',])
+      draft.fiscal_letter = organization.fiscal_letter
+      draft.contents = json.dumps(dict)
+      draft.save()
       logging.debug('Created new draft')
-      mod = ''
-    else: #load a draft
-      dict = json.loads(saved.contents)
-      logging.debug('Loading draft: ' + str(dict))
-      mod = saved.modified
+      if cycle.info_page: #redirect to instructions first
+        return render(request, 'grants/pre_apply.html', {'cycle':cycle})
 
+    else: #load a draft
+      dict = json.loads(draft.contents)
+      logging.debug('Loading draft: ' + str(dict))
+    
+    #try to determine initial load - cheaty way
+    if organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
+      profiled = True
+    
     #fill in fkeys TODO handle this on post
     dict['organization'] = organization
     dict['grant_cycle'] = cycle
@@ -264,36 +235,29 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     #create form
     form = models.GrantApplicationForm(initial=dict)
 
-  #get saved files
-  files = {'pk': saved.pk}
-  name = str(saved.budget).split('/')[-1]
+  #get draft files
+  files = {'pk': draft.pk}
+  name = str(draft.budget).split('/')[-1]
   files['budget'] = name
-  name = str(saved.demographics).split('/')[-1]
+  name = str(draft.demographics).split('/')[-1]
   files['demographics'] = name
-  name = str(saved.funding_sources).split('/')[-1]
+  name = str(draft.funding_sources).split('/')[-1]
   files['funding_sources'] = name
-  name = str(saved.fiscal_letter).split('/')[-1]
+  name = str(draft.fiscal_letter).split('/')[-1]
   files['fiscal_letter'] = name
   logging.info('Files dict: ' + str(files))
-  file_urls = utils.GetFileURLs(saved)
-
-  #upload url
-  #test replacement:  upload_url = '/apply/' + cycle_id + '/'
-  #live:
-  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
+  file_urls = utils.GetFileURLs(draft)
 
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'upload_url': upload_url, 'saved':mod, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls})
+  {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
 
+@login_required(login_url=LOGIN_URL)
 @registered_org()
 def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
-
-  try:
-    cycle = models.GrantCycle.objects.get(pk=cycle_id)
-  except models.GrantCycle.DoesNotExist:
-    logging.error('Auto-save on cycle that does not exist')
-    raise Http404
-
+  """ Saves non-file fields to a draft """
+  
+  cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
+  
   if request.method == 'POST':
     #get or create saved json, update it
     logging.debug("Autosaving")
@@ -303,6 +267,45 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
     saved.save()
     return HttpResponse("")
 
+def AddFile(request, draft_id):
+  """ Upload a file (saves to draft, included when submitting)
+    Template needs: link domain, draft pk, field name or id, file name """
+  draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
+  logging.info('AddFile called: ' + str(request.FILES.lists()))
+  msg = False
+  if request.FILES.get('budget'):
+    draft.budget = request.FILES['budget']
+    msg = 'budget'
+  elif request.FILES.get('demographics'):
+    draft.demographics = request.FILES['demographics']
+    msg = 'demographics'
+  elif request.FILES.get('funding_sources'):
+    draft.funding_sources = request.FILES['funding_sources']
+    msg = 'funding_sources'
+  elif request.FILES.get('fiscal_letter'):
+    draft.fiscal_letter = request.FILES['fiscal_letter']
+    msg = 'fiscal_letter'
+  draft.save()
+  if not msg:
+    return HttpResponse("ERRORRRRRR")
+  name = getattr(draft, msg)
+  name = str(name).split('/')[-1]
+  
+  file_urls = utils.GetFileURLs(draft)
+  content = msg + '~~<a href="' + file_urls[msg] + '">' + name + '</a>'
+  logging.info("AddFile returning: " + content)
+  return HttpResponse(content)
+
+def RefreshUploadUrl(request, draft_id):
+  """ Get a blobstore url for uploading a file """
+  upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file')
+  return HttpResponse(upload_url)
+
+def DiscardFile(request, filefield):
+  """ Takes the string stored in the django file field
+    Queues file for deletion """
+  pass
+    
 @registered_org()
 def DiscardDraft(request, organization, draft_id):
 
@@ -314,14 +317,10 @@ def DiscardDraft(request, organization, draft_id):
       logging.info('Draft ' + str(draft_id) + ' discarded')
     else: #trying to delete another person's draft!?
       logging.warning('Failed attempt to discard draft ' + str(draft_id) + ' by ' + str(organization))
-    return redirect('/org')
+    return redirect(OrgHome)
   except models.DraftGrantApplication.DoesNotExist:
     logging.error(str(request.user) + ' discard nonexistent draft')
     raise Http404
-
-def RefreshUploadUrl(request, cycle_id):
-  upload_url = blobstore.create_upload_url('/apply/' + cycle_id + '/')
-  return HttpResponse(upload_url)
 
 # VIEW APPS/FILES
 def ViewApplication(request, app_id):
@@ -334,26 +333,18 @@ def ViewApplication(request, app_id):
   return render(request, 'grants/view_app.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls})
 
 def ViewFile(request, app_id, file_type):
-
-  #find the application
-  try:
-    application = models.GrantApplication.objects.get(pk = app_id)
-  except models.GrantApplication.DoesNotExist:
-    logging.warning('Grant app not found')
-    raise Http404
-
+  application =  get_object_or_404(models.GrantApplication, pk = app_id)
   return utils.FindBlob(application, file_type)
 
 def ViewDraftFile(request, draft_id, file_type):
-  #find the application
-  try:
-    application = models.DraftGrantApplication.objects.get(pk = draft_id)
-  except models.DraftGrantApplication.DoesNotExist:
-    raise Http404('Draft grant app ' + str(draft_id) + ' not found')
-
+  application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
   return utils.FindBlob(application, file_type)
 
 # ADMIN
+
+def RedirToApply(request):
+  return redirect('/apply/')
+
 def AppToDraft(request, app_id):
 
   submitted_app = get_object_or_404(models.GrantApplication, pk = app_id).select_related('organization', 'grant_cycle')
