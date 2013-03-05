@@ -14,39 +14,22 @@ def FindBlob(application, file_type):
   file_type: str indicating which file field """
   
   #find the filefield
-  if file_type == 'budget':
-    file_field = application.budget
-  elif file_type == 'demographics':
-    file_field = application.demographics
-  elif file_type == 'funding':
-    file_field = application.funding_sources
-  elif file_type == 'fiscal':
-    file_field = application.fiscal_letter
-  else:
+  file_field = getattr(application, file_type)
+  if not file_field:
     logging.warning('Unknown file type ' + file_type)
     return Http404
   
   #filefield stores key that gets the blobinfo
   blobinfo_key = str(file_field).split('/', 1)[0]
   binfo = blobstore.BlobInfo.get(blobinfo_key)
-  logging.info('Binfo properties: filename ' + binfo.filename + ', size ' + str(binfo.size) + ', type ' + binfo.content_type)
   #all binfo properties refer to the blobinfo itself, not the blob
+  logging.info('Binfo properties: filename ' + binfo.filename + ', size ' + str(binfo.size) + ', type ' + binfo.content_type)
   #reader gets binfo file contents which refer to the actual blob  
   reader = blobstore.BlobReader(binfo) 
-  
-  """ example contents:
-    Content-Type: application/pdf
-    MIME-Version: 1.0
-    Content-Length: 7916790
-    Content-MD5: OGRkMTkzOGYxZWQ3NjhlMWY4OWNhYjVlMjQ4YWQ1ODc=
-    Content-Type: application/pdf
-    Content-Disposition: form-data; name="fiscal_letter"; filename="persuasive technology.pdf"
-    X-AppEngine-Upload-Creation: 2013-02-04 20:58:26.170000 """
     
   #look through the contents for the creation time & filename of the blob
   creation_time, filename = False, False
   for l in reader:
-    #logging.debug(l.strip())
     m = re.match(r"X-AppEngine-Upload-Creation: ([-0-9:. ]+)", l)
     if m:
       creation_time = m.group(1)
