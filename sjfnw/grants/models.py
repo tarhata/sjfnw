@@ -51,7 +51,7 @@ class Organization(models.Model):
   fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address', max_length=70, null=True, blank=True)
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
-  fiscal_letter = models.FileField(upload_to='/%Y/', null=True,blank=True)
+  fiscal_letter = models.FileField(upload_to='/', null=True,blank=True)
    
   def __unicode__(self):
     return self.name
@@ -94,10 +94,14 @@ class DraftGrantApplication(models.Model):
   
   contents = models.TextField()
   
-  budget = models.FileField(upload_to='draft/', max_length=255)
-  demographics = models.FileField(upload_to='draft/', max_length=255)
-  funding_sources = models.FileField(upload_to='draft/', max_length=255)
-  fiscal_letter = models.FileField(upload_to='draft/', max_length=255)
+  budget = models.FileField(upload_to='/', max_length=255)
+  demographics = models.FileField(upload_to='/', max_length=255)
+  funding_sources = models.FileField(upload_to='/', max_length=255)
+  fiscal_letter = models.FileField(upload_to='/', max_length=255)
+  budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement')
+  budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating')
+  budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet')
+  project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget')
   
   extended_deadline = models.DateTimeField(help_text = 'Allows this draft to be edited/submitted past the grant cycle close.', blank=True, null=True)
 
@@ -222,7 +226,7 @@ class GrantApplication(models.Model):
   fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address', max_length=70, null=True, blank=True)
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
-  fiscal_letter = models.FileField(upload_to='%Y/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255)
+  fiscal_letter = models.FileField(upload_to='/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255)
   
   #narrative
   narrative1 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
@@ -255,10 +259,13 @@ class GrantApplication(models.Model):
   racial_justice_ref2_email = models.EmailField(verbose_name='Email', blank=True) 
   
   #files
-  budget = models.FileField(upload_to='%Y/', max_length=255)
-  demographics = models.FileField(upload_to='%Y/', max_length=255)
-  funding_sources = models.FileField(upload_to='%Y/', max_length=255)
-  #timeline?
+  budget = models.FileField(upload_to='/', max_length=255)
+  demographics = models.FileField(upload_to='/', max_length=255)
+  funding_sources = models.FileField(upload_to='/', max_length=255)
+  budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement')
+  budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating')
+  budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet')
+  project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget')
   
   #admin fields  
   SCREENING_CHOICES = (

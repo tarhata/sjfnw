@@ -370,15 +370,38 @@ $(document).ready(function() {
 				<td colspan="4">{{form.budget.errors}}</td>
 			</tr>
 			<tr>
-				<td>Budget</td>
+				<td>1. Budget</td>
+				<td>All in one file</td>
+				<td>OR</td>
+				<td>Separate files</td>
+			</tr><tr>
+				<td></td>
 				<td><a href="/static/grant_app/budget.doc" target="_blank">optional template</a></td>
-				<td>{{form.budget}}</td>
-				<td><span id="budget_uploaded">{% if files.budget %}<a href="{{file_urls.budget}}grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
+				<td></td>
+				<td></td>
+			</tr><tr>
+				<td></td>
+				<td rowspan="4">{{form.budget}}<br>
+				<span id="budget_uploaded">{% if files.budget %}<a href="{{file_urls.budget}}grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
+				<td>{{form.budget1.label}}</td>
+				<td>{{form.budget1}}<span id="budget2_uploaded"></span></td>
+			</tr><tr>
+				<td></td>
+				<td>{{form.budget2.label}}</td>
+				<td>{{form.budget2}}<span id="budget2_uploaded"></span></td>
+			</tr><tr>
+				<td></td>
+				<td>{{form.budget3.label}}</td>
+				<td>{{form.budget3}}<span id="budget3_uploaded"></span></td>
+			</tr><tr>
+				<td></td>
+				<td>{{form.project_budget_file.label}}</td>
+				<td>{{form.project_budget_file}}<span id="project_budget_file_uploaded"></span></td>
 			</tr><tr>
 				<td colspan="4">{{form.demographics.errors}}</td>
 			</tr>
 			<tr>
-				<td>Diversity chart</td>
+				<td>2. Diversity chart</td>
 				<td><a href="/static/grant_app/diversity_chart.doc" target="_blank">template</a></td>
 				<td>{{form.demographics}}</td>
 				<td><span id="demographics_uploaded">{% if files.demographics %}<a href="{{file_urls.demographics}}grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
@@ -386,12 +409,12 @@ $(document).ready(function() {
 				<td colspan="4">{{form.funding_sources.errors}}</td>
 			</tr>
 			<tr>
-				<td>Funding sources</td>
+				<td>3. Funding sources</td>
 				<td><a href="/static/grant_app/funding_sources.doc" target="_blank">template</a></td>
 				<td>{{form.funding_sources}}</td>
 				<td><span id="funding_sources_uploaded">{% if files.funding_sources %}<a href="{{file_urls.funding_sources}}grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
 			</tr><tr>	
-				<td>Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
+				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
 				<td></td>
 				<td>{{form.fiscal_letter}}</td>
 				<td><span id="fiscal_letter_uploaded">{% if files.fiscal_letter %}<a href="{{file_urls.fiscal_letter}}grants/draft-file/{{files.pk}}/fiscal" target="_blank">{{files.fiscal_letter}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
