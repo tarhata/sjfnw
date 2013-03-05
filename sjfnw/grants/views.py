@@ -240,8 +240,8 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   for field, url in file_urls.iteritems():
     if url:
       name = str(getattr(draft, field)).split('/')[-1]
-      name = name[:25] + (name[25:] and '..') #stackoverflow'd truncate
-      file_urls[field] = '<a href="' + url + '" target="_blank">' + name + '</a>'
+      short_name = name[:40] + (name[40:] and '..') #stackoverflow'd truncate
+      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + short_name + '</a>'
     else:
       file_urls[field] = '<i>no file uploaded</i>'
 
