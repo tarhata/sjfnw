@@ -4,7 +4,7 @@ from django.conf import settings
 from django.http import HttpResponse, Http404
 from django.utils import timezone
 from google.appengine.ext import blobstore
-from models import DraftGrantApplication
+from models import GrantApplication, DraftGrantApplication
 import datetime, logging, re
 
 def FindBlob(application, file_type):
@@ -86,17 +86,32 @@ def FindBlob(application, file_type):
   raise Http404
 
 def GetFileURLs(app):
-  file_urls = {'budget': '/', 'funding_sources':'/', 'demographics':'/', 'fiscal_letter':'/'}
-  viewer_url = 'https://docs.google.com/viewer?url=' + settings.APP_BASE_URL
+  """ Given a draft or application
+  return a dict of urls for viewing each of its files
+  taking into account whether it can be viewed in google doc viewer """
+  
   viewer_formats = ('jpeg', 'png', 'gif', 'tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mpeg4', 'mov', 'avi', 'wmv')
-  if str(app.budget).lower().split(".")[-1] in viewer_formats:
-    file_urls['budget'] =  viewer_url
-  if str(app.funding_sources).lower().split(".")[-1] in viewer_formats:
-    file_urls['funding_sources'] =  viewer_url
-  if str(app.demographics).lower().split(".")[-1] in viewer_formats:
-    file_urls['demographics'] =  viewer_url
-  if app.fiscal_letter and str(app.fiscal_letter).lower().split(".")[-1] in viewer_formats:
-    file_urls['fiscal_letter'] =  viewer_url
+  
+  #determine whether draft or submitted
+  if isinstance(app, GrantApplication):
+    logging.info("A submitted app!!!?!?")
+    mid_url = 'grants/view-file/'
+  elif isinstance(app, DraftGrantApplication):
+    logging.info("A draft")
+    mid_url = 'grants/draft-file/'
+  else:
+    logging.error("GetFileURLs received invalid object")
+    return {}
+  
+  #check file fields, compile links
+  file_urls = {'budget': '', 'funding_sources':'', 'demographics':'', 'fiscal_letter':'', 'budget1': '', 'budget2': '', 'budget3': '', 'project_budget_file': ''}
+  for field in file_urls:
+    value = getattr(app, field)
+    if value:
+      if str(value).lower().split(".")[-1] in viewer_formats: #doc viewer
+        file_urls[field] = 'https://docs.google.com/viewer?url='
+      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + '/' + field
+  
   return file_urls
   
 def DeleteEmptyFiles(request): #/tools/delete-empty
