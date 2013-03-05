@@ -236,20 +236,17 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     form = models.GrantApplicationForm(initial=dict)
 
   #get draft files
-  files = {'pk': draft.pk}
-  name = str(draft.budget).split('/')[-1]
-  files['budget'] = name
-  name = str(draft.demographics).split('/')[-1]
-  files['demographics'] = name
-  name = str(draft.funding_sources).split('/')[-1]
-  files['funding_sources'] = name
-  name = str(draft.fiscal_letter).split('/')[-1]
-  files['fiscal_letter'] = name
-  logging.info('Files dict: ' + str(files))
   file_urls = utils.GetFileURLs(draft)
+  for field, url in file_urls.iteritems():
+    if url:
+      name = str(getattr(draft, field)).split('/')[-1]
+      name = name[:25] + (name[25:] and '..') #stackoverflow'd truncate
+      file_urls[field] = '<a href="' + url + '" target="_blank">' + name + '</a>'
+    else:
+      file_urls[field] = '<i>no file uploaded</i>'
 
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
+  {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()
@@ -273,18 +270,11 @@ def AddFile(request, draft_id):
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   logging.info('AddFile called: ' + str(request.FILES.lists()))
   msg = False
-  if request.FILES.get('budget'):
-    draft.budget = request.FILES['budget']
-    msg = 'budget'
-  elif request.FILES.get('demographics'):
-    draft.demographics = request.FILES['demographics']
-    msg = 'demographics'
-  elif request.FILES.get('funding_sources'):
-    draft.funding_sources = request.FILES['funding_sources']
-    msg = 'funding_sources'
-  elif request.FILES.get('fiscal_letter'):
-    draft.fiscal_letter = request.FILES['fiscal_letter']
-    msg = 'fiscal_letter'
+  for key in request.FILES:
+    if request.FILES[key]:
+      setattr(draft, key, request.FILES[key])
+      msg = key
+      break
   draft.save()
   if not msg:
     return HttpResponse("ERRORRRRRR")
@@ -292,7 +282,7 @@ def AddFile(request, draft_id):
   name = str(name).split('/')[-1]
   
   file_urls = utils.GetFileURLs(draft)
-  content = msg + '~~<a href="' + file_urls[msg] + '">' + name + '</a>'
+  content = msg + '~~<a href="' + file_urls[msg] + '" target="_blank">' + name + '</a>'
   logging.info("AddFile returning: " + content)
   return HttpResponse(content)
 

@@ -324,6 +324,10 @@ class GrantApplicationForm(ModelForm):
       'demographics': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
       'funding_sources': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
       'fiscal_letter': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget1': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget2': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget3': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'project_budget_file': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
     }
   
   def __init__(self, *args, **kwargs):

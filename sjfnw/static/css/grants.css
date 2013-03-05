@@ -147,6 +147,11 @@ iframe.upload {
   border:none;
 }
 
+table#file_upload_table td{
+  white-space:nowrap;
+  overflow:ellipsis;
+}
+
 /* -- other specific fields */
 
 input#id_contact_person, input#id_previous_grants, input#id_fiscal_address {
