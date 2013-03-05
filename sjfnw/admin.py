@@ -90,7 +90,8 @@ class NewsA(admin.ModelAdmin):
   list_filter = ('membership__giving_project',)
 
 class StepAdv(admin.ModelAdmin): #adv only
-  list_display = ('description', 'donor', step_membership, 'date', 'completed')
+  list_display = ('description', 'donor', step_membership, 'date', 'completed', 'pledged')
+  list_filter = ('donor__membership',)
 
 # Grant ModelAdmin
 
