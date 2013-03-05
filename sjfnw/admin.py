@@ -1,5 +1,6 @@
 ﻿from django.conf import settings
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Group, Permission
@@ -78,10 +79,38 @@ class MembershipA(admin.ModelAdmin):
   readonly_list = ('estimated', 'pledged', 'has_overdue',)
   actions = [approve]
   list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
- 
+
+class PledgedBooleanFilter(SimpleListFilter):
+  title = 'pledged'
+  parameter_name = 'pledged_tf'
+  
+  def lookups(self, request, model_admin):
+      return (('True', 'Pledged'), ('False', 'Declined'), ('None', 'None entered'))
+      
+  def queryset(self, request, queryset):
+    if self.value() == 'True':
+      return queryset.filter(pledged__gt=0)
+    if self.value() == 'False':
+      return queryset.filter(pledged=0)
+    elif self.value() == 'None':
+      return queryset.filter(pledged__isnull=True)
+
+class GiftedBooleanFilter(SimpleListFilter):
+  title = 'gifted'
+  parameter_name = 'gifted_tf'
+  
+  def lookups(self, request, model_admin):
+      return (('True', 'Gift received'), ('False', 'No gift received'))
+      
+  def queryset(self, request, queryset):
+    if self.value() == 'True':
+      return queryset.filter(gifted__gt=0)
+    if self.value() == 'False':
+      return queryset.filter(gifted=0)
+
 class DonorA(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'pledged', 'gifted')
-  list_filter = ('membership__giving_project', 'asked')
+  list_filter = ('membership__giving_project', 'asked', PledgedBooleanFilter, GiftedBooleanFilter)
   list_editable = ('gifted',)
   search_fields = ['firstname', 'lastname']
 
@@ -91,7 +120,7 @@ class NewsA(admin.ModelAdmin):
 
 class StepAdv(admin.ModelAdmin): #adv only
   list_display = ('description', 'donor', step_membership, 'date', 'completed', 'pledged')
-  list_filter = ('donor__membership',)
+  list_filter = ('donor__membership', PledgedBooleanFilter, GiftedBooleanFilter)
 
 # Grant ModelAdmin
 
