@@ -109,7 +109,7 @@ class GiftedBooleanFilter(SimpleListFilter):
       return queryset.filter(gifted=0)
 
 class DonorA(admin.ModelAdmin):
-  list_display = ('firstname', 'lastname', 'membership', 'amount', 'asked', 'pledged', 'gifted')
+  list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked', 'pledged', 'gifted')
   list_filter = ('membership__giving_project', 'asked', PledgedBooleanFilter, GiftedBooleanFilter)
   list_editable = ('gifted',)
   search_fields = ['firstname', 'lastname', 'membership__member__first_name', 'membership__member__last_name']
