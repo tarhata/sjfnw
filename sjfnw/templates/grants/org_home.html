@@ -95,10 +95,14 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 <h4>Recently closed grant cycles</h4><!-- Closed -->
 <ul><table class="list">
 {%for cl in closed%}
-	<tr><td><li>{{cl}}<li></td>
-	<td>open {{cl.open|date:"n/j/y"}} to {{cl.close|date:"n/j/y"}}</td></tr>
+	<tr>
+		<td><li>{{cl}}</li></td>
+		<td>open {{cl.open|date:"n/j/y"}} to {{cl.close|date:"n/j/y"}}</td>
+	</tr>
 {% empty %}
-  <tr><td><li>No grant cycles closed in the last 6 months.</li></td></tr>
+  <tr>
+		<td><li>No grant cycles closed in the last 6 months.</li></td>
+	</tr>
 {% endfor %}
 </table></ul>
 </div>
