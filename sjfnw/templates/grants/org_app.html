@@ -364,14 +364,15 @@ $(document).ready(function() {
 
 	<form id="files_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data">	
 		<h4>File uploads</h4><!-- Files -->
-		<p>Please download the provided template, fill it out, and upload it once it is complete.  For the budget, you may use your own format if preferred.</p>
-		<table id="file_upload_table" style="width:96%;margin-left:2%;">
+		<p><a href="/apply/info/{{cycle.pk}}" target="_blank">Download templates here.</a><br><br>
+		Templates for the budget, funding sources and diversity chart can be downloaded above.  For the budget, you may use your own format if preferred.</p>
+		<table id="file_upload_table" style="width:100%;">
 			<tr>
 				<td colspan="4">{{form.budget.errors}}</td>
 			</tr>
 			<tr>
 				<td style="width:150px;vertical-align:top;">1. Budget</td>
-				<td style="width:175px;">All in one file<br><a href="/static/grant_app/budget.doc" target="_blank">optional template</a></td>
+				<td style="width:175px;">All in one file</td>
 				<td style="width:100px;">{{form.budget}}</td>
 				<td style="width:350px;"><span id="budget_uploaded">{{file_urls.budget}}</span></td>
 			</tr><tr style="line-height:2em;">
@@ -404,7 +405,7 @@ $(document).ready(function() {
 			</tr>
 			<tr>
 				<td>2. Diversity chart</td>
-				<td><a href="/static/grant_app/diversity_chart.doc" target="_blank">template</a></td>
+				<td></td>
 				<td>{{form.demographics}}</td>
 				<td><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
 			</tr><tr>
@@ -412,12 +413,12 @@ $(document).ready(function() {
 			</tr>
 			<tr>
 				<td>3. Funding sources</td>
-				<td><a href="/static/grant_app/funding_sources.doc" target="_blank">template</a></td>
+				<td></td>
 				<td>{{form.funding_sources}}</td>
 				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
 			</tr><tr>	
-				<td>4. Fiscal letter</td>
-				<td><img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
+				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
+				<td></td>
 				<td>{{form.fiscal_letter}}</td>
 				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
 			</tr>
