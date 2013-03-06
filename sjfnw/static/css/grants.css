@@ -46,6 +46,23 @@ div.section h3 {
   background:white;
 }
 
+/* rollover page */
+
+div#rollover_form {
+  width:100%;
+}
+
+div#rollover_form select {
+  margin-top:10px;
+  margin-left:16px;
+}
+
+div#rollover_form input[type="submit"] {
+  font-size:1.2em;
+  width:75px;
+  margin: 15px auto;
+  display:block;
+}
 
 /* application form */
 
@@ -147,6 +164,11 @@ iframe.upload {
   border:none;
 }
 
+table#file_upload_table td{
+  white-space:nowrap;
+  overflow:ellipsis;
+}
+
 /* -- other specific fields */
 
 input#id_contact_person, input#id_previous_grants, input#id_fiscal_address {
@@ -175,7 +197,7 @@ input#grant_submit {
 
 iframe.info_frame { 
   width:100%;
-  height:700px;
+  height:2550px;
   border:0px;
 }
 

@@ -364,37 +364,63 @@ $(document).ready(function() {
 
 	<form id="files_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data">	
 		<h4>File uploads</h4><!-- Files -->
-		<p>Please download the provided template, fill it out, and upload it once it is complete.  For the budget, you may use your own format if preferred.</p>
-		<table style="width:98%;">
+		<p><a href="/apply/info/{{cycle.pk}}" target="_blank">Download templates here.</a><br><br>
+		Templates for the budget, funding sources and diversity chart can be downloaded above.  For the budget, you may use your own format if preferred.</p>
+		<table id="file_upload_table" style="width:100%;">
 			<tr>
 				<td colspan="4">{{form.budget.errors}}</td>
 			</tr>
 			<tr>
-				<td>Budget</td>
-				<td><a href="/static/grant_app/budget.doc" target="_blank">optional template</a></td>
-				<td>{{form.budget}}</td>
-				<td><span id="budget_uploaded">{% if files.budget %}<a href="{{file_urls.budget}}grants/draft-file/{{files.pk}}/budget" target="_blank">{{files.budget}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
+				<td style="width:150px;vertical-align:top;">1. Budget</td>
+				<td style="width:175px;">All in one file</td>
+				<td style="width:100px;">{{form.budget}}</td>
+				<td style="width:350px;"><span id="budget_uploaded">{{file_urls.budget}}</span></td>
+			</tr><tr style="line-height:2em;">
+				<td></td>
+				<td></td>
+				<td><div align="center">OR</div></td>
+				<td></td>
+			</tr><tr>
+				<td></td>
+				<td>{{form.budget1.label}}</td>
+				<td>{{form.budget1}}</td>
+				<td><span id="budget1_uploaded">{{file_urls.budget1}}</span></td>
+			</tr><tr>
+				<td></td>
+				<td>{{form.budget2.label}}</td>
+				<td>{{form.budget2}}</td>
+				<td><span id="budget2_uploaded">{{file_urls.budget2}}</span></td>
+			</tr><tr>
+				<td></td>
+				<td>{{form.budget3.label}}</td>
+				<td>{{form.budget3}}</td>
+				<td><span id="budget3_uploaded">{{file_urls.budget3}}</span></td>
+			</tr><tr>
+				<td></td>
+				<td>{{form.project_budget_file.label}}</td>
+				<td>{{form.project_budget_file}}</td>
+				<td><span id="project_budget_file_uploaded">{{file_urls.project_budget_file}}</span></td>
 			</tr><tr>
 				<td colspan="4">{{form.demographics.errors}}</td>
 			</tr>
 			<tr>
-				<td>Diversity chart</td>
-				<td><a href="/static/grant_app/diversity_chart.doc" target="_blank">template</a></td>
+				<td>2. Diversity chart</td>
+				<td></td>
 				<td>{{form.demographics}}</td>
-				<td><span id="demographics_uploaded">{% if files.demographics %}<a href="{{file_urls.demographics}}grants/draft-file/{{files.pk}}/demographics" target="_blank">{{files.demographics}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
+				<td><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
 			</tr><tr>
 				<td colspan="4">{{form.funding_sources.errors}}</td>
 			</tr>
 			<tr>
-				<td>Funding sources</td>
-				<td><a href="/static/grant_app/funding_sources.doc" target="_blank">template</a></td>
+				<td>3. Funding sources</td>
+				<td></td>
 				<td>{{form.funding_sources}}</td>
-				<td><span id="funding_sources_uploaded">{% if files.funding_sources %}<a href="{{file_urls.funding_sources}}grants/draft-file/{{files.pk}}/funding" target="_blank">{{files.funding_sources}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
+				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
 			</tr><tr>	
-				<td>Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
+				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
 				<td></td>
 				<td>{{form.fiscal_letter}}</td>
-				<td><span id="fiscal_letter_uploaded">{% if files.fiscal_letter %}<a href="{{file_urls.fiscal_letter}}grants/draft-file/{{files.pk}}/fiscal" target="_blank">{{files.fiscal_letter}}</a>{% else %}<i>no file uploaded</i>{% endif %}</span></td>
+				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
 			</tr>
 		</table>
 		{% endautoescape %}

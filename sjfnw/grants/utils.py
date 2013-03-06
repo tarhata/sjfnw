@@ -4,7 +4,7 @@ from django.conf import settings
 from django.http import HttpResponse, Http404
 from django.utils import timezone
 from google.appengine.ext import blobstore
-from models import DraftGrantApplication
+from models import GrantApplication, DraftGrantApplication
 import datetime, logging, re
 
 def FindBlob(application, file_type):
@@ -14,39 +14,22 @@ def FindBlob(application, file_type):
   file_type: str indicating which file field """
   
   #find the filefield
-  if file_type == 'budget':
-    file_field = application.budget
-  elif file_type == 'demographics':
-    file_field = application.demographics
-  elif file_type == 'funding':
-    file_field = application.funding_sources
-  elif file_type == 'fiscal':
-    file_field = application.fiscal_letter
-  else:
+  file_field = getattr(application, file_type)
+  if not file_field:
     logging.warning('Unknown file type ' + file_type)
     return Http404
   
   #filefield stores key that gets the blobinfo
   blobinfo_key = str(file_field).split('/', 1)[0]
   binfo = blobstore.BlobInfo.get(blobinfo_key)
-  logging.info('Binfo properties: filename ' + binfo.filename + ', size ' + str(binfo.size) + ', type ' + binfo.content_type)
   #all binfo properties refer to the blobinfo itself, not the blob
+  logging.info('Binfo properties: filename ' + binfo.filename + ', size ' + str(binfo.size) + ', type ' + binfo.content_type)
   #reader gets binfo file contents which refer to the actual blob  
   reader = blobstore.BlobReader(binfo) 
-  
-  """ example contents:
-    Content-Type: application/pdf
-    MIME-Version: 1.0
-    Content-Length: 7916790
-    Content-MD5: OGRkMTkzOGYxZWQ3NjhlMWY4OWNhYjVlMjQ4YWQ1ODc=
-    Content-Type: application/pdf
-    Content-Disposition: form-data; name="fiscal_letter"; filename="persuasive technology.pdf"
-    X-AppEngine-Upload-Creation: 2013-02-04 20:58:26.170000 """
     
   #look through the contents for the creation time & filename of the blob
   creation_time, filename = False, False
   for l in reader:
-    #logging.debug(l.strip())
     m = re.match(r"X-AppEngine-Upload-Creation: ([-0-9:. ]+)", l)
     if m:
       creation_time = m.group(1)
@@ -86,17 +69,32 @@ def FindBlob(application, file_type):
   raise Http404
 
 def GetFileURLs(app):
-  file_urls = {'budget': '/', 'funding_sources':'/', 'demographics':'/', 'fiscal_letter':'/'}
-  viewer_url = 'https://docs.google.com/viewer?url=' + settings.APP_BASE_URL
+  """ Given a draft or application
+  return a dict of urls for viewing each of its files
+  taking into account whether it can be viewed in google doc viewer """
+  
   viewer_formats = ('jpeg', 'png', 'gif', 'tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mpeg4', 'mov', 'avi', 'wmv')
-  if str(app.budget).lower().split(".")[-1] in viewer_formats:
-    file_urls['budget'] =  viewer_url
-  if str(app.funding_sources).lower().split(".")[-1] in viewer_formats:
-    file_urls['funding_sources'] =  viewer_url
-  if str(app.demographics).lower().split(".")[-1] in viewer_formats:
-    file_urls['demographics'] =  viewer_url
-  if app.fiscal_letter and str(app.fiscal_letter).lower().split(".")[-1] in viewer_formats:
-    file_urls['fiscal_letter'] =  viewer_url
+  
+  #determine whether draft or submitted
+  if isinstance(app, GrantApplication):
+    logging.info("A submitted app!!!?!?")
+    mid_url = 'grants/view-file/'
+  elif isinstance(app, DraftGrantApplication):
+    logging.info("A draft")
+    mid_url = 'grants/draft-file/'
+  else:
+    logging.error("GetFileURLs received invalid object")
+    return {}
+  
+  #check file fields, compile links
+  file_urls = {'budget': '', 'funding_sources':'', 'demographics':'', 'fiscal_letter':'', 'budget1': '', 'budget2': '', 'budget3': '', 'project_budget_file': ''}
+  for field in file_urls:
+    value = getattr(app, field)
+    if value:
+      if str(value).lower().split(".")[-1] in viewer_formats: #doc viewer
+        file_urls[field] = 'https://docs.google.com/viewer?url='
+      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + '/' + field
+  
   return file_urls
   
 def DeleteEmptyFiles(request): #/tools/delete-empty
