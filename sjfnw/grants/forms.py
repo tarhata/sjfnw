@@ -52,6 +52,14 @@ class RolloverForm(forms.Form):
     draft = cleaned_data.get('draft')
     if not cycle:
       self._errors["cycle"] = self.error_class(["Required."])
+    else: #check cycle is still open
+      try:
+        cycle_obj = models.GrantCycle.objects.get(pk = int(cycle))
+      except models.GrantCycle.DoesNotExist:
+        logging.error("RolloverForm submitted cycle does not exist")
+        self._errors["cycle"] = self.error_class(["Internal error, please try again."])
+      if not cycle_obj.is_open:
+        self._errors["cycle"] = self.error_class(["That cycle has closed.  Select a different one."])
     if not draft and not application:
       self._errors["draft"] = self.error_class(["Select one."])
     elif draft and application:
