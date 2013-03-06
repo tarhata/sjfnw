@@ -2,14 +2,14 @@
 
 {% block content %}
 <form method="POST" action="/apply/copy">
-{{form.errors}}
 <p>This form lets you copy all the data from one application over into a new draft for a different grant cycle.  You will be able to edit it  to your liking before submitting.</p>
  
-<p>1. Select the cycle you wish to apply to: {{form.cycle.errors}}<br>
-{{form.cycle}} <img style="width:10px;height:10;" class="info" src="/static/images/info.png" title="Cycles that you have already applied to or for which you have a draft in progress are not included."></p>
-
-<p>2. Select an application or draft to copy: {{form.application.errors}}{{form.draft.errors}}<br>
-{{form.application}} {{form.draft}}</p>
+1. Select the cycle you wish to apply to: {{form.cycle.errors}}<br>
+{{form.cycle}} <img style="width:10px;height:10;" class="info" src="/static/images/info.png" title="Cycles that you have already applied to or for which you have a draft in progress are not included.">
+<br><br>
+2. Select an application or draft to copy: {{form.application.errors}}{{form.draft.errors}}<br>
+{{form.application}} {{form.draft}}
+<br><br>
 <input type="submit" value="Submit">
 </form>
 {% endblock %}

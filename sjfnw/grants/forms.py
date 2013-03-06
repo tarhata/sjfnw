@@ -41,12 +41,22 @@ class RolloverForm(forms.Form):
     cycles = models.GrantCycle.objects.filter(open__lt = timezone.now(), close__gt = timezone.now()).exclude(id__in=exclude_cycles)
     
     #create fields
-    self.fields['application'] = forms.ChoiceField(choices = [(0, '--- Submitted applications ---')] + [(a.id, str(a.grant_cycle) + ' - submitted ' + datetime.datetime.strftime(a.submission_time, '%m/%d/%y')) for a in submitted], required=False, initial = 0)
-    self.fields['draft'] = forms.ChoiceField(choices = [(0, '--- Saved drafts ---')] + [(d.id, str(d.grant_cycle) + ' - modified ' + datetime.datetime.strftime(d.modified, '%m/%d/%y')) for d in drafts], required=False, initial = 0)
-    self.fields['cycle'] = forms.ChoiceField(choices = [(0, '--- Open cycles ---')] + [(c.id, str(c)) for c in cycles])
+    self.fields['application'] = forms.ChoiceField(choices = [('', '--- Submitted applications ---')] + [(a.id, str(a.grant_cycle) + ' - submitted ' + datetime.datetime.strftime(a.submission_time, '%m/%d/%y')) for a in submitted], required=False, initial = 0)
+    self.fields['draft'] = forms.ChoiceField(choices = [('', '--- Saved drafts ---')] + [(d.id, str(d.grant_cycle) + ' - modified ' + datetime.datetime.strftime(d.modified, '%m/%d/%y')) for d in drafts], required=False, initial = 0)
+    self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Open cycles ---')] + [(c.id, str(c)) for c in cycles])
   
   def clean(self):
     cleaned_data = super(RolloverForm, self).clean()
-    #don't let both draft and app be 0
-    #don't let both draft and app be non-0
+    cycle = cleaned_data.get('cycle')
+    application = cleaned_data.get('application')
+    draft = cleaned_data.get('draft')
+    logging.info(str(cycle))
+    logging.info(str(draft))
+    logging.info(str(application))
+    if not cycle:
+      self._errors["cycle"] = self.error_class(["Required."])
+    if not draft and not application:
+      self._errors["draft"] = self.error_class(["Select one."])
+    elif draft and application:
+      self._errors["draft"] = self.error_class(["Select only one."])
     return cleaned_data
