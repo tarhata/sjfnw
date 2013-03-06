@@ -314,13 +314,18 @@ def CopyApp(request, organization):
       if app:
         try:
           application = models.GrantApplication.objects.get(pk = int(app))
-          content = json.dumps(model_to_dict(application, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo']))
+          content = json.dumps(model_to_dict(application, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question']))
         except models.GrantApplication.DoesNotExist:
           logging.error('CopyApp - submitted app ' + app + ' not found')
       elif draft:
         try:
           application = models.DraftGrantApplication.objects.get(pk = int(draft))
           content = application.contents
+          logging.info(content)
+          if content['cycle_question']:
+            logging.info('Removing extra q')
+            content['cycle_question'] = ''
+          logging.info(content)
         except models.DraftGrantApplication.DoesNotExist:
           logging.error('CopyApp - draft ' + app + ' not found')
       else:
