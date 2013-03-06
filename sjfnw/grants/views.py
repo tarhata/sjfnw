@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore
-from forms import LoginForm, RegisterForm
+from forms import LoginForm, RegisterForm, RolloverForm
 from decorators import registered_org
 from sjfnw import fund
 import models, utils
@@ -299,8 +299,7 @@ def CopyApp(request, organization):
   if request.method == 'POST':
     form = RolloverForm(organization, request.POST)
     if form.is_valid():
-      logging.info(form.application)
-      logging.info(form.cycle)
+      logging.info(form.cleaned_data)
     else:
       logging.warning('form invalid')
   else:

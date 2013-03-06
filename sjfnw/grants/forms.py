@@ -30,11 +30,20 @@ class RolloverForm(forms.Form):
   """
   
   def __init__(self, organization, *args, **kwargs):
-    logging.info(organization)
     super(RolloverForm, self).__init__(*args, **kwargs)
-    self.fields['application'] = forms.ChoiceField(choices=[(a.id, str(a.grant_cycle) + ' - submitted ' + datetime.datetime.strftime(a.submission_time, '%m-%d-%Y')) for a in models.GrantApplication.objects.filter(organization = organization)] + [(0, '------')], required=False, initial = 0)
-    self.fields['draft'] = forms.ChoiceField(choices= [(d.id, str(d.grant_cycle) + ' - draft modified ' + datetime.datetime.strftime(d.modified, '%m-%d-%Y')) for d in models.DraftGrantApplication.objects.filter(organization = organization)] + [(0, '------')], required=False, initial = 0)
-    self.fields['cycle'] = forms.ChoiceField(choices=[(c.id, str(c)) for c in models.GrantCycle.objects.filter(open__lt = timezone.now(), close__gt = timezone.now())])
+    
+    #get apps & drafts
+    submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time').select_related('grant_cycle')
+    drafts = models.DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
+    
+    #filter out their cycles, get rest of open ones
+    exclude_cycles = [d.grant_cycle.pk for d in drafts] + [a.grant_cycle.pk for a in submitted]
+    cycles = models.GrantCycle.objects.filter(open__lt = timezone.now(), close__gt = timezone.now()).exclude(id__in=exclude_cycles)
+    
+    #create fields
+    self.fields['application'] = forms.ChoiceField(choices = [(0, '--- Submitted applications ---')] + [(a.id, str(a.grant_cycle) + ' - submitted ' + datetime.datetime.strftime(a.submission_time, '%m/%d/%y')) for a in submitted], required=False, initial = 0)
+    self.fields['draft'] = forms.ChoiceField(choices = [(0, '--- Saved drafts ---')] + [(d.id, str(d.grant_cycle) + ' - modified ' + datetime.datetime.strftime(d.modified, '%m/%d/%y')) for d in drafts], required=False, initial = 0)
+    self.fields['cycle'] = forms.ChoiceField(choices = [(0, '--- Open cycles ---')] + [(c.id, str(c)) for c in cycles])
   
   def clean(self):
     cleaned_data = super(RolloverForm, self).clean()
