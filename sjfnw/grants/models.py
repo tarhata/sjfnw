@@ -90,6 +90,7 @@ class DraftGrantApplication(models.Model):
   
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
+  created = models.DateTimeField(auto_now=True)
   modified = models.DateTimeField(auto_now=True)
   
   contents = models.TextField()

@@ -430,11 +430,17 @@ def AppToDraft(request, app_id):
 
 # CRON
 def DraftWarning(request):
+  """ Warns of impending draft freeze
+  Do not change cron sched -- it depends on running only once/day
+  7 day warning if created 7+ days before close, otherwise 3 day warning """
+  
   drafts = models.DraftGrantApplication.objects.all()
+  now = timezone.now()
+
   for draft in drafts:
     time_left = draft.grant_cycle.close - timezone.now()
-    logging.debug('Time left: ' + str(time_left))
-    if datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3):
+    created_offset = draft.grant_cycle.close - draft.created
+    if (created_offset > eight and eight > time_left > datetime.timedelta(days=7)) or (created_offset < eight and datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3)):
       subject, from_email = 'Grant cycle closing soon', settings.GRANT_EMAIL
       to = draft.organization.email
       html_content = render_to_string('grants/email_draft_warning.html', {'org':draft.organization, 'cycle':draft.grant_cycle})
