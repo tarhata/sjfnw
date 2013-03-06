@@ -149,13 +149,12 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   #get or create draft
   draft, cr = models.DraftGrantApplication.objects.get_or_create(organization = organization, grant_cycle=cycle)
   profiled = False
-  
-  #check if draft can be submitted
-  if not draft.editable:
-    return render(request, 'grants/closed.html', {'cycle':cycle})
 
   if request.method == 'POST': #POST
 
+    #check if draft can be submitted
+    if not draft.editable:
+      render(request, 'grants/submitted_closed.html', {'cycle':cycle})
     #get files from draft
     files_data = model_to_dict(draft, fields = ['fiscal_letter', 'budget', 'demographics', 'funding_sources'])
     
@@ -224,6 +223,10 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       dict = json.loads(draft.contents)
       logging.debug('Loading draft: ' + str(dict))
     
+    #check if draft can be submitted
+    if not draft.editable:
+      return render(request, 'grants/closed.html', {'cycle':cycle})
+
     #try to determine initial load - cheaty way
     if not referer.find('copy') != -1 and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
       profiled = True
