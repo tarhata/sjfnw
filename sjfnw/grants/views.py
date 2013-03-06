@@ -291,6 +291,24 @@ def RefreshUploadUrl(request, draft_id):
   upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file')
   return HttpResponse(upload_url)
 
+# COPY / DELETE APPS
+@login_required(login_url=LOGIN_URL)
+@registered_org()
+def CopyApp(request, organization):
+  
+  if request.method == 'POST':
+    form = RolloverForm(organization, request.POST)
+    if form.is_valid():
+      logging.info(form.application)
+      logging.info(form.cycle)
+    else:
+      logging.warning('form invalid')
+  else:
+    logging.info('get it;')
+    form = RolloverForm(organization)
+  
+  return render(request, 'grants/org_app_copy.html', {'form':form})
+
 def DiscardFile(request, filefield):
   """ Takes the string stored in the django file field
     Queues file for deletion """

@@ -1,0 +1,13 @@
+﻿{% extends 'grants/base.html' %}
+
+{% block content %}
+<form method="POST" action="/apply/copy">
+{{form.errors}}
+<p>This form lets you copy all the data from one application over into a new draft for a different grant cycle.  You will be able to edit it  to your liking before submitting.</p>
+ 
+<p>1. Select the cycle you wish to apply to: {{form.cycle}}</p>
+
+<p>2. Select an application or draft to copy: {{form.application}} {{form.draft}}</p>
+<input type="submit" value="Submit">
+</form>
+{% endblock %}
