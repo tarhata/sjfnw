@@ -50,9 +50,6 @@ class RolloverForm(forms.Form):
     cycle = cleaned_data.get('cycle')
     application = cleaned_data.get('application')
     draft = cleaned_data.get('draft')
-    logging.info(str(cycle))
-    logging.info(str(draft))
-    logging.info(str(application))
     if not cycle:
       self._errors["cycle"] = self.error_class(["Required."])
     if not draft and not application:

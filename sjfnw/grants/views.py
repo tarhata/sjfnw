@@ -299,11 +299,15 @@ def CopyApp(request, organization):
   if request.method == 'POST':
     form = RolloverForm(organization, request.POST)
     if form.is_valid():
-      logging.info(form.cleaned_data)
+      new_cycle = form.cleaned_data.get('cycle')
+      draft = form.cleaned_data.get('draft')
+      app = form.cleaned_data.get('application')
+      #make sure the combo does not exist already
+      #model to dict, use as initial?
+      
     else:
       logging.warning('form invalid')
   else:
-    logging.info('get it;')
     form = RolloverForm(organization)
   
   return render(request, 'grants/org_app_copy.html', {'form':form})
