@@ -66,7 +66,7 @@ class GrantCycle(models.Model):
   open = models.DateTimeField()
   close = models.DateTimeField()
   extra_question = models.TextField(blank=True)
-  info_page = models.URLField(blank=True)
+  info_page = models.URLField()
   email_signature = models.TextField(blank=True)
   conflicts = models.TextField(blank=True, help_text="Track any conflicts of interest (automatic & personally declared) that occurred during this cycle.")
   
