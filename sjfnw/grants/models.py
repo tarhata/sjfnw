@@ -109,7 +109,7 @@ class DraftGrantApplication(models.Model):
     return u'DRAFT - ' + self.organization.name + u' - ' + self.grant_cycle.title
   
   def overdue(self):
-    return self.grant_cycle.close >= timezone.now()
+    return self.grant_cycle.close <= timezone.now()
 
   def editable(self):
     deadline = self.grant_cycle.close
