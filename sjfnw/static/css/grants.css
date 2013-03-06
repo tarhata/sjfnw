@@ -46,6 +46,23 @@ div.section h3 {
   background:white;
 }
 
+/* rollover page */
+
+div#rollover_form {
+  width:100%;
+}
+
+div#rollover_form select {
+  margin-top:10px;
+  margin-left:16px;
+}
+
+div#rollover_form input[type="submit"] {
+  font-size:1.2em;
+  width:75px;
+  margin: 15px auto;
+  display:block;
+}
 
 /* application form */
 
