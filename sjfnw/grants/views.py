@@ -52,7 +52,7 @@ def OrgRegister(request):
       username_email = request.POST['email'].lower()
       password = request.POST['password']
       org = request.POST['organization']
-     #check org already registered
+      #check org already registered
       if models.Organization.objects.filter(name=org) or models.Organization.objects.filter(email=username_email):
         register_error = 'That organization is already registered. Log in instead.'
         logging.warning(org + 'tried to re-register under ' + username_email)
