@@ -168,7 +168,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     logging.info(post_data)
     
     #submit form
-    form = models.GrantApplicationForm(post_data, files_data)
+    form = GrantApplicationFormy(post_data, files_data)
 
     if form.is_valid(): #VALID SUBMISSION
       logging.info('Application form valid')
@@ -231,13 +231,13 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     if not referer.find('copy') != -1 and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
       profiled = True
     
-    #fill in fkeys TODO handle this on post
+    """fill in fkeys TODO handle this on post
     dict['organization'] = organization
     dict['grant_cycle'] = cycle
-    dict['screening_status'] = 10
+    dict['screening_status'] = 10"""
 
     #create form
-    form = models.GrantApplicationForm(initial=dict)
+    form = GrantApplicationFormy(initial=dict)
 
   #get draft files
   file_urls = utils.GetFileURLs(draft)

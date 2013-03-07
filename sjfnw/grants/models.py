@@ -158,13 +158,13 @@ NARRATIVE_TEXTS = ['Placeholder for 0',
   'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organizations role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
   'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i><ul>  <li>Summarize your organization\'s analysis of inequality and oppression.</li><li>How does your organization live out that analysis internally?</li><li>How does your organization\'s work impact those systems of oppression in the larger society?</li></ul>', #6
   ]
-STATE_CHOICES = (('OR', 'OR'), ('WA', 'WA'), ('ID', 'ID'), ('WY', 'WY'), ('MT', 'MT'),)
-STATUS_CHOICES = (
+STATE_CHOICES = [('OR', 'OR'), ('WA', 'WA'), ('ID', 'ID'), ('WY', 'WY'), ('MT', 'MT'),]
+STATUS_CHOICES = [
   ('Tribal government', 'Federally recognized American Indian tribal government'),   
   ('501c3', '501(c)3 organization as recognized by the IRS'),
   ('501c4', '501(c)4 organization as recognized by the IRS'),
-  ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),)
-SUPPORT_CHOICES = (('General support', 'General support'), ('Project support', 'Project support'),)
+  ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),]
+SUPPORT_CHOICES = [('General support', 'General support'), ('Project support', 'Project support'),]
 SCREENING_CHOICES = (
   (10, 'Received'),
   (20, 'Incomplete'),

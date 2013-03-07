@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 import models, datetime, logging
 from sjfnw.utils import IntegerCommaField
 
@@ -32,6 +33,9 @@ def validate_file_extension(value):
   if not str(value).lower().split(".")[-1] in settings.ALLOWED_FILE_TYPES:
     raise ValidationError(u'That file type is not supported.')
 
+def addCssLabel(label_text):
+  return u'<span class="label">' + (label_text or '') + u'</span>'
+
 class GrantApplicationFormy(forms.Form):
   """ Grant application form"""
   
@@ -46,7 +50,7 @@ class GrantApplicationFormy(forms.Form):
   website = forms.CharField(max_length=50, required=False, label = 'Website (optional)')
   
   #org info
-  status = forms.ChoiceField(choices=models.STATUS_CHOICES)
+  status = forms.ChoiceField(choices= [('', '--- Select one ---')] + models.STATUS_CHOICES)
   ein = forms.CharField(max_length=50, label="Organization or Fiscal Sponsor EIN")
   founded = IntegerCommaField(label='Year founded')
   mission = forms.CharField(label="Mission statement", validators=[CharLimitValidator(750)], widget=forms.Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 750)'}))
@@ -76,15 +80,15 @@ class GrantApplicationFormy(forms.Form):
   fiscal_address = forms.CharField(label='Address/City/State/ZIP', max_length=255, required=False)
   
   #narratives
-  narrative1 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[1])], label = models.NARRATIVE_TEXTS[1], widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[1]) + ')'}))
-  narrative2 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[2])], label = models.NARRATIVE_TEXTS[2], widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[2]) + ')'}))
-  narrative3 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[3])], label = models.NARRATIVE_TEXTS[3], widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[3]) + ')'}))
-  narrative4 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[4])], label = models.NARRATIVE_TEXTS[4], widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[4]) + ')'}))
+  narrative1 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[1])], label = mark_safe(models.NARRATIVE_TEXTS[1]), widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[1]) + ')'}))
+  narrative2 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[2])], label =  mark_safe(models.NARRATIVE_TEXTS[2]), widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[2]) + ')'}))
+  narrative3 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[3])], label =  mark_safe(models.NARRATIVE_TEXTS[3]), widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[3]) + ')'}))
+  narrative4 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[4])], label =  mark_safe(models.NARRATIVE_TEXTS[4]), widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[4]) + ')'}))
   #timeline?
 
-  narrative5 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[5])], label = models.NARRATIVE_TEXTS[5], widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[5]) + ')'}))
+  narrative5 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[5])], label =  mark_safe(models.NARRATIVE_TEXTS[5]), widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[5]) + ')'}))
 
-  narrative6 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[6])], label = models.NARRATIVE_TEXTS[6], widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[6]) + ')'}))
+  narrative6 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[6])], label =  mark_safe(models.NARRATIVE_TEXTS[6]), widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[6]) + ')'}))
   cycle_question = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[7])], required=False, widget=forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[7]) + ')'}))
   
   #references
@@ -113,11 +117,15 @@ class GrantApplicationFormy(forms.Form):
   demographics = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   funding_sources = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   fiscal_letter = forms.FileField(required=False, label = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255, widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  budget1 = forms.FileField(max_length=255, label = 'Annual statement', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  budget2 = forms.FileField(max_length=255, label = 'Annual operating', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  budget3 = forms.FileField(max_length=255, label = 'Balance sheet')
+  project_budget_file = forms.FileField(max_length=255, label = 'Project budget', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   
-  def __init__(self, *args, **kwargs):
+  """def __init__(self, *args, **kwargs):
     super(GrantApplicationFormy, self).__init__(*args, **kwargs)
     for key in self.fields:
-      self.fields[key].label = addCssLabel(self.fields[key].label)
+      self.fields[key].label = addCssLabel(self.fields[key].label)"""
       
   def clean(self):
     cleaned_data = super(GrantApplicationForm, self).clean()
