@@ -228,7 +228,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       return render(request, 'grants/closed.html', {'cycle':cycle})
 
     #try to determine initial load - cheaty way
-    if not referer.find('copy') != -1 and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
+    if not (referer and referer.find('copy') != -1) and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
       profiled = True
     
     #fill in fkeys TODO handle this on post
@@ -436,7 +436,8 @@ def DraftWarning(request):
   
   drafts = models.DraftGrantApplication.objects.all()
   now = timezone.now()
-
+  eight = datetime.timedelta(days=8)
+  
   for draft in drafts:
     time_left = draft.grant_cycle.close - timezone.now()
     created_offset = draft.grant_cycle.close - draft.created
