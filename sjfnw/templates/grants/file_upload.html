@@ -1,3 +1,7 @@
-﻿{% autoescape off %}
+﻿{% extends 'grants/base.html' %}
+
+{% block content %}
+{% autoescape off %}
 {{form.as_table}}
 {% endautoescape %}
+{% endblock %}
