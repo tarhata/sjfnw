@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
 from django.utils import timezone
@@ -117,18 +118,19 @@ class GrantApplicationFormy(forms.Form):
   demographics = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   funding_sources = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   fiscal_letter = forms.FileField(required=False, label = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255, widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
-  budget1 = forms.FileField(max_length=255, label = 'Annual statement', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
-  budget2 = forms.FileField(max_length=255, label = 'Annual operating', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
-  budget3 = forms.FileField(max_length=255, label = 'Balance sheet')
-  project_budget_file = forms.FileField(max_length=255, label = 'Project budget', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  budget1 = forms.FileField(max_length=255, label = 'Annual statement', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
+  budget2 = forms.FileField(max_length=255, label = 'Annual operating', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
+  budget3 = forms.FileField(max_length=255, label = 'Balance sheet', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
+  project_budget_file = forms.FileField(max_length=255, label = 'Project budget', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
   
-  """def __init__(self, *args, **kwargs):
+  def __init__(self, cycle, *args, **kwargs):
     super(GrantApplicationFormy, self).__init__(*args, **kwargs)
-    for key in self.fields:
-      self.fields[key].label = addCssLabel(self.fields[key].label)"""
+    if cycle and cycle.extra_question:
+      self.fields['cycle_question'].required = True
+      logging.info('Requiring the cycle question')
       
   def clean(self):
-    cleaned_data = super(GrantApplicationForm, self).clean()
+    cleaned_data = super(GrantApplicationFormy, self).clean()
     
     #collab refs - require phone or email
     phone = cleaned_data.get('collab_ref1_phone')
@@ -162,16 +164,7 @@ class GrantApplicationFormy(forms.Form):
       if not org:
         self._errors["racial_justice_ref2_org"] = '<div class="form_error">Enter the organization name.</div>'
       if not phone and not email:
-        self._errors["racial_justice_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'    
-    
-    #require cycle question if given
-    cycle = cleaned_data.get('grant_cycle')
-    answer = cleaned_data.get('cycle_question')
-    logging.info(cycle.extra_question)
-    logging.info(answer)
-    if cycle.extra_question and not answer:
-      logging.info('Missing answer')
-      self._errors["cycle_question"] = '<div class="form_error">This field is required.</div>'
+        self._errors["racial_justice_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
       
     return cleaned_data
 

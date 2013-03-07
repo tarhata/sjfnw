@@ -377,35 +377,32 @@ $(document).ready(function() {
 				<td style="width:350px;"><span id="budget_uploaded">{{file_urls.budget}}</span></td>
 			</tr><tr style="line-height:2em;">
 				<td></td>
-				<td></td>
+				<td>{{form.budget.errors}}</td>
 				<td><div align="center">OR</div></td>
 				<td></td>
 			</tr><tr>
-				<td></td>
+				<td>{{form.budget1.errors}}</td>
 				<td>{{form.budget1.label_tag}}</td>
 				<td>{{form.budget1}}</td>
 				<td><span id="budget1_uploaded">{{file_urls.budget1}}</span></td>
 			</tr><tr>
-				<td></td>
+				<td>{{form.budget2.errors}}</td>
 				<td>{{form.budget2.label_tag}}</td>
 				<td>{{form.budget2}}</td>
 				<td><span id="budget2_uploaded">{{file_urls.budget2}}</span></td>
 			</tr><tr>
-				<td></td>
+				<td>{{form.budget3.errors}}</td>
 				<td>{{form.budget3.label_tag}}</td>
 				<td>{{form.budget3}}</td>
 				<td><span id="budget3_uploaded">{{file_urls.budget3}}</span></td>
 			</tr><tr>
-				<td></td>
+				<td>{{form.project_budget_file.errors}}</td>
 				<td>{{form.project_budget_file.label_tag}}</td>
 				<td>{{form.project_budget_file}}</td>
 				<td><span id="project_budget_file_uploaded">{{file_urls.project_budget_file}}</span></td>
 			</tr><tr>
-				<td colspan="4">{{form.demographics.errors}}</td>
-			</tr>
-			<tr>
 				<td>2. Diversity chart</td>
-				<td></td>
+				<td>{{form.demographics.errors}}</td>
 				<td>{{form.demographics}}</td>
 				<td><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
 			</tr><tr>
@@ -413,12 +410,12 @@ $(document).ready(function() {
 			</tr>
 			<tr>
 				<td>3. Funding sources</td>
-				<td></td>
+				<td>{{form.funding_sources.errors}}</td>
 				<td>{{form.funding_sources}}</td>
 				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
 			</tr><tr>	
 				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
-				<td></td>
+				<td>{{form.fiscal_letter.errors}}</td>
 				<td>{{form.fiscal_letter}}</td>
 				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
 			</tr>

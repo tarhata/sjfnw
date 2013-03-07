@@ -155,26 +155,30 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     #check if draft can be submitted
     if not draft.editable:
       render(request, 'grants/submitted_closed.html', {'cycle':cycle})
+    
     #get files from draft
     files_data = model_to_dict(draft, fields = ['fiscal_letter', 'budget', 'demographics', 'funding_sources'])
     
     #get other fields from draft
     post_data = json.loads(draft.contents)
-    
-    #set the auto fields
-    post_data['organization'] = organization.pk
-    post_data['grant_cycle'] = cycle.pk
-    post_data['screening_status'] = 10
     logging.info(post_data)
     
     #submit form
-    form = GrantApplicationFormy(post_data, files_data)
-
+    form = GrantApplicationFormy(cycle, post_data, files_data)
+        
     if form.is_valid(): #VALID SUBMISSION
       logging.info('Application form valid')
-
+      
       #save as GrantApplication object
-      application = form.save()
+      application = models.GrantApplication(organization = organization, grant_cycle = cycle)
+      #to do -- timeline
+      for name, value in form.cleaned_data.iteritems():
+        setattr(application, name, value)
+        logging.info(name + ' set to -- ' + str(value))
+      for name in files_data:
+        setattr(application, name, getattr(draft, name))
+        logging.info(name + ' -- from draft')
+      application.save()
 
       #update org profile
       form2 = models.OrgProfile(post_data, instance=organization)
@@ -237,7 +241,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     dict['screening_status'] = 10"""
 
     #create form
-    form = GrantApplicationFormy(initial=dict)
+    form = GrantApplicationFormy(cycle, initial=dict)
 
   #get draft files
   file_urls = utils.GetFileURLs(draft)
