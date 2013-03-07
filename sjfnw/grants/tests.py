@@ -1,5 +1,6 @@
-from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core import mail
+from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -43,6 +44,10 @@ def logInTesty(self): # 2 OfficeMax Foundation
 def logInNewbie(self): # 1 Fresh New Org
   user = User.objects.create_user('newacct@gmail.com', 'newacct@gmail.com', 'noob')
   self.client.login(username = 'newacct@gmail.com', password = 'noob')
+
+def logInAdmin(self): #just a django superuser
+  superuser = User.objects.create_superuser('admin@gmail.com', 'admin@gmail.com', 'admin')
+  self.client.login(username = 'admin@gmail.com', password = 'admin')
 
 TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'sjfnw.fund.middleware.MembershipMiddleware',)
 
@@ -188,7 +193,79 @@ class DraftTests(TestCase):
   def discard(self):
     pass
     #discard a draft
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class DraftWarningTests(TestCase):
+  
+  fixtures = ['test_grants.json',]
+
+  def setUp(self):
+    logInAdmin(self)
+    setCycleDates()
+  
+  def test_long_alert(self):
+    """ Cycle created 12 days ago with cycle closing in 7.5 days """
     
+    self.assertEqual(len(mail.outbox), 0)
+    
+    now = timezone.now()
+    draft = DraftGrantApplication.objects.get(pk=1)
+    draft.created = now - datetime.timedelta(days=12)
+    draft.save()
+    cycle = GrantCycle.objects.get(pk=2)
+    cycle.close = now + datetime.timedelta(days=7, hours=12)
+    cycle.save()
+    
+    response = self.client.get('/mail/drafts/')
+    self.assertEqual(len(mail.outbox), 1)
+  
+  def test_long_alert_skip(self):
+    """ Cycle created now with cycle closing in 7.5 days """
+    
+    self.assertEqual(len(mail.outbox), 0)
+    
+    now = timezone.now()
+    draft = DraftGrantApplication.objects.get(pk=1)
+    draft.created = now
+    draft.save()
+    cycle = GrantCycle.objects.get(pk=2)
+    cycle.close = now + datetime.timedelta(days=7, hours=12)
+    cycle.save()
+    
+    response = self.client.get('/mail/drafts/')
+    self.assertEqual(len(mail.outbox), 0)
+    
+  def test_short_alert(self):
+    """ Cycle created now with cycle closing in 2.5 days """
+  
+    self.assertEqual(len(mail.outbox), 0)
+    
+    now = timezone.now()
+    draft = DraftGrantApplication.objects.get(pk=1)
+    draft.created = now
+    draft.save()
+    cycle = GrantCycle.objects.get(pk=2)
+    cycle.close = now + datetime.timedelta(days=2, hours=12)
+    cycle.save()
+    
+    response = self.client.get('/mail/drafts/')
+    self.assertEqual(len(mail.outbox), 1)  
+  
+  def test_short_alert_ignore(self):
+    """ Cycle created 12 days ago with cycle closing in 2.5 days """
+    self.assertEqual(len(mail.outbox), 0)
+    
+    now = timezone.now()
+    draft = DraftGrantApplication.objects.get(pk=1)
+    draft.created = now - datetime.timedelta(days=12)
+    draft.save()
+    cycle = GrantCycle.objects.get(pk=2)
+    cycle.close = now + datetime.timedelta(days=2, hours=12)
+    cycle.save()
+    
+    response = self.client.get('/mail/drafts/')
+    self.assertEqual(len(mail.outbox), 0)
+
 """ TESTS TO DO
     
   try to access pages without being registered
