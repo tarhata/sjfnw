@@ -23,7 +23,6 @@ class RegisterForm(forms.Form):
       self._errors["password"] = self.error_class(["Passwords did not match."])
       del cleaned_data["password"]
       del cleaned_data["passwordtwo"]
-<<<<<<< HEAD
     return cleaned_data 
 
 class CharLimitValidator(MaxLengthValidator):
@@ -114,7 +113,6 @@ class GrantApplicationFormy(forms.Form):
   demographics = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   funding_sources = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   fiscal_letter = forms.FileField(required=False, label = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255, widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
-=======
     return cleaned_data
 
 class RolloverForm(forms.Form):
@@ -160,4 +158,3 @@ class RolloverForm(forms.Form):
     elif draft and application:
       self._errors["draft"] = self.error_class(["Select only one."])
     return cleaned_data
->>>>>>> master
