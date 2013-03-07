@@ -52,65 +52,10 @@ def logInAdmin(self): #just a django superuser
 TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'sjfnw.fund.middleware.MembershipMiddleware',)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplyTests(TestCase):
-  
-  """ Submitting an application """
-  
-  """ TODO
-        apply with deadline extension
-        validate fiscal
-        validate collab 
-        possibly using draft-saved files """
-
-  fixtures = ['test_grants.json',] 
-  
-  def setUp(self):
-    setCycleDates()
-  
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
-  def test_post_valid_app(self): #OUT OF DATE 3/4
-    pass
-    """(Does not test blobstore file handling)
-        Updates org profile
-        Creates a new application object
-        No draft object 
-    
-    logInNewbie(self)
-    
-    org = Organization.objects.get(pk = 1)
-    self.assertEqual(0, GrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
-    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
-    self.assertFalse(org.mission)
-    
-
-    budget =  open('sjfnw/grants/fixtures/test_grants_guide.txt')
-    form_data['budget'] = budget
-    funding_sources =  open('sjfnw/static/grant_app/funding_sources.doc')
-    form_data['funding_sources'] = funding_sources
-    demographics = open('sjfnw/static/css/admin.css')
-    form_data['demographics'] = demographics
-
-    response = self.client.post('/apply/1/', form_data, follow=True)
-    budget.close()
-    funding_sources.close()
-    demographics.close()
-    
-    #form = response.context['form']
-    #print(form.errors)
-    org = Organization.objects.get(pk = 1)
-    self.assertTemplateUsed(response, 'grants/submitted.html')
-    self.assertEqual(org.mission, u'A kmission statement of some importance!')
-    self.assertEqual(1, GrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
-    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
-    """
-
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyBlockedTests(TestCase):
-
   """ Attempting to access an invalid application/cycle """
   
-  fixtures = ['test_grants.json',] 
-  
+  fixtures = ['test_grants.json',]   
   def setUp(self):
     setCycleDates()
     logInTesty(self)
@@ -137,11 +82,9 @@ class ApplyBlockedTests(TestCase):
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)    
 class StartApplicationTests(TestCase):
-  
   """Starting (loading) an application for an open cycle."""
   
-  fixtures = ['test_grants.json',] 
-  
+  fixtures = ['test_grants.json',]  
   def setUp(self):
     setCycleDates()
 
@@ -178,27 +121,9 @@ class StartApplicationTests(TestCase):
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class HomePageTests(TestCase):
-  
-  """ Viewing data on the home page
-        submitted apps sorting
-        display of submitted, drafts, past-due drafts
-        display/sorting of cycles"""
-  def load_home_page(self):
-    pass
-
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class DraftTests(TestCase):
-   #can't test autosave here..?
-  def discard(self):
-    pass
-    #discard a draft
-
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftWarningTests(TestCase):
   
   fixtures = ['test_grants.json',]
-
   def setUp(self):
     logInAdmin(self)
     setCycleDates()
@@ -265,6 +190,84 @@ class DraftWarningTests(TestCase):
     
     response = self.client.get('/mail/drafts/')
     self.assertEqual(len(mail.outbox), 0)
+
+class RolloverTests(TestCase):
+  
+  fixtures = []
+  def setUp(self):
+    logInTesty(self)
+
+""" TO DO """
+
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class ApplyTests(TestCase): #OUT OF DATE 3/4
+  
+  """ Submitting an application """
+  
+  """ TODO
+        apply with deadline extension
+        validate fiscal
+        validate collab 
+        possibly using draft-saved files """
+
+  fixtures = ['test_grants.json',] 
+  
+  def setUp(self):
+    setCycleDates()
+  
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  def test_post_valid_app(self): #OUT OF DATE 3/4
+    pass
+    """(Does not test blobstore file handling)
+        Updates org profile
+        Creates a new application object
+        No draft object 
+    
+    logInNewbie(self)
+    
+    org = Organization.objects.get(pk = 1)
+    self.assertEqual(0, GrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
+    self.assertFalse(org.mission)
+    
+
+    budget =  open('sjfnw/grants/fixtures/test_grants_guide.txt')
+    form_data['budget'] = budget
+    funding_sources =  open('sjfnw/static/grant_app/funding_sources.doc')
+    form_data['funding_sources'] = funding_sources
+    demographics = open('sjfnw/static/css/admin.css')
+    form_data['demographics'] = demographics
+
+    response = self.client.post('/apply/1/', form_data, follow=True)
+    budget.close()
+    funding_sources.close()
+    demographics.close()
+    
+    #form = response.context['form']
+    #print(form.errors)
+    org = Organization.objects.get(pk = 1)
+    self.assertTemplateUsed(response, 'grants/submitted.html')
+    self.assertEqual(org.mission, u'A kmission statement of some importance!')
+    self.assertEqual(1, GrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
+    """
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class DraftTests(TestCase):
+
+  def discard(self):
+    pass
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class HomePageTests(TestCase):
+  
+  """ Viewing data on the home page
+        submitted apps sorting
+        display of submitted, drafts, past-due drafts
+        display/sorting of cycles"""
+  def load_home_page(self):
+    pass
 
 """ TESTS TO DO
     
