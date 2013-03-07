@@ -228,7 +228,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       return render(request, 'grants/closed.html', {'cycle':cycle})
 
     #try to determine initial load - cheaty way
-    if not referer.find('copy') != -1 and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
+    if (referer and not referer.find('copy') != -1) and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
       profiled = True
     
     """fill in fkeys TODO handle this on post
