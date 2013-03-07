@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore
-from forms import LoginForm, RegisterForm, GrantApplicationFormy
+from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationFormy
 from decorators import registered_org
 from sjfnw import fund
 import models, utils
@@ -20,6 +20,7 @@ import datetime, logging, json, re, quopri
 
 # CONSTANTS
 LOGIN_URL = '/apply/login/'
+APP_FILE_FIELDS = ['budget', 'demographics', 'funding_sources', 'fiscal_letter', 'budget1', 'budget2', 'budget3', 'project_budget_file']
 
 # PUBLIC ORG VIEWS
 def OrgLogin(request):
@@ -51,7 +52,7 @@ def OrgRegister(request):
       username_email = request.POST['email'].lower()
       password = request.POST['password']
       org = request.POST['organization']
-     #check org already registered
+      #check org already registered
       if models.Organization.objects.filter(name=org) or models.Organization.objects.filter(email=username_email):
         register_error = 'That organization is already registered. Log in instead.'
         logging.warning(org + 'tried to re-register under ' + username_email)
@@ -148,13 +149,12 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   #get or create draft
   draft, cr = models.DraftGrantApplication.objects.get_or_create(organization = organization, grant_cycle=cycle)
   profiled = False
-  
-  #check if draft can be submitted
-  if not draft.editable:
-    return render(request, 'grants/closed.html', {'cycle':cycle})
 
   if request.method == 'POST': #POST
 
+    #check if draft can be submitted
+    if not draft.editable:
+      render(request, 'grants/submitted_closed.html', {'cycle':cycle})
     #get files from draft
     files_data = model_to_dict(draft, fields = ['fiscal_letter', 'budget', 'demographics', 'funding_sources'])
     
@@ -223,8 +223,12 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       dict = json.loads(draft.contents)
       logging.debug('Loading draft: ' + str(dict))
     
+    #check if draft can be submitted
+    if not draft.editable:
+      return render(request, 'grants/closed.html', {'cycle':cycle})
+
     #try to determine initial load - cheaty way
-    if organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
+    if not referer.find('copy') != -1 and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
       profiled = True
     
     #fill in fkeys TODO handle this on post
@@ -236,20 +240,17 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     form = models.GrantApplicationForm(initial=dict)
 
   #get draft files
-  files = {'pk': draft.pk}
-  name = str(draft.budget).split('/')[-1]
-  files['budget'] = name
-  name = str(draft.demographics).split('/')[-1]
-  files['demographics'] = name
-  name = str(draft.funding_sources).split('/')[-1]
-  files['funding_sources'] = name
-  name = str(draft.fiscal_letter).split('/')[-1]
-  files['fiscal_letter'] = name
-  logging.info('Files dict: ' + str(files))
   file_urls = utils.GetFileURLs(draft)
+  for field, url in file_urls.iteritems():
+    if url:
+      name = str(getattr(draft, field)).split('/')[-1]
+      short_name = name[:40] + (name[40:] and '..') #stackoverflow'd truncate
+      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + short_name + '</a>'
+    else:
+      file_urls[field] = '<i>no file uploaded</i>'
 
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'files':files, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
+  {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
 
 def TestApply(request):
   form = GrantApplicationFormy()
@@ -277,18 +278,11 @@ def AddFile(request, draft_id):
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   logging.info('AddFile called: ' + str(request.FILES.lists()))
   msg = False
-  if request.FILES.get('budget'):
-    draft.budget = request.FILES['budget']
-    msg = 'budget'
-  elif request.FILES.get('demographics'):
-    draft.demographics = request.FILES['demographics']
-    msg = 'demographics'
-  elif request.FILES.get('funding_sources'):
-    draft.funding_sources = request.FILES['funding_sources']
-    msg = 'funding_sources'
-  elif request.FILES.get('fiscal_letter'):
-    draft.fiscal_letter = request.FILES['fiscal_letter']
-    msg = 'fiscal_letter'
+  for key in request.FILES:
+    if request.FILES[key]:
+      setattr(draft, key, request.FILES[key])
+      msg = key
+      break
   draft.save()
   if not msg:
     return HttpResponse("ERRORRRRRR")
@@ -296,7 +290,7 @@ def AddFile(request, draft_id):
   name = str(name).split('/')[-1]
   
   file_urls = utils.GetFileURLs(draft)
-  content = msg + '~~<a href="' + file_urls[msg] + '">' + name + '</a>'
+  content = msg + '~~<a href="' + file_urls[msg] + '" target="_blank">' + name + '</a>'
   logging.info("AddFile returning: " + content)
   return HttpResponse(content)
 
@@ -304,6 +298,72 @@ def RefreshUploadUrl(request, draft_id):
   """ Get a blobstore url for uploading a file """
   upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file')
   return HttpResponse(upload_url)
+
+# COPY / DELETE APPS
+@login_required(login_url=LOGIN_URL)
+@registered_org()
+def CopyApp(request, organization):
+  
+  if request.method == 'POST':
+    form = RolloverForm(organization, request.POST)
+    if form.is_valid():
+      new_cycle = form.cleaned_data.get('cycle')
+      draft = form.cleaned_data.get('draft')
+      app = form.cleaned_data.get('application')
+     
+      #get cycle
+      try:
+        cycle = models.GrantCycle.objects.get(pk = int(new_cycle))
+      except models.GrantCycle.DoesNotExist:
+        logging.error('CopyApp GrantCycle ' + new_cycle + ' not found')
+
+      #get app/draft and its contents (json format for draft)
+      if app:
+        try:
+          application = models.GrantApplication.objects.get(pk = int(app))
+          content = json.dumps(model_to_dict(application, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question']))
+        except models.GrantApplication.DoesNotExist:
+          logging.error('CopyApp - submitted app ' + app + ' not found')
+      elif draft:
+        try:
+          application = models.DraftGrantApplication.objects.get(pk = int(draft))
+          content = application.contents
+          logging.info(content)
+          if content['cycle_question']:
+            logging.info('Removing extra q')
+            content['cycle_question'] = ''
+          logging.info(content)
+        except models.DraftGrantApplication.DoesNotExist:
+          logging.error('CopyApp - draft ' + app + ' not found')
+      else:
+        logging.error("CopyApp no draft or app...")
+      
+      #make sure the combo does not exist already
+      new_draft, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
+      if not cr:
+        logging.error("CopyApp the combo already exists!?")
+        return HttpResponse("Error")
+      
+      #set contents & files
+      new_draft.contents = content
+      for field in APP_FILE_FIELDS:
+        setattr(new_draft, field, getattr(application, field))
+      new_draft.save()
+      logging.info("CopyApp -- content and files set")
+      
+      return redirect('/apply/' + new_cycle)
+
+    else: #INVALID FORM
+      logging.warning('form invalid')
+  
+  else: #GET
+    form = RolloverForm(organization)
+    cycle_count = str(form['cycle']).count('<option value')
+    apps_count = str(form['application']).count('<option value') + str(form['draft']).count('<option value')
+    logging.info(cycle_count)
+    logging.info(apps_count)    
+  
+  return render(request, 'grants/org_app_copy.html', {'form':form, 'cycle_count':cycle_count, 'apps_count':apps_count})
 
 def DiscardFile(request, filefield):
   """ Takes the string stored in the django file field
@@ -351,15 +411,14 @@ def RedirToApply(request):
 
 def AppToDraft(request, app_id):
 
-  submitted_app = get_object_or_404(models.GrantApplication, pk = app_id).select_related('organization', 'grant_cycle')
+  submitted_app = get_object_or_404(models.GrantApplication, pk = app_id)
   organization = submitted_app.organization
   grant_cycle = submitted_app.grant_cycle
 
   if request.method == 'POST':
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
-    content = model_to_dict(submitted_app, exclude = ['budget', 'demographics', 'funding_sources', 'fiscal_letter', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo'])
-    draft.contents = content
+    draft.contents = json.dumps(model_to_dict(submitted_app, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo']))
     draft.budget = submitted_app.budget
     draft.demographics = submitted_app.demographics
     draft.fiscal_letter = submitted_app.fiscal_letter
@@ -368,8 +427,6 @@ def AppToDraft(request, app_id):
     logging.info('Reverted to draft, draft id ' + str(draft.pk))
     #delete app
     submitted_app.delete()
-    msg.send()
-    logging.info("Email sent to " + to + "regarding draft application re-opened")
     #redirect to draft page
     return redirect('/admin/grants/draftgrantapplication/'+str(draft.pk)+'/')
   #GET
@@ -377,11 +434,17 @@ def AppToDraft(request, app_id):
 
 # CRON
 def DraftWarning(request):
+  """ Warns of impending draft freeze
+  Do not change cron sched -- it depends on running only once/day
+  7 day warning if created 7+ days before close, otherwise 3 day warning """
+  
   drafts = models.DraftGrantApplication.objects.all()
+  now = timezone.now()
+
   for draft in drafts:
     time_left = draft.grant_cycle.close - timezone.now()
-    logging.debug('Time left: ' + str(time_left))
-    if datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3):
+    created_offset = draft.grant_cycle.close - draft.created
+    if (created_offset > eight and eight > time_left > datetime.timedelta(days=7)) or (created_offset < eight and datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3)):
       subject, from_email = 'Grant cycle closing soon', settings.GRANT_EMAIL
       to = draft.organization.email
       html_content = render_to_string('grants/email_draft_warning.html', {'org':draft.organization, 'cycle':draft.grant_cycle})

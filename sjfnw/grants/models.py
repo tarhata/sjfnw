@@ -51,7 +51,7 @@ class Organization(models.Model):
   fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address', max_length=70, null=True, blank=True)
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
-  fiscal_letter = models.FileField(upload_to='/%Y/', null=True,blank=True)
+  fiscal_letter = models.FileField(upload_to='/', null=True,blank=True)
    
   def __unicode__(self):
     return self.name
@@ -66,7 +66,7 @@ class GrantCycle(models.Model):
   open = models.DateTimeField()
   close = models.DateTimeField()
   extra_question = models.TextField(blank=True)
-  info_page = models.URLField(blank=True)
+  info_page = models.URLField()
   email_signature = models.TextField(blank=True)
   conflicts = models.TextField(blank=True, help_text="Track any conflicts of interest (automatic & personally declared) that occurred during this cycle.")
   
@@ -90,14 +90,19 @@ class DraftGrantApplication(models.Model):
   
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
+  created = models.DateTimeField(auto_now=True)
   modified = models.DateTimeField(auto_now=True)
   
   contents = models.TextField()
   
-  budget = models.FileField(upload_to='draft/', max_length=255)
-  demographics = models.FileField(upload_to='draft/', max_length=255)
-  funding_sources = models.FileField(upload_to='draft/', max_length=255)
-  fiscal_letter = models.FileField(upload_to='draft/', max_length=255)
+  budget = models.FileField(upload_to='/', max_length=255)
+  demographics = models.FileField(upload_to='/', max_length=255)
+  funding_sources = models.FileField(upload_to='/', max_length=255)
+  fiscal_letter = models.FileField(upload_to='/', max_length=255)
+  budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement')
+  budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating')
+  budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet')
+  project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget')
   
   extended_deadline = models.DateTimeField(help_text = 'Allows this draft to be edited/submitted past the grant cycle close.', blank=True, null=True)
 
@@ -105,7 +110,7 @@ class DraftGrantApplication(models.Model):
     return u'DRAFT - ' + self.organization.name + u' - ' + self.grant_cycle.title
   
   def overdue(self):
-    return self.grant_cycle.close >= timezone.now()
+    return self.grant_cycle.close <= timezone.now()
 
   def editable(self):
     deadline = self.grant_cycle.close
@@ -226,7 +231,7 @@ class GrantApplication(models.Model):
   fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address', max_length=70, null=True, blank=True)
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
-  fiscal_letter = models.FileField(upload_to='%Y/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255)
+  fiscal_letter = models.FileField(upload_to='/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255)
   
   #narrative
   narrative1 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
@@ -259,10 +264,13 @@ class GrantApplication(models.Model):
   racial_justice_ref2_email = models.EmailField(verbose_name='Email', blank=True) 
   
   #files
-  budget = models.FileField(upload_to='%Y/', max_length=255)
-  demographics = models.FileField(upload_to='%Y/', max_length=255)
-  funding_sources = models.FileField(upload_to='%Y/', max_length=255)
-  #timeline?
+  budget = models.FileField(upload_to='/', max_length=255)
+  demographics = models.FileField(upload_to='/', max_length=255)
+  funding_sources = models.FileField(upload_to='/', max_length=255)
+  budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement')
+  budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating')
+  budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet')
+  project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget')
   
   #admin fields
   screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
@@ -306,6 +314,10 @@ class GrantApplicationForm(ModelForm):
       'demographics': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
       'funding_sources': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
       'fiscal_letter': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget1': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget2': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget3': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'project_budget_file': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
     }
   
   def __init__(self, *args, **kwargs):

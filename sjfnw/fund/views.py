@@ -340,7 +340,7 @@ def Register(request):
         logging.info('Registration - user and member objects created for ' + username_email)
         if gp: #create Membership
           giv = models.GivingProject.objects.get(pk=gp)
-          membership = models.Membership.objects(member = member, giving_project = giv)
+          membership = models.Membership(member = member, giving_project = giv)
           membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant. I\'ll be here to guide you through the fundraising process and cheer you on.</td><td><img src="/static/images/odo1.png" height=88 width=54></td></tr></table>'
           membership.save()
           member.current = membership.pk
