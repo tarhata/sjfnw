@@ -113,6 +113,58 @@ class GrantApplicationFormy(forms.Form):
   demographics = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   funding_sources = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   fiscal_letter = forms.FileField(required=False, label = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255, widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  
+  def __init__(self, *args, **kwargs):
+    super(GrantApplicationFormy, self).__init__(*args, **kwargs)
+    for key in self.fields:
+      self.fields[key].label = addCssLabel(self.fields[key].label)
+      
+  def clean(self):
+    cleaned_data = super(GrantApplicationForm, self).clean()
+    
+    #collab refs - require phone or email
+    phone = cleaned_data.get('collab_ref1_phone')
+    email = cleaned_data.get('collab_ref1_email')
+    if not phone and not email:
+       self._errors["collab_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
+    phone = cleaned_data.get('collab_ref2_phone')
+    email = cleaned_data.get('collab_ref2_email')
+    if not phone and not email:
+       self._errors["collab_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
+    
+    #racial justice refs - require full set if any
+    name = cleaned_data.get('racial_justice_ref1_name')
+    org = cleaned_data.get('racial_justice_ref1_org')
+    phone = cleaned_data.get('racial_justice_ref1_phone')
+    email = cleaned_data.get('racial_justice_ref1_email')
+    if name or org or phone or email:
+      if not name:
+        self._errors["racial_justice_ref1_name"] = '<div class="form_error">Enter a contact person.</div>'
+      if not org:
+        self._errors["racial_justice_ref1_org"] = '<div class="form_error">Enter the organization name.</div>'
+      if not phone and not email:
+        self._errors["racial_justice_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
+    name = cleaned_data.get('racial_justice_ref2_name')
+    org = cleaned_data.get('racial_justice_ref2_org')
+    phone = cleaned_data.get('racial_justice_ref2_phone')
+    email = cleaned_data.get('racial_justice_ref2_email')
+    if name or org or phone or email:
+      if not name:
+        self._errors["racial_justice_ref2_name"] = '<div class="form_error">Enter a contact person.</div>'
+      if not org:
+        self._errors["racial_justice_ref2_org"] = '<div class="form_error">Enter the organization name.</div>'
+      if not phone and not email:
+        self._errors["racial_justice_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'    
+    
+    #require cycle question if given
+    cycle = cleaned_data.get('grant_cycle')
+    answer = cleaned_data.get('cycle_question')
+    logging.info(cycle.extra_question)
+    logging.info(answer)
+    if cycle.extra_question and not answer:
+      logging.info('Missing answer')
+      self._errors["cycle_question"] = '<div class="form_error">This field is required.</div>'
+      
     return cleaned_data
 
 class RolloverForm(forms.Form):

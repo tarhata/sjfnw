@@ -188,7 +188,7 @@ class GrantApplication(models.Model):
   """ Submitted grant application """
   
   #automated fields
-  submission_time = models.DateTimeField(auto_now_add=True, verbose_name='Submitted')
+  submission_time = models.DateTimeField(default=timezone.now(), verbose_name='Submitted')
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
   
