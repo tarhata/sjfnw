@@ -830,7 +830,7 @@ def GiftNotify(request):
     for d in dlist:
       gift_str += 'Gift of $'+str(d.gifted)+' received from '+d.firstname
       if d.lastname:
-        gift_str += ' '+donor.lastname
+        gift_str += ' '+d.lastname
       gift_str += '!<br>'
     ship.notifications = '<table><tr><td>' + gift_str + '</td><td><img src="/static/images/odo2.png" height=86 width=176></td></tr></table>'
     ship.save()
