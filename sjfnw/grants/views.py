@@ -157,31 +157,57 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       render(request, 'grants/submitted_closed.html', {'cycle':cycle})
     
     #get files from draft
-    files_data = model_to_dict(draft, fields = ['fiscal_letter', 'budget', 'demographics', 'funding_sources'])
+    files_data = model_to_dict(draft, fields = APP_FILE_FIELDS)
+    #logging.info('========= Files data: ' + str(files_data))
     
     #get other fields from draft
-    post_data = json.loads(draft.contents)
-    logging.info(post_data)
+    draft_data = json.loads(draft.contents)
+    #logging.info('========= Draft data: ' + unicode(draft_data))
     
     #submit form
-    form = GrantApplicationFormy(cycle, post_data, files_data)
+    form = GrantApplicationFormy(cycle, draft_data, files_data)
         
     if form.is_valid(): #VALID SUBMISSION
-      logging.info('Application form valid')
+      logging.info('========= Application form valid')
+      form_data = form.cleaned_data
       
       #save as GrantApplication object
       application = models.GrantApplication(organization = organization, grant_cycle = cycle)
-      #to do -- timeline
-      for name, value in form.cleaned_data.iteritems():
+      
+      #get the timeline
+      logging.info('Getting timeline from ' + unicode(form_data))
+      prefix = 'timeline_'
+      suffixes = ['_date', '_activies', '_goals']
+      timeline = '<table><tr><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
+      for i in range(1, 5):
+        timeline += '<tr><th>q' + unicode(i) + '</th>'
+        for suffix in suffixes:
+          timeline += '<td>'
+          value = form_data.get(prefix + unicode(i) + suffix)
+          if value is None:
+            value = ''
+          else:
+            del form_data[prefix + unicode(i) + suffix]
+          timeline += value
+          timeline += '</td>'
+        timeline += '</tr>'
+      timeline += '</table>'
+      #logging.info('Timeline is: ' + timeline)
+      form_data['timeline'] = timeline
+      #logging.info('Data is: ' + unicode(form_data))
+      
+      
+      for name, value in form_data.iteritems():
+        #better to use cleaned_data than draft bc it has the correct types (not all unicode)
         setattr(application, name, value)
-        logging.info(name + ' set to -- ' + str(value))
+        logging.info(name + ' set to -- ' + unicode(value))
       for name in files_data:
         setattr(application, name, getattr(draft, name))
         logging.info(name + ' -- from draft')
       application.save()
 
       #update org profile
-      form2 = models.OrgProfile(post_data, instance=organization)
+      form2 = models.OrgProfile(draft_data, instance=organization)
       if form2.is_valid():
         form2.save()
         if files_data.get('fiscal_letter'):
@@ -423,10 +449,8 @@ def AppToDraft(request, app_id):
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
     draft.contents = json.dumps(model_to_dict(submitted_app, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo']))
-    draft.budget = submitted_app.budget
-    draft.demographics = submitted_app.demographics
-    draft.fiscal_letter = submitted_app.fiscal_letter
-    draft.funding_sources = submitted_app.funding_sources
+    for field in APP_FILE_FIELDS:
+      setattr(draft, field, getattr(submitted_app, field))
     draft.save()
     logging.info('Reverted to draft, draft id ' + str(draft.pk))
     #delete app
