@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore
-from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationFormy
+from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm
 from decorators import registered_org
 from sjfnw import fund
 import models, utils
@@ -165,7 +165,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     #logging.info('========= Draft data: ' + unicode(draft_data))
     
     #submit form
-    form = GrantApplicationFormy(cycle, draft_data, files_data)
+    form = GrantApplicationForm(cycle, draft_data, files_data)
         
     if form.is_valid(): #VALID SUBMISSION
       logging.info('========= Application form valid')
@@ -195,7 +195,6 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       #logging.info('Timeline is: ' + timeline)
       form_data['timeline'] = timeline
       #logging.info('Data is: ' + unicode(form_data))
-      
       
       for name, value in form_data.iteritems():
         #better to use cleaned_data than draft bc it has the correct types (not all unicode)
@@ -267,7 +266,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     dict['screening_status'] = 10"""
 
     #create form
-    form = GrantApplicationFormy(cycle, initial=dict)
+    form = GrantApplicationForm(cycle, initial=dict)
 
   #get draft files
   file_urls = utils.GetFileURLs(draft)
@@ -283,7 +282,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
 
 def TestApply(request):
-  form = GrantApplicationFormy()
+  form = GrantApplicationForm()
   return render(request, 'grants/file_upload.html', {'form':form})
 
 @login_required(login_url=LOGIN_URL)
@@ -420,7 +419,7 @@ def DiscardDraft(request, organization, draft_id):
 def ViewApplication(request, app_id):
   user = request.user
   app = get_object_or_404(models.GrantApplication, pk=app_id)
-  form = models.GrantApplicationForm(instance = app)
+  form = GrantApplicationForm(app.grant_cycle)
   #set up doc viewer for applicable files
   file_urls = utils.GetFileURLs(app)
 

@@ -34,10 +34,7 @@ def validate_file_extension(value):
   if not str(value).lower().split(".")[-1] in settings.ALLOWED_FILE_TYPES:
     raise ValidationError(u'That file type is not supported.')
 
-def addCssLabel(label_text):
-  return u'<span class="label">' + (label_text or '') + u'</span>'
-
-class GrantApplicationFormy(forms.Form):
+class GrantApplicationForm(forms.Form):
   """ Grant application form"""
   
   #contact info
@@ -129,8 +126,8 @@ class GrantApplicationFormy(forms.Form):
   racial_justice_ref2_email = forms.EmailField(label='Email', required=False) 
   
   #files
-  demographics = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
-  funding_sources = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  demographics = forms.FileField(label = 'Diversity chart', max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  funding_sources = forms.FileField(label = 'Funding sources', max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   fiscal_letter = forms.FileField(required=False, label = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255, widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   budget = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
   budget1 = forms.FileField(max_length=255, label = 'Annual statement', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
@@ -139,13 +136,13 @@ class GrantApplicationFormy(forms.Form):
   project_budget_file = forms.FileField(max_length=255, label = 'Project budget', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
   
   def __init__(self, cycle, *args, **kwargs):
-    super(GrantApplicationFormy, self).__init__(*args, **kwargs)
+    super(GrantApplicationForm, self).__init__(*args, **kwargs)
     if cycle and cycle.extra_question:
       self.fields['cycle_question'].required = True
       logging.info('Requiring the cycle question')
       
   def clean(self):
-    cleaned_data = super(GrantApplicationFormy, self).clean()
+    cleaned_data = super(GrantApplicationForm, self).clean()
     logging.info('========= form clean method, data is: ' + str(cleaned_data))
     
     #project - require title & budget if type

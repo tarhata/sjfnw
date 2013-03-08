@@ -2,7 +2,8 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect, render_to_response
 from sjfnw.fund.decorators import approved_membership
-from sjfnw.grants.models import GrantApplication, GrantApplicationForm
+from sjfnw.grants.models import GrantApplication
+from sjfnw.grants.forms import GrantApplicationForm
 import sjfnw.fund.models
 import logging
 
