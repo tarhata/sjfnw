@@ -85,14 +85,28 @@ class GrantApplicationFormy(forms.Form):
   narrative2 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[2])], label =  mark_safe(models.NARRATIVE_TEXTS[2]), widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[2]) + ')'}))
   narrative3 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[3])], label =  mark_safe(models.NARRATIVE_TEXTS[3]), widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[3]) + ')'}))
   narrative4 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[4])], label =  mark_safe(models.NARRATIVE_TEXTS[4]), widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[4]) + ')'}))
-  #timeline?
-
   narrative5 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[5])], label =  mark_safe(models.NARRATIVE_TEXTS[5]), widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[5]) + ')'}))
-
   narrative6 = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[6])], label =  mark_safe(models.NARRATIVE_TEXTS[6]), widget= forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[6]) + ')'}))
   cycle_question = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[7])], required=False, widget=forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[7]) + ')'}))
   
-  #references
+  #timeline (goes after narrative 4)
+  timeline_1_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'2', 'cols':'25'}))
+  timeline_1_activities = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}))
+  timeline_1_goals = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}))
+  timeline_2_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'2', 'cols':'25'}), required=False)
+  timeline_2_activities = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
+  timeline_2_goals = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
+  timeline_3_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'2', 'cols':'25'}), required=False)
+  timeline_3_activities = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
+  timeline_3_goals = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
+  timeline_4_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'2', 'cols':'25'}), required=False)
+  timeline_4_activities = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
+  timeline_4_goals = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
+  timeline_5_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'2', 'cols':'25'}), required=False)
+  timeline_5_activities = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
+  timeline_5_goals = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
+  
+  #collab references (after narrative 5)
   collab_ref1_name = forms.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.', label='Name', max_length = 150)
   collab_ref1_org = forms.CharField(label='Organization', max_length = 150)
   collab_ref1_phone = forms.CharField(label='Phone number',  max_length = 20, required=False)
@@ -103,6 +117,7 @@ class GrantApplicationFormy(forms.Form):
   collab_ref2_phone = forms.CharField(label='Phone number',  max_length = 20, required=False)
   collab_ref2_email = forms.EmailField(label='Email', required=False)
   
+  #racial justice references (after narrative 6)
   racial_justice_ref1_name = forms.CharField(help_text='If you are a primarily white-led organization, also describe how you work as an ally to communities of color. Be as specific as possible, and list at least one organization led by people of color that we can contact as a reference for your racial justice work.', label='Name', max_length = 150, required=False)
   racial_justice_ref1_org = forms.CharField(label='Organization', max_length = 150, required=False)
   racial_justice_ref1_phone = forms.CharField(label='Phone number', max_length = 20, required=False)
@@ -131,6 +146,7 @@ class GrantApplicationFormy(forms.Form):
       
   def clean(self):
     cleaned_data = super(GrantApplicationFormy, self).clean()
+    logging.info('========= form clean method, data is: ' + str(cleaned_data))
     
     #project - require title & budget if type
     support_type = cleaned_data.get('support_type')
