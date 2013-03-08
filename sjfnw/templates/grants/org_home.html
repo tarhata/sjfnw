@@ -20,6 +20,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 		<tr>
 		{% if save.editable %}
 		<td><li>{{save.grant_cycle}}</li></td>
+		<td>{% if save.grant_cycle.info_page %}<a href="{{save.grant_cycle.info_page}}" target="_blank">cycle info</a></td>
 		<td><a href="{% url grants.views.Apply save.grant_cycle.pk %}">edit draft</a></td>
 		<td>modified {{save.modified|date:"n/j g:iA"|lower}}</td>
 		<td>due {{save.grant_cycle.close|date:"n/j g:iA"|lower}}</td>
@@ -63,7 +64,8 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 {% if open or applied %}
 	<table class="list">
   {% for ope in open %}
-		<tr><td><li>{% if ope.info_page %}<a href="/apply/info/{{ope.pk}}" target="_blank">{{ope}}</a>{% else %}{{ope}}{% endif %}</li></td>
+		<tr><li>{{ope}}</li></td>
+		<td>{% if ope.info_page %}<a href="/apply/info/{{ope.pk}}" target="_blank">cycle info</a>{% endif %}</td>
 		<td><b><a href="{% url grants.views.Apply ope.pk %}">apply</a></b></td>
 		<td>closes {{ope.close|date:"n/j/y"}}</a></td>
 		</tr>

@@ -275,7 +275,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     if url:
       name = str(getattr(draft, field)).split('/')[-1]
       short_name = name[:40] + (name[40:] and '..') #stackoverflow'd truncate
-      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + short_name + '</a>'
+      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + short_name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
     else:
       file_urls[field] = '<i>no file uploaded</i>'
 
@@ -320,14 +320,15 @@ def AddFile(request, draft_id):
   name = str(name).split('/')[-1]
   
   file_urls = utils.GetFileURLs(draft)
-  content = msg + '~~<a href="' + file_urls[msg] + '" target="_blank">' + name + '</a>'
+  content = msg + '~~<a href="' + file_urls[msg] + '" target="_blank">' + name + '</a> [<a onclick="removeFile(\'' + msg + '\');">remove</a>]'
   logging.info("AddFile returning: " + content)
   return HttpResponse(content)
 
 def RemoveFile(request, draft_id, file_field):
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   if hasattr(draft, file_field):
-    setattr(draft, file_field, ''):
+    setattr(draft, file_field, '')
+    draft.save()
   else:
     logging.error('Tried to remove non-existent field: ' + file_field)
   return HttpResponse('success')

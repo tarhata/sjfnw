@@ -125,7 +125,7 @@ function removeFile(field_name) {
 		url: '/apply/{{draft.pk}}/remove/' + field_name,
 		success: function(data) {
 			r_span = document.getElementById(field_name + '_uploaded');
-			r_span.innerHTML = '<i>no file uploaded</i>;
+			r_span.innerHTML = '<i>no file uploaded</i>';
 		},
 	});
 }
@@ -452,7 +452,7 @@ $(document).ready(function() {
 				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
 				<td>{{form.fiscal_letter.errors}}</td>
 				<td>{{form.fiscal_letter}}</td>
-				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span> [<a href="#" onclick="removeFile('fiscal_letter');">remove</a>]</td>
+				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
 			</tr>
 		</table>
 		{% endautoescape %}
