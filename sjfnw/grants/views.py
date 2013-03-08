@@ -177,7 +177,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       #get the timeline
       logging.info('Getting timeline from ' + unicode(form_data))
       prefix = 'timeline_'
-      suffixes = ['_date', '_activies', '_goals']
+      suffixes = ['_date', '_activities', '_goals']
       timeline = '<table id="timeline"><tr><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
       for i in range(1, 5):
         timeline += '<tr><th>q' + unicode(i) + '</th>'
@@ -260,11 +260,6 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     # 1) if referer, make sure it wasn't from copy 2) check for mission from profile 3) make sure grant request is not there (since it's not in prof)
     if not (referer and referer.find('copy') != -1) and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
       profiled = True
-    
-    """fill in fkeys TODO handle this on post
-    dict['organization'] = organization
-    dict['grant_cycle'] = cycle
-    dict['screening_status'] = 10"""
 
     #create form
     form = GrantApplicationForm(cycle, initial=dict)
