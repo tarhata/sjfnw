@@ -114,10 +114,10 @@ class GrantApplicationFormy(forms.Form):
   racial_justice_ref2_email = forms.EmailField(label='Email', required=False) 
   
   #files
-  budget = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   demographics = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   funding_sources = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   fiscal_letter = forms.FileField(required=False, label = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255, widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  budget = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
   budget1 = forms.FileField(max_length=255, label = 'Annual statement', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
   budget2 = forms.FileField(max_length=255, label = 'Annual operating', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
   budget3 = forms.FileField(max_length=255, label = 'Balance sheet', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
@@ -132,6 +132,58 @@ class GrantApplicationFormy(forms.Form):
   def clean(self):
     cleaned_data = super(GrantApplicationFormy, self).clean()
     
+    #project - require title & budget if type
+    support_type = cleaned_data.get('support_type')
+    if support_type == 'Project support':
+      if not cleaned_data.get('project_budget'):
+        self._errors["project_budget"] = '<div class="form_error">This field is required.</div>'
+      if not cleaned_data.get('project_title'):
+        self._errors["project_title"] = '<div class="form_error">This field is required.</div>'
+
+    #budget files - require all-in-one or full set
+    budget = cleaned_data.get('budget')
+    b1 = cleaned_data.get('budget1')
+    b2 = cleaned_data.get('budget2')
+    b3 = cleaned_data.get('budget3')
+    if not budget:
+      if not (b1 or b2 or b3): #no budget files entered at all
+        self._errors["budget"] = '<div class="form_error">Budget documents are required. You may upload them as one file or as multuple files.</div>'
+      else: #some files uploaded
+        if not b1:
+          self._errors["budget1"] = '<div class="form_error">This field is required.</div>'
+        if not b2:
+          self._errors["budget2"] = '<div class="form_error">This field is required.</div>'
+        if not b3:
+          self._errors["budget3"] = '<div class="form_error">This field is required.</div>'
+      #require project budget if applicable and if not all-in-one
+      if (support_type == 'Project support') and not cleaned_data.get('project_budget_file'):
+         self._errors["project_budget_file"] = '<div class="form_error">This field is required.</div>'
+    """
+    elif b1 or b2 or b3: #all-in-one included + other file(s)
+      self._errors["budget"] = '<div class="form_error">Budget documents are required. You may upload them as one file or as multuple files.</div>'
+    """      
+
+    #fiscal info/file - require all if any
+    org = cleaned_data.get('fiscal_org')
+    person = cleaned_data.get('fiscal_person')
+    phone = cleaned_data.get('fiscal_telephone')
+    email = cleaned_data.get('fiscal_email')
+    address = cleaned_data.get('fiscal_address')
+    file = cleaned_data.get('fiscal_letter')
+    if (org or person or phone or email or address):
+      if not org:
+        self._errors["fiscal_org"] = '<div class="form_error">This field is required.</div>'
+      if not person:
+        self._errors["fiscal_person"] = '<div class="form_error">This field is required.</div>'
+      if not phone:
+        self._errors["fiscal_telephone"] = '<div class="form_error">This field is required.</div>'
+      if not email:
+        self._errors["fiscal_email"] = '<div class="form_error">This field is required.</div>'
+      if not address:
+        self._errors["fiscal_address"] = '<div class="form_error">This field is required.</div>'
+      if not file:
+        self._errors["fiscal_letter"] = '<div class="form_error">This field is required.</div>'
+
     #collab refs - require phone or email
     phone = cleaned_data.get('collab_ref1_phone')
     email = cleaned_data.get('collab_ref1_email')
