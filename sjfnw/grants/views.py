@@ -178,7 +178,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       logging.info('Getting timeline from ' + unicode(form_data))
       prefix = 'timeline_'
       suffixes = ['_date', '_activies', '_goals']
-      timeline = '<table><tr><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
+      timeline = '<table id="timeline"><tr><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
       for i in range(1, 5):
         timeline += '<tr><th>q' + unicode(i) + '</th>'
         for suffix in suffixes:

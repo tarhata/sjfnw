@@ -159,17 +159,17 @@ span.char_counter_over {
 
 /* timeline */
 
-table#timeline {
+table#timeline_form {
   margin-top:10px;
   border-spacing:0;
   width:100%;
 }
 
-table#timeline th {
+table#timeline_form th {
   font-weight:normal
 }
 
-table#timeline tr.heading th{
+table#timeline_form tr.heading th{
   padding-bottom:2px;
 }
 
@@ -231,7 +231,24 @@ button#apply-now {
 
 /* grant reading */
 
-div.label {
-	display:inline;
-	font-weight:bold;
+div#formreader label{
+  text-decoration:underline;  
 }
+
+div#formreader table tr td{
+  padding-top:5px;
+  padding-bottom:5px;
+}
+
+table#timeline {
+  margin:auto;
+}
+
+table#timeline th {
+  font-weight:normal
+}
+
+table#timeline td{
+  padding:5px;
+}
+

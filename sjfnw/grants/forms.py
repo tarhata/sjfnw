@@ -64,7 +64,7 @@ class GrantApplicationForm(forms.Form):
   contact_person = forms.CharField(max_length=250, label= 'Name', help_text='Contact person for this grant application:')
   contact_person_title = forms.CharField(max_length=100, label='Title')
   grant_period = forms.CharField(max_length=250, required=False, label='Grant period (if different than fiscal year)')
-  amount_requested = IntegerCommaField(label='Amount requested $')
+  amount_requested = IntegerCommaField(label='Amount requested')
   support_type = forms.ChoiceField(choices=models.SUPPORT_CHOICES)
   project_title = forms.CharField(max_length=250,label='Project title (if applicable)', required=False)
   project_budget = IntegerCommaField(label='Project budget (if applicable)', required=False)
