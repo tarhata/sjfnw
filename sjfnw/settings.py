@@ -9,11 +9,11 @@ if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.geten
     'default': {
       'ENGINE': 'google.appengine.ext.django.backends.rdbms',
       'INSTANCE': 'sjf-northwest:sjf',
-      'NAME': 'sjfdb',
+      'NAME': 'sjf_devel',
     }
   }
   DEBUG = False
-  APP_BASE_URL = 'https://sjf-nw.appspot.com/' #until i learn how to do this
+  APP_BASE_URL = 'http://devel.sjf-nw.appspot.com/' #until i learn how to do this
 else:
   DATABASES = {
     'default': {
@@ -21,7 +21,7 @@ else:
       'USER': 'root',
       'PASSWORD': 'SJFdb',
       'HOST': 'localhost',
-      'NAME': 'sjfdb',
+      'NAME': 'sjf_devel',
     }
   }
   DEBUG = True
