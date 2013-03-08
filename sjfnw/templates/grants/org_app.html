@@ -368,16 +368,13 @@ $(document).ready(function() {
 		Templates for the budget, funding sources and diversity chart can be downloaded above.  For the budget, you may use your own format if preferred.</p>
 		<table id="file_upload_table" style="width:100%;">
 			<tr>
-				<td colspan="4">{{form.budget.errors}}</td>
-			</tr>
-			<tr>
 				<td style="width:150px;vertical-align:top;">1. Budget</td>
 				<td style="width:175px;">All in one file</td>
 				<td style="width:100px;">{{form.budget}}</td>
 				<td style="width:350px;"><span id="budget_uploaded">{{file_urls.budget}}</span></td>
 			</tr><tr style="line-height:2em;">
-				<td></td>
 				<td>{{form.budget.errors}}</td>
+				<td></td>
 				<td><div align="center">OR</div></td>
 				<td></td>
 			</tr><tr>
