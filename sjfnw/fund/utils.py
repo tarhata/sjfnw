@@ -29,7 +29,8 @@ def UpdateStory(membership_id, time):
     story = models.NewsItem(date = time, membership=membership, summary = '')
 
   #tally today's steps
-  steps = models.Step.objects.filter(completed__range=(today_min, today_max)).select_related('donor')
+  logging.debug("Getting steps:")
+  steps = models.Step.objects.filter(completed__range=(today_min, today_max), donor__membership = membership).select_related('donor')
   talked, asked, pledges, pledged = 0, 0, 0, 0
   talkedlist = [] #for talk counts, don't want to double up
   askedlist = []

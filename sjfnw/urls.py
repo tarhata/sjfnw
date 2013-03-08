@@ -54,6 +54,7 @@ urlpatterns = patterns('',
   (r'^apply/copy/?$', 'grants.views.CopyApp'),
   (r'^org/?$', 'grants.views.RedirToApply'),
   
+  (r'^apply/test/?$', 'grants.views.TestApply'),
   #cron
   (r'^mail/drafts/?', 'grants.views.DraftWarning'),
 

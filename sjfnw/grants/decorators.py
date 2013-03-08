@@ -13,7 +13,7 @@ def registered_org(function=None):
         organization = Organization.objects.get(email=request.user.username)
         return view_func(request, organization, *args, **kwargs)
       except Organization.DoesNotExist:
-        return redirect('/org/nr')      
+        return redirect('/apply/nr')      
     
     return _wrapped_view
   

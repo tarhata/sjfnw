@@ -52,6 +52,68 @@ def logInAdmin(self): #just a django superuser
 TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'sjfnw.fund.middleware.MembershipMiddleware',)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class ApplyTests(TestCase):
+  
+  """ Submitting an application """
+  
+  """ TODO
+        apply with deadline extension
+        validate fiscal
+        validate collab 
+        possibly using draft-saved files """
+
+  fixtures = ['test_grants.json',] 
+  
+  def setUp(self):
+    setCycleDates()
+  
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  def test_add_file(self):
+    """
+    budget =  open('sjfnw/grants/fixtures/test_grants_guide.txt')
+    form_data['budget'] = budget
+    funding_sources =  open('sjfnw/static/grant_app/funding_sources.doc')
+    form_data['funding_sources'] = funding_sources
+    demographics = open('sjfnw/static/css/admin.css')
+    form_data['demographics'] = demographics
+    
+    response = 
+    
+    budget.close()
+    funding_sources.close()
+    demographics.close()
+    """
+    pass
+  
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  def test_post_valid_app(self):
+    """ scenario: start with a complete draft, post to apply
+                  general, no fiscal, all-in-one budget
+
+        verify: response is success page
+                grantapplication created
+                draft deleted
+                email sent
+                org profile updated """
+    
+    logInTesty(self)
+    
+    org = Organization.objects.get(pk = 2)
+    self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
+    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())   
+    self.assertEqual(org.mission, 'Some crap')
+    
+    response = self.client.post('/apply/3/', follow=True)
+    
+    #form = response.context['form']
+    #print(form.errors)
+    org = Organization.objects.get(pk = 2)
+    self.assertTemplateUsed(response, 'grants/submitted.html')
+    self.assertEqual(org.mission, u'Our mission is to boldly go where no database has gone before.')
+    self.assertEqual(1, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyBlockedTests(TestCase):
   """ Attempting to access an invalid application/cycle """
   

@@ -16,3 +16,11 @@ ORGANIZATIONS
   2 OfficeMax Foundation - testacct@gmail.com
     Drafts:     1 (cycle 2), 2 (cycle 3)
     Submitted:  1 (cycle 1)
+
+DRAFTS
+
+  1 OfficeMax, Another open cycle
+  
+  2 OfficeMax, Closed cycle
+    Complete (as of 3/7/13)
+    No fiscal info, general support (no project info), all-in-one budget option
