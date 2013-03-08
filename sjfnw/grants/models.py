@@ -242,6 +242,8 @@ class GrantApplication(models.Model):
   narrative6 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
   cycle_question = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[7])], blank=True)
   
+  timeline = models.TextField()
+  
   #references
   collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.', verbose_name='Name', max_length = 150)
   collab_ref1_org = models.CharField(verbose_name='Organization', max_length = 150)
