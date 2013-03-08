@@ -274,7 +274,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   for field, url in file_urls.iteritems():
     if url:
       name = str(getattr(draft, field)).split('/')[-1]
-      short_name = name[:40] + (name[40:] and '..') #stackoverflow'd truncate
+      short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
       file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + short_name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
     else:
       file_urls[field] = '<i>no file uploaded</i>'
@@ -320,7 +320,8 @@ def AddFile(request, draft_id):
   name = str(name).split('/')[-1]
   
   file_urls = utils.GetFileURLs(draft)
-  content = msg + '~~<a href="' + file_urls[msg] + '" target="_blank">' + name + '</a> [<a onclick="removeFile(\'' + msg + '\');">remove</a>]'
+  short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
+  content = msg + '~~<a href="' + file_urls[msg] + '" target="_blank" title="' + name + '">' + short_name + '</a> [<a onclick="removeFile(\'' + msg + '\');">remove</a>]'
   logging.info("AddFile returning: " + content)
   return HttpResponse(content)
 
