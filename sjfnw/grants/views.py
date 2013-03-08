@@ -287,14 +287,14 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Saves non-file fields to a draft """
   
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
+  draft = get_object_or_404(models.DraftGrantApplication, organization=organization, grant_cycle=cycle)
   
   if request.method == 'POST':
     #get or create saved json, update it
     logging.debug("Autosaving")
     dict = json.dumps(request.POST)
-    saved, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
-    saved.contents = dict
-    saved.save()
+    draft.contents = dict
+    draft.save()
     return HttpResponse("")
 
 def AddFile(request, draft_id):
