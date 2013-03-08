@@ -61,7 +61,7 @@ class GrantApplicationForm(forms.Form):
   
   #this grant info
   grant_request = forms.CharField(label="Briefly summarize the grant request", validators=[CharLimitValidator(600)], widget=forms.Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 600)'}))
-  contact_person = forms.CharField(max_length=250, label= 'Name', help_text='Contact person for this grant application')
+  contact_person = forms.CharField(max_length=250, label= 'Name', help_text='Contact person for this grant application:')
   contact_person_title = forms.CharField(max_length=100, label='Title')
   grant_period = forms.CharField(max_length=250, required=False, label='Grant period (if different than fiscal year)')
   amount_requested = IntegerCommaField(label='Amount requested $')
@@ -115,7 +115,7 @@ class GrantApplicationForm(forms.Form):
   collab_ref2_email = forms.EmailField(label='Email', required=False)
   
   #racial justice references (after narrative 6)
-  racial_justice_ref1_name = forms.CharField(help_text='If you are a primarily white-led organization, also describe how you work as an ally to communities of color. Be as specific as possible, and list at least one organization led by people of color that we can contact as a reference for your racial justice work.', label='Name', max_length = 150, required=False)
+  racial_justice_ref1_name = forms.CharField(help_text='If you are a primarily white-led organization, please list at least one organization led by people of color that we can contact as a reference for your racial justice work.', label='Name', max_length = 150, required=False)
   racial_justice_ref1_org = forms.CharField(label='Organization', max_length = 150, required=False)
   racial_justice_ref1_phone = forms.CharField(label='Phone number', max_length = 20, required=False)
   racial_justice_ref1_email = forms.EmailField(label='Email', required=False)

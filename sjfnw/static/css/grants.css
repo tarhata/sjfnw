@@ -81,13 +81,18 @@ div.formwrapper h1 {
 }
 
 table#application_form {
-	width:100%;
+	margin-top:5px;
+  width:100%;
+  border:1px solid black;
+  padding-left:4px;
 }
 
 table#application_form td{
-	border:1px;
-	border-color:black;
 	width:360px;
+}
+
+table#application_form h4{
+	margin-top:.5em;
 }
 
 label {

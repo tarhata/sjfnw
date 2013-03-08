@@ -141,7 +141,7 @@ $(document).ready(function() {
 	<form id="non_file" action="/apply/{{cycle.pk}}/" method="POST">
 
 		<div id="test" style="display:none;">
-			TEST ONLY: {{form.errors}}{{form.organization}}{{form.grant_cycle}}
+			TEST ONLY: {{form.errors}}
 		</div>
 		
 		<div align="center">
@@ -153,7 +153,7 @@ $(document).ready(function() {
 		{% autoescape off %}
 		<table id="application_form"><!-- Form starts -->
 			<tr>
-				<td><h4>Contact information</h4></td> <!-- Contact information -->
+				<td><h4>Organization and Grant Request Profile</h4></td> <!-- Header -->
 				<td>{% if profiled %}<div id="autofilled" title="As a convenience, some information has been automatically filled in based on your most recent submitted application.  It can be removed or overwritten as needed.">Pre-filled <img class="info" src="/static/images/info.png"></div>{% endif %}</td>
 			</tr> 
 			<tr>
@@ -183,9 +183,7 @@ $(document).ready(function() {
 			</tr><tr>
 				<td>{{form.email_address.label_tag}}{{form.email_address}}</td>
 				<td>{{form.website.label_tag}}{{form.website}}</td>
-			</tr><tr>
-				<td><h4>Organization information</h4></td> <!-- Organization information -->
-			</tr><tr>
+			</tr><tr><!-- Organization information -->
 				<td colspan="2">{{form.status.label_tag}}{{form.status}}{{form.status.errors}}</td>
 			</tr> 
 			<tr>
@@ -194,16 +192,50 @@ $(document).ready(function() {
 			</tr><tr>
 				<td>{{form.ein.label_tag}}{{form.ein}}</td>
 				<td>{{form.founded.label_tag}}{{form.founded}}</td>
-			</tr>   
-			<tr>
+			</tr><tr>
+				<td colspan="2"><div class="vertical_cushion">{{form.contact_person.help_text}}</div></td>
+			</tr><tr>
+				<td>{{form.contact_person.errors}}</td>
+				<td>{{form.contact_person_title.errors}}</td>
+			</tr><tr>
+				<td>{{form.contact_person.label_tag}}{{form.contact_person}}</td>
+				<td>{{form.contact_person_title.label_tag}}{{form.contact_person_title}}</td>
+			</tr><tr>
 				<td colspan="2"><div class="vertical_cushion">{{form.mission.label_tag}}{{form.mission.errors}}<span class="char_counter" id="mission_counter">750</span></div>
 				{{form.mission}}</td>
 			</tr><tr>
 				<td colspan="2">{{form.previous_grants.errors}}</td>
 			</tr><tr>
 				<td colspan="2">{{form.previous_grants.label_tag}}{{form.previous_grants}}</td>
+			</tr><tr><!-- Budget information -->
+				<td>{{form.start_year.label_tag}}{{form.start_year}}</td>
+				<td>{{form.start_year.errors}}</td>
 			</tr><tr>
-				<td><h4>Fiscal sponsor information (if applicable)</h4></td><!-- Fiscal sponsor info -->
+				<td>{{form.budget_last.errors}}</td>
+				<td>{{form.budget_current.errors}}</td>
+			</tr><tr>
+				<td>{{form.budget_last.label_tag}} ${{form.budget_last}} </td>
+				<td>{{form.budget_current.label_tag}} ${{form.budget_current}}</td>
+			</tr><tr>
+				<td colspan="2" style="height:28px;">* Upload budget files at the bottom of the form.</td>
+			</tr><tr><!-- Grant information -->
+				<td colspan="2">{{form.grant_period.label_tag}}{{form.grant_period}}{{form.grant_period.errors}}</td>
+			</tr><tr>
+				<td>{{form.amount_requested.errors}}</td><td>{{form.support_type.errors}}</td>
+			</tr><tr>
+				<td>{{form.amount_requested.label_tag}}{{form.amount_requested}}</td>
+				<td>{{form.support_type.label_tag}}{{form.support_type}}</td>
+			</tr><tr>
+				<td>{{form.project_title.errors}}</td>
+				<td>{{form.project_budget.errors}}</td>
+			</tr><tr>
+				<td>{{form.project_title.label_tag}}{{form.project_title}}</td>
+				<td>{{form.project_budget.label_tag}} ${{form.project_budget}}</td>
+			</tr><tr>
+				<td colspan="2"><div class="vertical_cushion">{{form.grant_request.label_tag}}{{form.grant_request.errors}}<span class="char_counter" id="grant_request_counter">600</span></div>
+				{{form.grant_request}}</td>
+			</tr><tr>
+				<td><br><u>Fiscal sponsor information (if applicable)</u></td><!-- Fiscal sponsor info -->
 			</tr><tr>
 				<td>{{form.fiscal_org.errors}}</td>
 				<td>{{form.fiscal_person.errors}}</td>
@@ -221,52 +253,12 @@ $(document).ready(function() {
 				<td colspan="2">{{form.fiscal_address.label_tag}}{{form.fiscal_address}}</td>
 			</tr><tr>
 				<td colspan="2" style="height:28px;">* Upload fiscal letter at the bottom of the form if applicable.</td>
-			</tr><tr>
-				<td><h4>Budget information</h4></td><!-- Budget information -->
-			</tr><tr>
-				<td>{{form.start_year.label_tag}}{{form.start_year}}</td>
-				<td>{{form.start_year.errors}}</td>
-			</tr><tr>
-				<td>{{form.budget_last.errors}}</td>
-				<td>{{form.budget_current.errors}}</td>
-			</tr><tr>
-				<td>{{form.budget_last.label_tag}} ${{form.budget_last}} </td>
-				<td>{{form.budget_current.label_tag}} ${{form.budget_current}}</td>
-			</tr><tr>
-				<td colspan="2" style="height:28px;">* Upload budget files at the bottom of the form.</td>
-			</tr><tr>
-				<td><h4>Grant information</h4></td><!-- Grant information -->
-			</tr><tr>
-				<td colspan="2"><div class="vertical_cushion">{{form.grant_request.label_tag}}{{form.grant_request.errors}}<span class="char_counter" id="grant_request_counter">600</span></div>
-				{{form.grant_request}}</td>
-			</tr><tr>
-				<td colspan="2">{{form.contact_person.help_text}}</td>
-			</tr><tr>
-				<td>{{form.contact_person.errors}}</td>
-				<td>{{form.contact_person_title.errors}}</td>
-			</tr>
-			<tr>
-				<td>{{form.contact_person.label_tag}}{{form.contact_person}}</td>
-				<td>{{form.contact_person_title.label_tag}}{{form.contact_person_title}}</td>
-			</tr><tr>
-				<td colspan="2">{{form.grant_period.label_tag}}{{form.grant_period}}{{form.grant_period.errors}}</td>
-			</tr><tr>
-				<td>{{form.amount_requested.errors}}</td><td>{{form.support_type.errors}}</td>
-			</tr><tr>
-				<td>{{form.amount_requested.label_tag}}{{form.amount_requested}}</td>
-				<td>{{form.support_type.label_tag}}{{form.support_type}}</td>
-			</tr><tr>
-				<td>{{form.project_title.errors}}</td>
-				<td>{{form.project_budget.errors}}</td>
-			</tr><tr>
-				<td>{{form.project_title.label_tag}}{{form.project_title}}</td>
-				<td>{{form.project_budget.label_tag}} ${{form.project_budget}}</td>
 			</tr>
 		</table>
 
-		<h4>Narrative</h4><!-- Narrative -->
+		<h4>Narratives</h4><!-- Narrative -->
 
-		Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan.	Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process.
+		Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan.	Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process. <img class="info" src="/static/images/info.png" title="See Social Justice Fund's Grantmaking Criteria, included in the application instructions linked at the top of the page.">
 		
 		<div class="narrative_q">1. {{form.narrative1.label_tag}}<br><br>
 		{{form.narrative1.errors}}{{form.narrative1}}
