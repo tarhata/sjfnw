@@ -121,6 +121,7 @@ div#autofilled {
 textarea {
   font-family:Arial;
   width:99%;
+  resize:vertical;
 }
 
 div.formwrapper input[type="text"] {
