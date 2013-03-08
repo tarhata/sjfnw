@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore
-from forms import LoginForm, RegisterForm, RolloverForm
+from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm
 from decorators import registered_org
 from sjfnw import fund
 import models, utils
@@ -155,29 +155,58 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     #check if draft can be submitted
     if not draft.editable:
       render(request, 'grants/submitted_closed.html', {'cycle':cycle})
+    
     #get files from draft
-    files_data = model_to_dict(draft, fields = ['fiscal_letter', 'budget', 'demographics', 'funding_sources'])
+    files_data = model_to_dict(draft, fields = APP_FILE_FIELDS)
+    #logging.info('========= Files data: ' + str(files_data))
     
     #get other fields from draft
-    post_data = json.loads(draft.contents)
-    
-    #set the auto fields
-    post_data['organization'] = organization.pk
-    post_data['grant_cycle'] = cycle.pk
-    post_data['screening_status'] = 10
-    logging.info(post_data)
+    draft_data = json.loads(draft.contents)
+    #logging.info('========= Draft data: ' + unicode(draft_data))
     
     #submit form
-    form = models.GrantApplicationForm(post_data, files_data)
-
+    form = GrantApplicationForm(cycle, draft_data, files_data)
+        
     if form.is_valid(): #VALID SUBMISSION
-      logging.info('Application form valid')
-
+      logging.info('========= Application form valid')
+      form_data = form.cleaned_data
+      
       #save as GrantApplication object
-      application = form.save()
+      application = models.GrantApplication(organization = organization, grant_cycle = cycle)
+      
+      #get the timeline
+      logging.info('Getting timeline from ' + unicode(form_data))
+      prefix = 'timeline_'
+      suffixes = ['_date', '_activities', '_goals']
+      timeline = '<table id="timeline"><tr><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
+      for i in range(1, 5):
+        timeline += '<tr><th>q' + unicode(i) + '</th>'
+        for suffix in suffixes:
+          timeline += '<td>'
+          value = form_data.get(prefix + unicode(i) + suffix)
+          if value is None:
+            value = ''
+          else:
+            del form_data[prefix + unicode(i) + suffix]
+          timeline += value
+          timeline += '</td>'
+        timeline += '</tr>'
+      timeline += '</table>'
+      #logging.info('Timeline is: ' + timeline)
+      form_data['timeline'] = timeline
+      #logging.info('Data is: ' + unicode(form_data))
+      
+      for name, value in form_data.iteritems():
+        #better to use cleaned_data than draft bc it has the correct types (not all unicode)
+        setattr(application, name, value)
+        logging.info(name + ' set to -- ' + unicode(value))
+      for name in files_data:
+        setattr(application, name, getattr(draft, name))
+        logging.info(name + ' -- from draft')
+      application.save()
 
       #update org profile
-      form2 = models.OrgProfile(post_data, instance=organization)
+      form2 = models.OrgProfile(draft_data, instance=organization)
       if form2.is_valid():
         form2.save()
         if files_data.get('fiscal_letter'):
@@ -228,29 +257,29 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       return render(request, 'grants/closed.html', {'cycle':cycle})
 
     #try to determine initial load - cheaty way
-    if not referer.find('copy') != -1 and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
+    # 1) if referer, make sure it wasn't from copy 2) check for mission from profile 3) make sure grant request is not there (since it's not in prof)
+    if not (referer and referer.find('copy') != -1) and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
       profiled = True
-    
-    #fill in fkeys TODO handle this on post
-    dict['organization'] = organization
-    dict['grant_cycle'] = cycle
-    dict['screening_status'] = 10
 
     #create form
-    form = models.GrantApplicationForm(initial=dict)
+    form = GrantApplicationForm(cycle, initial=dict)
 
   #get draft files
   file_urls = utils.GetFileURLs(draft)
   for field, url in file_urls.iteritems():
     if url:
       name = str(getattr(draft, field)).split('/')[-1]
-      short_name = name[:40] + (name[40:] and '..') #stackoverflow'd truncate
-      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + short_name + '</a>'
+      short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
+      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + short_name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
     else:
       file_urls[field] = '<i>no file uploaded</i>'
 
   return render(request, 'grants/org_app.html',
   {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
+
+def TestApply(request):
+  form = GrantApplicationForm()
+  return render(request, 'grants/file_upload.html', {'form':form})
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()
@@ -258,14 +287,14 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Saves non-file fields to a draft """
   
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
+  draft = get_object_or_404(models.DraftGrantApplication, organization=organization, grant_cycle=cycle)
   
   if request.method == 'POST':
     #get or create saved json, update it
     logging.debug("Autosaving")
     dict = json.dumps(request.POST)
-    saved, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
-    saved.contents = dict
-    saved.save()
+    draft.contents = dict
+    draft.save()
     return HttpResponse("")
 
 def AddFile(request, draft_id):
@@ -286,10 +315,20 @@ def AddFile(request, draft_id):
   name = str(name).split('/')[-1]
   
   file_urls = utils.GetFileURLs(draft)
-  content = msg + '~~<a href="' + file_urls[msg] + '" target="_blank">' + name + '</a>'
+  short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
+  content = msg + '~~<a href="' + file_urls[msg] + '" target="_blank" title="' + name + '">' + short_name + '</a> [<a onclick="removeFile(\'' + msg + '\');">remove</a>]'
   logging.info("AddFile returning: " + content)
   return HttpResponse(content)
 
+def RemoveFile(request, draft_id, file_field):
+  draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
+  if hasattr(draft, file_field):
+    setattr(draft, file_field, '')
+    draft.save()
+  else:
+    logging.error('Tried to remove non-existent field: ' + file_field)
+  return HttpResponse('success')
+  
 def RefreshUploadUrl(request, draft_id):
   """ Get a blobstore url for uploading a file """
   upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file')
@@ -386,7 +425,7 @@ def DiscardDraft(request, organization, draft_id):
 def ViewApplication(request, app_id):
   user = request.user
   app = get_object_or_404(models.GrantApplication, pk=app_id)
-  form = models.GrantApplicationForm(instance = app)
+  form = GrantApplicationForm(app.grant_cycle)
   #set up doc viewer for applicable files
   file_urls = utils.GetFileURLs(app)
 
@@ -415,10 +454,8 @@ def AppToDraft(request, app_id):
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
     draft.contents = json.dumps(model_to_dict(submitted_app, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo']))
-    draft.budget = submitted_app.budget
-    draft.demographics = submitted_app.demographics
-    draft.fiscal_letter = submitted_app.fiscal_letter
-    draft.funding_sources = submitted_app.funding_sources
+    for field in APP_FILE_FIELDS:
+      setattr(draft, field, getattr(submitted_app, field))
     draft.save()
     logging.info('Reverted to draft, draft id ' + str(draft.pk))
     #delete app
@@ -436,7 +473,8 @@ def DraftWarning(request):
   
   drafts = models.DraftGrantApplication.objects.all()
   now = timezone.now()
-
+  eight = datetime.timedelta(days=8)
+  
   for draft in drafts:
     time_left = draft.grant_cycle.close - timezone.now()
     created_offset = draft.grant_cycle.close - draft.created

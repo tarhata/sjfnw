@@ -81,16 +81,21 @@ div.formwrapper h1 {
 }
 
 table#application_form {
-	width:100%;
+	margin-top:5px;
+  width:100%;
+  border:1px solid black;
+  padding-left:4px;
 }
 
 table#application_form td{
-	border:1px;
-	border-color:black;
 	width:360px;
 }
 
-table span.label {
+table#application_form h4{
+	margin-top:.5em;
+}
+
+label {
 	margin-right:8px;
 }
 
@@ -116,6 +121,7 @@ div#autofilled {
 textarea {
   font-family:Arial;
   width:99%;
+  resize:vertical;
 }
 
 div.formwrapper input[type="text"] {
@@ -149,6 +155,22 @@ span.char_counter_ok, span.char_counter_over {
 
 span.char_counter_over {
 	color:red;
+}
+
+/* timeline */
+
+table#timeline_form {
+  margin-top:10px;
+  border-spacing:0;
+  width:100%;
+}
+
+table#timeline_form th {
+  font-weight:normal
+}
+
+table#timeline_form tr.heading th{
+  padding-bottom:2px;
 }
 
 /* -- file uploads */
@@ -209,7 +231,24 @@ button#apply-now {
 
 /* grant reading */
 
-div.label {
-	display:inline;
-	font-weight:bold;
+div#formreader label{
+  text-decoration:underline;  
 }
+
+div#formreader table tr td{
+  padding-top:5px;
+  padding-bottom:5px;
+}
+
+table#timeline {
+  margin:auto;
+}
+
+table#timeline th {
+  font-weight:normal
+}
+
+table#timeline td{
+  padding:5px;
+}
+

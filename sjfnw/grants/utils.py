@@ -73,7 +73,7 @@ def GetFileURLs(app):
   return a dict of urls for viewing each of its files
   taking into account whether it can be viewed in google doc viewer """
   
-  viewer_formats = ('jpeg', 'png', 'gif', 'tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mpeg4', 'mov', 'avi', 'wmv')
+  viewer_formats = ('tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mpeg4', 'mov', 'avi', 'wmv')
   
   #determine whether draft or submitted
   if isinstance(app, GrantApplication):

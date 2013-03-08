@@ -1,64 +1,85 @@
 {%extends 'grants/base.html'%}
+
 {%block content%}
 {% autoescape off %}{% load humanize %}
-<div class="formwrapper">
+<div class="formwrapper" id="formreader">
   <div align="center"><!-- Title/header -->
     <h2>{{app.organization}} - {{app.grant_cycle}}</h2>
     Submitted {{app.submission_time}}
   </div>
-  <h4>Contact information</h4><!-- Contact information -->
-  <p>{{form.address.label}}: {{app.address}} {{app.city}}, {{app.state}} {{app.zip}}</p>
-  <p>{{form.telephone_number.label}}: {{app.telephone_number}},<p>{{form.fax_number.label}}: {{app.fax_number}}</p>
-  <p>{{form.email_address.label}}: {{app.email_address}}</p>
-  <p>{{form.website.label}}: {{app.website}}</p>
-  <p>{{form.contact_person.help_text}}: {{app.contact_person}}, {{app.contact_person_title}}</p>
-	
-  <h4>Organization information</h4><!-- Organization information -->
-  <p>{{form.status.label}}: {{app.status}}</p>
-  <p>{{form.ein.label}}: {{app.ein}}</p>
-  <p>{{form.founded.label}}: {{app.founded}}</p>
-	<p>{{form.mission.label}}: {{app.mission}}</p>
+  <h4>Organization and Grant Request Profile</h4>
+	<table style="width:100%;">
+	<tr>
+		<td colspan="2">{{form.address.label_tag}}{{app.address}} {{app.city}}, {{app.state}} {{app.zip}}</td>
+	</tr><tr>
+		<td>{{form.telephone_number.label_tag}}{{app.telephone_number}}</td>
+		<td>{{form.fax_number.label_tag}}{{app.fax_number}}</td>
+  </tr><tr>
+		<td>{{form.email_address.label_tag}}{{app.email_address}}</td>
+		<td>{{form.website.label_tag}}{{app.website}}</td>
+  </tr><tr>
+		<td><label>{{form.contact_person.help_text}}</label></td>
+		<td>{{app.contact_person}}, {{app.contact_person_title}}</td>
+	</tr><tr>	
+		<td>{{form.status.label_tag}}{{app.status}}</td>
+		<td>{{form.founded.label_tag}}{{app.founded}}</td>
+  </tr><tr>
+		<td>{{form.ein.label_tag}}{{app.ein}}</td>
+  </tr><tr>
+		<td colspan="2">{{form.mission.label_tag}}{{app.mission}}</td>
+	</tr>
+	<!-- Grant and budget information -->
+  <tr>
+		<td>{{form.start_year.label_tag}}{{app.start_year}}</td>
+		<td>{{form.grant_period.label_tag}}{{app.grant_period}}</td>
+  </tr><tr>
+	  <td>{{form.budget_last.label_tag}}${{app.budget_last|intcomma}}</td>
+		<td>{{form.budget_current.label_tag}}${{app.budget_current|intcomma}}</td>
+  </tr><tr>
+		<td colspan="2">{{form.previous_grants.label_tag}}{{app.previous_grants}}</td>
+	</tr><tr>
+		<td>{{form.amount_requested.label_tag}}{{app.amount_requested|intcomma}}</td>
+		<td>{{form.support_type.label_tag}}{{app.support_type}}</td>
+	</tr><tr>
+		<td>{{form.project_title.label_tag}}{{app.project_title|default:"N/A"}}</td>
+		{%if app.project_budget%}
+		<td>{{form.project_budget.label_tag}}${{app.project_budget|intcomma}}</td>
+		{%endif%}
+  </tr><tr>
+		<td colspan="2">{{form.grant_request.label_tag}}{{app.grant_request}}</td>
+	</tr><tr>
 	{%if app.fiscal_org%}
-    <h4>Fiscal sponsor information (if applicable)</h4><!-- Fiscal sponsor info -->
-    <p>{{form.fiscal_org.label}}: {{app.fiscal_org|default:"N/A"}}</p>
-    <p>{{form.fiscal_person.label}}: {{app.fiscal_person}}</p>
-    <p>{{form.fiscal_telephone.label}}: {{app.fiscal_telephone}}</p>
-    <p>{{form.fiscal_email.label}}: {{app.fiscal_email}}</p>
-    <p>{{form.fiscal_address.label}}: {{app.fiscal_address}}</p>
-		{% if app.fiscal_letter %}
-			<p>Fiscal sponsor letter: <a href="{{file_urls.fiscal_letter}}grants/view-file/{{app.pk}}/fiscal_letter" target="_blank">View</a></p>
-		{% endif %}
+		<td colspan="2"><b>Fiscal sponsor information</b></td><!-- Fiscal sponsor info -->
+	</tr><tr>
+		<td>{{form.fiscal_org.label_tag}}{{app.fiscal_org|default:"N/A"}}</td>
+		<td>{{form.fiscal_person.label_tag}}{{app.fiscal_person}}</td>
+	</tr><tr>
+		<td>{{form.fiscal_address.label_tag}}{{app.fiscal_address}}</td>
+		<td>{{form.fiscal_telephone.label_tag}}{{app.fiscal_telephone}}</td>
+	</tr><tr>
+		<td>{{form.fiscal_email.label_tag}}{{app.fiscal_email}}</td>
+		<td><label>Fiscal sponsor letter:</label><a href="{{file_urls.fiscal_letter}}" target="_blank">View</a></td>
+	</tr>
   {% endif %}
+	</table>
 	
-  <h4>Grant and budget information</h4><!-- Grant and budget information -->
-  <p>{{form.contact_person.help_text}}: {{app.contact_person}}, {{app.contact_person_title}}
-  <p>{{form.grant_period.label}}: {{app.grant_period}}</p>
-  <p>{{form.start_year.label}}: {{app.start_year}}</p>
-  <p>{{form.budget_last.label}}: ${{app.budget_last|intcomma}}</p>
-  <p>{{form.budget_current.label}}: ${{app.budget_current|intcomma}}</p>
-	<p>{{form.previous_grants.label}}: {{app.previous_grants}}</p>
-	<p>{{form.grant_request.label}}: {{app.grant_request}}</p>
-	<p>{{form.amount_requested.label}}: {{app.amount_requested|intcomma}}</p>
-	<p>{{form.support_type.label}}: {{app.support_type}}</p>
-  <p>{{form.project_title.label}}: {{app.project_title|default:"N/A"}}</p>
-  {%if app.project_budget%}<p>{{form.project_budget.label}}: ${{app.project_budget|intcomma}}</p>{%endif%}
+	<h4>Narratives</h4><!-- Narrative -->
   
-	<h3>Narrative</h3><!-- Narrative -->
-  
-  <p>{{form.narrative1.label}}</p>
+  <p>1. {{form.narrative1.label_tag}}</p>
   <p>{{app.narrative1}}</p>
-  <p>{{form.narrative2.label}}</p>
+  <p>2. {{form.narrative2.label_tag}}</p>
   <p>{{app.narrative2}}</p>
-  <p>{{form.narrative3.label}}</p>
+  <p>3. {{form.narrative3.label_tag}}</p>
   <p>{{app.narrative3}}</p>
-  <p>{{form.narrative4.label}}</p>
+  <p>4. {{form.narrative4.label_tag}}</p>
   <p>{{app.narrative4}}</p>
-  <p>{{form.narrative5.label}}</p>
+	{{app.timeline|safe}}
+  <p>5. {{form.narrative5.label_tag}}</p>
   <p>{{app.narrative5}}</p>
   <p>{{form.collab_ref1_name.help_text}}</p>
   <p>1. {{app.collab_ref1_name}}, {{app.collab_ref1_org}}. {{app.collab_ref1_phone|add:" "}}{{app.collab_ref1_email}}</p>
   <p>2. {{app.collab_ref2_name}}, {{app.collab_ref2_org}}. {{app.collab_ref2_phone|add:" "}}{{app.collab_ref2_email}}</p>
-  <p>{{form.narrative6.label}}</p>
+  <p>6. {{form.narrative6.label_tag}}</p>
   <p>{{app.narrative6}}</p>
   <p>{{form.racial_justice_ref1_name.help_text}}
   {% if app.racial_justice_ref1_org %}
@@ -67,16 +88,20 @@
       <p>2. {{app.racial_justice_ref2_name}}, {{app.racial_justice_ref2_org}}. {{app.racial_justice_ref2_phone|add:" "}}{{app.racial_justice_ref2_email}}</p>
     {% endif %}
   {% else %}N/A{% endif %}
-  <h3>Files</h3>
+	{% if app.cycle_question %}
+	<p>7. {{form.cycle_question.label_tag}}</p>
+	<p>{{app.cycle_question}}</p>
+	{% endif %}
+	
+  <h4>Files</h4>
   {%if app.budget %}
-  <b>Budget</b>: <a href="{{file_urls.budget}}grants/view-file/{{app.pk}}/budget" target="_blank">View</a></p>
-  {%endif%}
-  {%if app.demographics%}
-  <b>Demographics</b>: <a href="{{file_urls.demographics}}grants/view-file/{{app.pk}}/demographics" target="_blank">View</a></p>
-  {%endif%}
-  {%if app.funding_sources%}
-  <b>funding_sources sources</b>: <a href="{{file_urls.funding}}grants/view-file/{{app.pk}}/funding_sources" target="_blank">View</a></p>
-  {%endif%}
+  <p><u>Budget</u>: <a href="{{file_urls.budget}}" target="_blank">View</a></p>
+  {%else%}
+	<p><u>Budget files</u>: <a href="{{file_urls.budget1}}" target="_blank">{{form.budget1.label}}</a>, <a href="{{file_urls.budget2}}" target="_blank">{{form.budget2.label}}</a>
+	{% if form.budget3 %}, <a href="{{file_urls.budget3}}" target="_blank">{{form.budget3.label}}</a>{% endif %}{% if form.project_budget_file %}, <a href="{{file_urls.project_budget_file}}" target="_blank">{{form.project_budget_file.label}}</a>{% endif %}</p>
+	{% endif %}
+  <p><u>Demographics</u>: <a href="{{file_urls.demographics}}" target="_blank">View</a></p>
+  <p><u>Funding sources</u>: <a href="{{file_urls.funding_sources}}" target="_blank">View</a></p>
 
 </div>
 {% endautoescape %}

@@ -90,7 +90,7 @@ class DraftGrantApplication(models.Model):
   
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
-  created = models.DateTimeField(auto_now=True)
+  created = models.DateTimeField(default = timezone.now())
   modified = models.DateTimeField(auto_now=True)
   
   contents = models.TextField()
@@ -153,34 +153,48 @@ NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 2700, 1800]
 NARRATIVE_TEXTS = ['Placeholder for 0',
   'Describe your organization\'s mission, history and major accomplishments.', #1
   'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ul><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ul>', #2
-  'Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ul><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ul>', #3
+  'Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ul><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues?</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ul>', #3
   'Please describe your workplan, covering at least the next 12 months. (You will list the activities and objectives in the timeline form below the narrative.)<ul><li>What are your overall goals and strategies for the coming year?</li><li>How will you assess whether you have met your objectives and goals?</li></ul>', #4
-  'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organizations role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
-  'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i><ul>  <li>Summarize your organization\'s analysis of inequality and oppression.</li><li>How does your organization live out that analysis internally?</li><li>How does your organization\'s work impact those systems of oppression in the larger society?</li></ul>', #6
+  'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organization\'s role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
+  'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. Tell us how your organization is working toward racial justice and how you are drawing connections to economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i> If you are a primarily white-led organization, also describe how you work as an ally to communities of color.', #6
   ]
+STATE_CHOICES = [('OR', 'OR'), ('WA', 'WA'), ('ID', 'ID'), ('WY', 'WY'), ('MT', 'MT'),]
+STATUS_CHOICES = [
+  ('Tribal government', 'Federally recognized American Indian tribal government'),   
+  ('501c3', '501(c)3 organization as recognized by the IRS'),
+  ('501c4', '501(c)4 organization as recognized by the IRS'),
+  ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),]
+SUPPORT_CHOICES = [('General support', 'General support'), ('Project support', 'Project support'),]
+SCREENING_CHOICES = (
+  (10, 'Received'),
+  (20, 'Incomplete'),
+  (30, 'Complete'),
+  (40, 'Pre-screened out'),
+  (50, 'Pre-screened in'), #readable, scorable
+  (60, 'Screened out'), 
+  (70, 'Site visit awarded'), #site visit reports
+  (80, 'Grant denied'),
+  (90, 'Grant issued'),
+  (100, 'Grant paid'),
+  (110, 'Year-end report overdue'),
+  (120, 'Year-end report received'),
+  (130, 'Closed'),)
 
 def validate_file_extension(value):
   if not str(value).lower().split(".")[-1] in settings.ALLOWED_FILE_TYPES:
     raise ValidationError(u'That file type is not supported.')
-
+  
 class GrantApplication(models.Model):
   """ Submitted grant application """
   
   #automated fields
-  submission_time = models.DateTimeField(auto_now_add=True, verbose_name='Submitted')
+  submission_time = models.DateTimeField(default=timezone.now(), verbose_name='Submitted')
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
   
   #contact info
   address = models.CharField(max_length=100)
   city = models.CharField(max_length=50)
-  STATE_CHOICES = (
-    ('OR', 'OR'),
-    ('WA', 'WA'),
-    ('ID', 'ID'),
-    ('WY', 'WY'),
-    ('MT', 'MT'),
-  )
   state = models.CharField(max_length=2,choices=STATE_CHOICES)
   zip = models.CharField(max_length=50)
   telephone_number = models.CharField(max_length=20)
@@ -189,12 +203,6 @@ class GrantApplication(models.Model):
   website = models.CharField(max_length=50, null=True, blank=True, verbose_name = 'Website (optional)')
   
   #org info
-  STATUS_CHOICES = (
-    ('Tribal government', 'Federally recognized American Indian tribal government'),   
-    ('501c3', '501(c)3 organization as recognized by the IRS'),
-    ('501c4', '501(c)4 organization as recognized by the IRS'),
-    ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),
-  )
   status = models.CharField(max_length=50, choices=STATUS_CHOICES)
   ein = models.CharField(max_length=50, verbose_name="Organization or Fiscal Sponsor EIN")
   founded = models.PositiveIntegerField(verbose_name='Year founded')
@@ -212,14 +220,10 @@ class GrantApplication(models.Model):
   contact_person_title = models.CharField(max_length=100, verbose_name='Title')
   grant_period = models.CharField(max_length=250, blank=True, verbose_name='Grant period (if different than fiscal year)')
   amount_requested = models.PositiveIntegerField(verbose_name='Amount requested $')
-  SUPPORT_CHOICES = (
-    ('General support', 'General support'),   
-    ('Project support', 'Project support'),
-  )
+  
   support_type = models.CharField(max_length=50, choices=SUPPORT_CHOICES)
   project_title = models.CharField(max_length=250,verbose_name='Project title (if applicable)', null=True, blank=True)
   project_budget = models.PositiveIntegerField(verbose_name='Project budget (if applicable)', null=True, blank=True)
-  
   
   #fiscal sponsor
   fiscal_org = models.CharField(verbose_name='Fiscal org. name', max_length=255, null=True, blank=True)
@@ -237,6 +241,8 @@ class GrantApplication(models.Model):
   narrative5 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[5])], verbose_name = NARRATIVE_TEXTS[5])
   narrative6 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
   cycle_question = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[7])], blank=True)
+  
+  timeline = models.TextField()
   
   #references
   collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.', verbose_name='Name', max_length = 150)
@@ -268,22 +274,7 @@ class GrantApplication(models.Model):
   budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet')
   project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget')
   
-  #admin fields  
-  SCREENING_CHOICES = (
-    (10, 'Received'),
-    (20, 'Incomplete'),
-    (30, 'Complete'),
-    (40, 'Pre-screened out'),
-    (50, 'Pre-screened in'), #readable, scorable
-    (60, 'Screened out'), 
-    (70, 'Site visit awarded'), #site visit reports
-    (80, 'Grant denied'),
-    (90, 'Grant issued'),
-    (100, 'Grant paid'),
-    (110, 'Year-end report overdue'),
-    (120, 'Year-end report received'),
-    (130, 'Closed'),
-  )
+  #admin fields
   screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
   giving_project = models.ForeignKey(GivingProject, null=True, blank=True)
   scoring_bonus_poc = models.BooleanField(default=False, verbose_name='Scoring bonus for POC-led')
@@ -295,91 +286,3 @@ class GrantApplication(models.Model):
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
   view_link.allow_tags = True
-
-def addCssLabel(label_text):
-  return u'<span class="label">' + (label_text or '') + u'</span>'
-
-def custom_integer_field(f, **kwargs):
-  if isinstance(f, models.PositiveIntegerField) and f.verbose_name != 'Year founded':
-    label = f.verbose_name
-    required = not f.blank
-    return IntegerCommaField(label = label, required = required)
-  else:
-    return f.formfield(**kwargs)
-
-class GrantApplicationForm(ModelForm):
-  formfield_callback = custom_integer_field
-  class Meta:
-    model = GrantApplication
-    widgets = {
-      'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 750)'}),
-      'grant_request': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 600)'}),
-      'narrative1': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[1]) + ')'}),
-      'narrative2': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[2]) + ')'}),
-      'narrative3': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[3]) + ')'}),
-      'narrative4': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[4]) + ')'}),
-      'narrative5': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
-      'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[6]) + ')'}),
-      'cycle_question': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[7]) + ')'}),
-      'budget': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'demographics': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'funding_sources': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'fiscal_letter': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget1': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget2': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget3': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'project_budget_file': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-    }
-  
-  def __init__(self, *args, **kwargs):
-    super(GrantApplicationForm, self).__init__(*args, **kwargs)
-    for key in self.fields:
-      self.fields[key].label = addCssLabel(self.fields[key].label)
-
-  def clean(self):
-    cleaned_data = super(GrantApplicationForm, self).clean()
-    
-    #collab refs - require phone or email
-    phone = cleaned_data.get('collab_ref1_phone')
-    email = cleaned_data.get('collab_ref1_email')
-    if not phone and not email:
-       self._errors["collab_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
-    phone = cleaned_data.get('collab_ref2_phone')
-    email = cleaned_data.get('collab_ref2_email')
-    if not phone and not email:
-       self._errors["collab_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
-    
-    #racial justice refs - require full set if any
-    name = cleaned_data.get('racial_justice_ref1_name')
-    org = cleaned_data.get('racial_justice_ref1_org')
-    phone = cleaned_data.get('racial_justice_ref1_phone')
-    email = cleaned_data.get('racial_justice_ref1_email')
-    if name or org or phone or email:
-      if not name:
-        self._errors["racial_justice_ref1_name"] = '<div class="form_error">Enter a contact person.</div>'
-      if not org:
-        self._errors["racial_justice_ref1_org"] = '<div class="form_error">Enter the organization name.</div>'
-      if not phone and not email:
-        self._errors["racial_justice_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
-    name = cleaned_data.get('racial_justice_ref2_name')
-    org = cleaned_data.get('racial_justice_ref2_org')
-    phone = cleaned_data.get('racial_justice_ref2_phone')
-    email = cleaned_data.get('racial_justice_ref2_email')
-    if name or org or phone or email:
-      if not name:
-        self._errors["racial_justice_ref2_name"] = '<div class="form_error">Enter a contact person.</div>'
-      if not org:
-        self._errors["racial_justice_ref2_org"] = '<div class="form_error">Enter the organization name.</div>'
-      if not phone and not email:
-        self._errors["racial_justice_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'    
-    
-    #require cycle question if given
-    cycle = cleaned_data.get('grant_cycle')
-    answer = cleaned_data.get('cycle_question')
-    logging.info(cycle.extra_question)
-    logging.info(answer)
-    if cycle.extra_question and not answer:
-      logging.info('Missing answer')
-      self._errors["cycle_question"] = '<div class="form_error">This field is required.</div>'
-      
-    return cleaned_data
