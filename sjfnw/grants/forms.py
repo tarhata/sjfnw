@@ -87,19 +87,19 @@ class GrantApplicationForm(forms.Form):
   cycle_question = forms.CharField(validators=[CharLimitValidator(models.NARRATIVE_CHAR_LIMITS[7])], required=False, widget=forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(models.NARRATIVE_CHAR_LIMITS[7]) + ')'}))
   
   #timeline (goes after narrative 4)
-  timeline_1_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'2', 'cols':'25'}))
+  timeline_1_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'5', 'cols':'20'}))
   timeline_1_activities = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}))
   timeline_1_goals = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}))
-  timeline_2_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'2', 'cols':'25'}), required=False)
+  timeline_2_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'5', 'cols':'20'}), required=False)
   timeline_2_activities = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
   timeline_2_goals = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
-  timeline_3_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'2', 'cols':'25'}), required=False)
+  timeline_3_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'5', 'cols':'20'}), required=False)
   timeline_3_activities = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
   timeline_3_goals = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
-  timeline_4_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'2', 'cols':'25'}), required=False)
+  timeline_4_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'5', 'cols':'20'}), required=False)
   timeline_4_activities = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
   timeline_4_goals = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
-  timeline_5_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'2', 'cols':'25'}), required=False)
+  timeline_5_date = forms.CharField(max_length = 50, widget= forms.Textarea(attrs={'rows':'5', 'cols':'20'}), required=False)
   timeline_5_activities = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
   timeline_5_goals = forms.CharField(widget= forms.Textarea(attrs={'rows':'5'}), required=False)
   
@@ -131,8 +131,8 @@ class GrantApplicationForm(forms.Form):
   fiscal_letter = forms.FileField(required=False, label = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255, widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   budget = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
   budget1 = forms.FileField(max_length=255, label = 'Annual statement', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
-  budget2 = forms.FileField(max_length=255, label = 'Annual operating', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
-  budget3 = forms.FileField(max_length=255, label = 'Balance sheet', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
+  budget2 = forms.FileField(max_length=255, label = 'Annual operating budget', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
+  budget3 = forms.FileField(max_length=255, label = 'Balance sheet (if available)', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
   project_budget_file = forms.FileField(max_length=255, label = 'Project budget', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
   
   def __init__(self, cycle, *args, **kwargs):
@@ -159,15 +159,13 @@ class GrantApplicationForm(forms.Form):
     b2 = cleaned_data.get('budget2')
     b3 = cleaned_data.get('budget3')
     if not budget:
-      if not (b1 or b2 or b3): #no budget files entered at all
+      if not (b1 or b2): #no budget files entered at all
         self._errors["budget"] = '<div class="form_error">Budget documents are required. You may upload them as one file or as multuple files.</div>'
       else: #some files uploaded
         if not b1:
           self._errors["budget1"] = '<div class="form_error">This field is required.</div>'
         if not b2:
           self._errors["budget2"] = '<div class="form_error">This field is required.</div>'
-        if not b3:
-          self._errors["budget3"] = '<div class="form_error">This field is required.</div>'
       #require project budget if applicable and if not all-in-one
       if (support_type == 'Project support') and not cleaned_data.get('project_budget_file'):
          self._errors["project_budget_file"] = '<div class="form_error">This field is required.</div>'
