@@ -324,6 +324,14 @@ def AddFile(request, draft_id):
   logging.info("AddFile returning: " + content)
   return HttpResponse(content)
 
+def RemoveFile(request, draft_id, file_field):
+  draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
+  if hasattr(draft, file_field):
+    setattr(draft, file_field, ''):
+  else:
+    logging.error('Tried to remove non-existent field: ' + file_field)
+  return HttpResponse('success')
+  
 def RefreshUploadUrl(request, draft_id):
   """ Get a blobstore url for uploading a file """
   upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file')

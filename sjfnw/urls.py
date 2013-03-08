@@ -44,6 +44,7 @@ urlpatterns = patterns('',
   
   #application
   (r'^apply/(?P<draft_id>\d+)/add-file/?$', 'grants.views.AddFile'),
+  (r'^apply/(?P<draft_id>\d+)/remove/(?P<file_field>.*)/?$', 'grants.views.RemoveFile'),
   (r'^apply/info/(?P<cycle_id>\d+)/?$','grants.views.PreApply'),
   (r'^apply/?$', 'django.views.generic.simple.redirect_to', {'url':'/apply/'}),
   (r'^apply/(?P<cycle_id>\d+)/?$','grants.views.Apply'),
