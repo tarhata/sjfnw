@@ -283,7 +283,40 @@ $(document).ready(function() {
 		<div class="narrative_q">4. {{form.narrative4.label_tag}}
 		{{form.narrative4.errors}}{{form.narrative4}}
 		<span class="char_counter" id="narrative4_counter">{{limits.4}}</span></div>
-
+		
+		<table id="timeline">
+			<tr>
+				<td></td>
+				<th>date range</th>
+				<th>activities</th>
+				<th>goals/objectives</th>
+			</tr><tr>
+				<th>q1</th>
+				<td>{{form.timeline_1_date}}</td>
+				<td>{{form.timeline_1_activities}}</td>
+				<td>{{form.timeline_1_goals}}</td>
+			</tr><tr>
+				<th>q2</th>
+				<td>{{form.timeline_2_date}}</td>
+				<td>{{form.timeline_2_activities}}</td>
+				<td>{{form.timeline_2_goals}}</td>
+			</tr><tr>
+				<th>q3</th>
+				<td>{{form.timeline_3_date}}</td>
+				<td>{{form.timeline_3_activities}}</td>
+				<td>{{form.timeline_3_goals}}</td>
+			</tr><tr>
+				<th>q4</th>
+				<td>{{form.timeline_4_date}}</td>
+				<td>{{form.timeline_4_activities}}</td>
+				<td>{{form.timeline_4_goals}}</td>
+			</tr><tr>
+				<th>q5</th>
+				<td>{{form.timeline_5_date}}</td>
+				<td>{{form.timeline_5_activities}}</td>
+				<td>{{form.timeline_5_goals}}</td>
+			</tr>
+		</table>
 		<div class="narrative_q">5. {{form.narrative5.label_tag}}
 		{{form.narrative5.errors}}{{form.narrative5}}
 		<span class="char_counter" id="narrative5_counter">{{limits.5}}</span>
