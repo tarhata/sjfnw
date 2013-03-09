@@ -5,7 +5,7 @@ from django.test.utils import override_settings
 from django.utils import timezone
 from django.utils.html import strip_tags
 from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
-import sys, datetime, re
+import sys, datetime, re, json
 
 def setCycleDates(just_open = False):
   """ Updates grant cycle dates to make sure they have the expected statuses:
@@ -49,45 +49,33 @@ def logInAdmin(self): #just a django superuser
   superuser = User.objects.create_superuser('admin@gmail.com', 'admin@gmail.com', 'admin')
   self.client.login(username = 'admin@gmail.com', password = 'admin')
 
+def alterDraft(draft, fields, values):
+  contents_dict = json.loads(draft.contents)
+  index = 0
+  for field in fields:
+    contents_dict[field] = values[index]
+    index += 1
+  draft.contents = json.dumps(contents_dict)
+  draft.save()
+
+TIMELINE_FIELDS = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
+  
 TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'sjfnw.fund.middleware.MembershipMiddleware',)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplyTests(TestCase):
+class ApplySuccessfulTests(TestCase):
   
-  """ Submitting an application """
-  
-  """ TODO
-        apply with deadline extension
-        validate fiscal
-        validate collab 
-        possibly using draft-saved files """
+  """ TODO: apply with deadline extension """
 
   fixtures = ['test_grants.json',] 
   
   def setUp(self):
     setCycleDates()
-  
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
-  def test_add_file(self):
-    print('test_add_file')
-    """
-    budget =  open('sjfnw/grants/fixtures/test_grants_guide.txt')
-    form_data['budget'] = budget
-    funding_sources =  open('sjfnw/static/grant_app/funding_sources.doc')
-    form_data['funding_sources'] = funding_sources
-    demographics = open('sjfnw/static/css/admin.css')
-    form_data['demographics'] = demographics
-    
-    response = 
-    
-    budget.close()
-    funding_sources.close()
-    demographics.close()
-    """
-    pass
+    logInTesty(self)
   
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_post_valid_app(self):
+    print('test_post_valid_app')
     """ scenario: start with a complete draft, post to apply
                   general, no fiscal, all-in-one budget
 
@@ -97,9 +85,6 @@ class ApplyTests(TestCase):
                 email sent
                 org profile updated """
 
-    print('test_post_valid_app')
-    logInTesty(self)
-    
     org = Organization.objects.get(pk = 2)
     self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())   
@@ -114,12 +99,44 @@ class ApplyTests(TestCase):
     self.assertEqual(org.mission, u'Our mission is to boldly go where no database has gone before.')
     self.assertEqual(1, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
-    app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+  
+  def test_saved_timeline1(self):
 
+    answers = [
+      'Jan', 'Chillin', 'Not applicable',
+      '', '', '',
+      '', '', '',
+      '', '', '',
+      '', '', '',]
+    
+    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    alterDraft(draft, TIMELINE_FIELDS, answers)
+    
+    response = self.client.post('/apply/3/', follow=True)
+    self.assertEqual(response.status_code, 200)
+    app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    self.assertEqual(app.timeline, json.dumps(dict(zip(TIMELINE_FIELDS, answers))))
+    
+  def test_saved_timeline5(self):
+
+    answers = [
+      'Jan', 'Chillin', 'Not applicable',
+      'Feb', 'Petting dogs', '5 dogs',
+      'Mar', 'Planting daffodils', 'Sprouts',
+      'July', 'Walking around Greenlake', '9 times',
+      'August', 'Reading in the shade', 'No sunburns',]
+    
+    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    alterDraft(draft, TIMELINE_FIELDS, answers)
+    
+    response = self.client.post('/apply/3/', follow=True)
+    self.assertEqual(response.status_code, 200)
+    app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    self.assertEqual(app.timeline, json.dumps(dict(zip(TIMELINE_FIELDS, answers))))
+      
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyBlockedTests(TestCase):
-  """ Attempting to access an invalid application/cycle """
-  
+ 
   fixtures = ['test_grants.json',]   
   def setUp(self):
     setCycleDates()
@@ -150,8 +167,7 @@ class ApplyBlockedTests(TestCase):
     self.assertEqual(404, response.status_code)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)    
-class StartApplicationTests(TestCase):
-  """Starting (loading) an application for an open cycle."""
+class StartApplicationTests(TestCase): #MIGHT BE OUT OF DATE
   
   fixtures = ['test_grants.json',]  
   def setUp(self):
@@ -275,8 +291,34 @@ class RolloverTests(TestCase):
 """ TO DO """
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class DraftTests(TestCase):
+class ApplyValidationTests(TestCase):
+  """TO DO
+      fiscal
+      collab
+      timeline
+      files  """
 
+class DraftTests(TestCase):
+  
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  def test_add_file(self):
+    print('test_add_file')
+    """
+    budget =  open('sjfnw/grants/fixtures/test_grants_guide.txt')
+    form_data['budget'] = budget
+    funding_sources =  open('sjfnw/static/grant_app/funding_sources.doc')
+    form_data['funding_sources'] = funding_sources
+    demographics = open('sjfnw/static/css/admin.css')
+    form_data['demographics'] = demographics
+    
+    response = 
+    
+    budget.close()
+    funding_sources.close()
+    demographics.close()
+    """
+    pass
+    
   def discard(self):
     pass
 
