@@ -8,7 +8,7 @@ from django.utils import timezone
 from google.appengine.ext import blobstore
 from sjfnw.fund.models import GivingProject
 from sjfnw.utils import IntegerCommaField
-import datetime, logging
+import datetime, logging, json
 
 
 class Organization(models.Model):
@@ -286,3 +286,21 @@ class GrantApplication(models.Model):
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
   view_link.allow_tags = True
+  
+  def timeline_table(self):
+    display = '<table id="timeline"><tr><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
+    timeline = json.loads(self.timeline)
+    col = 0
+    row = 1
+    for field, value in timeline.iteritems():
+      col += 1
+      if col==1:
+        display += '<tr><th>q' + str(row) + '</th>'
+      display += '<td>' + value + '</td>'
+      if col==3:
+        display += '</tr>'
+        row += 1
+        col = 1
+      
+    return timeline
+  timeline_table.allow_tags = True

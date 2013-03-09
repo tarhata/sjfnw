@@ -175,26 +175,19 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       application = models.GrantApplication(organization = organization, grant_cycle = cycle)
       
       #get the timeline
+      timeline_fields = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
       logging.info('Getting timeline from ' + unicode(form_data))
       prefix = 'timeline_'
       suffixes = ['_date', '_activities', '_goals']
-      timeline = '<table id="timeline"><tr><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
-      for i in range(1, 5):
-        timeline += '<tr><th>q' + unicode(i) + '</th>'
-        for suffix in suffixes:
-          timeline += '<td>'
-          value = form_data.get(prefix + unicode(i) + suffix)
-          if value is None:
-            value = ''
-          else:
-            del form_data[prefix + unicode(i) + suffix]
-          timeline += value
-          timeline += '</td>'
-        timeline += '</tr>'
-      timeline += '</table>'
-      #logging.info('Timeline is: ' + timeline)
-      form_data['timeline'] = timeline
-      #logging.info('Data is: ' + unicode(form_data))
+      timeline = {}
+      for field in timeline_fields:
+        value = form_data.get(field)
+        if value is None:
+          value = ''
+        else:
+          del form_data[prefix + unicode(i) + suffix]
+        timeline[field] = value
+      form_data['timeline'] = timeline = json.dumps(timeline)
       
       for name, value in form_data.iteritems():
         #better to use cleaned_data than draft bc it has the correct types (not all unicode)
@@ -227,7 +220,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       logging.info("Application created; confirmation email sent to " + to)
 
       #delete draft
-      draft.delete()
+      #draft.delete()
       
       #success page
       return redirect('/apply/submitted')
