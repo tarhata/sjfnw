@@ -171,14 +171,12 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       logging.info('========= Application form valid')
       form_data = form.cleaned_data
       
-      #save as GrantApplication object
+      #create GrantApplication object
       application = models.GrantApplication(organization = organization, grant_cycle = cycle)
       
       #get the timeline
       timeline_fields = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
       logging.info('Getting timeline from ' + unicode(form_data))
-      prefix = 'timeline_'
-      suffixes = ['_date', '_activities', '_goals']
       timeline = {}
       for field in timeline_fields:
         value = form_data.get(field)
@@ -187,7 +185,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
         else:
           del form_data[field]
         timeline[field] = value
-      form_data['timeline'] = timeline = json.dumps(timeline)
+      form_data['timeline'] = json.dumps(timeline)
       
       for name, value in form_data.iteritems():
         #better to use cleaned_data than draft bc it has the correct types (not all unicode)
@@ -220,7 +218,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       logging.info("Application created; confirmation email sent to " + to)
 
       #delete draft
-      #draft.delete()
+      draft.delete()
       
       #success page
       return redirect('/apply/submitted')
@@ -344,12 +342,19 @@ def CopyApp(request, organization):
         cycle = models.GrantCycle.objects.get(pk = int(new_cycle))
       except models.GrantCycle.DoesNotExist:
         logging.error('CopyApp GrantCycle ' + new_cycle + ' not found')
-
+      
+      #make sure the combo does not exist already
+      new_draft, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
+      if not cr:
+        logging.error("CopyApp the combo already exists!?")
+        return HttpResponse("Error")
+      
       #get app/draft and its contents (json format for draft)
       if app:
         try:
           application = models.GrantApplication.objects.get(pk = int(app))
-          content = json.dumps(model_to_dict(application, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question']))
+          #dict of fields + timeline dict --> json
+          content = json.dumps(model_to_dict(application, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline']) + json.loads(application.timeline))
         except models.GrantApplication.DoesNotExist:
           logging.error('CopyApp - submitted app ' + app + ' not found')
       elif draft:
@@ -365,12 +370,6 @@ def CopyApp(request, organization):
           logging.error('CopyApp - draft ' + app + ' not found')
       else:
         logging.error("CopyApp no draft or app...")
-      
-      #make sure the combo does not exist already
-      new_draft, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
-      if not cr:
-        logging.error("CopyApp the combo already exists!?")
-        return HttpResponse("Error")
       
       #set contents & files
       new_draft.contents = content
@@ -446,7 +445,7 @@ def AppToDraft(request, app_id):
   if request.method == 'POST':
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
-    draft.contents = json.dumps(model_to_dict(submitted_app, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo']))
+    draft.contents = json.dumps(model_to_dict(submitted_app, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline']) + json.loads(submitted_app.timeline))
     for field in APP_FILE_FIELDS:
       setattr(draft, field, getattr(submitted_app, field))
     draft.save()
