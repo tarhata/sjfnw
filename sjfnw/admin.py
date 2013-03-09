@@ -67,18 +67,24 @@ class GivingProjectA(admin.ModelAdmin):
     'pre_approved',
    )
   inlines = [ProjectResourcesInline, MembershipInline]
-  form = GivingProjectAdminForm
-    
+  form = GivingProjectAdminForm 
   
 class MemberAdvanced(admin.ModelAdmin): #advanced only
   list_display = ('__unicode__', 'email')
   search_fields = ['first_name', 'last_name', 'email']
+
+class DonorInline(admin.TabularInline): #membership
+  model = Donor
+  extra = 0
+  readonly_fields = ('firstname', 'lastname', 'amount', 'talked', 'asked', 'pledged')
+  fields = ('firstname', 'lastname', 'amount', 'talked', 'asked', 'pledged')
 
 class MembershipA(admin.ModelAdmin):
   list_display = ('member', 'giving_project', 'estimated', 'pledged', 'has_overdue', 'last_activity', 'approved', 'leader')
   readonly_list = ('estimated', 'pledged', 'has_overdue',)
   actions = [approve]
   list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
+  inlines = [DonorInline,]
 
 class PledgedBooleanFilter(SimpleListFilter):
   title = 'pledged'
