@@ -6,6 +6,7 @@ from django.utils import timezone
 from google.appengine.ext import blobstore
 from models import GrantApplication, DraftGrantApplication
 import datetime, logging, re
+from sjfnw import constants
 
 def FindBlob(application, file_type):
   """Return file from the Blobstore.
@@ -60,21 +61,18 @@ def FindBlob(application, file_type):
       if b.filename == filename:
         logging.info('Filename matches - returning file')
         response =  HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
-        if b.content_type != 'text/plain' and not '.jpg' in filename.lower():
-          response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
         return response
       else:
         logging.debug('Creation time matched but filename did not: blobinfo filename was ' + filename + ', found ' + b.filename)
   logging.error('No matching blob found')
   raise Http404
 
+
 def GetFileURLs(app):
   """ Given a draft or application
   return a dict of urls for viewing each of its files
   taking into account whether it can be viewed in google doc viewer """
-  
-  viewer_formats = ('tiff', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mpeg4', 'mov', 'avi', 'wmv')
-  
+    
   #determine whether draft or submitted
   if isinstance(app, GrantApplication):
     logging.info("A submitted app!!!?!?")
@@ -91,9 +89,10 @@ def GetFileURLs(app):
   for field in file_urls:
     value = getattr(app, field)
     if value:
-      if str(value).lower().split(".")[-1] in viewer_formats: #doc viewer
+      filename = str(value).split('/')[-1]
+      if not settings.DEBUG and str(value).lower().split(".")[-1] in constants.VIEWER_FORMATS: #doc viewer
         file_urls[field] = 'https://docs.google.com/viewer?url='
-      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + '/' + field
+      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + '/' + field + '/' + filename
   
   return file_urls
   
