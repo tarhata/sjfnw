@@ -360,12 +360,11 @@ def CopyApp(request, organization):
       elif draft:
         try:
           application = models.DraftGrantApplication.objects.get(pk = int(draft))
-          content = application.contents
+          content = json.loads(application.contents)
           logging.info(content)
-          if content['cycle_question']:
-            logging.info('Removing extra q')
-            content['cycle_question'] = ''
+          content['cycle_question'] = ''        
           logging.info(content)
+          content = json.dumps(content)
         except models.DraftGrantApplication.DoesNotExist:
           logging.error('CopyApp - draft ' + app + ' not found')
       else:

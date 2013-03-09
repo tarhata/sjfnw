@@ -7,7 +7,7 @@ from django.utils.html import strip_tags
 from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
 import sys, datetime, re, json
 
-def setCycleDates(just_open = False):
+def setCycleDates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
       open, open, closed, upcoming, open """
       
@@ -18,24 +18,23 @@ def setCycleDates(just_open = False):
   cycle.open = now - ten_days
   cycle.close = now + ten_days
   cycle.save()
-  if not just_open:
-    twenty_days = datetime.timedelta(days=20)
-    cycle = GrantCycle.objects.get(pk=2)
-    cycle.open = now - ten_days
-    cycle.close = now + ten_days
-    cycle.save()
-    cycle = GrantCycle.objects.get(pk=3)
-    cycle.open = now - twenty_days
-    cycle.close = now - ten_days
-    cycle.save()
-    cycle = GrantCycle.objects.get(pk=4)
-    cycle.open = now + ten_days
-    cycle.close = now + twenty_days
-    cycle.save()
-    cycle = GrantCycle.objects.get(pk=5)
-    cycle.open = now - twenty_days
-    cycle.close = now + ten_days
-    cycle.save()
+  twenty_days = datetime.timedelta(days=20)
+  cycle = GrantCycle.objects.get(pk=2)
+  cycle.open = now - ten_days
+  cycle.close = now + ten_days
+  cycle.save()
+  cycle = GrantCycle.objects.get(pk=3)
+  cycle.open = now - twenty_days
+  cycle.close = now - ten_days
+  cycle.save()
+  cycle = GrantCycle.objects.get(pk=4)
+  cycle.open = now + ten_days
+  cycle.close = now + twenty_days
+  cycle.save()
+  cycle = GrantCycle.objects.get(pk=5)
+  cycle.open = now - twenty_days
+  cycle.close = now + ten_days
+  cycle.save()
 
 def logInTesty(self): # 2 OfficeMax Foundation
   self.user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')
@@ -75,7 +74,6 @@ class ApplySuccessfulTests(TestCase):
   
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_post_valid_app(self):
-    print('test_post_valid_app')
     """ scenario: start with a complete draft, post to apply
                   general, no fiscal, all-in-one budget
 
@@ -143,12 +141,10 @@ class ApplyBlockedTests(TestCase):
     logInTesty(self)
 
   def test_closed_cycle(self):
-    print('test_closed_cycle')
     response = self.client.get('/apply/3/')
     self.assertTemplateUsed('grants/closed.html')
   
   def test_already_submitted(self):
-    print('test_already_submitted')
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
     
     response = self.client.get('/apply/1/')
@@ -157,12 +153,10 @@ class ApplyBlockedTests(TestCase):
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
   
   def test_upcoming(self):
-    print('test_upcoming')
     response = self.client.get('/apply/4/')
     self.assertTemplateUsed('grants/closed.html')
   
   def test_nonexistent(self):
-    print('test_nonexistent')
     response = self.client.get('/apply/79/')
     self.assertEqual(404, response.status_code)
 
@@ -174,7 +168,6 @@ class StartApplicationTests(TestCase): #MIGHT BE OUT OF DATE
     setCycleDates()
 
   def test_load_first_app(self):
-    print('test_load_first_app')
     """ Brand new org starting an application
         Page loads
         Form is blank
@@ -190,7 +183,6 @@ class StartApplicationTests(TestCase): #MIGHT BE OUT OF DATE
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
 
   def test_load_second_app(self):
-    print('test_load_second_app')
     """ Org with profile starting an application
         Page loads
         Form has stuff from profile
@@ -216,7 +208,6 @@ class DraftWarningTests(TestCase):
     setCycleDates()
   
   def test_long_alert(self):
-    print('test_long_alert')
     """ Cycle created 12 days ago with cycle closing in 7.5 days """
     
     self.assertEqual(len(mail.outbox), 0)
@@ -233,7 +224,6 @@ class DraftWarningTests(TestCase):
     self.assertEqual(len(mail.outbox), 1)
   
   def test_long_alert_skip(self):
-    print('test_long_alert_skip')
     """ Cycle created now with cycle closing in 7.5 days """
     
     self.assertEqual(len(mail.outbox), 0)
@@ -250,7 +240,6 @@ class DraftWarningTests(TestCase):
     self.assertEqual(len(mail.outbox), 0)
     
   def test_short_alert(self):
-    print('test_short_alert')
     """ Cycle created now with cycle closing in 2.5 days """
   
     self.assertEqual(len(mail.outbox), 0)
@@ -267,7 +256,6 @@ class DraftWarningTests(TestCase):
     self.assertEqual(len(mail.outbox), 1)  
   
   def test_short_alert_ignore(self):
-    print('test_short_alert_ignore')
     """ Cycle created 12 days ago with cycle closing in 2.5 days """
     self.assertEqual(len(mail.outbox), 0)
     
@@ -282,11 +270,37 @@ class DraftWarningTests(TestCase):
     response = self.client.get('/mail/drafts/')
     self.assertEqual(len(mail.outbox), 0)
 
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class RolloverTests(TestCase):
+  """ Basic success
+  content,   timeline,   files,   not extra cycle q   """
   
-  fixtures = []
+  fixtures = ['test_grants.json',]
   def setUp(self):
-    logInTesty(self)
+    setCycleDates()
+    logInNewbie(self)
+  
+  def test_draft_rollover(self):
+    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    draft.organization = Organization.objects.get(pk=1)
+    draft.save()
+    
+    response = self.client.post('/apply/copy', {'cycle':'1', 'draft':'2', 'application':''}, follow=True)
+    
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, 'grants/org_app.html')
+    new_draft = DraftGrantApplication.objects.get(organization_id = 1, grant_cycle_id = 1)
+    old_contents = json.loads(draft.contents)
+    del old_contents['cycle_question']
+    new_contents = json.loads(new_draft.contents)
+    del new_contents['cycle_question']
+    self.assertEqual(old_contents, new_contents)
+    
+  def test_app_rollover(self):
+    pass
+  
+  def test_rollover_blocked(self):
+    pass #existing draft, app, or cycle not open?
 
 """ TO DO """
 
@@ -298,11 +312,11 @@ class ApplyValidationTests(TestCase):
       timeline
       files  """
 
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftTests(TestCase):
   
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_add_file(self):
-    print('test_add_file')
     """
     budget =  open('sjfnw/grants/fixtures/test_grants_guide.txt')
     form_data['budget'] = budget
