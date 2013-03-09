@@ -474,6 +474,7 @@ def AddMult(request):
   if request.method=='POST':
     membership.last_activity = timezone.now()
     membership.save()
+    logging.info(request.POST)
     formset = ContactFormset(request.POST)
     if formset.is_valid():
       for form in formset.cleaned_data:
