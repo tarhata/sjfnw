@@ -69,6 +69,7 @@ class ApplyTests(TestCase):
   
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_add_file(self):
+    print('test_add_file')
     """
     budget =  open('sjfnw/grants/fixtures/test_grants_guide.txt')
     form_data['budget'] = budget
@@ -95,7 +96,8 @@ class ApplyTests(TestCase):
                 draft deleted
                 email sent
                 org profile updated """
-    
+
+    print('test_post_valid_app')
     logInTesty(self)
     
     org = Organization.objects.get(pk = 2)
@@ -112,6 +114,7 @@ class ApplyTests(TestCase):
     self.assertEqual(org.mission, u'Our mission is to boldly go where no database has gone before.')
     self.assertEqual(1, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
+    app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyBlockedTests(TestCase):
@@ -123,10 +126,12 @@ class ApplyBlockedTests(TestCase):
     logInTesty(self)
 
   def test_closed_cycle(self):
+    print('test_closed_cycle')
     response = self.client.get('/apply/3/')
     self.assertTemplateUsed('grants/closed.html')
   
   def test_already_submitted(self):
+    print('test_already_submitted')
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
     
     response = self.client.get('/apply/1/')
@@ -135,10 +140,12 @@ class ApplyBlockedTests(TestCase):
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
   
   def test_upcoming(self):
+    print('test_upcoming')
     response = self.client.get('/apply/4/')
     self.assertTemplateUsed('grants/closed.html')
   
   def test_nonexistent(self):
+    print('test_nonexistent')
     response = self.client.get('/apply/79/')
     self.assertEqual(404, response.status_code)
 
@@ -151,6 +158,7 @@ class StartApplicationTests(TestCase):
     setCycleDates()
 
   def test_load_first_app(self):
+    print('test_load_first_app')
     """ Brand new org starting an application
         Page loads
         Form is blank
@@ -166,6 +174,7 @@ class StartApplicationTests(TestCase):
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
 
   def test_load_second_app(self):
+    print('test_load_second_app')
     """ Org with profile starting an application
         Page loads
         Form has stuff from profile
@@ -191,6 +200,7 @@ class DraftWarningTests(TestCase):
     setCycleDates()
   
   def test_long_alert(self):
+    print('test_long_alert')
     """ Cycle created 12 days ago with cycle closing in 7.5 days """
     
     self.assertEqual(len(mail.outbox), 0)
@@ -207,6 +217,7 @@ class DraftWarningTests(TestCase):
     self.assertEqual(len(mail.outbox), 1)
   
   def test_long_alert_skip(self):
+    print('test_long_alert_skip')
     """ Cycle created now with cycle closing in 7.5 days """
     
     self.assertEqual(len(mail.outbox), 0)
@@ -223,6 +234,7 @@ class DraftWarningTests(TestCase):
     self.assertEqual(len(mail.outbox), 0)
     
   def test_short_alert(self):
+    print('test_short_alert')
     """ Cycle created now with cycle closing in 2.5 days """
   
     self.assertEqual(len(mail.outbox), 0)
@@ -239,6 +251,7 @@ class DraftWarningTests(TestCase):
     self.assertEqual(len(mail.outbox), 1)  
   
   def test_short_alert_ignore(self):
+    print('test_short_alert_ignore')
     """ Cycle created 12 days ago with cycle closing in 2.5 days """
     self.assertEqual(len(mail.outbox), 0)
     
@@ -260,60 +273,6 @@ class RolloverTests(TestCase):
     logInTesty(self)
 
 """ TO DO """
-
-
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplyTests(TestCase): #OUT OF DATE 3/4
-  
-  """ Submitting an application """
-  
-  """ TODO
-        apply with deadline extension
-        validate fiscal
-        validate collab 
-        possibly using draft-saved files """
-
-  fixtures = ['test_grants.json',] 
-  
-  def setUp(self):
-    setCycleDates()
-  
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
-  def test_post_valid_app(self): #OUT OF DATE 3/4
-    pass
-    """(Does not test blobstore file handling)
-        Updates org profile
-        Creates a new application object
-        No draft object 
-    
-    logInNewbie(self)
-    
-    org = Organization.objects.get(pk = 1)
-    self.assertEqual(0, GrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
-    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
-    self.assertFalse(org.mission)
-    
-
-    budget =  open('sjfnw/grants/fixtures/test_grants_guide.txt')
-    form_data['budget'] = budget
-    funding_sources =  open('sjfnw/static/grant_app/funding_sources.doc')
-    form_data['funding_sources'] = funding_sources
-    demographics = open('sjfnw/static/css/admin.css')
-    form_data['demographics'] = demographics
-
-    response = self.client.post('/apply/1/', form_data, follow=True)
-    budget.close()
-    funding_sources.close()
-    demographics.close()
-    
-    #form = response.context['form']
-    #print(form.errors)
-    org = Organization.objects.get(pk = 1)
-    self.assertTemplateUsed(response, 'grants/submitted.html')
-    self.assertEqual(org.mission, u'A kmission statement of some importance!')
-    self.assertEqual(1, GrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
-    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 1, grant_cycle_id = 1).count())
-    """
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftTests(TestCase):
