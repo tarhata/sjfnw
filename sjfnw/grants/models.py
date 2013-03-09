@@ -290,17 +290,15 @@ class GrantApplication(models.Model):
   def timeline_table(self):
     display = '<table id="timeline"><tr><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
     timeline = json.loads(self.timeline)
-    col = 0
-    row = 1
-    for field, value in timeline.iteritems():
-      col += 1
-      if col==1:
-        display += '<tr><th>q' + str(row) + '</th>'
-      display += '<td>' + value + '</td>'
-      if col==3:
-        display += '</tr>'
-        row += 1
-        col = 1
-      
-    return timeline
+    timeline_fields = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
+    index = 0
+    for row in range(1, 6):
+      display += '<tr><th>q' + str(row) + '</th>'
+      for col in range(1, 4):
+        value = timeline[timeline_fields[index]]
+        display += '<td>' + value + '</td>'
+        index += 1
+      display += '</tr>'
+    display += '</table>'  
+    return display
   timeline_table.allow_tags = True

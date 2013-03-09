@@ -185,7 +185,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
         if value is None:
           value = ''
         else:
-          del form_data[prefix + unicode(i) + suffix]
+          del form_data[field]
         timeline[field] = value
       form_data['timeline'] = timeline = json.dumps(timeline)
       
