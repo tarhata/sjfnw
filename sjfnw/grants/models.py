@@ -9,6 +9,7 @@ from google.appengine.ext import blobstore
 from sjfnw.fund.models import GivingProject
 from sjfnw.utils import IntegerCommaField
 import datetime, logging, json
+from sjfnw import constants
 
 
 class Organization(models.Model):
@@ -181,7 +182,7 @@ SCREENING_CHOICES = (
   (130, 'Closed'),)
 
 def validate_file_extension(value):
-  if not str(value).lower().split(".")[-1] in settings.ALLOWED_FILE_TYPES:
+  if not str(value).lower().split(".")[-1] in constants.ALLOWED_FILE_TYPES:
     raise ValidationError(u'That file type is not supported.')
   
 class GrantApplication(models.Model):

@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 import models, datetime, logging
 from sjfnw.utils import IntegerCommaField
+from sjfnw import constants
 
 class LoginForm(forms.Form):
   email = forms.EmailField()
@@ -31,7 +32,7 @@ class CharLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'
 
 def validate_file_extension(value):
-  if not str(value).lower().split(".")[-1] in settings.ALLOWED_FILE_TYPES:
+  if not str(value).lower().split(".")[-1] in constants.ALLOWED_FILE_TYPES:
     raise ValidationError(u'That file type is not supported.')
 
 class GrantApplicationForm(forms.Form):

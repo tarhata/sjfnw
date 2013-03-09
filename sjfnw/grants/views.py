@@ -14,7 +14,7 @@ from django.utils.html import strip_tags
 from google.appengine.ext import blobstore
 from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm
 from decorators import registered_org
-from sjfnw import fund
+from sjfnw import fund, constants
 import models, utils
 import datetime, logging, json, re, quopri
 
@@ -86,8 +86,8 @@ def OrgRegister(request):
 
 def OrgSupport(request):
   return render(request, 'grants/org_support.html', {
-  'support_email':settings.SUPPORT_EMAIL,
-  'support_form':settings.SUPPORT_FORM_URL})
+  'support_email':constants.SUPPORT_EMAIL,
+  'support_form':constants.SUPPORT_FORM_URL})
 
 # REGISTERED ORG VIEWS
 @login_required(login_url=LOGIN_URL)
@@ -208,11 +208,11 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
         logging.error('Org profile not updated.  User: %s, application id: %s', request.user.email, application.pk)
 
       #send email confirmation
-      subject, from_email = 'Grant application submitted', settings.GRANT_EMAIL
+      subject, from_email = 'Grant application submitted', constants.GRANT_EMAIL
       to = organization.email
       html_content = render_to_string('grants/email_submitted.html', {'org':organization, 'cycle':cycle})
       text_content = strip_tags(html_content)
-      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.SUPPORT_EMAIL])
+      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [constants.SUPPORT_EMAIL])
       msg.attach_alternative(html_content, "text/html")
       msg.send()
       logging.info("Application created; confirmation email sent to " + to)
@@ -471,11 +471,11 @@ def DraftWarning(request):
     time_left = draft.grant_cycle.close - timezone.now()
     created_offset = draft.grant_cycle.close - draft.created
     if (created_offset > eight and eight > time_left > datetime.timedelta(days=7)) or (created_offset < eight and datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3)):
-      subject, from_email = 'Grant cycle closing soon', settings.GRANT_EMAIL
+      subject, from_email = 'Grant cycle closing soon', constants.GRANT_EMAIL
       to = draft.organization.email
       html_content = render_to_string('grants/email_draft_warning.html', {'org':draft.organization, 'cycle':draft.grant_cycle})
       text_content = strip_tags(html_content)
-      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.SUPPORT_EMAIL])
+      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [constants.SUPPORT_EMAIL])
       msg.attach_alternative(html_content, "text/html")
       msg.send()
       logging.info("Email sent to " + to + "regarding draft application soon to expire")
