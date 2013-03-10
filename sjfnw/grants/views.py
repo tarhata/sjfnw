@@ -14,13 +14,12 @@ from django.utils.html import strip_tags
 from google.appengine.ext import blobstore
 from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm
 from decorators import registered_org
-from sjfnw import fund, constants
+from sjfnw import constants
 import models, utils
-import datetime, logging, json, re, quopri
+import datetime, logging, json, re
 
 # CONSTANTS
 LOGIN_URL = '/apply/login/'
-APP_FILE_FIELDS = ['budget', 'demographics', 'funding_sources', 'fiscal_letter', 'budget1', 'budget2', 'budget3', 'project_budget_file']
 
 # PUBLIC ORG VIEWS
 def OrgLogin(request):
@@ -157,7 +156,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       render(request, 'grants/submitted_closed.html', {'cycle':cycle})
     
     #get files from draft
-    files_data = model_to_dict(draft, fields = APP_FILE_FIELDS)
+    files_data = model_to_dict(draft, fields = constants.APP_FILE_FIELDS)
     #logging.info('========= Files data: ' + str(files_data))
     
     #get other fields from draft
@@ -175,10 +174,9 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       application = models.GrantApplication(organization = organization, grant_cycle = cycle)
       
       #get the timeline
-      timeline_fields = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
       logging.info('Getting timeline from ' + unicode(form_data))
       timeline = {}
-      for field in timeline_fields:
+      for field in constants.TIMELINE_FIELDS:
         value = form_data.get(field)
         if value is None:
           value = ''
@@ -355,7 +353,7 @@ def CopyApp(request, organization):
         try:
           application = models.GrantApplication.objects.get(pk = int(app))
           #dict of fields + timeline dict --> json
-          content = model_to_dict(application, exclude = APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
+          content = model_to_dict(application, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
           content.update(json.loads(application.timeline))
           content = json.dumps(content)
         except models.GrantApplication.DoesNotExist:
@@ -376,7 +374,7 @@ def CopyApp(request, organization):
       
       #set contents & files
       new_draft.contents = content
-      for field in APP_FILE_FIELDS:
+      for field in constants.APP_FILE_FIELDS:
         setattr(new_draft, field, getattr(application, field))
       new_draft.save()
       logging.info("CopyApp -- content and files set")
@@ -448,8 +446,8 @@ def AppToDraft(request, app_id):
   if request.method == 'POST':
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
-    draft.contents = json.dumps(model_to_dict(submitted_app, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline']) + json.loads(submitted_app.timeline))
-    for field in APP_FILE_FIELDS:
+    draft.contents = json.dumps(model_to_dict(submitted_app, exclude = constants.APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline']) + json.loads(submitted_app.timeline))
+    for field in constants.APP_FILE_FIELDS:
       setattr(draft, field, getattr(submitted_app, field))
     draft.save()
     logging.info('Reverted to draft, draft id ' + str(draft.pk))

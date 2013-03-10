@@ -6,8 +6,7 @@ from django.utils import timezone
 from django.utils.html import strip_tags
 from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
 import sys, datetime, re, json
-
-TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'sjfnw.fund.middleware.MembershipMiddleware',)
+from sjfnw.constants import TEST_MIDDLEWARE, TIMELINE_FIELDS, APP_FILE_FIELDS
 
 def setCycleDates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
@@ -58,9 +57,6 @@ def alterDraft(draft, fields, values):
     index += 1
   draft.contents = json.dumps(contents_dict)
   draft.save()
-
-TIMELINE_FIELDS = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
-APP_FILE_FIELDS = ['budget', 'demographics', 'funding_sources', 'fiscal_letter', 'budget1', 'budget2', 'budget3', 'project_budget_file']
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplySuccessfulTests(TestCase):
@@ -357,7 +353,15 @@ class RolloverTests(TestCase):
     self.assertContains(response, 'Select')
 
 class RevertTests(TestCase):
-  pass
+  
+  fixtures = ['test_grants.json',]
+  
+  def setUp(self):
+    setCycleDates()
+    logInAdmin(self)
+  
+  def test_revert_app1(self):
+  
 
 """ TO DO """
 
