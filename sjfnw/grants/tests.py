@@ -352,6 +352,7 @@ class RolloverTests(TestCase):
     self.assertEqual(response.context['cycle_count'], 2)
     self.assertContains(response, 'Select')
 
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class RevertTests(TestCase):
   
   fixtures = ['test_grants.json',]
@@ -360,8 +361,27 @@ class RevertTests(TestCase):
     setCycleDates()
     logInAdmin(self)
   
+  def test_load_revert(self):
+    
+    response = self.client.get('/admin/grants/grantapplication/1/revert')
+    
+    self.assertEqual(200, response.status_code)
+    self.assertContains('Are you sure you want to revert this application into a draft?')
+    
   def test_revert_app1(self):
-  
+    """ scenario: revert submitted app pk1
+        verify:
+          draft created
+          app gone
+          draft fields match app (incl cycle) """
+
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=1).count())
+    application = GrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
+    
+    response = self.client.post('/admin/grants/grantapplication/1/revert')
+    
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=1).count())
+    draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
 
 """ TO DO """
 
