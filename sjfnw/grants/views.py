@@ -342,12 +342,13 @@ def CopyApp(request, organization):
         cycle = models.GrantCycle.objects.get(pk = int(new_cycle))
       except models.GrantCycle.DoesNotExist:
         logging.error('CopyApp GrantCycle ' + new_cycle + ' not found')
-      
+        return render(request, 'grants/copy_app_error.html')
+        
       #make sure the combo does not exist already
       new_draft, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
       if not cr:
         logging.error("CopyApp the combo already exists!?")
-        return HttpResponse("Error")
+        return render(request, 'grants/copy_app_error.html')
       
       #get app/draft and its contents (json format for draft)
       if app:
@@ -371,6 +372,7 @@ def CopyApp(request, organization):
           logging.error('CopyApp - draft ' + app + ' not found')
       else:
         logging.error("CopyApp no draft or app...")
+        return render(request, 'grants/copy_app_error.html')
       
       #set contents & files
       new_draft.contents = content
