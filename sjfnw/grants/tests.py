@@ -288,7 +288,7 @@ class RolloverTests(TestCase):
           new draft created
           new draft contents = old draft contents (ignoring cycle q)
           new draft files = old draft files  """
-
+    
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     draft.organization = Organization.objects.get(pk=1)
     draft.save()
@@ -301,10 +301,11 @@ class RolloverTests(TestCase):
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
     new_draft = DraftGrantApplication.objects.get(organization_id = 1, grant_cycle_id = 1)
     old_contents = json.loads(draft.contents)
-    del old_contents['cycle_question']
+    cq = old_contents.pop('cycle_question', None)
     new_contents = json.loads(new_draft.contents)
-    del new_contents['cycle_question']
+    nq = new_contents.pop('cycle_question', '')
     self.assertEqual(old_contents, new_contents)
+    self.assertNotEqual(cq, nq)
     for field in APP_FILE_FIELDS:
       self.assertEqual(getattr(draft, field), getattr(new_draft, field))
     
@@ -327,15 +328,19 @@ class RolloverTests(TestCase):
     self.assertEqual(response.status_code, 200)
     self.assertTemplateUsed(response, 'grants/org_app.html')
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=2).count())
+    
     draft = DraftGrantApplication.objects.get(organization_id=1, grant_cycle_id=2)
-    print(draft.contents)
     draft_contents = json.loads(draft.contents)
-    #get dat timeline out
+    app_timeline = json.loads(app.timeline)
     for field, value in draft_contents.iteritems():
-      self.assertEqual(value, getattr(app, field))
+      if field in TIMELINE_FIELDS:
+        self.assertEqual(value, app_timeline[field])
+      else:
+        self.assertEqual(value, getattr(app, field))
     for field in APP_FILE_FIELDS:
       self.assertEqual(getattr(draft, field), getattr(app, field))
-  
+    self.assertNotIn('cycle_question', draft_contents)
+
   def test_rollover_blocked(self):
     pass #existing draft, app, or cycle not open?
 
