@@ -7,6 +7,8 @@ from django.utils.html import strip_tags
 from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
 import sys, datetime, re, json
 
+TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'sjfnw.fund.middleware.MembershipMiddleware',)
+
 def setCycleDates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
       open, open, closed, upcoming, open """
@@ -58,8 +60,7 @@ def alterDraft(draft, fields, values):
   draft.save()
 
 TIMELINE_FIELDS = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
-  
-TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'sjfnw.fund.middleware.MembershipMiddleware',)
+APP_FILE_FIELDS = ['budget', 'demographics', 'funding_sources', 'fiscal_letter', 'budget1', 'budget2', 'budget3', 'project_budget_file']
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplySuccessfulTests(TestCase):
@@ -281,23 +282,59 @@ class RolloverTests(TestCase):
     logInNewbie(self)
   
   def test_draft_rollover(self):
+    """ scenario: take complete draft, make it belong to new org, rollover to cycle 1
+        verify:
+          success (status code & template)
+          new draft created
+          new draft contents = old draft contents (ignoring cycle q)
+          new draft files = old draft files  """
+
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     draft.organization = Organization.objects.get(pk=1)
     draft.save()
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
     
     response = self.client.post('/apply/copy', {'cycle':'1', 'draft':'2', 'application':''}, follow=True)
     
     self.assertEqual(response.status_code, 200)
     self.assertTemplateUsed(response, 'grants/org_app.html')
+    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
     new_draft = DraftGrantApplication.objects.get(organization_id = 1, grant_cycle_id = 1)
     old_contents = json.loads(draft.contents)
     del old_contents['cycle_question']
     new_contents = json.loads(new_draft.contents)
     del new_contents['cycle_question']
     self.assertEqual(old_contents, new_contents)
+    for field in APP_FILE_FIELDS:
+      self.assertEqual(getattr(draft, field), getattr(new_draft, field))
     
   def test_app_rollover(self):
-    pass
+    """ scenario: take a submitted app, make it belong to new org, rollover to cycle 1
+        verify:
+          success (status code & template)
+          new draft created
+          draft contents = app contents (ignoring cycle q)
+          draft files = app files  """
+    
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=2).count())
+    
+    app = GrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
+    app.organization = Organization.objects.get(pk=1)
+    app.save()
+
+    response = self.client.post('/apply/copy', {'cycle':'2', 'draft':'', 'application':'1'}, follow=True)
+    
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, 'grants/org_app.html')
+    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=2).count())
+    draft = DraftGrantApplication.objects.get(organization_id=1, grant_cycle_id=2)
+    print(draft.contents)
+    draft_contents = json.loads(draft.contents)
+    #get dat timeline out
+    for field, value in draft_contents.iteritems():
+      self.assertEqual(value, getattr(app, field))
+    for field in APP_FILE_FIELDS:
+      self.assertEqual(getattr(draft, field), getattr(app, field))
   
   def test_rollover_blocked(self):
     pass #existing draft, app, or cycle not open?
