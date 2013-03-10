@@ -486,26 +486,41 @@ class RevertTests(TestCase):
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftTests(TestCase):
   
+  fixtures = ['test_grants.json',]
+  
+  def setUp(self):
+    setCycleDates()
+    logInTesty(self)
+  
+  def test_autosave1(self):
+    """ scenario: steal contents of draft 2, turn it into a dict. submit that as request.POST for cycle 5
+        verify: draft contents match  """
+    complete_draft = DraftGrantApplication.objects.get(pk=2)
+    new_draft = DraftGrantApplication(organization = Organization.objects.get(pk=2), grant_cycle = GrantCycle.objects.get(pk=5))
+    new_draft.save()
+    dict = json.loads(complete_draft.contents)
+    
+    response = self.client.post('/apply/5/autosave/', dict)
+    self.assertEqual(200, response.status_code)
+    new_draft = DraftGrantApplication.objects.get(organization_id =2, grant_cycle_id=5)
+    self.assertEqual(json.loads(complete_draft.contents), json.loads(new_draft.contents))
+  
+  """ TO DO
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_add_file(self):
-    """
-    budget =  open('sjfnw/grants/fixtures/test_grants_guide.txt')
-    form_data['budget'] = budget
-    funding_sources =  open('sjfnw/static/grant_app/funding_sources.doc')
-    form_data['funding_sources'] = funding_sources
-    demographics = open('sjfnw/static/css/admin.css')
-    form_data['demographics'] = demographics
     
-    response = 
+    budget = open('sjfnw/grants/fixtures/test_grants_guide.txt')
+    form_data = {'budget': budget}
     
+    response = self.client.post('/apply/2/add-file/', form_data)
     budget.close()
-    funding_sources.close()
-    demographics.close()
-    """
-    pass
+
+    self.assertEqual(200, response.status_code)
     
   def discard(self):
     pass
+    
+  """
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class HomePageTests(TestCase):
@@ -516,17 +531,3 @@ class HomePageTests(TestCase):
         display/sorting of cycles"""
   def load_home_page(self):
     pass
-
-""" TESTS TO DO
-    
-  try to access pages without being registered
-  file upload/serving?
- 
-  FIXTURE NEEDS
-    orgs:
-      brand new
-      has saved profile
-      has applied to 1+ open apps
-      has saved draft that's still open
-      has saved draft that's past-due
- """
