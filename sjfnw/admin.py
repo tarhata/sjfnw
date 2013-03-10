@@ -42,7 +42,7 @@ class MembershipInline(admin.TabularInline): #GP
   formset = fund.forms.MembershipInlineFormset
   extra = 0
   can_delete = False
-  fields = ('member', 'approved', 'leader',)
+  fields = ('member', 'giving_project', 'approved', 'leader',)
 
 class ProjectResourcesInline(admin.TabularInline): #GP
   model = ProjectResource
