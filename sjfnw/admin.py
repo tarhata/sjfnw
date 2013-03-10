@@ -68,19 +68,28 @@ class GivingProjectA(admin.ModelAdmin):
    )
   inlines = [ProjectResourcesInline, MembershipInline]
   form = GivingProjectAdminForm
-    
   
 class MemberAdvanced(admin.ModelAdmin): #advanced only
-  list_display = ('__unicode__', 'email')
+  list_display = ('first_name', 'last_name', 'email')
   search_fields = ['first_name', 'last_name', 'email']
+  inlines = [MembershipInline]
+
+class DonorInline(admin.TabularInline):
+  model = Donor
+  extra = 0
+  max_num = 0
+  can_delete = False
+  fields = ('firstname', 'lastname', 'talked', 'amount',  'pledged', 'gifted')
+  readonly_fields = ('firstname', 'lastname', 'talked', 'amount',  'pledged', 'gifted')
 
 class MembershipA(admin.ModelAdmin):
   list_display = ('member', 'giving_project', 'estimated', 'pledged', 'has_overdue', 'last_activity', 'approved', 'leader')
   readonly_list = ('estimated', 'pledged', 'has_overdue',)
   actions = [approve]
   list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
+  inlines = [DonorInline]
 
-class PledgedBooleanFilter(SimpleListFilter):
+class PledgedBooleanFilter(SimpleListFilter): #filter for donors & steps
   title = 'pledged'
   parameter_name = 'pledged_tf'
   
@@ -95,7 +104,7 @@ class PledgedBooleanFilter(SimpleListFilter):
     elif self.value() == 'None':
       return queryset.filter(pledged__isnull=True)
 
-class GiftedBooleanFilter(SimpleListFilter):
+class GiftedBooleanFilter(SimpleListFilter): #filter for donors & steps
   title = 'gifted'
   parameter_name = 'gifted_tf'
   
@@ -122,7 +131,7 @@ class StepAdv(admin.ModelAdmin): #adv only
   list_display = ('description', 'donor', step_membership, 'date', 'completed', 'pledged')
   list_filter = ('donor__membership', PledgedBooleanFilter, GiftedBooleanFilter)
 
-# Grant ModelAdmin
+# Grants ModelAdmin
 
 class GrantApplicationCycleInline(admin.TabularInline): #Cycle
   model = GrantApplication
