@@ -446,7 +446,9 @@ def AppToDraft(request, app_id):
   if request.method == 'POST':
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
-    draft.contents = json.dumps(model_to_dict(submitted_app, exclude = constants.APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline']) + json.loads(submitted_app.timeline))
+    content = model_to_dict(submitted_app, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline'])
+    content.update(json.loads(submitted_app.timeline))
+    draft.contents = json.dumps(content)
     for field in constants.APP_FILE_FIELDS:
       setattr(draft, field, getattr(submitted_app, field))
     draft.save()

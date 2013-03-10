@@ -58,6 +58,19 @@ def alterDraft(draft, fields, values):
   draft.contents = json.dumps(contents_dict)
   draft.save()
 
+def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in draft
+  draft_contents = json.loads(draft.contents)
+  app_timeline = json.loads(app.timeline)
+  for field, value in draft_contents.iteritems():
+    if field in TIMELINE_FIELDS:
+      self.assertEqual(value, app_timeline[field])
+    else:
+      self.assertEqual(value, getattr(app, field))
+  for field in APP_FILE_FIELDS:
+    self.assertEqual(getattr(draft, field), getattr(app, field))
+  if exclude_cycle:
+    self.assertNotIn('cycle_question', draft_contents)
+
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplySuccessfulTests(TestCase):
   
@@ -326,16 +339,7 @@ class RolloverTests(TestCase):
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=2).count())
     
     draft = DraftGrantApplication.objects.get(organization_id=1, grant_cycle_id=2)
-    draft_contents = json.loads(draft.contents)
-    app_timeline = json.loads(app.timeline)
-    for field, value in draft_contents.iteritems():
-      if field in TIMELINE_FIELDS:
-        self.assertEqual(value, app_timeline[field])
-      else:
-        self.assertEqual(value, getattr(app, field))
-    for field in APP_FILE_FIELDS:
-      self.assertEqual(getattr(draft, field), getattr(app, field))
-    self.assertNotIn('cycle_question', draft_contents)
+    assertDraftAppMatch(self, draft, app, True)
 
   def test_rollover_form_display(self):
     response = self.client.get('/apply/copy')
@@ -366,23 +370,24 @@ class RevertTests(TestCase):
     response = self.client.get('/admin/grants/grantapplication/1/revert')
     
     self.assertEqual(200, response.status_code)
-    self.assertContains('Are you sure you want to revert this application into a draft?')
+    self.assertContains(response, 'Are you sure you want to revert this application into a draft?')
     
   def test_revert_app1(self):
     """ scenario: revert submitted app pk1
         verify:
           draft created
           app gone
-          draft fields match app (incl cycle) """
-
+          draft fields match app (incl cycle, timeline) """
+    
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=1).count())
-    application = GrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
+    app = GrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
     
     response = self.client.post('/admin/grants/grantapplication/1/revert')
     
-    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=1).count())
+    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=1).count())
     draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
-
+    assertDraftAppMatch(self, draft, app, False)
+    
 """ TO DO """
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
