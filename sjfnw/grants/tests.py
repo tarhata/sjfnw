@@ -341,8 +341,23 @@ class RolloverTests(TestCase):
       self.assertEqual(getattr(draft, field), getattr(app, field))
     self.assertNotIn('cycle_question', draft_contents)
 
-  def test_rollover_blocked(self):
-    pass #existing draft, app, or cycle not open?
+  def test_rollover_form_display(self):
+    response = self.client.get('/apply/copy')
+    self.assertTemplateUsed(response, 'grants/org_app_copy.html')
+    self.assertEqual(response.context['apps_count'], 2)
+    self.assertEqual(response.context['cycle_count'], 4)
+    self.assertNotContains(response, 'Select')
+    
+    self.client.logout()
+    logInTesty(self)
+    response = self.client.get('/apply/copy')
+    self.assertTemplateUsed(response, 'grants/org_app_copy.html')
+    self.assertEqual(response.context['apps_count'], 5)
+    self.assertEqual(response.context['cycle_count'], 2)
+    self.assertContains(response, 'Select')
+
+class RevertTests(TestCase):
+  pass
 
 """ TO DO """
 
