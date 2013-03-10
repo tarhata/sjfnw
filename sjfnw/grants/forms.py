@@ -129,12 +129,12 @@ class GrantApplicationForm(forms.Form):
   #files
   demographics = forms.FileField(label = 'Diversity chart', max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   funding_sources = forms.FileField(label = 'Funding sources', max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
-  fiscal_letter = forms.FileField(required=False, label = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255, widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
-  budget = forms.FileField(max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
-  budget1 = forms.FileField(max_length=255, label = 'Annual statement', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
-  budget2 = forms.FileField(max_length=255, label = 'Annual operating budget', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
-  budget3 = forms.FileField(max_length=255, label = 'Balance sheet (if available)', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
-  project_budget_file = forms.FileField(max_length=255, label = 'Project budget', validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}), required=False)
+  fiscal_letter = forms.FileField(label = 'Fiscal sponsor letter', required=False, help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255, widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  budget = forms.FileField(required=False, max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  budget1 = forms.FileField(label = 'Annual statement', required=False, max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  budget2 = forms.FileField(label = 'Annual operating budget', required=False, max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  budget3 = forms.FileField(label = 'Balance sheet (if available)', required=False, max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
+  project_budget_file = forms.FileField(label = 'Project budget', required=False, max_length=255, validators=[validate_file_extension], widget=forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}))
   
   def __init__(self, cycle, *args, **kwargs):
     super(GrantApplicationForm, self).__init__(*args, **kwargs)
@@ -146,13 +146,13 @@ class GrantApplicationForm(forms.Form):
     cleaned_data = super(GrantApplicationForm, self).clean()
     logging.info('========= form clean method, data is: ' + str(cleaned_data))
     
-    #project - require title & budget if type
+    #project - require title, budget & file if type
     support_type = cleaned_data.get('support_type')
     if support_type == 'Project support':
       if not cleaned_data.get('project_budget'):
-        self._errors["project_budget"] = '<div class="form_error">This field is required.</div>'
+        self._errors["project_budget"] = '<div class="form_error">This field is required when applying for project support.</div>'
       if not cleaned_data.get('project_title'):
-        self._errors["project_title"] = '<div class="form_error">This field is required.</div>'
+        self._errors["project_title"] = '<div class="form_error">This field is required when applying for project support.</div>'
 
     #budget files - require all-in-one or full set
     budget = cleaned_data.get('budget')
@@ -169,11 +169,9 @@ class GrantApplicationForm(forms.Form):
           self._errors["budget2"] = '<div class="form_error">This field is required.</div>'
       #require project budget if applicable and if not all-in-one
       if (support_type == 'Project support') and not cleaned_data.get('project_budget_file'):
-         self._errors["project_budget_file"] = '<div class="form_error">This field is required.</div>'
-    """
+         self._errors["project_budget_file"] = '<div class="form_error">This field is required when applying for project support.</div>'
     elif b1 or b2 or b3: #all-in-one included + other file(s)
-      self._errors["budget"] = '<div class="form_error">Budget documents are required. You may upload them as one file or as multuple files.</div>'
-    """      
+      self._errors["budget"] = '<div class="form_error">Budget documents should be uploaded all in one file OR in the individual fields below.</div>'   
 
     #fiscal info/file - require all if any
     org = cleaned_data.get('fiscal_org')
@@ -229,7 +227,21 @@ class GrantApplicationForm(forms.Form):
         self._errors["racial_justice_ref2_org"] = '<div class="form_error">Enter the organization name.</div>'
       if not phone and not email:
         self._errors["racial_justice_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
-      
+    
+    TIMELINE_FIELDS = constants.TIMELINE_FIELDS
+    #timeline - require full rows
+    for start in range(0, 13, 3):
+      date = cleaned_data.get(TIMELINE_FIELDS[start])
+      act = cleaned_data.get(TIMELINE_FIELDS[start+1])
+      obj = cleaned_data.get(TIMELINE_FIELDS[start+2])
+      if date or act or obj:
+        if not date:
+          self._errors[TIMELINE_FIELDS[start]] = '<div class="form_error">This field is required.</div>'
+        if not act:
+          self._errors[TIMELINE_FIELDS[start+1]] = '<div class="form_error">This field is required.</div>'
+        if not obj:
+          self._errors[TIMELINE_FIELDS[start+2]] = '<div class="form_error">This field is required.</div>'
+
     return cleaned_data
 
 class RolloverForm(forms.Form):

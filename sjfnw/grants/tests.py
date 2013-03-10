@@ -246,7 +246,24 @@ class ApplyValidationTests(TestCase):
     self.assertFormError(response, 'form', 'project_title', "This field is required when applying for project support.")
     self.assertFormError(response, 'form', 'project_budget', "This field is required when applying for project support.")
     self.assertFormError(response, 'form', 'project_budget_file', "This field is required when applying for project support.")
- 
+  
+  def test_timeline_validation(self):
+    
+    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    answers = [
+      'Jan', 'Chillin', 'Not applicable',
+      'Feb', 'Petting dogs', '5 dogs',
+      'Mar', '', 'Sprouts',
+      'July', '', '',
+      '', 'Reading in the shade', 'No sunburns',]
+    alterDraftContents(draft, TIMELINE_FIELDS, answers)
+    
+    response = self.client.post('/apply/3/', follow=True)
+    self.assertFormError(response, 'form', 'timeline_3_activities', "This field is required.")
+    self.assertFormError(response, 'form', 'timeline_4_activities', "This field is required.")
+    self.assertFormError(response, 'form', 'timeline_4_goals', "This field is required.")
+    self.assertFormError(response, 'form', 'timeline_5_date', "This field is required.")
+    
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)    
 class StartApplicationTests(TestCase): #MIGHT BE OUT OF DATE
   
