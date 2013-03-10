@@ -354,7 +354,7 @@ def CopyApp(request, organization):
         try:
           application = models.GrantApplication.objects.get(pk = int(app))
           #dict of fields + timeline dict --> json
-          content = model_to_dict(application, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
+          content = model_to_dict(application, exclude = APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
           content.update(json.loads(application.timeline))
           content = json.dumps(content)
         except models.GrantApplication.DoesNotExist:
