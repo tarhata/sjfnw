@@ -49,13 +49,19 @@ def logInAdmin(self): #just a django superuser
   superuser = User.objects.create_superuser('admin@gmail.com', 'admin@gmail.com', 'admin')
   self.client.login(username = 'admin@gmail.com', password = 'admin')
 
-def alterDraft(draft, fields, values):
+def alterDraftContents(draft, fields, values):
   contents_dict = json.loads(draft.contents)
   index = 0
   for field in fields:
     contents_dict[field] = values[index]
     index += 1
   draft.contents = json.dumps(contents_dict)
+  draft.save()
+
+def alterDraftFiles(draft, files_dict):
+  files = dict(zip(APP_FILE_FIELDS, files_dict))
+  for key, val in files.iteritems():
+    setattr(draft, key, val)
   draft.save()
 
 def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in draft
@@ -118,7 +124,7 @@ class ApplySuccessfulTests(TestCase):
       '', '', '',]
     
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    alterDraft(draft, TIMELINE_FIELDS, answers)
+    alterDraftContents(draft, TIMELINE_FIELDS, answers)
     
     response = self.client.post('/apply/3/', follow=True)
     self.assertEqual(response.status_code, 200)
@@ -135,13 +141,33 @@ class ApplySuccessfulTests(TestCase):
       'August', 'Reading in the shade', 'No sunburns',]
     
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    alterDraft(draft, TIMELINE_FIELDS, answers)
+    alterDraftContents(draft, TIMELINE_FIELDS, answers)
     
     response = self.client.post('/apply/3/', follow=True)
     self.assertEqual(response.status_code, 200)
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     self.assertEqual(app.timeline, json.dumps(dict(zip(TIMELINE_FIELDS, answers))))
-      
+  
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  def test_mult_budget(self):
+    """ scenario: budget1, budget2
+              
+        verify: successful submission
+                files match  """
+                
+    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    files = ['', 'diversity_chart.doc', 'diversity_chart.doc', '', 'fileuploads3.png', 'notes.txt', '', '']
+    alterDraftFiles(draft, files)
+    response = self.client.post('/apply/3/', follow=True)
+    
+    org = Organization.objects.get(pk = 2)
+    self.assertTemplateUsed(response, 'grants/submitted.html')
+    app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
+    self.assertEqual(app.budget1, files[4])
+    self.assertEqual(app.budget2, files[5])
+    self.assertEqual(app.budget, '')
+    
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyBlockedTests(TestCase):
  
@@ -170,6 +196,57 @@ class ApplyBlockedTests(TestCase):
     response = self.client.get('/apply/79/')
     self.assertEqual(404, response.status_code)
 
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class ApplyValidationTests(TestCase):
+  """TO DO
+      fiscal
+      collab
+      timeline
+      files  """
+  
+  fixtures = ['test_grants.json',]   
+  def setUp(self):
+    setCycleDates()
+    logInTesty(self)
+  
+  def test_file_validation_budget(self):
+    """ scenario: budget + some other budget files
+                  no funding sources
+                  
+        verify: no submission
+                error response  """
+    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    files = ['budget.doc', 'diversity_chart.doc', '', '', 'fileuploads3.png', 'notes.txt', '', '']
+    alterDraftFiles(draft, files)
+    response = self.client.post('/apply/3/', follow=True)
+    
+    self.assertTemplateUsed(response, 'grants/org_app.html')
+    self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
+    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
+    self.assertFormError(response, 'form', 'funding_sources', "This field is required.")
+    self.assertFormError(response, 'form', 'budget', "Budget documents should be uploaded all in one file OR in the individual fields below.")
+  
+  def test_project_requirements(self):
+    """ scenario: support type = project, b1 & b2, no other project info given
+        verify: not submitted
+                no app created, draft still exists
+                form errors - project title, project budget, project budget file """
+                
+    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    contents_dict = json.loads(draft.contents)
+    contents_dict['support_type'] = 'Project support'
+    draft.contents = json.dumps(contents_dict)
+    files = ['', 'diversity_chart.doc', 'diversity_chart.doc', '', 'fileuploads3.png', 'notes.txt', '', '']
+    alterDraftFiles(draft, files)
+    
+    response = self.client.post('/apply/3/', follow=True)
+    self.assertTemplateUsed(response, 'grants/org_app.html')
+    self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
+    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
+    self.assertFormError(response, 'form', 'project_title', "This field is required when applying for project support.")
+    self.assertFormError(response, 'form', 'project_budget', "This field is required when applying for project support.")
+    self.assertFormError(response, 'form', 'project_budget_file', "This field is required when applying for project support.")
+ 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)    
 class StartApplicationTests(TestCase): #MIGHT BE OUT OF DATE
   
@@ -372,7 +449,7 @@ class RevertTests(TestCase):
     self.assertEqual(200, response.status_code)
     self.assertContains(response, 'Are you sure you want to revert this application into a draft?')
     
-  def test_revert_app1(self):
+  def test_revert_app(self):
     """ scenario: revert submitted app pk1
         verify:
           draft created
@@ -389,15 +466,6 @@ class RevertTests(TestCase):
     assertDraftAppMatch(self, draft, app, False)
     
 """ TO DO """
-
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplyValidationTests(TestCase):
-  """TO DO
-      fiscal
-      collab
-      timeline
-      files  """
-
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftTests(TestCase):
   

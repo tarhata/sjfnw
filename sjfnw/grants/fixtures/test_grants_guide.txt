@@ -31,3 +31,13 @@ DRAFTS
   2 OfficeMax (2), Closed cycle (3)
     Complete (as of 3/9/13)
     No fiscal info, general support (no project info), all-in-one budget option, includes partial timeline
+ 
+DRAFT FILES
+
+  Any file in the media folder will work.  Currently:
+    Picture0001.jpg
+    toggloptions.png
+    fileuploads3.png
+    budget.doc
+    diversity_chart.doc
+    notes.txt
