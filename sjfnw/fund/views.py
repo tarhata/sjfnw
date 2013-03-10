@@ -31,7 +31,6 @@ def Home(request):
   formset = ''
   
   #querydict for pre-loading forms
-  logging.debug(request.GET.dict())
   step = request.GET.get('step')
   donor = request.GET.get('donor')
   type = request.GET.get('t')
@@ -51,7 +50,6 @@ def Home(request):
   #member/ship info
   membership = request.membership
   member = membership.member
-  logging.debug(str(membership))
   
   #top content
   news = models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date')
@@ -125,7 +123,6 @@ def Home(request):
         for form in formset.cleaned_data:
           if form:
             current = form['donor']
-            logging.debug(current)
             current.amount = form['amount']
             current.likelihood = form['likelihood']
             current.save()

@@ -33,6 +33,7 @@ class MembershipMiddleware(object):
         
         try:
           member = models.Member.objects.get(email=request.user.username) #q3
+          logging.info(member)
         except models.Member.DoesNotExist: #no member object
           logging.warning('Custom middleware: No member object with email of '+request.user.username)
           return None
