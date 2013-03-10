@@ -12,7 +12,7 @@
     _gaq.push(['_setAccount', 'UA-28076150-2']);
     
     //custom variable #1 user type, session level
-    _gaq.push(['_setCustomVar', 1, 'User type', {% if user.is_staff %}'Staff'{% elif request.membership_status > 0 %}'Member'{% elif user.is_authenticated %}'User without Member obj'{% else %}'Anonymous'{% endif %}, 2]); 
+    _gaq.push(['_setCustomVar', 1, 'User type', {% if user.username == 'sjfnwads@gmail.com' %}'Aisa'{% elif user.is_staff %}'Staff'{% elif request.membership_status > 0 %}'Member'{% elif user.is_authenticated %}'User without Member obj'{% else %}'Anonymous'{% endif %}, 2]); 
     //custom variable #2 giving project, page level
     _gaq.push(['_setCustomVar', 2, 'Giving project', {% if request.membership %}'{{request.membership.giving_project}}'{% else %}'None'{% endif %}, 3]);
     
