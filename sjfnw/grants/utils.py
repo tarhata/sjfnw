@@ -84,6 +84,8 @@ def ServeBlob(application, field_name):
   return response      
   
 def DeleteBlob(file_field):
+  if not file_field:
+    return
   binfo, blob = FindBlob(file_field, both=True)
   binfo.delete()
   blob.delete()

@@ -294,9 +294,14 @@ def AddFile(request, draft_id):
   msg = False
   for key in request.FILES:
     if request.FILES[key]:
-      setattr(draft, key, request.FILES[key])
-      msg = key
-      break
+      if hasattr(draft, key):
+        old = getattr(draft, key)
+        deferred.defer(utils.DeleteBlob, old)
+        setattr(draft, key, request.FILES[key])
+        msg = key
+        break
+      else:
+        logging.error('Tried to add an unknown file field ' + str(key))
   draft.save()
   if not msg:
     return HttpResponse("ERRORRRRRR")
@@ -312,9 +317,8 @@ def AddFile(request, draft_id):
 def RemoveFile(request, draft_id, file_field):
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   if hasattr(draft, file_field):
-    current = getattr(draft, file_field)
-    if current:
-      deferred.defer(utils.DeleteBlob, current)
+    old = getattr(draft, file_field)
+    deferred.defer(utils.DeleteBlob, old)
     setattr(draft, file_field, '')
     draft.save()
   else:
