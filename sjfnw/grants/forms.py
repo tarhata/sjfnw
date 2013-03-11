@@ -5,7 +5,7 @@ from django.core.validators import MaxLengthValidator
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 import models, datetime, logging
-from sjfnw.utils import IntegerCommaField
+from sjfnw.utils import IntegerCommaField, PhoneNumberField
 from sjfnw import constants
 
 class LoginForm(forms.Form):
@@ -34,7 +34,7 @@ class CharLimitValidator(MaxLengthValidator):
 def validate_file_extension(value):
   if not str(value).lower().split(".")[-1] in constants.ALLOWED_FILE_TYPES:
     raise ValidationError(u'That file type is not supported.')
-
+  
 class GrantApplicationForm(forms.Form):
   """ Grant application form"""
   
@@ -43,8 +43,8 @@ class GrantApplicationForm(forms.Form):
   city = forms.CharField(max_length=50)
   state = forms.ChoiceField(choices=models.STATE_CHOICES)
   zip = forms.CharField(max_length=50)
-  telephone_number = forms.CharField(max_length=20)
-  fax_number = forms.CharField(max_length=20, required=False, label = 'Fax number (optional)')
+  telephone_number = PhoneNumberField()
+  fax_number = PhoneNumberField(required=False, label = 'Fax number (optional)', error_messages={'invalid': u'Enter a 10-digit fax number (including area code).'})
   email_address = forms.EmailField()
   website = forms.CharField(max_length=50, required=False, label = 'Website (optional)')
   
@@ -74,7 +74,7 @@ class GrantApplicationForm(forms.Form):
   #fiscal sponsor
   fiscal_org = forms.CharField(label='Fiscal org. name', max_length=255, required=False)
   fiscal_person = forms.CharField(label='Contact person', max_length=255, required=False)
-  fiscal_telephone = forms.CharField(label='Telephone', max_length=25, required=False)
+  fiscal_telephone = PhoneNumberField(label='Telephone', required=False)
   fiscal_email = forms.CharField(label='Email address', max_length=70, required=False)
   fiscal_address = forms.CharField(label='Address/City/State/ZIP', max_length=255, required=False)
   
@@ -107,23 +107,23 @@ class GrantApplicationForm(forms.Form):
   #collab references (after narrative 5)
   collab_ref1_name = forms.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.', label='Name', max_length = 150)
   collab_ref1_org = forms.CharField(label='Organization', max_length = 150)
-  collab_ref1_phone = forms.CharField(label='Phone number',  max_length = 20, required=False)
+  collab_ref1_phone = PhoneNumberField(label='Phone number', required=False)
   collab_ref1_email = forms.EmailField(label='Email', required=False)
   
   collab_ref2_name = forms.CharField(label='Name', max_length = 150)
   collab_ref2_org = forms.CharField(label='Organization', max_length = 150)
-  collab_ref2_phone = forms.CharField(label='Phone number',  max_length = 20, required=False)
+  collab_ref2_phone = PhoneNumberField(label='Phone number',  required=False)
   collab_ref2_email = forms.EmailField(label='Email', required=False)
   
   #racial justice references (after narrative 6)
   racial_justice_ref1_name = forms.CharField(help_text='If you are a primarily white-led organization, please list at least one organization led by people of color that we can contact as a reference for your racial justice work.', label='Name', max_length = 150, required=False)
   racial_justice_ref1_org = forms.CharField(label='Organization', max_length = 150, required=False)
-  racial_justice_ref1_phone = forms.CharField(label='Phone number', max_length = 20, required=False)
+  racial_justice_ref1_phone = PhoneNumberField(label='Phone number', required=False)
   racial_justice_ref1_email = forms.EmailField(label='Email', required=False)
  
   racial_justice_ref2_name = forms.CharField(label='Name', max_length = 150, required=False)
   racial_justice_ref2_org = forms.CharField(label='Organization', max_length = 150, required=False)
-  racial_justice_ref2_phone = forms.CharField(label='Phone number',  max_length = 20, required=False)
+  racial_justice_ref2_phone = PhoneNumberField(label='Phone number',  required=False)
   racial_justice_ref2_email = forms.EmailField(label='Email', required=False) 
   
   #files

@@ -1,8 +1,37 @@
 ﻿from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
-import logging
+import logging, re
 
+class PhoneNumberField(forms.Field):
+  default_error_messages = {
+    'invalid': u'Enter a 10-digit phone number.',
+  }
+  
+  def __init__(self, *args, **kwargs):
+    super(PhoneNumberField, self).__init__(*args, **kwargs)
+  
+  def to_python(self, value):
+    """
+    Validates that int() can be called on the input. Returns the ---
+    . Returns '' for empty values.
+    """
+    value = super(PhoneNumberField, self).to_python(value)
+    if value in validators.EMPTY_VALUES:
+      return ''
+    try:
+      int(str(value))
+    except (ValueError, TypeError):
+      raise ValidationError(self.error_messages['invalid'])
+    return value[:3] + '-' + value[3:6] + '-' + value[6:]
+  
+  def clean(self, value):
+    if isinstance(value, (str, unicode)):
+      value = re.sub('[()\-\s]', '', str(value))
+      if value and len(value) != 10:
+        raise ValidationError(self.error_messages['invalid'])
+    return super(PhoneNumberField, self).clean(value)
+    
 class IntegerCommaField(forms.Field):
   """ Allows commas separating thousands
   (Mostly copied from IntegerField) """
