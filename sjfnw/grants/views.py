@@ -11,7 +11,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
-from google.appengine.ext import blobstore
+from google.appengine.ext import blobstore, deferred
 from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm
 from decorators import registered_org
 from sjfnw import constants
@@ -312,6 +312,9 @@ def AddFile(request, draft_id):
 def RemoveFile(request, draft_id, file_field):
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   if hasattr(draft, file_field):
+    current = getattr(draft, file_field)
+    if current:
+      deferred.defer(utils.DeleteBlob, current)
     setattr(draft, file_field, '')
     draft.save()
   else:
@@ -392,11 +395,6 @@ def CopyApp(request, organization):
     logging.info(apps_count)    
   
   return render(request, 'grants/org_app_copy.html', {'form':form, 'cycle_count':cycle_count, 'apps_count':apps_count})
-
-def DiscardFile(request, filefield):
-  """ Takes the string stored in the django file field
-    Queues file for deletion """
-  pass
     
 @registered_org()
 def DiscardDraft(request, organization, draft_id):
@@ -426,11 +424,11 @@ def ViewApplication(request, app_id):
 
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
-  return utils.FindBlob(application, file_type)
+  return utils.ServeBlob(application, file_type)
 
 def ViewDraftFile(request, draft_id, file_type):
   application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
-  return utils.FindBlob(application, file_type)
+  return utils.ServeBlob(application, file_type)
 
 # ADMIN
 

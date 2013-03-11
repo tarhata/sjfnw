@@ -8,21 +8,14 @@ from models import GrantApplication, DraftGrantApplication
 import datetime, logging, re
 from sjfnw import constants
 
-def FindBlob(application, file_type):
-  """Return file from the Blobstore.
-
-  application: GrantApplication or DraftGrantApplication
-  file_type: str indicating which file field """
-  
-  #find the filefield
-  file_field = getattr(application, file_type)
-  if not file_field:
-    logging.warning('Unknown file type ' + file_type)
-    return Http404
+def FindBlob(file_field, both=False):
+  """Given contents of a file field, return the blob itself.
+  if both==True, return the blobinfo also """
   
   #filefield stores key that gets the blobinfo
   blobinfo_key = str(file_field).split('/', 1)[0]
   binfo = blobstore.BlobInfo.get(blobinfo_key)
+  
   #all binfo properties refer to the blobinfo itself, not the blob
   logging.info('Binfo properties: filename ' + binfo.filename + ', size ' + str(binfo.size) + ', type ' + binfo.content_type)
   #reader gets binfo file contents which refer to the actual blob  
@@ -48,6 +41,7 @@ def FindBlob(application, file_type):
     creation_time = datetime.datetime.strptime(creation_time, '%Y-%m-%d %H:%M:%S.%f')
     creation_time = timezone.make_aware(creation_time, timezone.get_current_timezone())
   
+  blob = None
   #find blob that matches the creation time
   for b in blobstore.BlobInfo.all():    
     c = b.creation
@@ -60,13 +54,41 @@ def FindBlob(application, file_type):
       logging.debug('Found a creation time match! ' + str(b.filename) + ', ' + str(b.size))
       if b.filename == filename:
         logging.info('Filename matches - returning file')
-        response =  HttpResponse(blobstore.BlobReader(b).read(), content_type=b.content_type)
-        return response
+        blob = b
+        break
       else:
         logging.debug('Creation time matched but filename did not: blobinfo filename was ' + filename + ', found ' + b.filename)
-  logging.error('No matching blob found')
-  raise Http404
+  
+  if not blob:
+    logging.error('No matching blob found')
+    raise Http404
+  elif both:
+    return binfo, blob
+  else:
+    return blob
 
+def ServeBlob(application, field_name):
+  """Returns file from the Blobstore for serving
+    application: GrantApplication or DraftGrantApplication
+    field_name: name of the file field """
+
+  #find the filefield
+  file_field = getattr(application, field_name)
+  if not file_field:
+    logging.warning('Unknown file type ' + field_name)
+    return Http404
+  
+  blob = FindBlob(file_field)
+  
+  response =  HttpResponse(blobstore.BlobReader(blob).read(), content_type=blob.content_type)
+  return response      
+  
+def DeleteBlob(file_field):
+  binfo, blob = FindBlob(file_field, both=True)
+  binfo.delete()
+  blob.delete()
+  logging.info('2 files deleted')
+  return HttpResponse("deleted")
 
 def GetFileURLs(app):
   """ Given a draft or application
