@@ -11,6 +11,37 @@ from sjfnw.utils import IntegerCommaField
 import datetime, logging, json
 from sjfnw import constants
 
+NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 2700, 1800]
+NARRATIVE_TEXTS = ['Placeholder for 0',
+  'Describe your organization\'s mission, history and major accomplishments.', #1
+  'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ul><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ul>', #2
+  'Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ul><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues?</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ul>', #3
+  'Please describe your workplan, covering at least the next 12 months. (You will list the activities and objectives in the timeline form below the narrative.)<ul><li>What are your overall goals and strategies for the coming year?</li><li>How will you assess whether you have met your objectives and goals?</li></ul>', #4
+  'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organization\'s role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
+  'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. Tell us how your organization is working toward racial justice and how you are drawing connections to economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i> If you are a primarily white-led organization, also describe how you work as an ally to communities of color.', #6
+  ]
+STATE_CHOICES = [('OR', 'OR'), ('WA', 'WA'), ('ID', 'ID'), ('WY', 'WY'), ('MT', 'MT'),]
+STATUS_CHOICES = [
+  ('Tribal government', 'Federally recognized American Indian tribal government'),   
+  ('501c3', '501(c)3 organization as recognized by the IRS'),
+  ('501c4', '501(c)4 organization as recognized by the IRS'),
+  ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),]
+SUPPORT_CHOICES = [('General support', 'General support'), ('Project support', 'Project support'),]
+SCREENING_CHOICES = (
+  (10, 'Received'),
+  (20, 'Incomplete'),
+  (30, 'Complete'),
+  (40, 'Pre-screened out'),
+  (50, 'Pre-screened in'), #readable, scorable
+  (60, 'Screened out'), 
+  (70, 'Site visit awarded'), #site visit reports
+  (80, 'Grant denied'),
+  (90, 'Grant issued'),
+  (100, 'Grant paid'),
+  (110, 'Year-end report overdue'),
+  (120, 'Year-end report received'),
+  (130, 'Closed'),)
+
 
 class Organization(models.Model):
   #registration fields
@@ -20,13 +51,6 @@ class Organization(models.Model):
   #org contact info
   address = models.CharField(max_length=100, null=True)
   city = models.CharField(max_length=50, null=True)
-  STATE_CHOICES = (
-    ('OR', 'OR'),
-    ('WA', 'WA'),
-    ('ID', 'ID'),
-    ('WY', 'WY'),
-    ('MT', 'MT'),
-  )
   state = models.CharField(max_length=2,choices=STATE_CHOICES, null=True)
   zip = models.CharField(max_length=50, null=True)
   telephone_number = models.CharField(max_length=20, null=True)
@@ -35,12 +59,6 @@ class Organization(models.Model):
   website = models.CharField(max_length=50, null=True, blank=True)
   
   #org info
-  STATUS_CHOICES = (
-    ('Tribal government', 'Federally recognized American Indian tribal government'),   
-    ('501c3', '501(c)3 organization as recognized by the IRS'),
-    ('501c4', '501(c)4 organization as recognized by the IRS'),
-    ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),
-  )
   status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True)
   ein = models.CharField(max_length=50, verbose_name="Organization's or Fiscal Sponsor Organization's EIN", null=True)
   founded = models.PositiveIntegerField(verbose_name='Year organization founded', null=True)
@@ -149,37 +167,6 @@ class DraftGrantApplication(models.Model):
 
 class CharLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'
-
-NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 2700, 1800]
-NARRATIVE_TEXTS = ['Placeholder for 0',
-  'Describe your organization\'s mission, history and major accomplishments.', #1
-  'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ul><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ul>', #2
-  'Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ul><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues?</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ul>', #3
-  'Please describe your workplan, covering at least the next 12 months. (You will list the activities and objectives in the timeline form below the narrative.)<ul><li>What are your overall goals and strategies for the coming year?</li><li>How will you assess whether you have met your objectives and goals?</li></ul>', #4
-  'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organization\'s role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
-  'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. Tell us how your organization is working toward racial justice and how you are drawing connections to economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i> If you are a primarily white-led organization, also describe how you work as an ally to communities of color.', #6
-  ]
-STATE_CHOICES = [('OR', 'OR'), ('WA', 'WA'), ('ID', 'ID'), ('WY', 'WY'), ('MT', 'MT'),]
-STATUS_CHOICES = [
-  ('Tribal government', 'Federally recognized American Indian tribal government'),   
-  ('501c3', '501(c)3 organization as recognized by the IRS'),
-  ('501c4', '501(c)4 organization as recognized by the IRS'),
-  ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),]
-SUPPORT_CHOICES = [('General support', 'General support'), ('Project support', 'Project support'),]
-SCREENING_CHOICES = (
-  (10, 'Received'),
-  (20, 'Incomplete'),
-  (30, 'Complete'),
-  (40, 'Pre-screened out'),
-  (50, 'Pre-screened in'), #readable, scorable
-  (60, 'Screened out'), 
-  (70, 'Site visit awarded'), #site visit reports
-  (80, 'Grant denied'),
-  (90, 'Grant issued'),
-  (100, 'Grant paid'),
-  (110, 'Year-end report overdue'),
-  (120, 'Year-end report received'),
-  (130, 'Closed'),)
 
 def validate_file_extension(value):
   if not str(value).lower().split(".")[-1] in constants.ALLOWED_FILE_TYPES:

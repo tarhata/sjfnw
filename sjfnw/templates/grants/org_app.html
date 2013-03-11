@@ -352,7 +352,7 @@ $(document).ready(function() {
 		</tr></table>
 		</div>
 		
-		<div class="narrative_q">6. {{form.narrative6.label_tag}}
+		<div class="narrative_q">6. {{form.narrative6.label_tag}}<br>
 		{{form.narrative6.errors}}{{form.narrative6}}
 		<span class="char_counter" id="narrative6_counter">{{limits.6}}</span>
 		<table class="narrative_references"><tr>
@@ -386,7 +386,7 @@ $(document).ready(function() {
 		</div>
 		
 		{% if cycle.extra_question %}
-		<div class="narrative_q">7. {{cycle.extra_question}}
+		<div class="narrative_q">7. {{cycle.extra_question}}<br>
 		{{form.cycle_question.errors}}{{form.cycle_question}}
 		<span class="char_counter" id="cycle_question_counter">{{limits.7}}</span>
 		</div>
@@ -441,9 +441,6 @@ $(document).ready(function() {
 				<td>{{form.demographics}}</td>
 				<td><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
 			</tr><tr>
-				<td colspan="4">{{form.funding_sources.errors}}</td>
-			</tr>
-			<tr>
 				<td>3. Funding sources</td>
 				<td>{{form.funding_sources.errors}}</td>
 				<td>{{form.funding_sources}}</td>
