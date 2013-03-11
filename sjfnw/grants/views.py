@@ -121,8 +121,6 @@ def OrgHome(request, organization):
     'upcoming':upcoming,
     'applied':applied})
 
-#@login_required(login_url=LOGIN_URL)
-#@registered_org()
 def PreApply(request, cycle_id):
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
   if not cycle.info_page:
@@ -463,6 +461,16 @@ def AppToDraft(request, app_id):
   return render(request, 'admin/grants/confirm_revert.html', {'application':submitted_app})
 
 # CRON
+def DeleteEmptyFiles(request): #/tools/delete-empty
+  """ Delete all 0kb files in the blobstore """
+  infos = blobstore.BlobInfo.all().filter('size =', 0)
+  count = 0
+  for i in infos:
+    count += 1
+    i.delete()
+  logging.info('Deleted ' + str(count) + 'empty files.')
+  return HttpResponse("done")
+
 def DraftWarning(request):
   """ Warns of impending draft freeze
   Do not change cron sched -- it depends on running only once/day
@@ -485,3 +493,32 @@ def DraftWarning(request):
       msg.send()
       logging.info("Email sent to " + to + "regarding draft application soon to expire")
   return HttpResponse("")
+
+# UTILS
+def GetFileURLs(app):
+  """ Given a draft or application
+  return a dict of urls for viewing each of its files
+  taking into account whether it can be viewed in google doc viewer """
+    
+  #determine whether draft or submitted
+  if isinstance(app, models.GrantApplication):
+    logging.info("A submitted app!!!?!?")
+    mid_url = 'grants/view-file/'
+  elif isinstance(app, models.DraftGrantApplication):
+    logging.info("A draft")
+    mid_url = 'grants/draft-file/'
+  else:
+    logging.error("GetFileURLs received invalid object")
+    return {}
+  
+  #check file fields, compile links
+  file_urls = {'budget': '', 'funding_sources':'', 'demographics':'', 'fiscal_letter':'', 'budget1': '', 'budget2': '', 'budget3': '', 'project_budget_file': ''}
+  for field in file_urls:
+    value = getattr(app, field)
+    if value:
+      filename = str(value).split('/')[-1]
+      if not settings.DEBUG and str(value).lower().split(".")[-1] in constants.VIEWER_FORMATS: #doc viewer
+        file_urls[field] = 'https://docs.google.com/viewer?url='
+      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + '/' + field + '/' + filename
+  
+  return file_urls

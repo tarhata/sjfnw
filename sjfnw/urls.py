@@ -57,8 +57,10 @@ urlpatterns = patterns('',
   (r'^org/?$', 'grants.views.RedirToApply'),
   
   (r'^apply/test/?$', 'grants.views.TestApply'),
+  
   #cron
   (r'^mail/drafts/?', 'grants.views.DraftWarning'),
+  (r'^tools/delete-empty', 'grants.views.DeleteEmptyFiles'),
 
 ## GRANTS - APPLICATION VIEWS ##
 
@@ -146,7 +148,6 @@ urlpatterns = patterns('',
   (r'^mail/overdue-step', 'fund.views.EmailOverdue'),
   (r'^mail/new-accounts', 'fund.views.NewAccounts'),
   (r'^mail/gifts', 'fund.views.GiftNotify'),
-  (r'^tools/delete-empty', 'grants.utils.DeleteEmptyFiles'),
 )
 
 #for dev_appserver
