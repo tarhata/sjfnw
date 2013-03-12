@@ -1,4 +1,5 @@
 ﻿{% extends 'grants/base.html' %}
+{% block title %}Grant cycle information | {{block.super}}{% endblock %}
 {% block content %}
 {% if cycle.is_open %}
 <div align="center"><button id="apply-now" onclick="location.href='/apply/{{cycle.pk}}'">Continue to application</button></div>

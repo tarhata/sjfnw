@@ -1,6 +1,6 @@
 {%extends 'grants/base.html'%}
-
-{%block content%}
+{% block title %}View application | {{block.super}}{% endblock %}
+{% block content %}
 {% autoescape off %}{% load humanize %}
 <div class="formwrapper" id="formreader">
   <div align="center"><!-- Title/header -->
