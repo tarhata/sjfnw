@@ -252,7 +252,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     form = GrantApplicationForm(cycle, initial=dict)
 
   #get draft files
-  file_urls = utils.GetFileURLs(draft)
+  file_urls = GetFileURLs(draft)
   for field, url in file_urls.iteritems():
     if url:
       name = str(getattr(draft, field)).split('/')[-1]
@@ -306,7 +306,7 @@ def AddFile(request, draft_id):
   name = getattr(draft, msg)
   name = str(name).split('/')[-1]
   
-  file_urls = utils.GetFileURLs(draft)
+  file_urls = GetFileURLs(draft)
   short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
   content = msg + '~~<a href="' + file_urls[msg] + '" target="_blank" title="' + name + '">' + short_name + '</a> [<a onclick="removeFile(\'' + msg + '\');">remove</a>]'
   logging.info("AddFile returning: " + content)
@@ -420,7 +420,7 @@ def ViewApplication(request, app_id):
   app = get_object_or_404(models.GrantApplication, pk=app_id)
   form = GrantApplicationForm(app.grant_cycle)
   #set up doc viewer for applicable files
-  file_urls = utils.GetFileURLs(app)
+  file_urls = GetFileURLs(app)
 
   return render(request, 'grants/view_app.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls})
 
