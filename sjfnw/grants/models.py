@@ -10,6 +10,7 @@ from sjfnw.fund.models import GivingProject
 from sjfnw.utils import IntegerCommaField
 import datetime, logging, json
 from sjfnw import constants
+import utils
 
 NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 2700, 1800]
 NARRATIVE_TEXTS = ['Placeholder for 0',
@@ -139,39 +140,15 @@ class DraftGrantApplication(models.Model):
     else:
       return False
   
-  """ only deletes blobinfo, not file itself :(
-  def save(self, *args, **kwargs):
-    delete = []
-    try:
-      previous = DraftGrantApplication.objects.get(id=self.id)
-      if previous.budget and previous.budget != self.budget:
-        delete.append(previous.budget)
-      if previous.demographics and previous.demographics != self.demographics:
-        delete.append(previous.demographics)
-      if previous.fiscal_letter and previous.fiscal_letter != self.fiscal_letter:
-        delete.append(previous.fiscal_letter)
-      if previous.funding_sources and previous.funding_sources != self.funding_sources:
-        delete.append(previous.funding_sources)
-    except: pass
-    logging.info('Queued for deletion: ' + str(delete))
-    count = 0
-    for field in delete:
-      key = str(field).split('/', 1)[0]
-      if key:
-        binfo = blobstore.BlobInfo.get(key)
-        binfo.delete()
-        count += 1
-    logging.info('Draft being updated. ' + str(count) + ' old files deleted.')
-    super(DraftGrantApplication, self).save(*args, **kwargs)
-  """
-
+  def delete(self, *args, **kwargs):
+    for field in self._meta.fields:
+      if isinstance(field, models.FileField):
+        utils.DeleteBlob(getattr(self, field.name))
+    super(DraftGrantApplication, self).delete(*args, **kwargs)
+    
 class CharLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'
 
-def validate_file_extension(value):
-  if not str(value).lower().split(".")[-1] in constants.ALLOWED_FILE_TYPES:
-    raise ValidationError(u'That file type is not supported.')
-  
 class GrantApplication(models.Model):
   """ Submitted grant application """
   
@@ -219,7 +196,7 @@ class GrantApplication(models.Model):
   fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address', max_length=70, null=True, blank=True)
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
-  fiscal_letter = models.FileField(upload_to='/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255)
+  fiscal_letter = models.FileField(upload_to='/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', max_length=255)
   
   #narrative
   narrative1 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
@@ -290,3 +267,9 @@ class GrantApplication(models.Model):
     display += '</table>'  
     return display
   timeline_table.allow_tags = True
+  
+  def delete(self, *args, **kwargs):
+    for field in self._meta.fields:
+      if isinstance(field, models.FileField):
+        utils.DeleteBlob(getattr(self, field.name))
+    super(GrantApplication, self).delete(*args, **kwargs)
