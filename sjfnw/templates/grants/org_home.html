@@ -1,4 +1,5 @@
 ﻿{% extends 'grants/base.html' %}
+{% block title %}Home | {{block.super}}{% endblock %}
 {% block script %}
 <script type="text/javascript">
 function confirmation(draft_pk) { //confirmation window before discarding a draft
@@ -56,7 +57,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 	</ul>
 </div>
 
-<div class="section"><div align="center"><h3>SJF grant cycles</h3></div><!-- CYCLES -->
+<div class="section"><div align="center"><h3>Social Justice Fund grant cycles</h3></div><!-- CYCLES -->
 
 <h4>Currently accepting applications</h4><!-- Open -->
 <ul>
