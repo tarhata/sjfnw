@@ -74,15 +74,15 @@ def OrgRegister(request):
             login(request, user)
             return redirect(OrgHome)
           else:
-            error_msg='Your account is not active. Please contact an administrator.'
+            register_error='Your account is not active. Please contact an administrator.'
             logging.error('Inactive right after registration, account: ' + username_email)
         else:
-          error_msg='There was a problem with your registration.  Please <a href=""/apply/support#contact">contact a site admin</a> for assistance.'
+          register_error='There was a problem with your registration.  Please <a href=""/apply/support#contact">contact a site admin</a> for assistance.'
           logging.error('Password not working at registration, account:  ' + username_email)
   else: #GET
     register = RegisterForm()
   form = LoginForm()
-  return render(request, 'grants/org_login_register.html', {'form':form, 'register':register, 'register_errors':register_errors})
+  return render(request, 'grants/org_login_register.html', {'form':form, 'register':register, 'register_errors':register_error})
 
 def OrgSupport(request):
   return render(request, 'grants/org_support.html', {
