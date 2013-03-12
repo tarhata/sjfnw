@@ -17,6 +17,10 @@ div#org_wrapper {
 	margin-right:auto;
 }
 
+div#org_wrapper ul{
+	padding-left:30px;
+}
+
 table#org_footer {
 	width:100%;
 	font-size:1em;
