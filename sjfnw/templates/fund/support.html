@@ -5,11 +5,18 @@ function toggle(a) {
   var e=document.getElementById(a);
   if(!e)return true;
   if(e.style.display=="block"){
-    e.style.display="none"
+    e.style.display="none";
   } else {
-    e.style.display="block"
+		trackSupport(a);
+    e.style.display="block";
   }
   return true;
+}
+
+function trackSupport(item) { //analytics events
+	if (item) {
+		_gaq.push(['_trackEvent', 'Support', item]);
+	}
 }
 </script>
 {% endblock %}
@@ -22,20 +29,20 @@ function toggle(a) {
 <img class="odo_float_right" src="/static/images/odo1.png" alt="ODO" title="Welcome to Project Central! I’m Odo, your Online Donor Organizing assistant. I’ll be here to guide you through the fundraising process and cheer you on.">
 <h2>Frequently Asked Questions</h2>
 <div id="FAQ">
-  <a class="FAQ" onclick="toggle('faq-2')">How do I sign up?</a>
-  <div class="indent hidden" id="faq-2">
+  <a class="FAQ" onclick="toggle('how_sign_up')">How do I sign up?</a>
+  <div class="indent hidden" id="how_sign_up">
     Register <a href="/fund/register">here</a>.  Your project facilitators may have added your email address already; if so, you'll be able to use Project Central right away.  Otherwise, you'll get an email once your membership is approved and you can log in.
   </div>
 
-  <a class="FAQ" onclick="toggle('faq-4')">I forgot my login/password, what should I do?</a>
-  <div class="indent hidden" id="faq-4">
+  <a class="FAQ" onclick="toggle('forgot_pw')">I forgot my login/password, what should I do?</a>
+  <div class="indent hidden" id="forgot_pw">
     If you know your login (the email you used to sign up), you can reset your password <a href="/fund/reset">here</a>.
     <br><br>
     If you don't remember the email you used, or no longer have access to it, you'll need to <a href="#contact">contact an admin</a>.
   </div>
 
-  <a class="FAQ" onclick="toggle('faq-5')">How does the giving project news work?</a>
-  <div class="indent hidden" id="faq-5">
+  <a class="FAQ" onclick="toggle('gp_news')">How does the giving project news work?</a>
+  <div class="indent hidden" id="gp_news">
     The news section shares successes of giving project members.  Whenever you complete a step, it is shared with other people in your project via the news feed.
     <br><br>
     What is shared: the date, your first name, a general description of what happened ("talked to", "asked" or "got a pledge") and the amount pledged if applicable.
@@ -45,13 +52,13 @@ function toggle(a) {
     If you have any questions or concerns about this information being shared, please contact us!  You can do so anonymously if you'd like - see below.
   </div>
 
-  <a class="FAQ" onclick="toggle('faq-6')">Can I access Project Central on my mobile phone?</a>
-  <div class="indent hidden" id="faq-6">
+  <a class="FAQ" onclick="toggle('mobile_access')">Can I access Project Central on my mobile phone?</a>
+  <div class="indent hidden" id="mobile_access">
     Yes, Project Central can be accessed on mobile devices through a web browser.  We've attempted to keep the design and layout relatively small-screen-friendly.  We welcome any feedback on mobile usability.
   </div>
 
-  <a class="FAQ" onclick="toggle('faq-7')">Does Project Central work for people in more than one giving project?</a>
-  <div class="indent hidden" id="faq-7">
+  <a class="FAQ" onclick="toggle('multiple_projects')">Does Project Central work for people in more than one giving project?</a>
+  <div class="indent hidden" id="multiple_projects">
     Yes, it supports members being in multiple GPs.<br><br>
 
     When you register, pick one of the giving projects you're currently in - it doesn't matter which.  Once you're signed up, there will be a "your projects" link at the bottom of the page.  Go there to register for another GP.  Each membership requires an approval from one of the project leaders.
@@ -68,7 +75,7 @@ function toggle(a) {
 
 <p>If you have a question that is not answered above, feel free to contact us.</p>
 
-<p>For technical support, reporting errors, or making suggestions related to Project Central, use our <a href="{{support_form}}">online form</a> or send us an email at <a href="mailto:{{support_email}}">{{support_email}}</a>.
+<p>For technical support, reporting errors, or making suggestions related to Project Central, use our <b><a href="{{support_form}}" target="_blank" onclick="trackSupport('support_form');">online support form</a></b> or send us an email at <b><a href="mailto:{{support_email}}" onclick="trackSupport('support_email');">{{support_email}}</a></b>.</p>
 
-For any other questions or requests for support, please contact your giving project facilitators.
+<p>For any other issues, please contact your giving project facilitators.</p>
 {% endblock content %}

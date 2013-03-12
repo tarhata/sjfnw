@@ -9,7 +9,10 @@
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 	<script type="text/javascript"><!--google analytics -->
     var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-28076150-2']);    
+    _gaq.push(['_setAccount', 'UA-28076150-2']); 
+
+		//custom variable #1 user type, session level
+    _gaq.push(['_setCustomVar', 1, 'User type', {% if user.username == 'sjfnwads@gmail.com' %}'Aisa'{% elif user.is_staff %}'Staff'{% elif user.is_authenticated %}'User'{% else %}'Anonymous'{% endif %}, 2]); 		
     _gaq.push(['_trackPageview']);
 
     (function() {
