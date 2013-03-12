@@ -12,10 +12,10 @@ def page_not_found(request):
     title_addition = ' - Project Central'
     contact_url = '/fund/support'
   elif path.find('/org') == 0 or  path.find('/apply') == 0:
-    title_addition = ' - SJF Grants'
+    title_addition = ' - Social Justice Fund Grants'
     contact_url = '/org/support'
   else:
-    title_addition = ' - SJF Apps'
+    title_addition = ' - Social Justice Fund Apps'
     contact_url = False
   template_name = '404.html'
   t = loader.get_template(template_name)
@@ -30,10 +30,10 @@ def server_error(request):
     title_addition = ' - Project Central'
     contact_url = '/fund/support'
   elif path.find('/org') == 0 or  path.find('/apply') == 0:
-    title_addition = ' - SJF Grants'
+    title_addition = ' - Social Justice Fund Grants'
     contact_url = '/org/support'
   else:
-    title_addition = ' - SJF Apps'
+    title_addition = ' - Social Justice Fund Apps'
     contact_url = False
   template_name = '500.html'
   t = loader.get_template(template_name)
