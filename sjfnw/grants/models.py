@@ -1,4 +1,5 @@
 ﻿from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
 from django.db import models
@@ -42,7 +43,6 @@ SCREENING_CHOICES = (
   (110, 'Year-end report overdue'),
   (120, 'Year-end report received'),
   (130, 'Closed'),)
-
 
 class Organization(models.Model):
   #registration fields
@@ -273,3 +273,11 @@ class GrantApplication(models.Model):
       if isinstance(field, models.FileField):
         utils.DeleteBlob(getattr(self, field.name))
     super(GrantApplication, self).delete(*args, **kwargs)
+
+class GrantApplicationLog(models.Model):
+  date = models.DateTimeField(default = timezone.now())
+  organization = models.ForeignKey(Organization)
+  application = models.ForeignKey(GrantApplication, null=True, blank=True)
+  staff = models.ForeignKey(User)
+  contacted = models.CharField(max_length=255, help_text = 'Person from the organization that you talked to, if applicable.', blank=True)
+  notes = models.TextField()
