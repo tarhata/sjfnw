@@ -17,10 +17,27 @@ ORGANIZATIONS
     Drafts:     1 (cycle 2), 2 (cycle 3)
     Submitted:  1 (cycle 1)
 
+SUBMITTED
+  
+  1 OfficeMax (2), Open cycle (1)
+    Complete as of 3/9/13
+    includes timeline, all-in-one budget
+
 DRAFTS
 
-  1 OfficeMax, Another open cycle
-  
-  2 OfficeMax, Closed cycle
-    Complete (as of 3/7/13)
-    No fiscal info, general support (no project info), all-in-one budget option
+  1 OfficeMax (2), Another open cycle (2)
+    Missing a lot of stuff
+    
+  2 OfficeMax (2), Closed cycle (3)
+    Complete (as of 3/9/13)
+    No fiscal info, general support (no project info), all-in-one budget option, includes partial timeline
+ 
+DRAFT FILES
+
+  Any file in the media folder will work.  Currently:
+    Picture0001.jpg
+    toggloptions.png
+    fileuploads3.png
+    budget.doc
+    diversity_chart.doc
+    notes.txt

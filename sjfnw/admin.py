@@ -82,6 +82,12 @@ class DonorInline(admin.TabularInline):
   fields = ('firstname', 'lastname', 'talked', 'amount',  'pledged', 'gifted')
   readonly_fields = ('firstname', 'lastname', 'talked', 'amount',  'pledged', 'gifted')
 
+class DonorInline(admin.TabularInline): #membership
+  model = Donor
+  extra = 0
+  readonly_fields = ('firstname', 'lastname', 'amount', 'talked', 'asked', 'pledged')
+  fields = ('firstname', 'lastname', 'amount', 'talked', 'asked', 'pledged')
+
 class MembershipA(admin.ModelAdmin):
   list_display = ('member', 'giving_project', 'estimated', 'pledged', 'has_overdue', 'last_activity', 'approved', 'leader')
   readonly_list = ('estimated', 'pledged', 'has_overdue',)

@@ -11,16 +11,15 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
-from google.appengine.ext import blobstore
+from google.appengine.ext import blobstore, deferred
 from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm
 from decorators import registered_org
-from sjfnw import fund
+from sjfnw import constants
 import models, utils
-import datetime, logging, json, re, quopri
+import datetime, logging, json, re
 
 # CONSTANTS
 LOGIN_URL = '/apply/login/'
-APP_FILE_FIELDS = ['budget', 'demographics', 'funding_sources', 'fiscal_letter', 'budget1', 'budget2', 'budget3', 'project_budget_file']
 
 # PUBLIC ORG VIEWS
 def OrgLogin(request):
@@ -86,8 +85,8 @@ def OrgRegister(request):
 
 def OrgSupport(request):
   return render(request, 'grants/org_support.html', {
-  'support_email':settings.SUPPORT_EMAIL,
-  'support_form':settings.SUPPORT_FORM_URL})
+  'support_email':constants.SUPPORT_EMAIL,
+  'support_form':constants.SUPPORT_FORM_URL})
 
 # REGISTERED ORG VIEWS
 @login_required(login_url=LOGIN_URL)
@@ -122,8 +121,6 @@ def OrgHome(request, organization):
     'upcoming':upcoming,
     'applied':applied})
 
-#@login_required(login_url=LOGIN_URL)
-#@registered_org()
 def PreApply(request, cycle_id):
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
   if not cycle.info_page:
@@ -157,7 +154,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       render(request, 'grants/submitted_closed.html', {'cycle':cycle})
     
     #get files from draft
-    files_data = model_to_dict(draft, fields = APP_FILE_FIELDS)
+    files_data = model_to_dict(draft, fields = constants.APP_FILE_FIELDS)
     #logging.info('========= Files data: ' + str(files_data))
     
     #get other fields from draft
@@ -171,30 +168,20 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       logging.info('========= Application form valid')
       form_data = form.cleaned_data
       
-      #save as GrantApplication object
+      #create GrantApplication object
       application = models.GrantApplication(organization = organization, grant_cycle = cycle)
       
       #get the timeline
       logging.info('Getting timeline from ' + unicode(form_data))
-      prefix = 'timeline_'
-      suffixes = ['_date', '_activities', '_goals']
-      timeline = '<table id="timeline"><tr><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
-      for i in range(1, 5):
-        timeline += '<tr><th>q' + unicode(i) + '</th>'
-        for suffix in suffixes:
-          timeline += '<td>'
-          value = form_data.get(prefix + unicode(i) + suffix)
-          if value is None:
-            value = ''
-          else:
-            del form_data[prefix + unicode(i) + suffix]
-          timeline += value
-          timeline += '</td>'
-        timeline += '</tr>'
-      timeline += '</table>'
-      #logging.info('Timeline is: ' + timeline)
-      form_data['timeline'] = timeline
-      #logging.info('Data is: ' + unicode(form_data))
+      timeline = {}
+      for field in constants.TIMELINE_FIELDS:
+        value = form_data.get(field)
+        if value is None:
+          value = ''
+        else:
+          del form_data[field]
+        timeline[field] = value
+      form_data['timeline'] = json.dumps(timeline)
       
       for name, value in form_data.iteritems():
         #better to use cleaned_data than draft bc it has the correct types (not all unicode)
@@ -217,11 +204,11 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
         logging.error('Org profile not updated.  User: %s, application id: %s', request.user.email, application.pk)
 
       #send email confirmation
-      subject, from_email = 'Grant application submitted', settings.GRANT_EMAIL
+      subject, from_email = 'Grant application submitted', constants.GRANT_EMAIL
       to = organization.email
       html_content = render_to_string('grants/email_submitted.html', {'org':organization, 'cycle':cycle})
       text_content = strip_tags(html_content)
-      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.SUPPORT_EMAIL])
+      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [constants.SUPPORT_EMAIL])
       msg.attach_alternative(html_content, "text/html")
       msg.send()
       logging.info("Application created; confirmation email sent to " + to)
@@ -305,9 +292,14 @@ def AddFile(request, draft_id):
   msg = False
   for key in request.FILES:
     if request.FILES[key]:
-      setattr(draft, key, request.FILES[key])
-      msg = key
-      break
+      if hasattr(draft, key):
+        old = getattr(draft, key)
+        deferred.defer(utils.DeleteBlob, old)
+        setattr(draft, key, request.FILES[key])
+        msg = key
+        break
+      else:
+        logging.error('Tried to add an unknown file field ' + str(key))
   draft.save()
   if not msg:
     return HttpResponse("ERRORRRRRR")
@@ -323,6 +315,8 @@ def AddFile(request, draft_id):
 def RemoveFile(request, draft_id, file_field):
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   if hasattr(draft, file_field):
+    old = getattr(draft, file_field)
+    deferred.defer(utils.DeleteBlob, old)
     setattr(draft, file_field, '')
     draft.save()
   else:
@@ -351,37 +345,41 @@ def CopyApp(request, organization):
         cycle = models.GrantCycle.objects.get(pk = int(new_cycle))
       except models.GrantCycle.DoesNotExist:
         logging.error('CopyApp GrantCycle ' + new_cycle + ' not found')
-
+        return render(request, 'grants/copy_app_error.html')
+        
+      #make sure the combo does not exist already
+      new_draft, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
+      if not cr:
+        logging.error("CopyApp the combo already exists!?")
+        return render(request, 'grants/copy_app_error.html')
+      
       #get app/draft and its contents (json format for draft)
       if app:
         try:
           application = models.GrantApplication.objects.get(pk = int(app))
-          content = json.dumps(model_to_dict(application, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question']))
+          #dict of fields + timeline dict --> json
+          content = model_to_dict(application, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
+          content.update(json.loads(application.timeline))
+          content = json.dumps(content)
         except models.GrantApplication.DoesNotExist:
           logging.error('CopyApp - submitted app ' + app + ' not found')
       elif draft:
         try:
           application = models.DraftGrantApplication.objects.get(pk = int(draft))
-          content = application.contents
+          content = json.loads(application.contents)
           logging.info(content)
-          if content['cycle_question']:
-            logging.info('Removing extra q')
-            content['cycle_question'] = ''
+          content['cycle_question'] = ''        
           logging.info(content)
+          content = json.dumps(content)
         except models.DraftGrantApplication.DoesNotExist:
           logging.error('CopyApp - draft ' + app + ' not found')
       else:
         logging.error("CopyApp no draft or app...")
-      
-      #make sure the combo does not exist already
-      new_draft, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
-      if not cr:
-        logging.error("CopyApp the combo already exists!?")
-        return HttpResponse("Error")
+        return render(request, 'grants/copy_app_error.html')
       
       #set contents & files
       new_draft.contents = content
-      for field in APP_FILE_FIELDS:
+      for field in constants.APP_FILE_FIELDS:
         setattr(new_draft, field, getattr(application, field))
       new_draft.save()
       logging.info("CopyApp -- content and files set")
@@ -399,11 +397,6 @@ def CopyApp(request, organization):
     logging.info(apps_count)    
   
   return render(request, 'grants/org_app_copy.html', {'form':form, 'cycle_count':cycle_count, 'apps_count':apps_count})
-
-def DiscardFile(request, filefield):
-  """ Takes the string stored in the django file field
-    Queues file for deletion """
-  pass
     
 @registered_org()
 def DiscardDraft(request, organization, draft_id):
@@ -433,11 +426,11 @@ def ViewApplication(request, app_id):
 
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
-  return utils.FindBlob(application, file_type)
+  return utils.ServeBlob(application, file_type)
 
 def ViewDraftFile(request, draft_id, file_type):
   application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
-  return utils.FindBlob(application, file_type)
+  return utils.ServeBlob(application, file_type)
 
 # ADMIN
 
@@ -453,8 +446,10 @@ def AppToDraft(request, app_id):
   if request.method == 'POST':
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
-    draft.contents = json.dumps(model_to_dict(submitted_app, exclude = APP_FILE_FIELDS + ['grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo']))
-    for field in APP_FILE_FIELDS:
+    content = model_to_dict(submitted_app, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline'])
+    content.update(json.loads(submitted_app.timeline))
+    draft.contents = json.dumps(content)
+    for field in constants.APP_FILE_FIELDS:
       setattr(draft, field, getattr(submitted_app, field))
     draft.save()
     logging.info('Reverted to draft, draft id ' + str(draft.pk))
@@ -466,6 +461,16 @@ def AppToDraft(request, app_id):
   return render(request, 'admin/grants/confirm_revert.html', {'application':submitted_app})
 
 # CRON
+def DeleteEmptyFiles(request): #/tools/delete-empty
+  """ Delete all 0kb files in the blobstore """
+  infos = blobstore.BlobInfo.all().filter('size =', 0)
+  count = 0
+  for i in infos:
+    count += 1
+    i.delete()
+  logging.info('Deleted ' + str(count) + 'empty files.')
+  return HttpResponse("done")
+
 def DraftWarning(request):
   """ Warns of impending draft freeze
   Do not change cron sched -- it depends on running only once/day
@@ -479,12 +484,41 @@ def DraftWarning(request):
     time_left = draft.grant_cycle.close - timezone.now()
     created_offset = draft.grant_cycle.close - draft.created
     if (created_offset > eight and eight > time_left > datetime.timedelta(days=7)) or (created_offset < eight and datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3)):
-      subject, from_email = 'Grant cycle closing soon', settings.GRANT_EMAIL
+      subject, from_email = 'Grant cycle closing soon', constants.GRANT_EMAIL
       to = draft.organization.email
       html_content = render_to_string('grants/email_draft_warning.html', {'org':draft.organization, 'cycle':draft.grant_cycle})
       text_content = strip_tags(html_content)
-      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [settings.SUPPORT_EMAIL])
+      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [constants.SUPPORT_EMAIL])
       msg.attach_alternative(html_content, "text/html")
       msg.send()
       logging.info("Email sent to " + to + "regarding draft application soon to expire")
   return HttpResponse("")
+
+# UTILS
+def GetFileURLs(app):
+  """ Given a draft or application
+  return a dict of urls for viewing each of its files
+  taking into account whether it can be viewed in google doc viewer """
+    
+  #determine whether draft or submitted
+  if isinstance(app, models.GrantApplication):
+    logging.info("A submitted app!!!?!?")
+    mid_url = 'grants/view-file/'
+  elif isinstance(app, models.DraftGrantApplication):
+    logging.info("A draft")
+    mid_url = 'grants/draft-file/'
+  else:
+    logging.error("GetFileURLs received invalid object")
+    return {}
+  
+  #check file fields, compile links
+  file_urls = {'budget': '', 'funding_sources':'', 'demographics':'', 'fiscal_letter':'', 'budget1': '', 'budget2': '', 'budget3': '', 'project_budget_file': ''}
+  for field in file_urls:
+    value = getattr(app, field)
+    if value:
+      filename = str(value).split('/')[-1]
+      if not settings.DEBUG and str(value).lower().split(".")[-1] in constants.VIEWER_FORMATS: #doc viewer
+        file_urls[field] = 'https://docs.google.com/viewer?url='
+      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + '/' + field + '/' + filename
+  
+  return file_urls

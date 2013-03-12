@@ -8,7 +8,40 @@ from django.utils import timezone
 from google.appengine.ext import blobstore
 from sjfnw.fund.models import GivingProject
 from sjfnw.utils import IntegerCommaField
-import datetime, logging
+import datetime, logging, json
+from sjfnw import constants
+import utils
+
+NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 2700, 1800]
+NARRATIVE_TEXTS = ['Placeholder for 0',
+  'Describe your organization\'s mission, history and major accomplishments.', #1
+  'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ul><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ul>', #2
+  'Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ul><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues?</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ul>', #3
+  'Please describe your workplan, covering at least the next 12 months. (You will list the activities and objectives in the timeline form below the narrative.)<ul><li>What are your overall goals and strategies for the coming year?</li><li>How will you assess whether you have met your objectives and goals?</li></ul>', #4
+  'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organization\'s role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
+  'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. Tell us how your organization is working toward racial justice and how you are drawing connections to economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i> If you are a primarily white-led organization, also describe how you work as an ally to communities of color.', #6
+  ]
+STATE_CHOICES = [('OR', 'OR'), ('WA', 'WA'), ('ID', 'ID'), ('WY', 'WY'), ('MT', 'MT'),]
+STATUS_CHOICES = [
+  ('Tribal government', 'Federally recognized American Indian tribal government'),   
+  ('501c3', '501(c)3 organization as recognized by the IRS'),
+  ('501c4', '501(c)4 organization as recognized by the IRS'),
+  ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),]
+SUPPORT_CHOICES = [('General support', 'General support'), ('Project support', 'Project support'),]
+SCREENING_CHOICES = (
+  (10, 'Received'),
+  (20, 'Incomplete'),
+  (30, 'Complete'),
+  (40, 'Pre-screened out'),
+  (50, 'Pre-screened in'), #readable, scorable
+  (60, 'Screened out'), 
+  (70, 'Site visit awarded'), #site visit reports
+  (80, 'Grant denied'),
+  (90, 'Grant issued'),
+  (100, 'Grant paid'),
+  (110, 'Year-end report overdue'),
+  (120, 'Year-end report received'),
+  (130, 'Closed'),)
 
 
 class Organization(models.Model):
@@ -19,13 +52,6 @@ class Organization(models.Model):
   #org contact info
   address = models.CharField(max_length=100, null=True)
   city = models.CharField(max_length=50, null=True)
-  STATE_CHOICES = (
-    ('OR', 'OR'),
-    ('WA', 'WA'),
-    ('ID', 'ID'),
-    ('WY', 'WY'),
-    ('MT', 'MT'),
-  )
   state = models.CharField(max_length=2,choices=STATE_CHOICES, null=True)
   zip = models.CharField(max_length=50, null=True)
   telephone_number = models.CharField(max_length=20, null=True)
@@ -34,12 +60,6 @@ class Organization(models.Model):
   website = models.CharField(max_length=50, null=True, blank=True)
   
   #org info
-  STATUS_CHOICES = (
-    ('Tribal government', 'Federally recognized American Indian tribal government'),   
-    ('501c3', '501(c)3 organization as recognized by the IRS'),
-    ('501c4', '501(c)4 organization as recognized by the IRS'),
-    ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),
-  )
   status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True)
   ein = models.CharField(max_length=50, verbose_name="Organization's or Fiscal Sponsor Organization's EIN", null=True)
   founded = models.PositiveIntegerField(verbose_name='Year organization founded', null=True)
@@ -120,70 +140,15 @@ class DraftGrantApplication(models.Model):
     else:
       return False
   
-  """ only deletes blobinfo, not file itself :(
-  def save(self, *args, **kwargs):
-    delete = []
-    try:
-      previous = DraftGrantApplication.objects.get(id=self.id)
-      if previous.budget and previous.budget != self.budget:
-        delete.append(previous.budget)
-      if previous.demographics and previous.demographics != self.demographics:
-        delete.append(previous.demographics)
-      if previous.fiscal_letter and previous.fiscal_letter != self.fiscal_letter:
-        delete.append(previous.fiscal_letter)
-      if previous.funding_sources and previous.funding_sources != self.funding_sources:
-        delete.append(previous.funding_sources)
-    except: pass
-    logging.info('Queued for deletion: ' + str(delete))
-    count = 0
-    for field in delete:
-      key = str(field).split('/', 1)[0]
-      if key:
-        binfo = blobstore.BlobInfo.get(key)
-        binfo.delete()
-        count += 1
-    logging.info('Draft being updated. ' + str(count) + ' old files deleted.')
-    super(DraftGrantApplication, self).save(*args, **kwargs)
-  """
-
+  def delete(self, *args, **kwargs):
+    for field in self._meta.fields:
+      if isinstance(field, models.FileField):
+        utils.DeleteBlob(getattr(self, field.name))
+    super(DraftGrantApplication, self).delete(*args, **kwargs)
+    
 class CharLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'
 
-NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 2700, 1800]
-NARRATIVE_TEXTS = ['Placeholder for 0',
-  'Describe your organization\'s mission, history and major accomplishments.', #1
-  'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ul><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ul>', #2
-  'Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ul><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues?</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ul>', #3
-  'Please describe your workplan, covering at least the next 12 months. (You will list the activities and objectives in the timeline form below the narrative.)<ul><li>What are your overall goals and strategies for the coming year?</li><li>How will you assess whether you have met your objectives and goals?</li></ul>', #4
-  'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organization\'s role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
-  'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. Tell us how your organization is working toward racial justice and how you are drawing connections to economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i> If you are a primarily white-led organization, also describe how you work as an ally to communities of color.', #6
-  ]
-STATE_CHOICES = [('OR', 'OR'), ('WA', 'WA'), ('ID', 'ID'), ('WY', 'WY'), ('MT', 'MT'),]
-STATUS_CHOICES = [
-  ('Tribal government', 'Federally recognized American Indian tribal government'),   
-  ('501c3', '501(c)3 organization as recognized by the IRS'),
-  ('501c4', '501(c)4 organization as recognized by the IRS'),
-  ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),]
-SUPPORT_CHOICES = [('General support', 'General support'), ('Project support', 'Project support'),]
-SCREENING_CHOICES = (
-  (10, 'Received'),
-  (20, 'Incomplete'),
-  (30, 'Complete'),
-  (40, 'Pre-screened out'),
-  (50, 'Pre-screened in'), #readable, scorable
-  (60, 'Screened out'), 
-  (70, 'Site visit awarded'), #site visit reports
-  (80, 'Grant denied'),
-  (90, 'Grant issued'),
-  (100, 'Grant paid'),
-  (110, 'Year-end report overdue'),
-  (120, 'Year-end report received'),
-  (130, 'Closed'),)
-
-def validate_file_extension(value):
-  if not str(value).lower().split(".")[-1] in settings.ALLOWED_FILE_TYPES:
-    raise ValidationError(u'That file type is not supported.')
-  
 class GrantApplication(models.Model):
   """ Submitted grant application """
   
@@ -231,7 +196,7 @@ class GrantApplication(models.Model):
   fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address', max_length=70, null=True, blank=True)
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
-  fiscal_letter = models.FileField(upload_to='/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', validators=[validate_file_extension], max_length=255)
+  fiscal_letter = models.FileField(upload_to='/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', max_length=255)
   
   #narrative
   narrative1 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
@@ -240,7 +205,7 @@ class GrantApplication(models.Model):
   narrative4 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[4])], verbose_name = NARRATIVE_TEXTS[4])
   narrative5 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[5])], verbose_name = NARRATIVE_TEXTS[5])
   narrative6 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
-  cycle_question = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[7])], blank=True)
+  cycle_question = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[7])], null=True, blank=True)
   
   timeline = models.TextField()
   
@@ -286,3 +251,25 @@ class GrantApplication(models.Model):
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
   view_link.allow_tags = True
+  
+  def timeline_table(self):
+    display = '<table id="timeline"><tr><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
+    timeline = json.loads(self.timeline)
+    timeline_fields = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
+    index = 0
+    for row in range(1, 6):
+      display += '<tr><th>q' + str(row) + '</th>'
+      for col in range(1, 4):
+        value = timeline[timeline_fields[index]]
+        display += '<td>' + value + '</td>'
+        index += 1
+      display += '</tr>'
+    display += '</table>'  
+    return display
+  timeline_table.allow_tags = True
+  
+  def delete(self, *args, **kwargs):
+    for field in self._meta.fields:
+      if isinstance(field, models.FileField):
+        utils.DeleteBlob(getattr(self, field.name))
+    super(GrantApplication, self).delete(*args, **kwargs)

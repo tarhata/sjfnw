@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic.simple import direct_to_template
 from admin import advanced_admin
+from sjfnw import constants
 import grants, fund, views
 
 handler404 = 'views.page_not_found'
@@ -33,7 +34,7 @@ urlpatterns = patterns('',
   (r'^logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/apply'}),
 
   #reset password
-  (r'^apply/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'grants/reset.html', 'from_email':settings.GRANT_EMAIL, 'email_template_name':'grants/password_reset_email.html', 'post_reset_redirect':'/apply/reset-sent'}),
+  (r'^apply/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'grants/reset.html', 'from_email':constants.GRANT_EMAIL, 'email_template_name':'grants/password_reset_email.html', 'post_reset_redirect':'/apply/reset-sent'}),
   (r'^apply/reset-sent/?', 'django.contrib.auth.views.password_reset_done', {'template_name':'grants/password_reset_done.html'}),
   (r'^apply/reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'grants/password_reset_confirm.html'}, 'org-reset'),
   (r'^apply/reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'grants/password_reset_complete.html'}),
@@ -56,14 +57,16 @@ urlpatterns = patterns('',
   (r'^org/?$', 'grants.views.RedirToApply'),
   
   (r'^apply/test/?$', 'grants.views.TestApply'),
+  
   #cron
   (r'^mail/drafts/?', 'grants.views.DraftWarning'),
+  (r'^tools/delete-empty', 'grants.views.DeleteEmptyFiles'),
 
 ## GRANTS - APPLICATION VIEWS ##
 
   (r'^grants/view/(?P<app_id>\d+)/?$', 'grants.views.ViewApplication'),
-  (r'^grants/view-file/(?P<app_id>\d+)/(?P<file_type>.*)/?$', 'grants.views.ViewFile'),
-  (r'^grants/draft-file/(?P<draft_id>\d+)/(?P<file_type>.*)/?$', 'grants.views.ViewDraftFile'),
+  (r'^grants/view-file/(?P<app_id>\d+)/(?P<file_type>.*)/.*$', 'grants.views.ViewFile'),
+  (r'^grants/draft-file/(?P<draft_id>\d+)/(?P<file_type>.*)/.*$', 'grants.views.ViewDraftFile'),
   
 ## GRANTS - REPORTING ##
 
@@ -109,7 +112,7 @@ urlpatterns = patterns('',
   (r'^fund/registered/?$', 'fund.views.Registered'),
   
   #reset password
-  (r'^fund/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'fund/reset.html', 'from_email':settings.FUND_EMAIL, 'email_template_name':'fund/password_reset_email.html', 'subject_template_name':'registration/password_reset_subject.txt'}),
+  (r'^fund/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'fund/reset.html', 'from_email':constants.FUND_EMAIL, 'email_template_name':'fund/password_reset_email.html', 'subject_template_name':'registration/password_reset_subject.txt'}),
   (r'^fund/reset-sent/?', 'django.contrib.auth.views.password_reset_done', {'template_name':'fund/password_reset_done.html'}),
   (r'^fund/reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'fund/password_reset_confirm.html'}, 'fund-reset'),
   (r'^fund/reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'fund/password_reset_complete.html'}),
@@ -145,7 +148,6 @@ urlpatterns = patterns('',
   (r'^mail/overdue-step', 'fund.views.EmailOverdue'),
   (r'^mail/new-accounts', 'fund.views.NewAccounts'),
   (r'^mail/gifts', 'fund.views.GiftNotify'),
-  (r'^tools/delete-empty', 'grants.utils.DeleteEmptyFiles'),
 )
 
 #for dev_appserver
