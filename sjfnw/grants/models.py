@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.forms import ModelForm, Textarea
-from django.forms.widgets import FileInput
+from django.forms.widgets import FileInput, MultiWidget
 from django.utils import timezone
 from google.appengine.ext import blobstore
 from sjfnw.fund.models import GivingProject
@@ -43,6 +43,53 @@ SCREENING_CHOICES = (
   (110, 'Year-end report overdue'),
   (120, 'Year-end report received'),
   (130, 'Closed'),)
+
+class TimelineWidget(MultiWidget):
+  def __init__(self, attrs=None):
+    _widgets = (
+      Textarea(attrs={'rows':'5', 'cols':'20'}), 
+      Textarea(attrs={'rows':'5'}),
+      Textarea(attrs={'rows':'5'}),
+      Textarea(attrs={'rows':'5', 'cols':'20'}), 
+      Textarea(attrs={'rows':'5'}),
+      Textarea(attrs={'rows':'5'}),
+      Textarea(attrs={'rows':'5', 'cols':'20'}), 
+      Textarea(attrs={'rows':'5'}),
+      Textarea(attrs={'rows':'5'}),
+      Textarea(attrs={'rows':'5', 'cols':'20'}), 
+      Textarea(attrs={'rows':'5'}),
+      Textarea(attrs={'rows':'5'}),
+      Textarea(attrs={'rows':'5', 'cols':'20'}), 
+      Textarea(attrs={'rows':'5'}),
+      Textarea(attrs={'rows':'5'}),
+    )
+    super(TimelineWidget, self).__init__(_widgets, attrs)
+  
+  """ passed values from the database in a single value object
+      decompress breaks this up for display in the widget.
+      takes a single "compressed" value and returns a list."""
+  def decompress(self, value):
+    if value:
+      return json.loads(value)
+    return [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+  
+  """Subclasses may implement format_output(), which takes the list of rendered
+    widgets and returns a string of HTML that formats them any way you'd like."""
+  def format_output(self, rendered_widgets):
+    logging.info(rendered_widgets)
+    html = '<table id="timeline_form"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
+    for i in range(0, len(rendered_widgets), 3):
+      html += '<tr><th class="left">q' + str((i+3)/3) + '</th><td>' + rendered_widgets[i] + '</td><td>' + rendered_widgets[i+1] + '</td><td>' + rendered_widgets[i+2] +'</td></tr>'
+    html += '</table>'
+    return html
+  
+  """ Get single value from the widgetz """ #TO DO this is a list not the dict that the field expects
+  def value_from_datadict(self, data, files, name):
+    val_list = []
+    for i, widget in enumerate(self.widgets):
+       val_list.append(widget.value_from_datadict(data, files, name + '_%s' % i))
+    logging.info(val_list)
+    return json.dumps(val_list)
 
 class Organization(models.Model):
   #registration fields
@@ -273,6 +320,95 @@ class GrantApplication(models.Model):
       if isinstance(field, models.FileField):
         utils.DeleteBlob(getattr(self, field.name))
     super(GrantApplication, self).delete(*args, **kwargs)
+
+def addCssLabel(label_text):
+  return u'<span class="label">' + (label_text or '') + u'</span>'
+
+def custom_integer_field(f, **kwargs):
+  if isinstance(f, models.PositiveIntegerField) and f.verbose_name != 'Year founded':
+    label = f.verbose_name
+    required = not f.blank
+    return IntegerCommaField(label = label, required = required)
+  else:
+    return f.formfield(**kwargs)
+
+class GrantApplicationModelForm(ModelForm):
+  formfield_callback = custom_integer_field
+  class Meta:
+    model = GrantApplication
+    widgets = {
+      'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 750)'}),
+      'grant_request': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 600)'}),
+      'narrative1': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[1]) + ')'}),
+      'narrative2': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[2]) + ')'}),
+      'narrative3': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[3]) + ')'}),
+      'narrative4': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[4]) + ')'}),
+      'narrative5': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
+      'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[6]) + ')'}),
+      'cycle_question': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[7]) + ')'}),
+      'budget': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'demographics': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'funding_sources': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'fiscal_letter': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget1': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget2': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget3': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'project_budget_file': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'timeline':TimelineWidget(),
+    }
+  
+  def __init__(self, *args, **kwargs):
+    super(GrantApplicationModelForm, self).__init__(*args, **kwargs)
+    for key in self.fields:
+      self.fields[key].label = addCssLabel(self.fields[key].label)
+
+  def clean(self):
+    cleaned_data = super(GrantApplicationModelForm, self).clean()
+    logging.info(cleaned_data.get('timeline'))
+    #collab refs - require phone or email
+    phone = cleaned_data.get('collab_ref1_phone')
+    email = cleaned_data.get('collab_ref1_email')
+    if not phone and not email:
+       self._errors["collab_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
+    phone = cleaned_data.get('collab_ref2_phone')
+    email = cleaned_data.get('collab_ref2_email')
+    if not phone and not email:
+       self._errors["collab_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
+    
+    #racial justice refs - require full set if any
+    name = cleaned_data.get('racial_justice_ref1_name')
+    org = cleaned_data.get('racial_justice_ref1_org')
+    phone = cleaned_data.get('racial_justice_ref1_phone')
+    email = cleaned_data.get('racial_justice_ref1_email')
+    if name or org or phone or email:
+      if not name:
+        self._errors["racial_justice_ref1_name"] = '<div class="form_error">Enter a contact person.</div>'
+      if not org:
+        self._errors["racial_justice_ref1_org"] = '<div class="form_error">Enter the organization name.</div>'
+      if not phone and not email:
+        self._errors["racial_justice_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
+    name = cleaned_data.get('racial_justice_ref2_name')
+    org = cleaned_data.get('racial_justice_ref2_org')
+    phone = cleaned_data.get('racial_justice_ref2_phone')
+    email = cleaned_data.get('racial_justice_ref2_email')
+    if name or org or phone or email:
+      if not name:
+        self._errors["racial_justice_ref2_name"] = '<div class="form_error">Enter a contact person.</div>'
+      if not org:
+        self._errors["racial_justice_ref2_org"] = '<div class="form_error">Enter the organization name.</div>'
+      if not phone and not email:
+        self._errors["racial_justice_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'    
+    
+    #require cycle question if given
+    cycle = cleaned_data.get('grant_cycle')
+    answer = cleaned_data.get('cycle_question')
+    logging.info(cycle.extra_question)
+    logging.info(answer)
+    if cycle.extra_question and not answer:
+      logging.info('Missing answer')
+      self._errors["cycle_question"] = '<div class="form_error">This field is required.</div>'
+      
+    return cleaned_data
 
 class GrantApplicationLog(models.Model):
   date = models.DateTimeField(default = timezone.now())

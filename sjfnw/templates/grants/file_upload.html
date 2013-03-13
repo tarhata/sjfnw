@@ -2,6 +2,9 @@
 
 {% block content %}
 {% autoescape off %}
-{{form.as_table}}
+<form action="/apply/test/" method="POST">
+{{form}}
+<input type="submit" value="Submit">
+</form>
 {% endautoescape %}
 {% endblock %}

@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore, deferred
-from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm
+from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm, BabyForm
 from decorators import registered_org
 from sjfnw import constants
 import models, utils
@@ -265,7 +265,14 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
 
 def TestApply(request):
-  form = GrantApplicationForm()
+  if request.method=='POST':
+    form = models.GrantApplicationModelForm(request.POST)
+    logging.info(request.POST)
+    if form.is_valid():
+      logging.info(form)
+      form.save()
+  else:
+    form = models.GrantApplicationModelForm()
   return render(request, 'grants/file_upload.html', {'form':form})
 
 @login_required(login_url=LOGIN_URL)
