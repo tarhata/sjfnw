@@ -162,7 +162,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     #logging.info('========= Draft data: ' + unicode(draft_data))
     
     #submit form
-    form = GrantApplicationForm(cycle, draft_data, files_data)
+    form = models.GrantApplicationModelForm(cycle, draft_data, files_data)
         
     if form.is_valid(): #VALID SUBMISSION
       logging.info('========= Application form valid')
@@ -249,7 +249,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       profiled = True
 
     #create form
-    form = models.GrantApplicationModelForm(initial=dict)
+    form = models.GrantApplicationModelForm(cycle, initial=dict)
 
   #get draft files
   file_urls = GetFileURLs(draft)
