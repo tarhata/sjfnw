@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore, deferred
-from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm
+from forms import LoginForm, RegisterForm, RolloverForm
 from decorators import registered_org
 from sjfnw import constants
 import models, utils

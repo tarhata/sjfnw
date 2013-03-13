@@ -2,8 +2,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect, render_to_response
 from sjfnw.fund.decorators import approved_membership
-from sjfnw.grants.models import GrantApplication
-from sjfnw.grants.forms import GrantApplicationForm
+from sjfnw.grants.models import GrantApplication, GrantApplicationModelForm
 import sjfnw.fund.models
 import logging
 
@@ -14,7 +13,7 @@ import logging
 def read_grant(request, app_id):
   membership = request.membership
   application = get_object_or_404(GrantApplication, pk = app_id)
-  form = GrantApplicationForm()
+  form = GrantApplicationModelForm()
   #potentially create them all ahead of time instead of this
   rating, new = models.ApplicationRating.objects.get_or_create(application = application, membership = membership)
   scoring_form = models.RatingForm(instance = rating)   
