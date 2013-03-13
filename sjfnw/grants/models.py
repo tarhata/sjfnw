@@ -6,9 +6,10 @@ from django.db import models
 from django.forms import ModelForm, Textarea
 from django.forms.widgets import FileInput, MultiWidget
 from django.utils import timezone
+from django.utils.text import capfirst
 from google.appengine.ext import blobstore
 from sjfnw.fund.models import GivingProject
-from sjfnw.utils import IntegerCommaField
+from sjfnw.utils import IntegerCommaField, PhoneNumberField
 import datetime, logging, json
 from sjfnw import constants
 import utils
@@ -196,6 +197,10 @@ class DraftGrantApplication(models.Model):
 class CharLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'
 
+def validate_file_extension(value):
+  if not str(value).lower().split(".")[-1] in constants.ALLOWED_FILE_TYPES:
+    raise ValidationError(u'That file type is not supported.')
+
 class GrantApplication(models.Model):
   """ Submitted grant application """
   
@@ -210,9 +215,9 @@ class GrantApplication(models.Model):
   state = models.CharField(max_length=2,choices=STATE_CHOICES)
   zip = models.CharField(max_length=50)
   telephone_number = models.CharField(max_length=20)
-  fax_number = models.CharField(max_length=20, null=True, blank=True, verbose_name = 'Fax number (optional)')
+  fax_number = models.CharField(max_length=20, blank=True, verbose_name = 'Fax number (optional)')
   email_address = models.EmailField()
-  website = models.CharField(max_length=50, null=True, blank=True, verbose_name = 'Website (optional)')
+  website = models.CharField(max_length=50, blank=True, verbose_name = 'Website (optional)')
   
   #org info
   status = models.CharField(max_length=50, choices=STATUS_CHOICES)
@@ -231,19 +236,18 @@ class GrantApplication(models.Model):
   contact_person = models.CharField(max_length=250, verbose_name= 'Name', help_text='Contact person for this grant application')
   contact_person_title = models.CharField(max_length=100, verbose_name='Title')
   grant_period = models.CharField(max_length=250, blank=True, verbose_name='Grant period (if different than fiscal year)')
-  amount_requested = models.PositiveIntegerField(verbose_name='Amount requested $')
+  amount_requested = models.PositiveIntegerField()
   
   support_type = models.CharField(max_length=50, choices=SUPPORT_CHOICES)
   project_title = models.CharField(max_length=250,verbose_name='Project title (if applicable)', null=True, blank=True)
   project_budget = models.PositiveIntegerField(verbose_name='Project budget (if applicable)', null=True, blank=True)
   
   #fiscal sponsor
-  fiscal_org = models.CharField(verbose_name='Fiscal org. name', max_length=255, null=True, blank=True)
-  fiscal_person = models.CharField(verbose_name='Contact person', max_length=255, null=True, blank=True)
-  fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
-  fiscal_email = models.CharField(verbose_name='Email address', max_length=70, null=True, blank=True)
-  fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
-  fiscal_letter = models.FileField(upload_to='/', null=True,blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', max_length=255)
+  fiscal_org = models.CharField(verbose_name='Fiscal org. name', max_length=255, blank=True)
+  fiscal_person = models.CharField(verbose_name='Contact person', max_length=255, blank=True)
+  fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, blank=True)
+  fiscal_email = models.CharField(verbose_name='Email address', max_length=70, blank=True)
+  fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, blank=True)
   
   #narrative
   narrative1 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
@@ -252,11 +256,11 @@ class GrantApplication(models.Model):
   narrative4 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[4])], verbose_name = NARRATIVE_TEXTS[4])
   narrative5 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[5])], verbose_name = NARRATIVE_TEXTS[5])
   narrative6 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
-  cycle_question = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[7])], null=True, blank=True)
+  cycle_question = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[7])], blank=True)
   
   timeline = models.TextField()
   
-  #references
+  #collab references (after narrative 5)
   collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.', verbose_name='Name', max_length = 150)
   collab_ref1_org = models.CharField(verbose_name='Organization', max_length = 150)
   collab_ref1_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
@@ -267,7 +271,8 @@ class GrantApplication(models.Model):
   collab_ref2_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
   collab_ref2_email = models.EmailField(verbose_name='Email', blank=True)
   
-  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, also describe how you work as an ally to communities of color. Be as specific as possible, and list at least one organization led by people of color that we can contact as a reference for your racial justice work.', verbose_name='Name', max_length = 150, blank=True)
+  #racial justice references (after narrative 6)
+  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, please list at least one organization led by people of color that we can contact as a reference for your racial justice work.', verbose_name='Name', max_length = 150, blank=True)
   racial_justice_ref1_org = models.CharField(verbose_name='Organization', max_length = 150, blank=True)
   racial_justice_ref1_phone = models.CharField(verbose_name='Phone number', max_length = 20, blank=True)
   racial_justice_ref1_email = models.EmailField(verbose_name='Email', blank=True)
@@ -278,13 +283,14 @@ class GrantApplication(models.Model):
   racial_justice_ref2_email = models.EmailField(verbose_name='Email', blank=True) 
   
   #files
-  budget = models.FileField(upload_to='/', max_length=255)
-  demographics = models.FileField(upload_to='/', max_length=255)
+  budget = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension])
+  demographics = models.FileField(verbose_name = 'Diversity chart', upload_to='/', max_length=255, validators=[validate_file_extension])
   funding_sources = models.FileField(upload_to='/', max_length=255)
-  budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement')
-  budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating')
-  budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet')
-  project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget')
+  budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement', validators=[validate_file_extension])
+  budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating budget', validators=[validate_file_extension])
+  budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet (if available)', validators=[validate_file_extension])
+  project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget (if applicable)', validators=[validate_file_extension])
+  fiscal_letter = models.FileField(upload_to='/', blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', max_length=255, validators=[validate_file_extension])
   
   #admin fields
   screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
@@ -299,44 +305,31 @@ class GrantApplication(models.Model):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
   view_link.allow_tags = True
   
-  def timeline_table(self):
-    display = '<table id="timeline"><tr><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
-    timeline = json.loads(self.timeline)
-    timeline_fields = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
-    index = 0
-    for row in range(1, 6):
-      display += '<tr><th>q' + str(row) + '</th>'
-      for col in range(1, 4):
-        value = timeline[timeline_fields[index]]
-        display += '<td>' + value + '</td>'
-        index += 1
-      display += '</tr>'
-    display += '</table>'  
-    return display
-  timeline_table.allow_tags = True
-  
   def delete(self, *args, **kwargs):
     for field in self._meta.fields:
       if isinstance(field, models.FileField):
         utils.DeleteBlob(getattr(self, field.name))
     super(GrantApplication, self).delete(*args, **kwargs)
 
-def addCssLabel(label_text):
-  return u'<span class="label">' + (label_text or '') + u'</span>'
-
-def custom_integer_field(f, **kwargs):
-  if isinstance(f, models.PositiveIntegerField) and f.verbose_name != 'Year founded':
-    label = f.verbose_name
-    required = not f.blank
-    return IntegerCommaField(label = label, required = required)
+def custom_fields(f, **kwargs):
+  money_fields = ['budget_last', 'budget_current', 'grant_request', 'amount_requested', 'project_budget']
+  phone_fields = ['telephone_number', 'fax_number', 'fiscal_telephone', 'collab_ref1_phone', 'collab_ref2_phone', 'racial_justice_ref1_phone', 'racial_justice_ref2_phone']
+  if f.verbose_name:
+    kwargs['label'] = capfirst(f.verbose_name)
+  if f.name in money_fields:
+    return IntegerCommaField(**kwargs)
+  elif f.name in phone_fields:
+    return PhoneNumberField(**kwargs)
   else:
+    logging.info(f.name)
     return f.formfield(**kwargs)
 
 class GrantApplicationModelForm(ModelForm):
-  formfield_callback = custom_integer_field
+  formfield_callback = custom_fields
   class Meta:
     model = GrantApplication
     widgets = {
+      #char limits
       'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 750)'}),
       'grant_request': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 600)'}),
       'narrative1': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[1]) + ')'}),
@@ -346,6 +339,7 @@ class GrantApplicationModelForm(ModelForm):
       'narrative5': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[5]) + ')'}),
       'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[6]) + ')'}),
       'cycle_question': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[7]) + ')'}),
+      #file callbacks
       'budget': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
       'demographics': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
       'funding_sources': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
@@ -354,13 +348,9 @@ class GrantApplicationModelForm(ModelForm):
       'budget2': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
       'budget3': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
       'project_budget_file': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      #timeline
       'timeline':TimelineWidget(),
     }
-  
-  def __init__(self, *args, **kwargs):
-    super(GrantApplicationModelForm, self).__init__(*args, **kwargs)
-    for key in self.fields:
-      self.fields[key].label = addCssLabel(self.fields[key].label)
 
   def clean(self):
     cleaned_data = super(GrantApplicationModelForm, self).clean()

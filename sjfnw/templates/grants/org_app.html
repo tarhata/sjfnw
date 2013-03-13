@@ -234,7 +234,7 @@ $(document).ready(function() {
 			</tr><tr>
 				<td>{{form.amount_requested.errors}}</td><td>{{form.support_type.errors}}</td>
 			</tr><tr>
-				<td>{{form.amount_requested.label_tag}}{{form.amount_requested}}</td>
+				<td>{{form.amount_requested.label_tag}}${{form.amount_requested}}</td>
 				<td>{{form.support_type.label_tag}}{{form.support_type}}</td>
 			</tr><tr>
 				<td>{{form.project_title.errors}}</td>
@@ -287,39 +287,8 @@ $(document).ready(function() {
 		{{form.narrative4.errors}}{{form.narrative4}}
 		<span class="char_counter" id="narrative4_counter">{{limits.4}}</span></div>
 		
-		<table id="timeline_form">
-			<tr class="heading">
-				<td></td>
-				<th>date range</th>
-				<th>activities</th>
-				<th>goals/objectives</th>
-			</tr><tr>
-				<th class="left">q1</th>
-				<td>{{form.timeline_1_date}}</td>
-				<td>{{form.timeline_1_activities}}</td>
-				<td>{{form.timeline_1_goals}}</td>
-			</tr><tr>
-				<th class="left">q2</th>
-				<td>{{form.timeline_2_date}}</td>
-				<td>{{form.timeline_2_activities}}</td>
-				<td>{{form.timeline_2_goals}}</td>
-			</tr><tr>
-				<th class="left">q3</th>
-				<td>{{form.timeline_3_date}}</td>
-				<td>{{form.timeline_3_activities}}</td>
-				<td>{{form.timeline_3_goals}}</td>
-			</tr><tr>
-				<th class="left">q4</th>
-				<td>{{form.timeline_4_date}}</td>
-				<td>{{form.timeline_4_activities}}</td>
-				<td>{{form.timeline_4_goals}}</td>
-			</tr><tr>
-				<th class="left">q5</th>
-				<td>{{form.timeline_5_date}}</td>
-				<td>{{form.timeline_5_activities}}</td>
-				<td>{{form.timeline_5_goals}}</td>
-			</tr>
-		</table>
+		{{form.timeline}}
+		
 		<div class="narrative_q">5. {{form.narrative5.label_tag}}
 		{{form.narrative5.errors}}{{form.narrative5}}
 		<span class="char_counter" id="narrative5_counter">{{limits.5}}</span>

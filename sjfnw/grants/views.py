@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore, deferred
-from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm, BabyForm
+from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm
 from decorators import registered_org
 from sjfnw import constants
 import models, utils
@@ -249,7 +249,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       profiled = True
 
     #create form
-    form = GrantApplicationForm(cycle, initial=dict)
+    form = models.GrantApplicationModelForm(initial=dict)
 
   #get draft files
   file_urls = GetFileURLs(draft)
