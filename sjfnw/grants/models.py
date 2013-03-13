@@ -359,7 +359,26 @@ class GrantApplicationModelForm(ModelForm):
 
   def clean(self):
     cleaned_data = super(GrantApplicationModelForm, self).clean()
-
+    
+    #timeline
+    timeline = cleaned_data.get('timeline')
+    timeline = json.dumps(timeline)
+    logging.info(timeline)
+    empty = False
+    incomplete = False
+    for i in range(0, 13, 3):
+      date = timeline[i]
+      act = timeline[i+1]
+      obj = timeline[i+2]
+      if i==0 and not (date or act or obj):
+        empty = True
+      if date or act or obj and not (date and act and obj):
+        incomplete = True
+    if incomplete:
+      self._errors['timeline'] = '<div class="form_error">All three columns are required for each quarter that you include in your timeline.</div>'
+    elif empty:
+      self._errors['timeline'] = '<div class="form_error">This field is required.</div>'
+    
     #collab refs - require phone or email
     phone = cleaned_data.get('collab_ref1_phone')
     email = cleaned_data.get('collab_ref1_email')
