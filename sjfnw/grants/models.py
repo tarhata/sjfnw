@@ -283,8 +283,8 @@ class GrantApplication(models.Model):
   
   #files
   budget = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)
-  demographics = models.FileField(verbose_name = 'Diversity chart', upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)
-  funding_sources = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)
+  demographics = models.FileField(verbose_name = 'Diversity chart', upload_to='/', max_length=255, validators=[validate_file_extension])
+  funding_sources = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension])
   budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement', validators=[validate_file_extension], blank=True)
   budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating budget', validators=[validate_file_extension], blank=True)
   budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet (if available)', validators=[validate_file_extension], blank=True)
