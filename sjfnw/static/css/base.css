@@ -5,6 +5,10 @@ body {
   font-size:.75em;
 }
 
+img {
+  border:none;
+}
+
 table {
   font-size: inherit;
 }
