@@ -299,7 +299,7 @@ class GrantApplication(models.Model):
   view_link.allow_tags = True
 
 def custom_fields(f, **kwargs):
-  money_fields = ['budget_last', 'budget_current', 'grant_request', 'amount_requested', 'project_budget']
+  money_fields = ['budget_last', 'budget_current', 'amount_requested', 'project_budget']
   phone_fields = ['telephone_number', 'fax_number', 'fiscal_telephone', 'collab_ref1_phone', 'collab_ref2_phone', 'racial_justice_ref1_phone', 'racial_justice_ref2_phone']
   kwargs['required'] = not f.blank
   if f.verbose_name:
@@ -315,6 +315,7 @@ class GrantApplicationModelForm(ModelForm):
   formfield_callback = custom_fields
   class Meta:
     model = GrantApplication
+    exclude = ['screening_status', 'submission_time'] #auto fields with defaults
     widgets = {
       #char limits
       'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 750)'}),

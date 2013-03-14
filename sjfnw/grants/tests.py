@@ -7,7 +7,7 @@ from django.utils.html import strip_tags
 from google.appengine.ext import testbed
 from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
 import sys, datetime, re, json, unittest
-from sjfnw.constants import TEST_MIDDLEWARE, TIMELINE_FIELDS, APP_FILE_FIELDS
+from sjfnw.constants import TEST_MIDDLEWARE, APP_FILE_FIELDS
 
 def setCycleDates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
@@ -50,12 +50,10 @@ def logInAdmin(self): #just a django superuser
   superuser = User.objects.create_superuser('admin@gmail.com', 'admin@gmail.com', 'admin')
   self.client.login(username = 'admin@gmail.com', password = 'admin')
 
-def alterDraftContents(draft, fields, values):
+def alterDraftTimeline(draft, values):
   contents_dict = json.loads(draft.contents)
-  index = 0
-  for field in fields:
-    contents_dict[field] = values[index]
-    index += 1
+  for i in range(15):
+    contents_dict['timeline_' + str(i)] = values[i]
   draft.contents = json.dumps(contents_dict)
   draft.save()
 
@@ -69,8 +67,9 @@ def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in
   draft_contents = json.loads(draft.contents)
   app_timeline = json.loads(app.timeline)
   for field, value in draft_contents.iteritems():
-    if field in TIMELINE_FIELDS:
-      self.assertEqual(value, app_timeline[field])
+    if 'timeline' in field:
+      i = int(field.split('_')[-1])
+      self.assertEqual(value, app_timeline[i])
     else:
       self.assertEqual(value, getattr(app, field))
   for field in APP_FILE_FIELDS:
@@ -126,13 +125,13 @@ class ApplySuccessfulTests(TestCase):
       '', '', '',]
     
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    alterDraftContents(draft, TIMELINE_FIELDS, answers)
+    alterDraftTimeline(draft, answers)
     
     response = self.client.post('/apply/3/', follow=True)
     self.assertEqual(response.status_code, 200)
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    self.assertEqual(app.timeline, json.dumps(dict(zip(TIMELINE_FIELDS, answers))))
-    
+    self.assertEqual(app.timeline, json.dumps(answers))
+   
   def test_saved_timeline5(self):
 
     answers = [
@@ -143,12 +142,12 @@ class ApplySuccessfulTests(TestCase):
       'August', 'Reading in the shade', 'No sunburns',]
     
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    alterDraftContents(draft, TIMELINE_FIELDS, answers)
+    alterDraftTimeline(draft, answers)
     
     response = self.client.post('/apply/3/', follow=True)
     self.assertEqual(response.status_code, 200)
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    self.assertEqual(app.timeline, json.dumps(dict(zip(TIMELINE_FIELDS, answers))))
+    self.assertEqual(app.timeline, json.dumps(answers))
   
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_mult_budget(self):
@@ -249,7 +248,7 @@ class ApplyValidationTests(TestCase):
     self.assertFormError(response, 'form', 'project_budget', "This field is required when applying for project support.")
     self.assertFormError(response, 'form', 'project_budget_file', "This field is required when applying for project support.")
   
-  def test_timeline_validation(self):
+  def test_timeline_validation1(self):
     
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     answers = [
@@ -258,13 +257,24 @@ class ApplyValidationTests(TestCase):
       'Mar', '', 'Sprouts',
       'July', '', '',
       '', 'Reading in the shade', 'No sunburns',]
-    alterDraftContents(draft, TIMELINE_FIELDS, answers)
+    alterDraftTimeline(draft, answers)
     
     response = self.client.post('/apply/3/', follow=True)
-    self.assertFormError(response, 'form', 'timeline_3_activities', "This field is required.")
-    self.assertFormError(response, 'form', 'timeline_4_activities', "This field is required.")
-    self.assertFormError(response, 'form', 'timeline_4_goals', "This field is required.")
-    self.assertFormError(response, 'form', 'timeline_5_date', "This field is required.")
+    self.assertFormError(response, 'form', 'timeline', '<div class="form_error">All three columns are required for each quarter that you include in your timeline.</div>')
+    
+  def test_timeline_validation1(self):
+    
+    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    answers = [
+      '', '', '',
+      '', '', '',
+      '', '', '',
+      '', '', '',
+      '', '', '']
+    alterDraftTimeline(draft, answers)
+    
+    response = self.client.post('/apply/3/', follow=True)
+    self.assertFormError(response, 'form', 'timeline', '<div class="form_error">This field is required.</div>')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)    
 class StartApplicationTests(TestCase): #MIGHT BE OUT OF DATE
@@ -375,7 +385,7 @@ class DraftWarningTests(TestCase):
     
     response = self.client.get('/mail/drafts/')
     self.assertEqual(len(mail.outbox), 0)
-
+  
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class RolloverTests(TestCase):
   """ Basic success
@@ -452,6 +462,7 @@ class RolloverTests(TestCase):
     self.assertEqual(response.context['cycle_count'], 2)
     self.assertContains(response, 'Select')
 
+@unittest.skip('Not done with revert yet')      
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class RevertTests(TestCase):
   

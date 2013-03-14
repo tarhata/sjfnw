@@ -153,44 +153,22 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     if not draft.editable:
       render(request, 'grants/submitted_closed.html', {'cycle':cycle})
     
-    #get files from draft
-    files_data = model_to_dict(draft, fields = constants.APP_FILE_FIELDS)
-    #logging.info('========= Files data: ' + str(files_data))
-    
-    #get other fields from draft
+    #get fields & files from draft
     draft_data = json.loads(draft.contents)
-    #logging.info('========= Draft data: ' + unicode(draft_data))
+    files_data = model_to_dict(draft, fields = constants.APP_FILE_FIELDS)
     
-    #submit form
+    #add automated fields
+    draft_data['organization'] = organization.pk
+    draft_data['grant_cycle'] = cycle.pk
+
+    #create & submit modelform
     form = models.GrantApplicationModelForm(cycle, draft_data, files_data)
-        
+
     if form.is_valid(): #VALID SUBMISSION
       logging.info('========= Application form valid')
-      form_data = form.cleaned_data
       
-      #create GrantApplication object
-      application = models.GrantApplication(organization = organization, grant_cycle = cycle)
-      
-      #get the timeline
-      logging.info('Getting timeline from ' + unicode(form_data))
-      timeline = {}
-      for field in constants.TIMELINE_FIELDS:
-        value = form_data.get(field)
-        if value is None:
-          value = ''
-        else:
-          del form_data[field]
-        timeline[field] = value
-      form_data['timeline'] = json.dumps(timeline)
-      
-      for name, value in form_data.iteritems():
-        #better to use cleaned_data than draft bc it has the correct types (not all unicode)
-        setattr(application, name, value)
-        logging.info(name + ' set to -- ' + unicode(value))
-      for name in files_data:
-        setattr(application, name, getattr(draft, name))
-        logging.info(name + ' -- from draft')
-      application.save()
+      #create the GrantApplication
+      new_app = form.save()
 
       #update org profile
       form2 = models.OrgProfile(draft_data, instance=organization)
@@ -366,7 +344,7 @@ def CopyApp(request, organization):
           application = models.GrantApplication.objects.get(pk = int(app))
           #dict of fields + timeline dict --> json
           content = model_to_dict(application, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
-          content.update(json.loads(application.timeline))
+          content.update(dict(zip(constants.TIMELINE_FIELDS, json.loads(application.timeline))))
           content = json.dumps(content)
         except models.GrantApplication.DoesNotExist:
           logging.error('CopyApp - submitted app ' + app + ' not found')
