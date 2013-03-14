@@ -409,8 +409,7 @@ $(document).ready(function() {
 			<tr>
 				<td style="width:150px;vertical-align:top;">1. Budget</td>
 				<td style="width:175px;">All in one file</td>
-				<td style="width:100px;">{{form.budget}}</td>
-				<td style="width:350px;"><span id="budget_uploaded">{{file_urls.budget}}</span></td>
+				<td colspan="2" style="width:450px;">{{form.budget}}<br><span id="budget_uploaded">{{file_urls.budget}}</span></td>
 			</tr><tr style="line-height:2em;">
 				<td></td>
 				<td></td>
@@ -419,38 +418,31 @@ $(document).ready(function() {
 			</tr><tr>
 				<td>{{form.budget1.errors}}</td>
 				<td>{{form.budget1.label_tag}}</td>
-				<td>{{form.budget1}}</td>
-				<td><span id="budget1_uploaded">{{file_urls.budget1}}</span></td>
+				<td colspan="2">{{form.budget1}}<br><span id="budget1_uploaded">{{file_urls.budget1}}</span></td>
 			</tr><tr>
 				<td>{{form.budget2.errors}}</td>
 				<td>{{form.budget2.label_tag}}</td>
-				<td>{{form.budget2}}</td>
-				<td><span id="budget2_uploaded">{{file_urls.budget2}}</span></td>
+				<td colspan="2">{{form.budget2}}<br><span id="budget2_uploaded">{{file_urls.budget2}}</span></td>
 			</tr><tr>
 				<td>{{form.budget3.errors}}</td>
 				<td>{{form.budget3.label_tag}}</td>
-				<td>{{form.budget3}}</td>
-				<td><span id="budget3_uploaded">{{file_urls.budget3}}</span></td>
+				<td colspan="2">{{form.budget3}}<br><span id="budget3_uploaded">{{file_urls.budget3}}</span></td>
 			</tr><tr>
 				<td>{{form.project_budget_file.errors}}</td>
 				<td>{{form.project_budget_file.label_tag}}</td>
-				<td>{{form.project_budget_file}}</td>
-				<td><span id="project_budget_file_uploaded">{{file_urls.project_budget_file}}</span></td>
+				<td colspan="2">{{form.project_budget_file}}<br><span id="project_budget_file_uploaded">{{file_urls.project_budget_file}}</span></td>
 			</tr><tr>
 				<td>2. Diversity chart</td>
 				<td>{{form.demographics.errors}}</td>
-				<td>{{form.demographics}}</td>
-				<td><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
+				<td colspan="2">{{form.demographics}}<br><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
 			</tr><tr>
 				<td>3. Funding sources</td>
 				<td>{{form.funding_sources.errors}}</td>
-				<td>{{form.funding_sources}}</td>
-				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
+				<td colspan="2">{{form.funding_sources}}<br><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
 			</tr><tr>	
 				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
 				<td>{{form.fiscal_letter.errors}}</td>
-				<td>{{form.fiscal_letter}}</td>
-				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
+				<td colspan="2">{{form.fiscal_letter}}<br><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
 			</tr>
 		</table>
 		{% endautoescape %}
