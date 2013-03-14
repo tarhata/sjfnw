@@ -255,7 +255,7 @@ def TestApply(request):
       for i in range(15):
         contents[constants.TIMELINE_FIELDS[i]] = contents.pop(old_timeline_fields[i])
       modified +=1
-      logging.info('New contents: ' + draft.contents)
+      logging.info('New contents: ' + str(contents))
     searched +=1
     draft.contents = json.dumps(contents)
     draft.save()
@@ -275,6 +275,7 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
     logging.debug("Autosaving")
     dict = json.dumps(request.POST)
     draft.contents = dict
+    draft.modified = timezone.now()
     draft.save()
     return HttpResponse("")
 
@@ -294,6 +295,7 @@ def AddFile(request, draft_id):
         break
       else:
         logging.error('Tried to add an unknown file field ' + str(key))
+  draft.modified = timezone.now()
   draft.save()
   if not msg:
     return HttpResponse("ERRORRRRRR")
@@ -312,6 +314,7 @@ def RemoveFile(request, draft_id, file_field):
     old = getattr(draft, file_field)
     deferred.defer(utils.DeleteBlob, old)
     setattr(draft, file_field, '')
+    draft.modified = timezone.now()
     draft.save()
   else:
     logging.error('Tried to remove non-existent field: ' + file_field)
@@ -444,6 +447,7 @@ def AppToDraft(request, app_id):
     draft.contents = json.dumps(content)
     for field in constants.APP_FILE_FIELDS:
       setattr(draft, field, getattr(submitted_app, field))
+    draft.modified = timezone.now()
     draft.save()
     logging.info('Reverted to draft, draft id ' + str(draft.pk))
     #delete app

@@ -3,6 +3,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.http import HttpResponse
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.html import strip_tags
 from sjfnw import constants
 import logging, models
@@ -66,6 +67,7 @@ def UpdateStory(membership_id, time):
   summary += '.'
   logging.info(summary)
   story.summary = summary
+  story.updated = timezone.now()
   story.save()
   logging.info('Story saved')
   return HttpResponse("success")
