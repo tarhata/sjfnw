@@ -243,15 +243,24 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
 
 def TestApply(request):
-  if request.method=='POST':
-    form = models.GrantApplicationModelForm(request.POST)
-    logging.info(request.POST)
-    if form.is_valid():
-      logging.info(form)
-      form.save()
-  else:
-    form = models.GrantApplicationModelForm()
-  return render(request, 'grants/file_upload.html', {'form':form})
+  drafts = models.DraftGrantApplication.objects.all()
+  searched = 0
+  modified = 0
+  old_timeline_fields = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
+
+  for draft in drafts:
+    contents = json.loads(draft.contents)
+    if 'timeline_1_date' in contents: #old timeline format
+      logging.info('Orig contents: ' + draft.contents)
+      for i in range(15):
+        contents[constants.TIMELINE_FIELDS[i]] = contents.pop(old_timeline_fields[i])
+      modified +=1
+      logging.info('New contents: ' + draft.contents)
+    searched +=1
+    draft.contents = json.dumps(contents)
+    #not saving
+  logging.info(str(searched) + ' drafts searched, ' + str(modified) + ' drafts modified.')
+  return render(request, 'grants/file_upload.html')
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()
