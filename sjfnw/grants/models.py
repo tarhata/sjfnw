@@ -362,8 +362,7 @@ class GrantApplicationModelForm(ModelForm):
     
     #timeline
     timeline = cleaned_data.get('timeline')
-    timeline = json.dumps(timeline)
-    logging.info(timeline)
+    timeline = json.loads(timeline)
     empty = False
     incomplete = False
     for i in range(0, 13, 3):
@@ -372,7 +371,7 @@ class GrantApplicationModelForm(ModelForm):
       obj = timeline[i+2]
       if i==0 and not (date or act or obj):
         empty = True
-      if date or act or obj and not (date and act and obj):
+      if (date or act or obj) and not (date and act and obj):
         incomplete = True
     if incomplete:
       self._errors['timeline'] = '<div class="form_error">All three columns are required for each quarter that you include in your timeline.</div>'
