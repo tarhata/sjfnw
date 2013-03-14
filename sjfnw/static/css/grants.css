@@ -6,7 +6,7 @@ div#nav_menu  {
 }
 
 img#logo {
-	display:inline;
+	display:inline-block;
 	margin-left:20px;
 	margin-right:20px;
 }
@@ -77,7 +77,7 @@ div.formwrapper {
 	/*border:1px solid;*/
 	border-color:#CCC;
   word-wrap: break-word;
-  line-spacing:120%;
+  line-height:120%;
 }
 
 div.formwrapper h1 {

@@ -16,14 +16,13 @@ button, input[type="submit"] {
 h1 {
   font-size: 2em;
   line-height: 1.5em;
-  margin: 0.75em 0;
+  margin: .75em 0;
 	color:#555;
 }
 
 h2 {
   font-size: 1.5em;
   margin: 1em 0 1em 0; /* Equivalent to 1.5em in the page's base font: 1.5 / 1.5 = 1em */
-	/*color:#555;*/
 }
 
 h3 {
@@ -52,14 +51,8 @@ a:hover, a:focus {
 text-decoration: underline;
 }
 
-a:active {
-}
-
 div.indent {
-	margin-top:8px;
-	margin-left:8px;
-	margin-right:8px;
-	margin-bottom:8px;
+	margin:8px 8px 8px 8px;
 	padding:7px;
 }
 
@@ -89,8 +82,7 @@ ul.errorlist, ul.errorlist li {
 	font-style:italic;
 	color:red;
 	margin:0 0 0 0;
-	/* vertical-align:bottom; */
-	padding:0px;
+	padding:0;
   display:inline;
 }
 
@@ -99,7 +91,6 @@ a.FAQ{
 	display:block;
 	margin-bottom:10px;
   font-weight:bold;
-	/* color:#333; */
 }
 
 div#FAQ div {

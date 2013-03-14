@@ -2,14 +2,11 @@
 
 /* general */
 
-html, body {
-}
-
-div#page_wrapper {
+body {
   width:640px;
 }
 
-div#content_area {
+div.content_area {
 	border-style:solid;
 	border-width:2px;
 	border-radius:8px;
@@ -17,7 +14,7 @@ div#content_area {
 	padding:15px;
 }
 
-div#content_area span.header{
+.content_area span.header{
 	text-transform:uppercase;
   font-weight:bold;
   font-size:inherit;
@@ -25,19 +22,19 @@ div#content_area span.header{
 
 /* header & bar */
 
-table#header {
+table.header {
   margin-bottom:10px;
   width:100%;
 }
 
-div#header {
+div.header {
   margin-bottom:20px;
   width:100%;
   text-align:center;
   font-size:1.7em;
 }
 
-div#header_text {
+#header_text {
   /* display:inline-block; */
 	font-size:2em;
   text-align:center;
@@ -46,28 +43,28 @@ div#header_text {
   vertical-align:middle;
 }
 
-div#progress_container {
+#progress_container {
 	width:636px;
 	height:12px;
 	border-style:solid;
 	border-width:2px;
 }
 
-div#progress_bar {
+#progress_bar {
 	width:450px;
 	height:12px;
 	background:solid;
 	background-color: #8B0E04;
 }
 
-div#progress_desc {
+#progress_desc {
 	text-align:center;
 	margin-top:.5em;
 	margin-bottom:1em;
 }
 
 /* blocks */
-div#block_container {
+#block_container {
 	width:640px;
 	height:184px;
 	color:white;
@@ -82,7 +79,7 @@ div.top_block {
 	border-width:2px;
 	border-color:#333;
 	float:left;
-	padding:0px;
+	padding:0;
 	cursor:pointer;
   position:relative;
 }
@@ -286,18 +283,10 @@ div.error_message {
 }
 
 /* footer  */
-table#footer {
+.footer {
 	width:640px;
 	font-size:0.75em;
 	margin-top:5px;
 	padding-left:5px;
 	padding-right:5px;
-}
-
-div#admin-link {
-	text-align:center;
-}
-
-div#login {
-	text-align:right;
 }
