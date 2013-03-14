@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore, deferred
-from forms import LoginForm, RegisterForm, RolloverForm, GrantApplicationForm
+from forms import LoginForm, RegisterForm, RolloverForm
 from decorators import registered_org
 from sjfnw import constants
 import models, utils
@@ -153,44 +153,22 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     if not draft.editable:
       render(request, 'grants/submitted_closed.html', {'cycle':cycle})
     
-    #get files from draft
-    files_data = model_to_dict(draft, fields = constants.APP_FILE_FIELDS)
-    #logging.info('========= Files data: ' + str(files_data))
-    
-    #get other fields from draft
+    #get fields & files from draft
     draft_data = json.loads(draft.contents)
-    #logging.info('========= Draft data: ' + unicode(draft_data))
+    files_data = model_to_dict(draft, fields = constants.APP_FILE_FIELDS)
     
-    #submit form
-    form = GrantApplicationForm(cycle, draft_data, files_data)
-        
+    #add automated fields
+    draft_data['organization'] = organization.pk
+    draft_data['grant_cycle'] = cycle.pk
+
+    #create & submit modelform
+    form = models.GrantApplicationModelForm(cycle, draft_data, files_data)
+
     if form.is_valid(): #VALID SUBMISSION
       logging.info('========= Application form valid')
-      form_data = form.cleaned_data
       
-      #create GrantApplication object
-      application = models.GrantApplication(organization = organization, grant_cycle = cycle)
-      
-      #get the timeline
-      logging.info('Getting timeline from ' + unicode(form_data))
-      timeline = {}
-      for field in constants.TIMELINE_FIELDS:
-        value = form_data.get(field)
-        if value is None:
-          value = ''
-        else:
-          del form_data[field]
-        timeline[field] = value
-      form_data['timeline'] = json.dumps(timeline)
-      
-      for name, value in form_data.iteritems():
-        #better to use cleaned_data than draft bc it has the correct types (not all unicode)
-        setattr(application, name, value)
-        logging.info(name + ' set to -- ' + unicode(value))
-      for name in files_data:
-        setattr(application, name, getattr(draft, name))
-        logging.info(name + ' -- from draft')
-      application.save()
+      #create the GrantApplication
+      new_app = form.save()
 
       #update org profile
       form2 = models.OrgProfile(draft_data, instance=organization)
@@ -249,7 +227,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       profiled = True
 
     #create form
-    form = GrantApplicationForm(cycle, initial=dict)
+    form = models.GrantApplicationModelForm(cycle, initial=dict)
 
   #get draft files
   file_urls = GetFileURLs(draft)
@@ -265,8 +243,24 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
 
 def TestApply(request):
-  form = GrantApplicationForm()
-  return render(request, 'grants/file_upload.html', {'form':form})
+  drafts = models.DraftGrantApplication.objects.all()
+  searched = 0
+  modified = 0
+  old_timeline_fields = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
+
+  for draft in drafts:
+    contents = json.loads(draft.contents)
+    if 'timeline_1_date' in contents: #old timeline format
+      logging.info('Orig contents: ' + draft.contents)
+      for i in range(15):
+        contents[constants.TIMELINE_FIELDS[i]] = contents.pop(old_timeline_fields[i])
+      modified +=1
+      logging.info('New contents: ' + draft.contents)
+    searched +=1
+    draft.contents = json.dumps(contents)
+    #not saving
+  logging.info(str(searched) + ' drafts searched, ' + str(modified) + ' drafts modified.')
+  return render(request, 'grants/file_upload.html')
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()
@@ -357,9 +351,8 @@ def CopyApp(request, organization):
       if app:
         try:
           application = models.GrantApplication.objects.get(pk = int(app))
-          #dict of fields + timeline dict --> json
           content = model_to_dict(application, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
-          content.update(json.loads(application.timeline))
+          content.update(dict(zip(constants.TIMELINE_FIELDS, json.loads(application.timeline))))
           content = json.dumps(content)
         except models.GrantApplication.DoesNotExist:
           logging.error('CopyApp - submitted app ' + app + ' not found')
@@ -447,7 +440,7 @@ def AppToDraft(request, app_id):
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
     content = model_to_dict(submitted_app, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline'])
-    content.update(json.loads(submitted_app.timeline))
+    content.update(dict(zip(constants.TIMELINE_FIELDS, json.loads(submitted_app.timeline))))
     draft.contents = json.dumps(content)
     for field in constants.APP_FILE_FIELDS:
       setattr(draft, field, getattr(submitted_app, field))

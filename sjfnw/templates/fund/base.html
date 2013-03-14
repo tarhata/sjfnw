@@ -24,28 +24,28 @@
       var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
       ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
+    });
   </script>
-  {% block script %}{% endblock %}<!-- SCRIPTS -->
+  <!-- SCRIPTS -->{% block script %}{% endblock %}
 </head>
 
 <body>
-  <div id="page_wrapper">
-    <!-- HEADER -->
-    <table id="header"><tr>
-      <td style="width:161px;"><div align="center" style="padding-bottom:5px;"><a href="/fund"><img src="/static/images/logo2.png" alt="Project Central logo" height=80 width=160></a></td>
-      {% block header %}{% endblock header %}
-    </tr></table>
-    {% block top %}{% endblock %}<!-- TOP BLOCKS -->
-    <div id="content_area">
-      {% block content %}{% endblock %}<!-- CONTENT -->
-    </div>
-    <table id="footer"><tr><!-- FOOTER -->
-      <td style="width:25%;">{% if member %}<a href="/fund/projects">your projects</a>{% endif %}</td>
-      <td style="width:25%;text-align:center;"><a href="/fund/support">support/FAQ</a></td>
-      <td style="width:15%;text-align:right;"><a href="http://socialjusticefund.org" target="_blank">sjf.org</a></td>
-      <td style="width:35%;"><div id="login">{% if user.is_authenticated %}{{user.email|truncatechars:"21"}} | <a href="/fund/logout/">logout</a>{% endif %}</div></td>
-    </tr></table>
-  </div>
+	<!-- HEADER -->
+	<table class="header"><tr>
+		<td style="width:161px;"><div align="center" style="padding-bottom:5px;"><a href="/fund"><img src="/static/images/logo2.png" alt="Project Central logo" height=80 width=160></a></td>
+		{% block header %}{% endblock header %}
+	</tr></table>
+	{% block top %}{% endblock %}<!-- TOP BLOCKS -->
+	<div class="content_area">
+		{% block content %}{% endblock %}<!-- CONTENT -->
+	</div>
+	<table class="footer"><!-- FOOTER -->
+		<tr>
+			<td style="width:25%;">{% if member %}<a href="/fund/projects">your projects</a>{% endif %}</td>
+			<td style="width:25%;text-align:center;"><a href="/fund/support">support/FAQ</a></td>
+			<td style="width:15%;text-align:right;"><a href="http://socialjusticefund.org" target="_blank">sjf.org</a></td>
+			<td style="width:35%;text-align:right;">{% if user.is_authenticated %}{{user.email|truncatechars:"21"}} | <a href="/fund/logout/">logout</a>{% endif %}</td>
+		</tr>
+	</table>
 </body>
 </html>

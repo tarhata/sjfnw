@@ -76,7 +76,20 @@ var uploading = false;
 var uploading_span;
 var file_fields;
 
+function clickFileInput(event, input_id) {
+	console.log(event);
+	console.log('clickFileInput' + input_id);
+	var input = document.getElementById(input_id);
+	if (input) {
+		input.control.click();
+		console.log('Clicked it');
+	} else {
+		console.log('Error - no input found');
+	}
+}
+
 function fileChanged(field_id) { //file selected
+	console.log('fileChanged');
 	if (uploading) {
 		console.log('Upload in progress; returning');
 		return false;
@@ -93,6 +106,7 @@ function fileChanged(field_id) { //file selected
 }
 
 function getUploadURL() { //get a url for it
+	console.log('getUploadURL');
 	$.ajax({
 		url: '/get-upload-url/{{draft.pk}}',
 		success: function(data) {
@@ -102,7 +116,8 @@ function getUploadURL() { //get a url for it
 	});
 }
 
-function fileUploaded(iframe) { //process response
+function iframeUpdated(iframe) { //process response
+	console.log('iframeUpdated');
 	var results = iframe.contentDocument.body.innerHTML;
 	console.log("The iframe changed! New contents: " + results);
 	if (results) {
@@ -114,9 +129,6 @@ function fileUploaded(iframe) { //process response
 		} else {
 			uploading_span.innerHTML = 'There was an error uploading your file. Try again or <a href="/apply/support">contact us</a>.';
 		}
-		file_fields.each(function(index) {
-			this.value = '';
-		});
 		uploading = false;
 	}
 }
@@ -143,6 +155,15 @@ $(document).ready(function() {
 	iframe = document.getElementById("id_upload_frame");
 	file_fields = $('input[type=file]');
 });
+
+if($.browser.mozilla) { //stackoverflow
+	console.log('mozilla');
+  $(document).on('click', 'label', function(e) {
+    if(e.currentTarget === this && e.target.nodeName !== 'INPUT') {
+      $(this.control).click();
+    }
+  });
+}
 </script>
 {%endblock%}
 
@@ -234,7 +255,7 @@ $(document).ready(function() {
 			</tr><tr>
 				<td>{{form.amount_requested.errors}}</td><td>{{form.support_type.errors}}</td>
 			</tr><tr>
-				<td>{{form.amount_requested.label_tag}}{{form.amount_requested}}</td>
+				<td>{{form.amount_requested.label_tag}}${{form.amount_requested}}</td>
 				<td>{{form.support_type.label_tag}}{{form.support_type}}</td>
 			</tr><tr>
 				<td>{{form.project_title.errors}}</td>
@@ -271,56 +292,26 @@ $(document).ready(function() {
 
 		Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan.	Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process. <img class="info" src="/static/images/info.png" title="See Social Justice Fund's Grantmaking Criteria, included in the application instructions linked at the top of the page.">
 		
-		<div class="narrative_q">1. {{form.narrative1.label_tag}}<br><br>
+		<div class="narrative_q">1. {{form.narrative1.label}}<br><br>
 		{{form.narrative1.errors}}{{form.narrative1}}
 		<span class="char_counter" id="narrative1_counter">{{limits.1}}</span></div>
 
-		<div class="narrative_q">2. {{form.narrative2.label_tag}}
+		<div class="narrative_q">2. {{form.narrative2.label}}
 		{{form.narrative2.errors}}{{form.narrative2}}
 		<span class="char_counter" id="narrative2_counter">{{limits.2}}</span></div>
 
-		<div class="narrative_q">3. {{form.narrative3.label_tag}}
+		<div class="narrative_q">3. {{form.narrative3.label}}
 		{{form.narrative3.errors}}{{form.narrative3}}
 		<span class="char_counter" id="narrative3_counter">{{limits.3}}</span></div>
 
-		<div class="narrative_q">4. {{form.narrative4.label_tag}}
+		<div class="narrative_q">4. {{form.narrative4.label}}
 		{{form.narrative4.errors}}{{form.narrative4}}
 		<span class="char_counter" id="narrative4_counter">{{limits.4}}</span></div>
 		
-		<table id="timeline_form">
-			<tr class="heading">
-				<td></td>
-				<th>date range</th>
-				<th>activities</th>
-				<th>goals/objectives</th>
-			</tr><tr>
-				<th class="left">q1</th>
-				<td>{{form.timeline_1_date}}</td>
-				<td>{{form.timeline_1_activities}}</td>
-				<td>{{form.timeline_1_goals}}</td>
-			</tr><tr>
-				<th class="left">q2</th>
-				<td>{{form.timeline_2_date}}</td>
-				<td>{{form.timeline_2_activities}}</td>
-				<td>{{form.timeline_2_goals}}</td>
-			</tr><tr>
-				<th class="left">q3</th>
-				<td>{{form.timeline_3_date}}</td>
-				<td>{{form.timeline_3_activities}}</td>
-				<td>{{form.timeline_3_goals}}</td>
-			</tr><tr>
-				<th class="left">q4</th>
-				<td>{{form.timeline_4_date}}</td>
-				<td>{{form.timeline_4_activities}}</td>
-				<td>{{form.timeline_4_goals}}</td>
-			</tr><tr>
-				<th class="left">q5</th>
-				<td>{{form.timeline_5_date}}</td>
-				<td>{{form.timeline_5_activities}}</td>
-				<td>{{form.timeline_5_goals}}</td>
-			</tr>
-		</table>
-		<div class="narrative_q">5. {{form.narrative5.label_tag}}
+		{{form.timeline.errors}}
+		{{form.timeline}}
+		
+		<div class="narrative_q">5. {{form.narrative5.label}}
 		{{form.narrative5.errors}}{{form.narrative5}}
 		<span class="char_counter" id="narrative5_counter">{{limits.5}}</span>
 		<table class="narrative_references"><tr>
@@ -353,7 +344,7 @@ $(document).ready(function() {
 		</tr></table>
 		</div>
 		
-		<div class="narrative_q">6. {{form.narrative6.label_tag}}<br>
+		<div class="narrative_q">6. {{form.narrative6.label}}<br>
 		{{form.narrative6.errors}}{{form.narrative6}}
 		<span class="char_counter" id="narrative6_counter">{{limits.6}}</span>
 		<table class="narrative_references"><tr>
@@ -396,7 +387,7 @@ $(document).ready(function() {
 		<input id="hidden_submit_app" type="submit" value="Submit EVERYTHING" style="display:none;"/>
 	</form>
 
-	<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="fileUploaded(this);"></iframe><!--hidden iframe for file submissions -->
+	<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="iframeUpdated(this);"></iframe><!--hidden iframe for file submissions -->
 
 	<form id="files_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data">	
 		<h4>File uploads</h4><!-- Files -->
@@ -409,7 +400,8 @@ $(document).ready(function() {
 			<tr>
 				<td style="width:150px;vertical-align:top;">1. Budget</td>
 				<td style="width:175px;">All in one file</td>
-				<td colspan="2" style="width:450px;">{{form.budget}}<br><span id="budget_uploaded">{{file_urls.budget}}</span></td>
+				<td style="width:100px;"><label for="{{form.budget.auto_id}}">Choose file</label>{{form.budget}}</td>
+				<td style="width:350px;"><span id="budget_uploaded">{{file_urls.budget}}</span></td>
 			</tr><tr style="line-height:2em;">
 				<td></td>
 				<td></td>
@@ -417,32 +409,39 @@ $(document).ready(function() {
 				<td></td>
 			</tr><tr>
 				<td>{{form.budget1.errors}}</td>
-				<td>{{form.budget1.label_tag}}</td>
-				<td colspan="2">{{form.budget1}}<br><span id="budget1_uploaded">{{file_urls.budget1}}</span></td>
+				<td>{{form.budget1.label}}</td>
+				<td><label for="{{form.budget1.auto_id}}">Choose file</label>{{form.budget1}}</td>
+				<td><span id="budget1_uploaded">{{file_urls.budget1}}</span></td>
 			</tr><tr>
 				<td>{{form.budget2.errors}}</td>
-				<td>{{form.budget2.label_tag}}</td>
-				<td colspan="2">{{form.budget2}}<br><span id="budget2_uploaded">{{file_urls.budget2}}</span></td>
+				<td>{{form.budget2.label}}</td>
+				<td><label for="{{form.budget2.auto_id}}">Choose file</label>{{form.budget2}}</td>
+				<td><span id="budget2_uploaded">{{file_urls.budget2}}</span></td>
 			</tr><tr>
 				<td>{{form.budget3.errors}}</td>
-				<td>{{form.budget3.label_tag}}</td>
-				<td colspan="2">{{form.budget3}}<br><span id="budget3_uploaded">{{file_urls.budget3}}</span></td>
+				<td>{{form.budget3.label}}</td>
+				<td><label for="{{form.budget3.auto_id}}">Choose file</label>{{form.budget3}}</td>
+				<td><span id="budget3_uploaded">{{file_urls.budget3}}</span></td>
 			</tr><tr>
 				<td>{{form.project_budget_file.errors}}</td>
-				<td>{{form.project_budget_file.label_tag}}</td>
-				<td colspan="2">{{form.project_budget_file}}<br><span id="project_budget_file_uploaded">{{file_urls.project_budget_file}}</span></td>
+				<td>{{form.project_budget_file.label}}</td>
+				<td><label for="{{form.project_budget_file.auto_id}}">Choose file</label>{{form.project_budget_file}}</td>
+				<td><span id="project_budget_file_uploaded">{{file_urls.project_budget_file}}</span></td>
 			</tr><tr>
 				<td>2. Diversity chart</td>
 				<td>{{form.demographics.errors}}</td>
-				<td colspan="2">{{form.demographics}}<br><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
+				<td><label for="{{form.demographics.auto_id}}">Choose file</label>{{form.demographics}}</td>
+				<td><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
 			</tr><tr>
 				<td>3. Funding sources</td>
 				<td>{{form.funding_sources.errors}}</td>
-				<td colspan="2">{{form.funding_sources}}<br><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
+				<td><label for="{{form.project_budget_file.auto_id}}">Choose file</label>{{form.funding_sources}}</td>
+				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
 			</tr><tr>	
 				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
 				<td>{{form.fiscal_letter.errors}}</td>
-				<td colspan="2">{{form.fiscal_letter}}<br><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
+				<td><label for="{{form.project_budget_file.auto_id}}">Choose file</label>{{form.fiscal_letter}}</td>
+				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
 			</tr>
 		</table>
 		{% endautoescape %}
