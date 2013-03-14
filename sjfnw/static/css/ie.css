@@ -1,0 +1,9 @@
+﻿#files_form label { /* make it look like a button */
+  color: buttontext;
+  background-color: buttonface;
+  border: 2px outset buttonface;
+}
+
+#files_form label:active{ /*press */
+  border-style: inset;
+}

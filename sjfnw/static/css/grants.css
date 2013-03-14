@@ -194,6 +194,13 @@ div.formwrapper input[type="file"] {
   width: 95px;
 }
 
+#files_form label { /* make it look like a button */
+  padding: 1px 8px;
+  appearance:button;
+  -moz-appearance:button; /* Firefox */
+  -webkit-appearance:button; /* Safari and Chrome */
+}
+
 iframe.upload {
   height:0;
   width:0;
@@ -201,6 +208,7 @@ iframe.upload {
 }
 
 table#file_upload_table td{
+  line-height:1.75em;
   white-space:nowrap;
   overflow:ellipsis;
 }

@@ -76,7 +76,20 @@ var uploading = false;
 var uploading_span;
 var file_fields;
 
+function clickFileInput(event, input_id) {
+	console.log(event);
+	console.log('clickFileInput' + input_id);
+	var input = document.getElementById(input_id);
+	if (input) {
+		input.control.click();
+		console.log('Clicked it');
+	} else {
+		console.log('Error - no input found');
+	}
+}
+
 function fileChanged(field_id) { //file selected
+	console.log('fileChanged');
 	if (uploading) {
 		console.log('Upload in progress; returning');
 		return false;
@@ -93,6 +106,7 @@ function fileChanged(field_id) { //file selected
 }
 
 function getUploadURL() { //get a url for it
+	console.log('getUploadURL');
 	$.ajax({
 		url: '/get-upload-url/{{draft.pk}}',
 		success: function(data) {
@@ -102,7 +116,8 @@ function getUploadURL() { //get a url for it
 	});
 }
 
-function fileUploaded(iframe) { //process response
+function iframeUpdated(iframe) { //process response
+	console.log('iframeUpdated');
 	var results = iframe.contentDocument.body.innerHTML;
 	console.log("The iframe changed! New contents: " + results);
 	if (results) {
@@ -114,9 +129,6 @@ function fileUploaded(iframe) { //process response
 		} else {
 			uploading_span.innerHTML = 'There was an error uploading your file. Try again or <a href="/apply/support">contact us</a>.';
 		}
-		file_fields.each(function(index) {
-			this.value = '';
-		});
 		uploading = false;
 	}
 }
@@ -143,6 +155,15 @@ $(document).ready(function() {
 	iframe = document.getElementById("id_upload_frame");
 	file_fields = $('input[type=file]');
 });
+
+if($.browser.mozilla) { //stackoverflow
+	console.log('mozilla');
+  $(document).on('click', 'label', function(e) {
+    if(e.currentTarget === this && e.target.nodeName !== 'INPUT') {
+      $(this.control).click();
+    }
+  });
+}
 </script>
 {%endblock%}
 
@@ -366,7 +387,7 @@ $(document).ready(function() {
 		<input id="hidden_submit_app" type="submit" value="Submit EVERYTHING" style="display:none;"/>
 	</form>
 
-	<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="fileUploaded(this);"></iframe><!--hidden iframe for file submissions -->
+	<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="iframeUpdated(this);"></iframe><!--hidden iframe for file submissions -->
 
 	<form id="files_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data">	
 		<h4>File uploads</h4><!-- Files -->
@@ -379,7 +400,7 @@ $(document).ready(function() {
 			<tr>
 				<td style="width:150px;vertical-align:top;">1. Budget</td>
 				<td style="width:175px;">All in one file</td>
-				<td style="width:100px;">{{form.budget}}</td>
+				<td style="width:100px;"><label for="{{form.budget.auto_id}}">Choose file</label>{{form.budget}}</td>
 				<td style="width:350px;"><span id="budget_uploaded">{{file_urls.budget}}</span></td>
 			</tr><tr style="line-height:2em;">
 				<td></td>
@@ -388,38 +409,38 @@ $(document).ready(function() {
 				<td></td>
 			</tr><tr>
 				<td>{{form.budget1.errors}}</td>
-				<td>{{form.budget1.label_tag}}</td>
-				<td>{{form.budget1}}</td>
+				<td>{{form.budget1.label}}</td>
+				<td><label for="{{form.budget1.auto_id}}">Choose file</label>{{form.budget1}}</td>
 				<td><span id="budget1_uploaded">{{file_urls.budget1}}</span></td>
 			</tr><tr>
 				<td>{{form.budget2.errors}}</td>
-				<td>{{form.budget2.label_tag}}</td>
-				<td>{{form.budget2}}</td>
+				<td>{{form.budget2.label}}</td>
+				<td><label for="{{form.budget2.auto_id}}">Choose file</label>{{form.budget2}}</td>
 				<td><span id="budget2_uploaded">{{file_urls.budget2}}</span></td>
 			</tr><tr>
 				<td>{{form.budget3.errors}}</td>
-				<td>{{form.budget3.label_tag}}</td>
-				<td>{{form.budget3}}</td>
+				<td>{{form.budget3.label}}</td>
+				<td><label for="{{form.budget3.auto_id}}">Choose file</label>{{form.budget3}}</td>
 				<td><span id="budget3_uploaded">{{file_urls.budget3}}</span></td>
 			</tr><tr>
 				<td>{{form.project_budget_file.errors}}</td>
-				<td>{{form.project_budget_file.label_tag}}</td>
-				<td>{{form.project_budget_file}}</td>
+				<td>{{form.project_budget_file.label}}</td>
+				<td><label for="{{form.project_budget_file.auto_id}}">Choose file</label>{{form.project_budget_file}}</td>
 				<td><span id="project_budget_file_uploaded">{{file_urls.project_budget_file}}</span></td>
 			</tr><tr>
 				<td>2. Diversity chart</td>
 				<td>{{form.demographics.errors}}</td>
-				<td>{{form.demographics}}</td>
+				<td><label for="{{form.demographics.auto_id}}">Choose file</label>{{form.demographics}}</td>
 				<td><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
 			</tr><tr>
 				<td>3. Funding sources</td>
 				<td>{{form.funding_sources.errors}}</td>
-				<td>{{form.funding_sources}}</td>
+				<td><label for="{{form.project_budget_file.auto_id}}">Choose file</label>{{form.funding_sources}}</td>
 				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
 			</tr><tr>	
 				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
 				<td>{{form.fiscal_letter.errors}}</td>
-				<td>{{form.fiscal_letter}}</td>
+				<td><label for="{{form.project_budget_file.auto_id}}">Choose file</label>{{form.fiscal_letter}}</td>
 				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
 			</tr>
 		</table>

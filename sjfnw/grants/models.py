@@ -328,14 +328,14 @@ class GrantApplicationModelForm(ModelForm):
       'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[6]) + ')'}),
       'cycle_question': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(NARRATIVE_CHAR_LIMITS[7]) + ')'}),
       #file callbacks
-      'budget': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'demographics': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'funding_sources': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'fiscal_letter': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget1': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget2': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget3': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'project_budget_file': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget': FileInput(attrs={'onchange':'fileChanged(this.id);', 'style':'display:none'}),
+      'demographics': FileInput(attrs={'onchange':'fileChanged(this.id);', 'style':'display:none'}),
+      'funding_sources': FileInput(attrs={'onchange':'fileChanged(this.id);', 'style':'display:none'}),
+      'fiscal_letter': FileInput(attrs={'onchange':'fileChanged(this.id);', 'style':'display:none'}),
+      'budget1': FileInput(attrs={'onchange':'fileChanged(this.id);', 'style':'display:none'}),
+      'budget2': FileInput(attrs={'onchange':'fileChanged(this.id);', 'style':'display:none'}),
+      'budget3': FileInput(attrs={'onchange':'fileChanged(this.id);', 'style':'display:none'}),
+      'project_budget_file': FileInput(attrs={'onchange':'fileChanged(this.id);', 'style':'display:none'}),
       #timeline
       'timeline':TimelineWidget(),
     }
