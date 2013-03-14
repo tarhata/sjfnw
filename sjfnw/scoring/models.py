@@ -18,7 +18,7 @@ class ApplicationRating(models.Model):
   
   comments = models.TextField()
   
-  submission_time = models.DateTimeField(auto_now_add=True)
+  submission_time = models.DateTimeField(auto_now_add=True) #FIX
   def __unicode__(self):
 	return ("Program" + self.program + "\nDiversity" + self.diversity + "\nSoundness" + self.soundness + "\nLack of Access" + self.lack_of_access + "\nCollaboration" + self.collaboration) 
   def total(self):

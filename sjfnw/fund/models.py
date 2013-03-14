@@ -191,7 +191,7 @@ class DonorPreForm(ModelForm): #for editing prior to fund training
     }
 
 class Step(models.Model):
-  created = models.DateTimeField(auto_now=True)
+  created = models.DateTimeField(default=timezone.now())
   date = models.DateField(verbose_name='Date')
   description = models.CharField(max_length=255, verbose_name='Description')
   donor = models.ForeignKey(Donor)
@@ -210,8 +210,8 @@ class StepForm(ModelForm): #for adding a step
     exclude = ('donor', 'completed', 'asked', 'pledged')
 
 class NewsItem(models.Model):
-  date = models.DateTimeField(auto_now=True)
-  updated = models.DateTimeField(auto_now_add=True)
+  date = models.DateTimeField(default=timezone.now())
+  updated = models.DateTimeField(default=timezone.now())
   membership = models.ForeignKey(Membership)
   summary = models.TextField()
 

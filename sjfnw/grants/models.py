@@ -158,7 +158,7 @@ class DraftGrantApplication(models.Model):
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
   created = models.DateTimeField(default = timezone.now())
-  modified = models.DateTimeField(auto_now=True)
+  modified = models.DateTimeField(default = timezone.now())
   
   contents = models.TextField()
   
