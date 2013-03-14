@@ -342,7 +342,6 @@ def CopyApp(request, organization):
       if app:
         try:
           application = models.GrantApplication.objects.get(pk = int(app))
-          #dict of fields + timeline dict --> json
           content = model_to_dict(application, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
           content.update(dict(zip(constants.TIMELINE_FIELDS, json.loads(application.timeline))))
           content = json.dumps(content)
@@ -432,7 +431,7 @@ def AppToDraft(request, app_id):
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
     content = model_to_dict(submitted_app, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline'])
-    content.update(json.loads(submitted_app.timeline))
+    content.update(dict(zip(constants.TIMELINE_FIELDS, json.loads(submitted_app.timeline))))
     draft.contents = json.dumps(content)
     for field in constants.APP_FILE_FIELDS:
       setattr(draft, field, getattr(submitted_app, field))

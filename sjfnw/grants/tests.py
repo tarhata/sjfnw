@@ -461,8 +461,7 @@ class RolloverTests(TestCase):
     self.assertEqual(response.context['apps_count'], 5)
     self.assertEqual(response.context['cycle_count'], 2)
     self.assertContains(response, 'Select')
-
-@unittest.skip('Not done with revert yet')      
+      
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class RevertTests(TestCase):
   
