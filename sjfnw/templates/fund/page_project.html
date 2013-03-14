@@ -13,7 +13,7 @@ if (Modernizr.inlinesvg) {
                    pieSliceText: 'none',
                    pieSliceTextStyle: {fontSize:14},
                    reverseCategories: true,
-                   sliceVisibilityThreshold:0,
+                   sliceVisibilityThreshold:0
                    }                  
   function drawChart() {
 
@@ -24,7 +24,7 @@ if (Modernizr.inlinesvg) {
     data.addRows([
       ["Haven't contacted", {{project_progress.contactsremaining}}],
       ["Talked to", {{project_progress.talked}}],
-      ['Asked', {{project_progress.asked}}],
+      ['Asked', {{project_progress.asked}}]
     ]);
 
     // Instantiate and draw our chart, passing in some options.
@@ -43,7 +43,7 @@ if (Modernizr.inlinesvg) {
     data.addRows([
       ["Remaining", {{project_progress.togo|default:'0'}}],
       ["Pledged", {{project_progress.pledged}}],
-      ['Donated', {{project_progress.donated}}],
+      ['Donated', {{project_progress.donated}}]
     ]);
     
     // Instantiate and draw our chart, passing in some options.
