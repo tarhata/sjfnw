@@ -258,7 +258,7 @@ def TestApply(request):
       logging.info('New contents: ' + draft.contents)
     searched +=1
     draft.contents = json.dumps(contents)
-    #not saving
+    draft.save()
   logging.info(str(searched) + ' drafts searched, ' + str(modified) + ' drafts modified.')
   return render(request, 'grants/file_upload.html')
 
