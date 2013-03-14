@@ -139,12 +139,6 @@ class DraftGrantApplication(models.Model):
       return True
     else:
       return False
-  
-  def delete(self, *args, **kwargs):
-    for field in self._meta.fields:
-      if isinstance(field, models.FileField):
-        utils.DeleteBlob(getattr(self, field.name))
-    super(DraftGrantApplication, self).delete(*args, **kwargs)
     
 class CharLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'
@@ -267,9 +261,3 @@ class GrantApplication(models.Model):
     display += '</table>'  
     return display
   timeline_table.allow_tags = True
-  
-  def delete(self, *args, **kwargs):
-    for field in self._meta.fields:
-      if isinstance(field, models.FileField):
-        utils.DeleteBlob(getattr(self, field.name))
-    super(GrantApplication, self).delete(*args, **kwargs)
