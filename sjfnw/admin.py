@@ -185,7 +185,7 @@ class DraftGrantApplicationA(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
   list_filter = ('grant_cycle',) #extended
   fields = (('organization', 'grant_cycle', 'modified'), ('extended_deadline'))
-  readonly_fields = ('fiscal_letter', 'budget', 'demographics', 'funding_sources', 'modified',)
+   readonly_fields = ('organization', 'grant_cycle', 'modified')
   
   def get_readonly_fields(self, request, obj=None):
     if obj is not None: #editing - lock org & cycle
@@ -194,7 +194,7 @@ class DraftGrantApplicationA(admin.ModelAdmin):
 
 class DraftAdv(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
-  readonly_fields = ('organization', 'grant_cycle', 'modified', 'fiscal_letter', 'budget', 'demographics', 'funding_sources')
+  readonly_fields = ('organization', 'grant_cycle', 'modified', 'budget', 'demographics', 'funding_sources', 'fiscal_letter', 'budget1', 'budget2', 'budget3', 'project_budget_file',)
 
 # Register - basic
 
