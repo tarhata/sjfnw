@@ -11,6 +11,7 @@ def registered_org(function=None):
     def _wrapped_view(request, *args, **kwargs):
       try:
         organization = Organization.objects.get(email=request.user.username)
+        logging.info(organization)
         return view_func(request, organization, *args, **kwargs)
       except Organization.DoesNotExist:
         return redirect('/apply/nr')      

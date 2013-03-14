@@ -186,12 +186,6 @@ class DraftGrantApplication(models.Model):
       return True
     else:
       return False
-  
-  def delete(self, *args, **kwargs):
-    for field in self._meta.fields:
-      if isinstance(field, models.FileField):
-        utils.DeleteBlob(getattr(self, field.name))
-    super(DraftGrantApplication, self).delete(*args, **kwargs)
     
 class CharLimitValidator(MaxLengthValidator):
   message = 'Please limit this response to %(limit_value)s characters or less.'
@@ -303,12 +297,6 @@ class GrantApplication(models.Model):
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
   view_link.allow_tags = True
-  
-  def delete(self, *args, **kwargs):
-    for field in self._meta.fields:
-      if isinstance(field, models.FileField):
-        utils.DeleteBlob(getattr(self, field.name))
-    super(GrantApplication, self).delete(*args, **kwargs)
 
 def custom_fields(f, **kwargs):
   money_fields = ['budget_last', 'budget_current', 'grant_request', 'amount_requested', 'project_budget']

@@ -14,8 +14,8 @@
 										pieSliceText: 'none',
 										pieSliceTextStyle: {fontSize:14},
 										reverseCategories: true,
-										sliceVisibilityThreshold:0,
-                  }
+										sliceVisibilityThreshold:0
+                  };
                      
     function drawChart() {
 
@@ -26,7 +26,7 @@
       data.addRows([
         ["Haven't contacted", {{progress.contactsremaining}}],
         ["Talked to", {{progress.talked}}],
-        ['Asked', {{progress.asked}}],
+        ['Asked', {{progress.asked}}]
       ]);
 
       // Instantiate and draw our chart, passing in some options.
@@ -46,7 +46,7 @@
       data.addRows([
         ['Remaining', {{progress.togo|default:'0'}}],
         ["Pledged", {{progress.pledged}}],
-        ['Donated', {{progress.donated}}],
+        ['Donated', {{progress.donated}}]
       ]);
       
       // Instantiate and draw our chart, passing in some options.
@@ -82,13 +82,13 @@
     408: '408 Request timeout',
     500: '500 Internal server error',
     503: '503 Service unavailable',
-    504: '504 Gateway timeout',
-  }
+    504: '504 Gateway timeout'
+  };
 
   var submitted_messages = { //maps sub_url to a success message to display after reload
     
 
-  }
+  };
 
   var request_processing = false;
 
@@ -97,14 +97,14 @@
       dateFormat: 'mm/dd/yy',
       minDate: 0,
       hideIfNoPrevNext: true,
-      constrainInput: false,
+      constrainInput: false
     });
     $( ".datePicker" ).datepicker();
   }
 
   function loadView(get_url, div_id, dasked, dpledged) {
     if (request_processing) {
-      return
+      return false;
     }
     startProcessing();
     $.ajax({
@@ -139,13 +139,13 @@
           errortext = 'Unknown error'
         }
         document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + get_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
-      },
+      }
     });
   }
 
   function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
     if (request_processing) {
-      return
+      return false;
     }
     startProcessing();
     $.ajax({
@@ -183,7 +183,7 @@
         if (date) {
           datepicker();
         }
-      },
+      }
     });
   }
 
@@ -238,13 +238,15 @@
     //toggles a, border on b if a is shown
     var e=document.getElementById(a);
     var f=document.getElementById(b);
-    if(!e)return true;
+    if(!e){
+			return true;
+		}
     if(e.style.display=="none"){
-      e.style.display="block"
-      f.style.borderColor="#555"
+      e.style.display="block";
+      f.style.borderColor="#555";
     } else {
-      e.style.display="none"
-      f.style.borderColor="#FFF"
+      e.style.display="none";
+      f.style.borderColor="#FFF";
     }
     return true;
   }
@@ -261,13 +263,13 @@
     request_processing = false;
     var loader = document.getElementById('ajax_loading');
     if (loader) {
-      loader.style.display = "none;";
+      loader.style.display = "none";
     }
   }
 
   function SubmitMult() { //add contacts
     if (request_processing) {
-      return
+      return false;
     }
     startProcessing();
     $.ajax({
@@ -286,22 +288,22 @@
       },
       error:function(jqXHR, textStatus, errorThrown){
         endProcessing();
-        var errortext = ''
+        var errortext = '';
         if (status_texts[jqXHR.status]) {
-          errortext = status_texts[jqXHR.status]
+          errortext = status_texts[jqXHR.status];
         } else if (textStatus=='timeout') {
-          errortext = 'Request timeout'
+          errortext = 'Request timeout';
         } else {
-          errortext = 'Unknown error'
+          errortext = 'Unknown error';
         }
-        document.getElementById('addmult').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: /fund/addmult<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
-      },
+        document.getElementById('addmult').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: /fund/addmult<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
+      }
     });
   }
 
   function cancelHide(div_id, replace) { //hide addmult div
     replace = replace || '';
-    var div = document.getElementById(div_id)
+    var div = document.getElementById(div_id);
     div.innerHTML=replace;
     div.style.borderColor="#FFF";
   }

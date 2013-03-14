@@ -323,7 +323,7 @@ def Register(request):
         logging.info(username_email + ' tried to re-register')
       #check User already but not Member
       elif User.objects.filter(username=username_email):
-        error_msg = 'That email is already registered through the grants portal.  Please use a different email address'
+        error_msg = 'That email is already registered through Social Justice Fund\'s online grant application.  Please use a different email address.'
         logging.warning('User already exists, but not Member: ' + username_email)
       #clear to register
       else:

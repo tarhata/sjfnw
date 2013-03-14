@@ -20,15 +20,16 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 	{% for save in saved %}
 		<tr>
 		{% if save.editable %}
-		<td><li>{{save.grant_cycle}}{% if save.grant_cycle.info_page %} <a href="{{save.grant_cycle.info_page}}" target="_blank">(info)</a>{% endif %}</li></td>
-		<td><a href="{% url grants.views.Apply save.grant_cycle.pk %}">edit draft</a></td>
-		<td>modified {{save.modified|date:"n/j g:iA"|lower}}</td>
-		<td>due {{save.grant_cycle.close|date:"n/j g:iA"|lower}}</td>
+		<td><li>{{save.grant_cycle}}</li></td>
+		<td>{% if save.grant_cycle.info_page %}<a href="/apply/info/{{save.grant_cycle.pk}}" target="_blank">Cycle info</a>{% endif %}</td>
+		<td><a href="{% url grants.views.Apply save.grant_cycle.pk %}"><b>Edit draft</b></a></td>
+		<td>Modified {{save.modified|date:"n/j g:iA"|lower}}</td>
+		<td>Due {{save.grant_cycle.close|date:"n/j g:iA"|lower}}</td>
 		{% else %}
 		<td><i><li>{{save.grant_cycle}}</li></td>
-		<td colspan="3">cycle closed on {{save.grant_cycle.close|date:"n/j"}}</i></td>
+		<td colspan="4">Cycle closed on {{save.grant_cycle.close|date:"n/j"}}</i></td>
 		{% endif %}
-		<td>[<a title="discard draft" onclick="confirmation('{{save.pk}}')">discard</a>]</td>
+		<td>[<a title="discard draft" onclick="confirmation('{{save.pk}}')">Discard</a>]</td>
 		</tr>
 	{% empty %}
 		<li>None found</li>
@@ -41,8 +42,8 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 	<table class="list">
 	{%for sub in submitted%}
 		<tr><td><li>{{sub.grant_cycle}}</li></td>
-		<td><a href="{% url grants.views.ViewApplication sub.pk %}">view</a></td>
-		<td>submitted {{sub.submission_time|date:"n/j/y"}}</td>
+		<td><a href="{% url grants.views.ViewApplication sub.pk %}">View</a></td>
+		<td>Submitted {{sub.submission_time|date:"n/j/y"}}</td>
 		</tr>
 	{%endfor%}
 	</table>
@@ -65,16 +66,16 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 	<table class="list">
   {% for ope in open %}
 		<tr><td><li>{{ope}}</li></td>
-		<td>{% if ope.info_page %}<a href="/apply/info/{{ope.pk}}" target="_blank">cycle info</a>{% endif %}</td>
-		<td><b><a href="{% url grants.views.Apply ope.pk %}">apply</a></b></td>
-		<td>closes {{ope.close|date:"n/j/y"}}</a></td>
+		<td>{% if ope.info_page %}<a href="/apply/info/{{ope.pk}}" target="_blank">Cycle info</a>{% endif %}</td>
+		<td><b><a href="{% url grants.views.Apply ope.pk %}">Apply</a></b></td>
+		<td>Closes {{ope.close|date:"n/j/y"}}</a></td>
 		</tr>
   {% endfor %}
   {% for appl in applied %}
     <tr><td><li>{{appl}}</li></td>
-		<td>{% if appl.info_page %}<a href="/apply/info/{{appl.pk}}" target="_blank">cycle info</a>{% endif %}</td>
-		<td>application submitted</td>
-		<td>closes {{appl.close|date:"n/j/y"}}</td>
+		<td>{% if appl.info_page %}<a href="/apply/info/{{appl.pk}}" target="_blank">Cycle info</a>{% endif %}</td>
+		<td>Application submitted</td>
+		<td>Closes {{appl.close|date:"n/j/y"}}</td>
 		</tr>
   {% endfor %}
 	</table>
@@ -88,7 +89,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 {%for up in upcoming%}
 	<tr>
 	<td><li>{% if up.info_page %}<a href="/apply/info/{{up.pk}}" target="_blank">{{up}}</a>{% else %}{{up}}{% endif %}</li></td>
-	<td>open {{up.open|date:"n/j/y"}} to {{up.close|date:"n/j/y"}}</td>
+	<td>Open {{up.open|date:"n/j/y"}} to {{up.close|date:"n/j/y"}}</td>
 	</tr>
 {% empty %}
 	<tr><td><li>No upcoming grant cycles.</li></td></tr>

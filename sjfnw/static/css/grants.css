@@ -105,6 +105,16 @@ label {
 
 /* -- info/errors */
 
+div#org_wrapper ul.errorlist, ul.errorlist li {
+	list-style-type: none;
+	font-style:italic;
+	color:red;
+	margin:0 0 0 0;
+	/* vertical-align:bottom; */
+	padding:0px;
+  display:inline;
+}
+
 div.form_error {
   font-style:italic;
 	color:red;

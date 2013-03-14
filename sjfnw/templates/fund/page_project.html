@@ -4,6 +4,7 @@
 <script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
+var textProgress = false;
 if (Modernizr.inlinesvg) { 
   
   var options = {chartArea: {left:0, top:8, width:'100%', height:'85%'},
@@ -13,7 +14,7 @@ if (Modernizr.inlinesvg) {
                    pieSliceText: 'none',
                    pieSliceTextStyle: {fontSize:14},
                    reverseCategories: true,
-                   sliceVisibilityThreshold:0,
+                   sliceVisibilityThreshold:0
                    }                  
   function drawChart() {
 
@@ -24,7 +25,7 @@ if (Modernizr.inlinesvg) {
     data.addRows([
       ["Haven't contacted", {{project_progress.contactsremaining}}],
       ["Talked to", {{project_progress.talked}}],
-      ['Asked', {{project_progress.asked}}],
+      ['Asked', {{project_progress.asked}}]
     ]);
 
     // Instantiate and draw our chart, passing in some options.
@@ -43,7 +44,7 @@ if (Modernizr.inlinesvg) {
     data.addRows([
       ["Remaining", {{project_progress.togo|default:'0'}}],
       ["Pledged", {{project_progress.pledged}}],
-      ['Donated', {{project_progress.donated}}],
+      ['Donated', {{project_progress.donated}}]
     ]);
     
     // Instantiate and draw our chart, passing in some options.
@@ -59,16 +60,18 @@ if (Modernizr.inlinesvg) {
   
 } else { //browser cannot support charts
   console.log('Browser does not support charts');
-  textProgress();
+  textProgress = true;
 }
 
-function textProgress() {
-  console.log('textProgress');
-  document.getElementById('chart_div').innerHTML = "<br><br>Haven't contacted: {{project_progress.contactsremaining}}<br>Talked to: {{project_progress.talked}}<br>Asked: {{project_progress.asked}}";
-  if ({{membership.giving_project.fund_goal}} > 0) {
-    document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{project_progress.togo|default:'0'}}<br>Pledged: ${{project_progress.pledged}}<br>Donated: ${{project_progress.donated}}";
-  }
-}
+$(document).ready(function() {
+	if (textProgress) {
+		console.log('textProgress');
+		document.getElementById('chart_div').innerHTML = "<br><br>Haven't contacted: {{project_progress.contactsremaining}}<br>Talked to: {{project_progress.talked}}<br>Asked: {{project_progress.asked}}";
+		if ({{membership.giving_project.fund_goal}} > 0) {
+			document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{project_progress.togo|default:'0'}}<br>Pledged: ${{project_progress.pledged}}<br>Donated: ${{project_progress.donated}}";
+		}
+	}
+});
 </script>
 {% endblock %}
 
