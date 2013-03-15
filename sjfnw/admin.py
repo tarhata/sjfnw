@@ -167,12 +167,16 @@ class GrantApplicationLogInline(admin.TabularInline): #Org, Application
   fields = ('organization', 'application', 'staff', 'contacted', 'notes')  
   
   def queryset(self, request):
-    print(request)
     return GrantApplicationLog.objects.none()
 
   def formfield_for_foreignkey(self, db_field, request, **kwargs):
     if db_field.name == 'staff':
       kwargs['initial'] = request.user.id
+      return db_field.formfield(**kwargs)
+    elif 'grantapplication' in request.path and db_field.name == 'organization':
+      id = int(request.path.split('/')[-2])
+      logging.info('org is ' + str(id))
+      kwargs['initial'] = id
       return db_field.formfield(**kwargs)
     return super(GrantApplicationLogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
