@@ -3,6 +3,7 @@
   <div class="tabular inline-related {% if forloop.last %}last-related{% endif %}">
 {{ inline_admin_formset.formset.management_form }}
 <fieldset class="module">
+	 <!-- added title/mouseover near heading -->
    <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }} <img src="/static/admin/img/icon-unknown.gif" width="10" height="10" class="help help-tooltip" title="Create a new resource using the + button or select an existing one.  Resources are grouped by session when displayed to the user.  Sessions are listed alphabetically - put the date at the start if you want them to display in chronological order."></h2>
    {{ inline_admin_formset.formset.non_form_errors }}
    <table>
