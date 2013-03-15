@@ -6,6 +6,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
+from django.forms.widgets import HiddenInput
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from fund.models import *
@@ -160,12 +161,13 @@ class GrantApplicationLogInlineRead(admin.TabularInline): #Org, Application
   max_num=0
   fields = ('date', 'organization', 'application', 'staff', 'contacted', 'notes')
   readonly_fields = ('date', 'organization', 'application', 'staff', 'contacted', 'notes')
-
+  
 class GrantApplicationLogInline(admin.TabularInline): #Org, Application
   model = GrantApplicationLog
   extra = 1
-  fields = ('organization', 'application', 'staff', 'contacted', 'notes')  
-  
+  exclude = ('date',)
+  can_delete = False
+    
   def queryset(self, request):
     return GrantApplicationLog.objects.none()
 
@@ -175,8 +177,8 @@ class GrantApplicationLogInline(admin.TabularInline): #Org, Application
       return db_field.formfield(**kwargs)
     elif 'grantapplication' in request.path and db_field.name == 'organization':
       id = int(request.path.split('/')[-2])
-      logging.info('org is ' + str(id))
-      kwargs['initial'] = id
+      app = GrantApplication.objects.get(pk=id)
+      kwargs['initial'] = app.organization.pk
       return db_field.formfield(**kwargs)
     return super(GrantApplicationLogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 

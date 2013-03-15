@@ -20,6 +20,10 @@ form .aligned p.help {
   padding-top: .5em !important;
 }
 
+#grantapplicationlog_set-2-group th:first-child, #grantapplicationlog_set-2-group td.field-organization,  #grantapplicationlog_set-2-group td.original {
+  display:none;
+}
+
 .module h2, .module caption, .inline-group h2 {
   font-size:12px;
 }
