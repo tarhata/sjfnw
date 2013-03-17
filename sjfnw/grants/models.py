@@ -454,7 +454,7 @@ class GrantApplicationModelForm(ModelForm):
 class GrantApplicationLog(models.Model):
   date = models.DateTimeField(default = timezone.now())
   organization = models.ForeignKey(Organization)
-  application = models.ForeignKey(GrantApplication, null=True, blank=True)
+  application = models.ForeignKey(GrantApplication, null=True, blank=True, help_text = 'Optional - if this log entry relates to a specific grant application, select it from the list')
   staff = models.ForeignKey(User)
   contacted = models.CharField(max_length=255, help_text = 'Person from the organization that you talked to, if applicable.', blank=True)
   notes = models.TextField()

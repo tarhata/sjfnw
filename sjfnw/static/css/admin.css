@@ -31,3 +31,7 @@ form .aligned p.help {
 select#id_permissions {
     height: 400px;
 }
+
+.grants-grantapplication .add-another, .grants-organization .add-another {
+  display:none;
+}
