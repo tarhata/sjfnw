@@ -292,7 +292,7 @@ class GrantApplication(models.Model):
   scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity')
   
   def __unicode__(self):
-    return unicode(self.organization)
+    return unicode(self.organization) + u' - ' + unicode(self.grant_cycle) + u' - ' + unicode(self.submission_time.year)
   
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
@@ -454,7 +454,7 @@ class GrantApplicationModelForm(ModelForm):
 class GrantApplicationLog(models.Model):
   date = models.DateTimeField(default = timezone.now())
   organization = models.ForeignKey(Organization)
-  application = models.ForeignKey(GrantApplication, null=True, blank=True)
+  application = models.ForeignKey(GrantApplication, null=True, blank=True, help_text = 'Optional - if this log entry relates to a specific grant application, select it from the list')
   staff = models.ForeignKey(User)
   contacted = models.CharField(max_length=255, help_text = 'Person from the organization that you talked to, if applicable.', blank=True)
   notes = models.TextField()

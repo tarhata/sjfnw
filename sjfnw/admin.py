@@ -6,6 +6,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
+from django.forms.widgets import HiddenInput
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from fund.models import *
@@ -154,27 +155,36 @@ class GrantApplicationInline(admin.TabularInline): #Org
   readonly_fields = ('submission_time', 'grant_cycle', 'screening_status')
   fields = ('submission_time', 'grant_cycle', 'screening_status')
 
-class GrantApplicationLogInlineRead(admin.TabularInline): #Org, Application
+class GrantLogInlineRead(admin.TabularInline): #Org, Application
   model = GrantApplicationLog
   extra = 0
-  max_num=0
-  fields = ('date', 'organization', 'application', 'staff', 'contacted', 'notes')
-  readonly_fields = ('date', 'organization', 'application', 'staff', 'contacted', 'notes')
+  max_num = 0
+  fields = ('date', 'application', 'staff', 'contacted', 'notes')
+  readonly_fields = ('date', 'application', 'staff', 'contacted', 'notes')
+  verbose_name = 'Log'
+  verbose_name_plural = 'Logs'
 
-class GrantApplicationLogInline(admin.TabularInline): #Org, Application
+class GrantLogInline(admin.TabularInline): #Org, Application
   model = GrantApplicationLog
   extra = 1
-  fields = ('organization', 'application', 'staff', 'contacted', 'notes')  
+  max_num = 1
+  exclude = ('date',)
+  can_delete = False
+  verbose_name_plural = 'Add a log entry'
   
   def queryset(self, request):
-    print(request)
     return GrantApplicationLog.objects.none()
 
   def formfield_for_foreignkey(self, db_field, request, **kwargs):
     if db_field.name == 'staff':
       kwargs['initial'] = request.user.id
       return db_field.formfield(**kwargs)
-    return super(GrantApplicationLogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    elif 'grantapplication' in request.path and db_field.name == 'organization':
+      id = int(request.path.split('/')[-2])
+      app = GrantApplication.objects.get(pk=id)
+      kwargs['initial'] = app.organization.pk
+      return db_field.formfield(**kwargs)
+    return super(GrantLogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 # ModelAdmin
 class GrantCycleA(admin.ModelAdmin):
@@ -195,14 +205,18 @@ class OrganizationA(admin.ModelAdmin):
     ('fiscal_letter'),
   )
   readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number', 'fax_number', 'email_address', 'website', 'status', 'ein', 'fiscal_letter')
-  inlines = [GrantApplicationInline, GrantApplicationLogInline]
+  inlines = [GrantApplicationInline, GrantLogInlineRead, GrantLogInline]
 
 class GrantApplicationA(admin.ModelAdmin):
-  fieldsets = ('Summary', {'fields': (('organization', 'grant_cycle', 'submission_time'), 'view_link')}), ('Admin fields', {'fields': ('screening_status', ('scoring_bonus_poc', 'scoring_bonus_geo'), revert_grant)})
+  fieldsets = (
+    '', {'fields': (('organization', 'grant_cycle', 'submission_time', 'view_link'),)}
+    ),(
+    'Admin fields', {'fields': ('screening_status', ('scoring_bonus_poc', 'scoring_bonus_geo'), revert_grant)}
+    )
   readonly_fields = ('organization', 'grant_cycle', 'submission_time', 'view_link', revert_grant)
   list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')  
   list_filter = ('grant_cycle', 'screening_status')
-  inlines = [GrantApplicationLogInlineRead, GrantApplicationLogInline]
+  inlines = [GrantLogInlineRead, GrantLogInline]
 
 class DraftGrantApplicationA(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')

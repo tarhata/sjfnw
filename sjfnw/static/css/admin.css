@@ -20,10 +20,18 @@ form .aligned p.help {
   padding-top: .5em !important;
 }
 
+#grantapplication_form #grantapplicationlog_set-2-group th:first-child, #grantapplication_form #grantapplicationlog_set-2-group td.original, #grantapplicationlog_set-2-group td.field-organization {
+  display:none;
+}
+
 .module h2, .module caption, .inline-group h2 {
   font-size:12px;
 }
 
 select#id_permissions {
     height: 400px;
+}
+
+.grants-grantapplication .add-another, .grants-organization .add-another {
+  display:none;
 }
