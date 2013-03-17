@@ -136,6 +136,8 @@ textarea {
   font-family:Arial;
   width:99%;
   resize:vertical;
+  font-size:inherit;
+  overflow:hidden;
 }
 
 div.formwrapper input[type="text"] {
