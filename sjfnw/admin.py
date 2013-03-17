@@ -159,9 +159,11 @@ class GrantApplicationLogInlineRead(admin.TabularInline): #Org, Application
   model = GrantApplicationLog
   extra = 0
   max_num=0
-  fields = ('date', 'organization', 'application', 'staff', 'contacted', 'notes')
-  readonly_fields = ('date', 'organization', 'application', 'staff', 'contacted', 'notes')
-  
+  fields = ('date', 'application', 'staff', 'contacted', 'notes')
+  readonly_fields = ('date', 'application', 'staff', 'contacted', 'notes')
+  verbose_name = 'Log'
+  verbose_name_plural = 'Logs'
+
 class GrantApplicationLogInline(admin.TabularInline): #Org, Application
   model = GrantApplicationLog
   extra = 1
@@ -201,7 +203,7 @@ class OrganizationA(admin.ModelAdmin):
     ('fiscal_letter'),
   )
   readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number', 'fax_number', 'email_address', 'website', 'status', 'ein', 'fiscal_letter')
-  inlines = [GrantApplicationInline, GrantApplicationLogInline]
+  inlines = [GrantApplicationInline, GrantApplicationLogInlineRead, GrantApplicationLogInline]
 
 class GrantApplicationA(admin.ModelAdmin):
   fieldsets = ('Summary', {'fields': (('organization', 'grant_cycle', 'submission_time'), 'view_link')}), ('Admin fields', {'fields': ('screening_status', ('scoring_bonus_poc', 'scoring_bonus_geo'), revert_grant)})

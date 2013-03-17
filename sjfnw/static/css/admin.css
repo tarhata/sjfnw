@@ -20,7 +20,7 @@ form .aligned p.help {
   padding-top: .5em !important;
 }
 
-#grantapplicationlog_set-2-group th:first-child, #grantapplicationlog_set-2-group td.field-organization,  #grantapplicationlog_set-2-group td.original {
+#grantapplication_form #grantapplicationlog_set-2-group th:first-child, #grantapplication_form #grantapplicationlog_set-2-group td.original, #grantapplicationlog_set-2-group td.field-organization {
   display:none;
 }
 
