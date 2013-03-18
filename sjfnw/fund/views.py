@@ -630,11 +630,13 @@ def AddMultStep(request):
   membership = request.membership
   suggested = membership.giving_project.suggested_steps.splitlines()
   
-  for donor in membership.donor_set.all():
+  for donor in membership.donor_set.order_by('-added'): #sort by added
     if not (donor.next_step or (donor.pledged is not None) or donor.gifted):
       initiald.append({'donor': donor})
       dlist.append(donor)
       size = size +1
+    if size > 9:
+      break
   StepFormSet = formset_factory(MassStep, extra=0)
   if request.method=='POST':
     membership.last_activity = timezone.now()
