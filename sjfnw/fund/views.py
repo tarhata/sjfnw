@@ -108,7 +108,7 @@ def Home(request):
   if notif and not settings.DEBUG: #on live, only show a notification once
     logging.info('Displaying notification to ' + str(membership) + ': ' + notif)
     membership.notifications=''
-    membership.save()
+    membership.save(skip=True)
 
   #show estimates form
   if add_est and amount_missing:
@@ -509,7 +509,7 @@ def AddEstimates(request):
   EstFormset = formset_factory(DonorEstimates, extra=0)
   if request.method=='POST':
     membership.last_activity = timezone.now()
-    membership.save()
+    membership.save(skip=True)
     formset = EstFormset(request.POST)
     logging.debug('Adding estimates - posted: ' + str(request.POST))
     if formset.is_valid():
@@ -544,7 +544,7 @@ def EditDonor(request, donor_id):
   
   if request.method == 'POST':
     request.membership.last_activity = timezone.now()
-    request.membership.save()
+    request.membership.save(skip=True)
     if est:
       form = models.DonorForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
     else:
@@ -574,7 +574,7 @@ def DeleteDonor(request, donor_id):
   
   if request.method=='POST':
     request.membership.last_activity = timezone.now()
-    request.membership.save()
+    request.membership.save(skip=True)
     donor.delete()
     return redirect(Home)
     
@@ -602,7 +602,7 @@ def AddStep(request, donor_id):
   
   if request.method == 'POST':
     membership.last_activity = timezone.now()
-    membership.save()
+    membership.save(skip=True)
     form = models.StepForm(request.POST, auto_id = str(donor.pk) + '_id_%s')
     has_step = donor.next_step
     logging.info('Single step - POST: ' + str(request.POST))
@@ -638,7 +638,7 @@ def AddMultStep(request):
   StepFormSet = formset_factory(MassStep, extra=0)
   if request.method=='POST':
     membership.last_activity = timezone.now()
-    membership.save()
+    membership.save(skip=True)
     formset = StepFormSet(request.POST)
     logging.debug('Multiple steps - posted: ' + str(request.POST))
     if formset.is_valid():
@@ -684,7 +684,7 @@ def EditStep(request, donor_id, step_id):
   
   if request.method == 'POST':
     request.membership.last_activity = timezone.now()
-    request.membership.save()
+    request.membership.save(skip=True)
     form = models.StepForm(request.POST, instance=step, auto_id = str(step.pk) + '_id_%s')
     if form.is_valid():
       logging.debug('Edit step success')
@@ -718,7 +718,7 @@ def DoneStep(request, donor_id, step_id):
 
   if request.method == 'POST':
     membership.last_activity = timezone.now()
-    membership.save()
+    membership.save(skip=True)
     form = StepDoneForm(request.POST, auto_id = str(step.pk) + '_id_%s')
     if form.is_valid():
       step.completed = timezone.now()
@@ -799,7 +799,7 @@ def EmailOverdue(request):
         msg.attach_alternative(html_content, "text/html")
         msg.send()
         ship.emailed = today
-        ship.save()
+        ship.save(skip=True)
   return HttpResponse("")
 
 def NewAccounts(request):
@@ -838,7 +838,7 @@ def GiftNotify(request):
         gift_str += ' '+d.lastname
       gift_str += '!<br>'
     ship.notifications = '<table><tr><td>' + gift_str + '</td><td><img src="/static/images/odo2.png" height=86 width=176></td></tr></table>'
-    ship.save()
+    ship.save(skip=True)
     logging.info('Gift notification set for ' + str(ship))
   
   login_url = settings.APP_BASE_URL + 'fund/'
