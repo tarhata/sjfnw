@@ -114,20 +114,20 @@
       timeout: 10000,
       success:function(data, textStatus, jqXHR){
         //console.log(get_url);
-        document.getElementById(div_id).innerHTML=jqXHR.responseText;
+        document.getElementById(div_id).innerHTML=jqXHR.responseText; //fill the div
         var pks = get_url.match(/\d+/g);
-        if (pks && pks[1]) {
-          var a=document.getElementById('donor-' + pks[0]);
+        if (pks && pks[1]) { //donor-specific form loading
+          var a = document.getElementById('donor-' + pks[0]);
           a.style.borderColor="#555";
           if (dasked) {
             completeLoaded(pks[1], dasked, dpledged);
           }
-        } else if (div_id == 'addmult') {
+        } else if (div_id == 'addmult') { 
           document.getElementById(div_id).style.borderColor="#555";
         }
         datepicker();
+				trackEvents(get_url, div_id, 'GET');
         endProcessing();
-        trackEvents(get_url, div_id, 'GET');
       },
       error:function(jqXHR, textStatus, errorThrown){
         endProcessing();
@@ -308,13 +308,6 @@
     });
   }
 
-  function cancelHide(div_id, replace) { //hide addmult div
-    replace = replace || '';
-    var div = document.getElementById(div_id);
-    div.innerHTML=replace;
-    div.style.borderColor="#FFF";
-  }
-
   function cloneMore(selector, type) { //add row to mult contacts form
     var newElement = $(selector).clone(true);
     var total = $('#id_' + type + '-TOTAL_FORMS').val();
@@ -452,96 +445,96 @@
 {% endif %}
 
 {% if donor_list.0 %}
-<span class="header">YOUR PROGRESS</span>
+<span class="header">YOUR PROGRESS</span><!-- PROGRESS -->
 <table style="width:90%;margin-left:8%;margin-top:10px;margin-bottom:15px;text-align:center;">
-<tr>
-  <td><div align="center">{{progress.contacts}} contacts</div><div align="center" id ="chart_div" style="width:240px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
-  {% if progress.estimated > 0 %}
-  <td><div align="center" title = "Personal fundraising goal of ${{progress.estimated}} calculated based on your ask amount and estimated likelihood for each contact">{{progress.header}}</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
-  {% endif %}
-</tr>
+	<tr>
+		<td><div align="center">{{progress.contacts}} contacts</div><div align="center" id ="chart_div" style="width:240px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
+		{% if progress.estimated > 0 %}
+		<td><div align="center" title = "Personal fundraising goal of ${{progress.estimated}} calculated based on your ask amount and estimated likelihood for each contact">{{progress.header}}</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
+		{% endif %}
+	</tr>
 </table>
 {% endif %}
 
-<span class="header" id="your-contacts">YOUR CONTACTS & NEXT STEPS</span>
-{% if donor_list.0 %} <!--only show if mass add and mass step won't be showing -->
+<span class="header" id="your-contacts">YOUR CONTACTS & NEXT STEPS</span><!-- CONTACTS -->
+{% if donor_list.0 %} <!-- add contacts link (only if mass add won't be showing) -->
   {% if not load %}<div class="edit_done">[<a onclick="loadView('/fund/addmult', 'addmult')">add contacts</a>]</div>{% endif %}
-	<div class="donor indent" id="addmult"></div>
+	<div class="donor indent" id="addmult"></div><!-- mass forms area #1 -->
 {% endif %}
 {% load humanize %}
-{% for dict in donor_list %} <!-- per contact -->
-  <div class="donor indent" id="donor-{{dict.donor.pk}}">
-    <a class="{%if dict.donor.pledged != None%}pledged{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{dict.donor.lastname}}</b></a><br>
-    {% if dict.next_step %}
-      <div id="{{dict.donor.pk}}-nextstep">{%if dict.overdue%}<span title="This step's goal date has passed! Edit or complete it" style="display:inline;"><span class="overdue_step">! </span>{{dict.next_step}}</span>{% else %}{{dict.next_step}}{%endif%}
-      <div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}', '{{dict.donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}/done', '{{dict.donor.pk}}-nextstep', '{{dict.donor.asked}}', '{{dict.donor.pledged}}');">complete</a>]</div>
-      </div>
-    {% else %}
-      <div id="{{dict.donor.pk}}-addstep">
-      {% if dict.donor.pledged == None and dict.donor.gifted == 0 %}
-        No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
-      {% else %}
-        <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.gifted %}Donated ${{dict.donor.gifted|intcomma}}.{% elif dict.donor.pledged != None %}{% if dict.donor.pledged > 0 %}Pledged ${{dict.donor.pledged|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
-      {% endif %}
-      </div>
-    {% endif %}
+{% for dict in donor_list %} <!-- donors -->
+<div class="donor indent" id="donor-{{dict.donor.pk}}">
+	<!-- line 1 name click to toggle -->
+	<a class="{%if dict.donor.pledged != None%}pledged{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{dict.donor.lastname}}</b></a><br>
+	{% if dict.next_step %}
+		<!-- line 2 next step summary -->
+		<div id="{{dict.donor.pk}}-nextstep">{%if dict.overdue%}<span title="This step's goal date has passed! Edit or complete it" style="display:inline;"><span class="overdue_step">! </span>{{dict.next_step}}</span>{% else %}{{dict.next_step}}{%endif%}
+		<!-- edit/complete links -->
+		<div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}', '{{dict.donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}/done', '{{dict.donor.pk}}-nextstep', '{{dict.donor.asked}}', '{{dict.donor.pledged}}');">complete</a>]</div>
+		</div>
+	{% else %}
+		<div id="{{dict.donor.pk}}-addstep">
+		{% if dict.donor.pledged == None and dict.donor.gifted == 0 %}
+			<!-- line 2 add a step -->
+			No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
+		{% else %}
+			<!-- line 2 summary of response -->
+			<img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.gifted %}Donated ${{dict.donor.gifted|intcomma}}.{% elif dict.donor.pledged != None %}{% if dict.donor.pledged > 0 %}Pledged ${{dict.donor.pledged|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
+		{% endif %}
+		</div>
+	{% endif %}
 
-    <div class="donor_details indent" id="details-{{dict.donor.pk}}" style="display:none;">
-  
-    <table>
-      {% if dict.donor.gifted %}
-        <tr><td>Donated:</td><td>${{dict.donor.gifted|intcomma}}</td></tr>
-        <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
-      {% elif dict.donor.pledged != None%}
-        {% if dict.donor.pledged > 0 %}
-          <tr><td>Pledged:</td><td>${{dict.donor.pledged|intcomma}}</td></tr>
-        {% else %}
-          <tr><td colspan="2">Declined to donate.</td></tr>
-        {% endif %}
-        <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
-      {% else %}
-        {% if dict.donor.asked %}
-          <tr><td colspan="2">Asked; awaiting response.</td></tr>
-        {% endif %}
-        {% if dict.donor.amount %}
-          <tr><td>Amount to ask:</td><td>${{dict.donor.amount|intcomma}}</td></tr>
-          <tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
-        {% endif %}
-      {% endif %}
-      
-      <tr>
-        <td>{% if dict.donor.email or dict.donor.phone %}Contact info:</td>
-        <td>{{dict.donor.email|default:""}} {{dict.donor.phone|default:""}}{%endif%}</td>
-      </tr>
-      <tr>
-        <td>Notes:</td>
-        <td>{{dict.donor.notes|default:"<i>None entered.</i>"}}<br><br></td>
-      </tr>
-      
-      {% if dict.complete_steps %}
-        <tr>
-          <td>Completed steps:{% if dict.donor.pledged != None and not dict.next_step %}<br>[<a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">add step</a>]{% endif %}</td>
-          <td>{% for step in dict.complete_steps %}{{step.date|date:"n/d/y"}}: {{step.description}}<br>{% endfor %}</td>
-        </tr>
-      {% endif %}
-    </table>
-    <br>
-    
-    <div class="donor_delete" id="delete-{{dict.donor.pk}}">
-      [<a onclick="loadView('/fund/{{dict.donor.pk}}/edit', 'donor-{{dict.donor.pk}}')">edit contact</a>] [<a onclick="loadView('/fund/{{dict.donor.pk}}/delete', 'delete-{{dict.donor.pk}}')">remove contact</a>]
-    </div>
-    
+	<div class="donor_details indent" id="details-{{dict.donor.pk}}" style="display:none;"><!-- donor details (hidden) -->
+		<table>
+			{% if dict.donor.gifted %}<!-- gifted, pledged, asked, etc. -->
+				<tr><td>Donated:</td><td>${{dict.donor.gifted|intcomma}}</td></tr>
+				<tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
+			{% elif dict.donor.pledged != None%}
+				{% if dict.donor.pledged > 0 %}
+					<tr><td>Pledged:</td><td>${{dict.donor.pledged|intcomma}}</td></tr>
+				{% else %}
+					<tr><td colspan="2">Declined to donate.</td></tr>
+				{% endif %}
+				<tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
+			{% else %}
+				{% if dict.donor.asked %}
+					<tr><td colspan="2">Asked; awaiting response.</td></tr>
+				{% endif %}
+				{% if dict.donor.amount %}
+					<tr><td>Amount to ask:</td><td>${{dict.donor.amount|intcomma}}</td></tr>
+					<tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
+				{% endif %}
+			{% endif %}
+			<tr><!-- basic fields -->
+				<td>{% if dict.donor.email or dict.donor.phone %}Contact info:</td>
+				<td>{{dict.donor.email|default:""}} {{dict.donor.phone|default:""}}{%endif%}</td>
+			</tr>
+			<tr>
+				<td>Notes:</td>
+				<td>{{dict.donor.notes|default:"<i>None entered.</i>"}}<br><br></td>
+			</tr>
+			{% if dict.complete_steps %}<!-- list of complete steps -->
+				<tr>
+					<td>Completed steps:{% if dict.donor.pledged != None and not dict.next_step %}<br>[<a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">add step</a>]{% endif %}</td>
+					<td>{% for step in dict.complete_steps %}{{step.date|date:"n/d/y"}}: {{step.description}}<br>{% endfor %}</td>
+				</tr>
+			{% endif %}
+		</table>
+		<br>
+		<div class="donor_delete" id="delete-{{dict.donor.pk}}"><!-- delete/edit -->
+			[<a onclick="loadView('/fund/{{dict.donor.pk}}/edit', 'donor-{{dict.donor.pk}}')">edit contact</a>] [<a onclick="loadView('/fund/{{dict.donor.pk}}/delete', 'delete-{{dict.donor.pk}}')">remove contact</a>]
+		</div>
   </div> <!-- ends donor_details -->
 </div> <!-- ends donor -->
 {% empty %} <!--no contacts yet -->
-  {% if fd %} <!-- add estimates -->
-    {% include 'fund/add_estimates.html' %}  
-  {% else %} <!-- add contacts -->
+  {% if fd %}
+    {% include 'fund/add_estimates.html' %}<!-- add estimates -->
+  {% else %}<!-- add contacts -->
 		<div class="donor indent" id="addmult">
 		<p>You don't have any contacts yet!  Get started by adding some.  You'll be able to add, change or remove contacts at any time.</p>
 		{% include mult_template %}
 		</div>
   {% endif %}
-{% endfor %} <!--ends contacts check-->
+{% endfor %} <!--ends contacts check/loop -->
 
 {% endblock %}
