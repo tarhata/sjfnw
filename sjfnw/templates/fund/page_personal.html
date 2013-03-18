@@ -284,8 +284,8 @@
       data:$('#addcontacts').serialize(),
       timeout: 10000,
       success:function(data, textStatus, jqXHR){
-        if (jqXHR.responseText=="success") {
-					trackEvents('/fund/addmult',' addmult', 'POST');
+        trackEvents('/fund/addmult',' addmult', 'POST');
+				if (jqXHR.responseText=="success") {
           setTimeout(function() {location.href= '/fund/?load=stepmult#your-contacts';}, 200);
         } else {
           document.getElementById('addmult').innerHTML=jqXHR.responseText;
@@ -464,8 +464,8 @@
 {% endif %}
 
 <span class="header" id="your-contacts">YOUR CONTACTS & NEXT STEPS</span>
-{% if donor_list.0 %} <!--only show if mass form won't be showing -->
-  <div class="edit_done">[<a onclick="loadView('/fund/addmult', 'addmult')">add contacts</a>]</div>
+{% if donor_list.0 %} <!--only show if mass add and mass step won't be showing -->
+  {% if not load %}<div class="edit_done">[<a onclick="loadView('/fund/addmult', 'addmult')">add contacts</a>]</div>{% endif %}
 	<div class="donor indent" id="addmult"></div>
 {% endif %}
 {% load humanize %}

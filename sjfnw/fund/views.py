@@ -650,9 +650,9 @@ def AddMultStep(request):
           step.donor.next_step = step
           step.donor.save()
           logging.info('Multiple steps - step created')
-        else:
-          logging.debug('Multiple steps - blank form')
       return HttpResponse("success")
+    else:
+      logging.info('Multiple steps invalid')
   else:
     formset = StepFormSet(initial=initiald)
     logging.info('Multiple steps - loading initial formset, size ' + str(size) + ': ' +str(dlist))
