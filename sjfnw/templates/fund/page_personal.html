@@ -190,11 +190,11 @@
   }
 
   function trackEvents(url, div_id, request_type) { //analytics events
-    console.log('trackEvents', url, div_id, request_type);
+    //console.log('trackEvents', url, div_id, request_type);
     var category;
     var action;
     if (div_id.search('addmult') > -1) {
-      console.log('addmult');
+     // console.log('addmult');
       if (request_type == 'POST') {
         action = 'Add multiple - submit';
       } else {
@@ -230,7 +230,7 @@
         action = 'Edit';
       }
     }
-    console.log(category, action)
+    console.log('trackEvents', category, action)
     if (category && action) {
       _gaq.push(['_trackEvent', category, action]);
     }
@@ -273,8 +273,10 @@
 
   function SubmitMult() { //add contacts
     if (request_processing) {
+			console.log('Submitmult rejected; request in progress');
       return false;
     }
+		console.log('Submitmult going');
     startProcessing();
     $.ajax({
       url:'/fund/addmult',
@@ -282,16 +284,16 @@
       data:$('#addcontacts').serialize(),
       timeout: 10000,
       success:function(data, textStatus, jqXHR){
-        endProcessing();
         if (jqXHR.responseText=="success") {
 					trackEvents('/fund/addmult',' addmult', 'POST');
           setTimeout(function() {location.href= '/fund/?load=stepmult#your-contacts';}, 200);
         } else {
           document.getElementById('addmult').innerHTML=jqXHR.responseText;
+					endProcessing();
         }
       },
       error:function(jqXHR, textStatus, errorThrown){
-        endProcessing();
+        
         var errortext = '';
         if (status_texts[jqXHR.status]) {
           errortext = status_texts[jqXHR.status];
@@ -301,6 +303,7 @@
           errortext = 'Unknown error';
         }
         document.getElementById('addmult').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: /fund/addmult<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
+				endProcessing();
       }
     });
   }

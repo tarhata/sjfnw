@@ -485,6 +485,8 @@ def AddMult(request):
             contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], membership = membership)
           contact.save()
       return HttpResponse("success")
+    else: #invalid
+      logging.info(formset.errors)
   else:
     formset = ContactFormset()
 
