@@ -853,3 +853,20 @@ def GiftNotify(request):
     logging.info('Emailed gift notification to ' + to)
   donors.update(gift_notified=True)
   return HttpResponse("")
+  
+def FindDuplicates(request):
+  donors = models.Donor.objects.order_by('firstname', 'lastname', 'membership')
+  dup_dict = {}
+  count = 0
+  first, last, ship = '', '', None
+  for donor in donors:
+    if donor.firstname == first and donor.lastname == last and donor.membership == ship: #matches prev
+      count += 1
+      dup_dict[str(donor) + str(donor.membership.pk)] = count
+    elif count > 0: #break, reset
+      count = 0
+    first = donor.firstname
+    last = donor.lastname
+    ship = donor.membership
+    
+  return render(request, 'fund/test.html', {'dup_dict':dup_dict})
