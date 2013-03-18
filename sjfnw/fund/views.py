@@ -409,6 +409,7 @@ def Projects(request):
   if request.method=='POST':
     form = AddProjectForm(request.POST)
     if form.is_valid():
+      logging.debug('Valid add project')
       gp = request.POST['giving_project']
       giv = models.GivingProject.objects.get(pk=gp)
       ship, new = models.Membership.objects.get_or_create(member = member, giving_project=giv)
@@ -475,6 +476,7 @@ def AddMult(request):
     logging.info(request.POST)
     formset = ContactFormset(request.POST)
     if formset.is_valid():
+      logging.info('AddMult valid formset')
       for form in formset.cleaned_data:
         if form:
           if est:
@@ -546,6 +548,7 @@ def EditDonor(request, donor_id):
     else:
       form = models.DonorPreForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
     if form.is_valid():
+      logging.info('Edit donor success')
       form.save()
       return HttpResponse("success")
   else:
@@ -682,6 +685,7 @@ def EditStep(request, donor_id, step_id):
     request.membership.save()
     form = models.StepForm(request.POST, instance=step, auto_id = str(step.pk) + '_id_%s')
     if form.is_valid():
+      logging.debug('Edit step success')
       form.save()
       return HttpResponse("success")
   else:
