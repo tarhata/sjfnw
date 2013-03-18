@@ -112,6 +112,7 @@ class Membership(models.Model): #relationship b/n member and gp
     return estimated
 
 class Donor(models.Model):
+  added = models.DateTimeField(default=timezone.now())
   membership = models.ForeignKey(Membership)
 
   firstname = models.CharField(max_length=100, verbose_name='*First name')
