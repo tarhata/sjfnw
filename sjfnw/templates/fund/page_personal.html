@@ -104,6 +104,7 @@
 
   function loadView(get_url, div_id, dasked, dpledged) {
     if (request_processing) {
+			console.log('Request processing; load view denied');
       return false;
     }
     startProcessing();
@@ -145,6 +146,7 @@
 
   function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
     if (request_processing) {
+			console.log('Request processing; submit denied');
       return false;
     }
     startProcessing();
@@ -253,6 +255,7 @@
 
   function startProcessing() {
     request_processing = true;
+		console.log('Request processing');
     var loader = document.getElementById('ajax_loading');
     if (loader) {
       loader.style.display = "";
@@ -261,6 +264,7 @@
 
   function endProcessing() {
     request_processing = false;
+		console.log('Request complete');
     var loader = document.getElementById('ajax_loading');
     if (loader) {
       loader.style.display = "none";
