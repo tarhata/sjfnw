@@ -863,7 +863,7 @@ def FindDuplicates(request):
   prior = None
   matching = False
   for donor in donors:
-    if prior and donor.firstname == prior.firstname and donor.lastname == prior.lastname and donor.membership == prior.membership: #matches prev
+    if prior and donor.membership == prior.membership and donor.firstname == prior.firstname and donor.lastname and donor.lastname == prior.lastname and not donor.talked: #matches prev, no completed steps
       matching = True
       #donor.delete()
       deleted += 1
