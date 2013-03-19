@@ -414,7 +414,7 @@ def DiscardDraft(request, organization, draft_id):
 def ViewApplication(request, app_id):
   user = request.user
   app = get_object_or_404(models.GrantApplication, pk=app_id)
-  form = GrantApplicationForm(app.grant_cycle)
+  form = models.GrantApplicationModelForm(app.grant_cycle)
   #set up doc viewer for applicable files
   file_urls = GetFileURLs(app)
 
