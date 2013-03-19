@@ -67,3 +67,20 @@ class RolloverForm(forms.Form):
     elif draft and application:
       self._errors["draft"] = self.error_class(["Select only one."])
     return cleaned_data
+
+class AdminRolloverForm(forms.Form):
+
+  def __init__(self, organization, *args, **kwargs):
+    super(AdminRolloverForm, self).__init__(*args, **kwargs)
+    
+    #get apps & drafts
+    submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time').select_related('grant_cycle')
+    drafts = models.DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
+    
+    #get last 6 mos of cycles
+    cutoff = timezone.now() - datetime.timedelta(days=180)
+    exclude_cycles = [d.grant_cycle.pk for d in drafts] + [a.grant_cycle.pk for a in submitted]
+    cycles = models.GrantCycle.objects.filter(close__gt = cutoff).exclude(id__in=exclude_cycles)
+    
+    #create field
+    self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, str(c)) for c in cycles])

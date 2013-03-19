@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore, deferred
-from forms import LoginForm, RegisterForm, RolloverForm
+from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm
 from decorators import registered_org
 from sjfnw import constants
 import models, utils
@@ -456,6 +456,19 @@ def AppToDraft(request, app_id):
     return redirect('/admin/grants/draftgrantapplication/'+str(draft.pk)+'/')
   #GET
   return render(request, 'admin/grants/confirm_revert.html', {'application':submitted_app})
+
+def AdminRollover(request, app_id):
+  application = get_object_or_404(models.GrantApplication, pk = app_id)
+  org = application.organization
+  
+  if request.method=='POST':
+    form = AdminRolloverForm(org, request.POST)
+    if form.is_valid():
+      logging.info("Successy")
+  else:
+    form = AdminRolloverForm(org)
+  
+  return render(request, 'admin/grants/rollover.html', {'form':form, 'application':application})
 
 # CRON
 def DeleteEmptyFiles(request): #/tools/delete-empty

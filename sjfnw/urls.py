@@ -16,6 +16,8 @@ urlpatterns = patterns('',
   
   (r'^admin/grants/grantapplication/(?P<app_id>\d+)/revert', 'grants.views.AppToDraft'),
   (r'^admin-advanced/grants/grantapplication/(?P<app_id>\d+)/revert', 'grants.views.AppToDraft'),
+  (r'^admin/grants/grantapplication/(?P<app_id>\d+)/rollover', 'grants.views.AdminRollover'),
+  (r'^admin-advanced/grants/grantapplication/(?P<app_id>\d+)/rollover', 'grants.views.AdminRollover'),
   (r'^admin/', include(admin.site.urls)),
   (r'^admin$', views.admin_redirect),
   (r'^admin-advanced/', include(advanced_admin.urls)),
