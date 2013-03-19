@@ -150,7 +150,6 @@ urlpatterns = patterns('',
   (r'^mail/overdue-step', 'fund.views.EmailOverdue'),
   (r'^mail/new-accounts', 'fund.views.NewAccounts'),
   (r'^mail/gifts', 'fund.views.GiftNotify'),
-  (r'^tools/dups', 'fund.views.FindDuplicates'),
 )
 
 #for dev_appserver

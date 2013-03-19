@@ -856,7 +856,7 @@ def GiftNotify(request):
   donors.update(gift_notified=True)
   return HttpResponse("")
   
-def FindDuplicates(request):
+def FindDuplicates(request): #no url
   donors = models.Donor.objects.select_related('membership').order_by('firstname', 'lastname', 'membership', '-next_step')
   ships = []
   deleted = 0
