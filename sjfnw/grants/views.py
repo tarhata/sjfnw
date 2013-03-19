@@ -86,7 +86,7 @@ def OrgRegister(request):
 def OrgSupport(request):
   return render(request, 'grants/org_support.html', {
   'support_email':constants.SUPPORT_EMAIL,
-  'support_form':constants.SUPPORT_FORM_URL})
+  'support_form':constants.GRANT_SUPPORT_FORM})
 
 # REGISTERED ORG VIEWS
 @login_required(login_url=LOGIN_URL)

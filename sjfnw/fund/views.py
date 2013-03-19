@@ -458,7 +458,7 @@ def Support(request):
     member = request.membership.member
   elif request.membership_status==1:
     member = models.Member.objects.get(email=request.user.username)
-  return render(request, 'fund/support.html', {'member':member, 'support_email': constants.SUPPORT_EMAIL, 'support_form':constants.SUPPORT_FORM_URL})
+  return render(request, 'fund/support.html', {'member':member, 'support_email': constants.SUPPORT_EMAIL, 'support_form':constants.FUND_SUPPORT_FORM})
   
 #FORMS
 @login_required(login_url='/fund/login/')

@@ -75,7 +75,7 @@ function trackSupport(item) { //analytics events
 
 <p>If you have a question that is not answered above, feel free to contact us.</p>
 
-<p>For technical support, reporting errors, or making suggestions related to Project Central, use our <b><a href="{{support_form}}" target="_blank" onclick="trackSupport('support_form');">online support form</a></b> or send us an email at <b><a href="mailto:{{support_email}}" onclick="trackSupport('support_email');">{{support_email}}</a></b>.</p>
+<p>For technical support, reporting errors, or making suggestions related to Project Central, use our <b><a href="{{support_form}}{{request.user.username}}" target="_blank" onclick="trackSupport('support_form');">online support form</a></b> or send us an email at <b><a href="mailto:{{support_email}}" onclick="trackSupport('support_email');">{{support_email}}</a></b>.</p>
 
 <p>For any other issues, please contact your giving project facilitators.</p>
 {% endblock content %}
