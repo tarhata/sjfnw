@@ -867,7 +867,8 @@ def FindDuplicates(request):
       matching = True
       #donor.delete()
       deleted += 1
-    elif matching: #break, reset
-      matching = False
+    else:
+      if matching: #break, reset
+        matching = False
       prior = donor
   return render(request, 'fund/test.html', {'deleted':deleted})
