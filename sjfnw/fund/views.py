@@ -867,7 +867,7 @@ def FindDuplicates(request):
       if (str(donor) + ' ' + str(donor.membership.pk)) in dup_dict:
         dup_dict[str(donor) + ' ' + str(donor.membership.pk)].append(donor)
       else:
-        dup_dict[str(donor) + ' ' + str(donor.membership.pk)] = [donor]
+        dup_dict[str(donor) + ' ' + str(donor.membership.pk)] = [donor, prior]
     elif matching: #break, reset
       matching = False
     prior = donor
