@@ -339,7 +339,7 @@ def Register(request):
         if gp: #create Membership
           giv = models.GivingProject.objects.get(pk=gp)
           membership = models.Membership(member = member, giving_project = giv)
-          membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant. I\'ll be here to guide you through the fundraising process and cheer you on.</td><td><img src="/static/images/odo1.png" height=88 width=54></td></tr></table>'
+          membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant. I\'ll be here to guide you through the fundraising process and cheer you on.</td><td><img src="/static/images/odo1.png" height=88 width=54 alt="Odo waving"></td></tr></table>'
           membership.save()
           member.current = membership.pk
           member.save()
@@ -839,7 +839,7 @@ def GiftNotify(request):
       if d.lastname:
         gift_str += ' '+d.lastname
       gift_str += '!<br>'
-    ship.notifications = '<table><tr><td>' + gift_str + '</td><td><img src="/static/images/odo2.png" height=86 width=176></td></tr></table>'
+    ship.notifications = '<table><tr><td>' + gift_str + '</td><td><img src="/static/images/odo2.png" height=86 width=176 alt="Odo flying"></td></tr></table>'
     ship.save(skip=True)
     logging.info('Gift notification set for ' + str(ship))
   
