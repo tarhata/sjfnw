@@ -133,7 +133,7 @@ class StepAdv(admin.ModelAdmin): #adv only
 
 ## Grants
 
-# Methods
+# methods
 def revert_grant(obj): #GrantApplication fieldset
   return '<a href="revert">Revert to draft</a>'
 revert_grant.allow_tags = True
@@ -142,7 +142,7 @@ def rollover(obj): #GrantApplication fieldset
   return '<a href="rollover">Copy to another grant cycle</a>'
 rollover.allow_tags = True
 
-# Inlines
+# inlines
 class GrantApplicationCycleInline(admin.TabularInline): #Cycle
   model = GrantApplication
   extra = 0
@@ -190,7 +190,7 @@ class GrantLogInline(admin.TabularInline): #Org, Application
       return db_field.formfield(**kwargs)
     return super(GrantLogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-# ModelAdmin
+# modelddmin
 class GrantCycleA(admin.ModelAdmin):
   list_display = ('title', 'open', 'close')
   fields = (
@@ -215,9 +215,9 @@ class GrantApplicationA(admin.ModelAdmin):
   fieldsets = (
     '', {'fields': (('organization', 'grant_cycle', 'submission_time', 'view_link'),)}
     ),(
-    'Admin fields', {'fields': ('screening_status', ('scoring_bonus_poc', 'scoring_bonus_geo'), (revert_grant, rollover))}
+    'Admin fields', {'fields': ('screening_status', ('scoring_bonus_poc', 'scoring_bonus_geo'), (revert_grant))}
     )
-  readonly_fields = ('organization', 'grant_cycle', 'submission_time', 'view_link', revert_grant, rollover)
+  readonly_fields = ('organization', 'grant_cycle', 'submission_time', 'view_link', revert_grant)
   list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')  
   list_filter = ('grant_cycle', 'screening_status')
   inlines = [GrantLogInlineRead, GrantLogInline]
