@@ -435,12 +435,12 @@ if($.browser.mozilla) { //stackoverflow
 			</tr><tr>
 				<td>3. Funding sources</td>
 				<td>{{form.funding_sources.errors}}</td>
-				<td><label for="{{form.project_budget_file.auto_id}}">Choose file</label>{{form.funding_sources}}</td>
+				<td><label for="{{form.funding_sources.auto_id}}">Choose file</label>{{form.funding_sources}}</td>
 				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
 			</tr><tr>	
 				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
 				<td>{{form.fiscal_letter.errors}}</td>
-				<td><label for="{{form.project_budget_file.auto_id}}">Choose file</label>{{form.fiscal_letter}}</td>
+				<td><label for="{{form.fiscal_letter.auto_id}}">Choose file</label>{{form.fiscal_letter}}</td>
 				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
 			</tr>
 		</table>
