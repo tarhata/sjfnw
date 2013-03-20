@@ -272,7 +272,7 @@ table#timeline_display {
   border-collapse:collapse;
 }
 
-table#timeline_display th, td {
+#timeline_display th, #timeline_display td {
   font-weight:normal;
   border:1px solid black;
   padding:5px 10px;
