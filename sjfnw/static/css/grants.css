@@ -243,12 +243,12 @@ input#grant_submit {
 
 iframe.info_frame { 
   width:100%;
-  height:2550px;
+  height:500px;
   border:0px;
 }
 
 button#apply-now {
-  margin-bottom:20px;
+  margin-top:20px;
   font-size:135%;
   font-weight:bold;
 }
