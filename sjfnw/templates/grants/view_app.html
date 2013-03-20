@@ -7,7 +7,7 @@
     <h2>{{app.organization}} - {{app.grant_cycle}}</h2>
     Submitted {{app.submission_time}}
   </div>
-  <h4>Organization and Grant Request Profile</h4>
+  <h4>Organization and Grant Request Profile</h4><!-- Profile -->
 	<table style="width:100%;">
 	<tr>
 		<td colspan="2">{{form.address.label_tag}}{{app.address}} {{app.city}}, {{app.state}} {{app.zip}}</td>
@@ -27,9 +27,7 @@
 		<td>{{form.ein.label_tag}}{{app.ein}}</td>
   </tr><tr>
 		<td colspan="2">{{form.mission.label_tag}}{{app.mission}}</td>
-	</tr>
-	<!-- Grant and budget information -->
-  <tr>
+	</tr><tr>
 		<td>{{form.start_year.label_tag}}{{app.start_year}}</td>
 		<td>{{form.grant_period.label_tag}}{{app.grant_period}}</td>
   </tr><tr>
@@ -73,7 +71,7 @@
   <p>{{app.narrative3}}</p>
   <p>4. {{form.narrative4.label}}</p>
   <p>{{app.narrative4}}</p>
-	{{app.timeline}}
+	{{app.timeline_display}}
   <p>5. {{form.narrative5.label}}</p>
   <p>{{app.narrative5}}</p>
   <p>{{form.collab_ref1_name.help_text}}</p>

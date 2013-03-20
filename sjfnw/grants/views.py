@@ -155,6 +155,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     
     #get fields & files from draft
     draft_data = json.loads(draft.contents)
+    logging.debug('draft data: ' + str(draft_data))
     files_data = model_to_dict(draft, fields = constants.APP_FILE_FIELDS)
     
     #add automated fields
@@ -274,6 +275,7 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
     #get or create saved json, update it
     logging.debug("Autosaving")
     dict = json.dumps(request.POST)
+    logging.debug(dict)
     draft.contents = dict
     draft.modified = timezone.now()
     draft.save()
