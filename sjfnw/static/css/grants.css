@@ -264,15 +264,16 @@ div#formreader table tr td{
   padding-bottom:5px;
 }
 
-table#timeline {
+table#timeline_display {
   margin:auto;
+  padding:0 5px;
+  border:1px solid black;
+  text-align:center;
+  border-collapse:collapse;
 }
 
-table#timeline th {
-  font-weight:normal
+table#timeline_display th, td {
+  font-weight:normal;
+  border:1px solid black;
+  padding:5px 10px;
 }
-
-table#timeline td{
-  padding:5px;
-}
-

@@ -297,6 +297,15 @@ class GrantApplication(models.Model):
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
   view_link.allow_tags = True
+  
+  def timeline_display(self):
+    logging.info(self.timeline)
+    html = '<table id="timeline_display"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
+    for i in range(0, 15, 3):
+      html += '<tr><th class="left">q' + str((i+3)/3) + '</th><td>' + self.timeline[i] + '</td><td>' + self.timeline[i+1] + '</td><td>' + self.timeline[i+2] +'</td></tr>'
+    html += '</table>'
+    return html
+  timeline_display.allow_tags = True
 
 def custom_fields(f, **kwargs):
   money_fields = ['budget_last', 'budget_current', 'amount_requested', 'project_budget']
