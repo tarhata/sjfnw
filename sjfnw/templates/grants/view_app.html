@@ -65,21 +65,21 @@
 	
 	<h4>Narratives</h4><!-- Narrative -->
   
-  <p>1. {{form.narrative1.label_tag}}</p>
+  <p>1. {{form.narrative1.label}}</p>
   <p>{{app.narrative1}}</p>
-  <p>2. {{form.narrative2.label_tag}}</p>
+  <p>2. {{form.narrative2.label}}</p>
   <p>{{app.narrative2}}</p>
-  <p>3. {{form.narrative3.label_tag}}</p>
+  <p>3. {{form.narrative3.label}}</p>
   <p>{{app.narrative3}}</p>
-  <p>4. {{form.narrative4.label_tag}}</p>
+  <p>4. {{form.narrative4.label}}</p>
   <p>{{app.narrative4}}</p>
-	{{app.timeline_table}}
-  <p>5. {{form.narrative5.label_tag}}</p>
+	{{app.timeline}}
+  <p>5. {{form.narrative5.label}}</p>
   <p>{{app.narrative5}}</p>
   <p>{{form.collab_ref1_name.help_text}}</p>
   <p>1. {{app.collab_ref1_name}}, {{app.collab_ref1_org}}. {{app.collab_ref1_phone|add:" "}}{{app.collab_ref1_email}}</p>
   <p>2. {{app.collab_ref2_name}}, {{app.collab_ref2_org}}. {{app.collab_ref2_phone|add:" "}}{{app.collab_ref2_email}}</p>
-  <p>6. {{form.narrative6.label_tag}}</p>
+  <p>6. {{form.narrative6.label}}</p>
   <p>{{app.narrative6}}</p>
   <p>{{form.racial_justice_ref1_name.help_text}}
   {% if app.racial_justice_ref1_org %}
@@ -89,7 +89,7 @@
     {% endif %}
   {% else %}N/A{% endif %}
 	{% if app.cycle_question %}
-	<p>7. {{form.cycle_question.label_tag}}</p>
+	<p>7. {{form.cycle_question.label}}</p>
 	<p>{{app.cycle_question}}</p>
 	{% endif %}
 	
