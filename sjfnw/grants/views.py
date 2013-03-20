@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore, deferred
-from forms import LoginForm, RegisterForm, RolloverForm
+from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm
 from decorators import registered_org
 from sjfnw import constants
 import models, utils
@@ -86,7 +86,7 @@ def OrgRegister(request):
 def OrgSupport(request):
   return render(request, 'grants/org_support.html', {
   'support_email':constants.SUPPORT_EMAIL,
-  'support_form':constants.SUPPORT_FORM_URL})
+  'support_form':constants.GRANT_SUPPORT_FORM})
 
 # REGISTERED ORG VIEWS
 @login_required(login_url=LOGIN_URL)
@@ -414,7 +414,7 @@ def DiscardDraft(request, organization, draft_id):
 def ViewApplication(request, app_id):
   user = request.user
   app = get_object_or_404(models.GrantApplication, pk=app_id)
-  form = GrantApplicationForm(app.grant_cycle)
+  form = models.GrantApplicationModelForm(app.grant_cycle)
   #set up doc viewer for applicable files
   file_urls = GetFileURLs(app)
 
@@ -456,6 +456,19 @@ def AppToDraft(request, app_id):
     return redirect('/admin/grants/draftgrantapplication/'+str(draft.pk)+'/')
   #GET
   return render(request, 'admin/grants/confirm_revert.html', {'application':submitted_app})
+
+def AdminRollover(request, app_id):
+  application = get_object_or_404(models.GrantApplication, pk = app_id)
+  org = application.organization
+  
+  if request.method=='POST':
+    form = AdminRolloverForm(org, request.POST)
+    if form.is_valid():
+      logging.info("Successy")
+  else:
+    form = AdminRolloverForm(org)
+  
+  return render(request, 'admin/grants/rollover.html', {'form':form, 'application':application})
 
 # CRON
 def DeleteEmptyFiles(request): #/tools/delete-empty

@@ -3,6 +3,9 @@
 FUND_EMAIL = 'Project Central <projectcentral@socialjusticefund.org>'
 GRANT_EMAIL = 'Social Justice Fund Grants <grants@socialjusticefund.org>'
 
+FUND_SUPPORT_FORM = 'https://docs.google.com/forms/d/1ssR9lwBO-8Z0qygh89Wu5XK6YwxSmjIFUtOwlJOjLWw/viewform?entry.804197744='
+GRANT_SUPPORT_FORM = 'https://docs.google.com/forms/d/1SKjXMmDgXeM0IFp0yiJTJgLt6smP8b3P3dbOb4AWTck/viewform?entry.804197744='
+
 SUPPORT_EMAIL = 'techsupport@socialjusticefund.org' #displayed on support page
 SUPPORT_FORM_URL = 'https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cllsc044U2dDQkx1b2s4TExzWUE6MQ'
 

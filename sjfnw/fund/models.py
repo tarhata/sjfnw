@@ -64,10 +64,7 @@ class Membership(models.Model): #relationship b/n member and gp
     return unicode(self.member)+u', '+unicode(self.giving_project)
 
   def save(self, skip=False, *args, **kwargs):
-    logging.debug('Custom membership save running')
-    if skip:
-      logging.info('Skipping checks')
-    else:
+    if not skip:
       try:
         previous = Membership.objects.get(id=self.id)
         logging.debug('Previously: ' + str(previous.approved) + ', now: ' + str(self.approved))
@@ -115,6 +112,7 @@ class Membership(models.Model): #relationship b/n member and gp
     return estimated
 
 class Donor(models.Model):
+  added = models.DateTimeField(default=timezone.now())
   membership = models.ForeignKey(Membership)
 
   firstname = models.CharField(max_length=100, verbose_name='*First name')

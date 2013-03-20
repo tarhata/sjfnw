@@ -3,7 +3,7 @@
 {% block script %}
 <script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript">
+<script type="text/javascript"><!-- charts -->
   var text_progress = false;
   if (Modernizr.inlinesvg) { 
     
@@ -73,8 +73,9 @@
     }
   }
 </script>
-<script type="text/javascript">
-  var status_texts = { //for ajax error messages
+<script type="text/javascript"><!-- custom js for this page -->
+  //constants
+	var status_texts = { //for ajax error messages
     400: '400 Bad request',
     401: '401 Unauthorized',
     403: '403 Forbidden',
@@ -90,8 +91,7 @@
 
   };
 
-  var request_processing = false;
-
+	//general display
   function datepicker() { //date input fields
     $.datepicker.setDefaults({
       dateFormat: 'mm/dd/yy',
@@ -101,9 +101,47 @@
     });
     $( ".datePicker" ).datepicker();
   }
+	
+	function toggle(a, b) { //donor info
+    //toggles a, border on b if a is shown
+    var e=document.getElementById(a);
+    var f=document.getElementById(b);
+    if(!e){
+			return true;
+		}
+    if(e.style.display=="none"){
+      e.style.display="block";
+      f.style.borderColor="#555";
+    } else {
+      e.style.display="none";
+      f.style.borderColor="#FFF";
+    }
+    return true;
+  }
+	
+	//ajax - general
+	var request_processing = false;
+	function startProcessing() {
+    request_processing = true;
+		console.log('Request processing');
+    var loader = document.getElementById('ajax_loading');
+    if (loader) {
+      loader.style.display = "";
+    }
+  }
 
+  function endProcessing() {
+    request_processing = false;
+		console.log('Request complete');
+    var loader = document.getElementById('ajax_loading');
+    if (loader) {
+      loader.style.display = "none";
+    }
+  }
+	
   function loadView(get_url, div_id, dasked, dpledged) {
     if (request_processing) {
+			console.log('Request processing; load view denied');
       return false;
     }
     startProcessing();
@@ -113,20 +151,20 @@
       timeout: 10000,
       success:function(data, textStatus, jqXHR){
         //console.log(get_url);
-        document.getElementById(div_id).innerHTML=jqXHR.responseText;
+        document.getElementById(div_id).innerHTML=jqXHR.responseText; //fill the div
         var pks = get_url.match(/\d+/g);
-        if (pks && pks[1]) {
-          var a=document.getElementById('donor-' + pks[0]);
+        if (pks && pks[1]) { //donor-specific form loading
+          var a = document.getElementById('donor-' + pks[0]);
           a.style.borderColor="#555";
           if (dasked) {
             completeLoaded(pks[1], dasked, dpledged);
           }
-        } else if (div_id == 'addmult') {
+        } else if (div_id == 'addmult') { 
           document.getElementById(div_id).style.borderColor="#555";
         }
         datepicker();
+				trackEvents(get_url, div_id, 'GET');
         endProcessing();
-        trackEvents(get_url, div_id, 'GET');
       },
       error:function(jqXHR, textStatus, errorThrown){
         endProcessing();
@@ -145,6 +183,7 @@
 
   function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
     if (request_processing) {
+			console.log('Request processing; submit denied');
       return false;
     }
     startProcessing();
@@ -187,12 +226,68 @@
     });
   }
 
+	//add mult contacts
+	function SubmitMult() { //add contacts
+    if (request_processing) {
+			console.log('Submitmult rejected; request in progress');
+      return false;
+    }
+		console.log('Submitmult going');
+    startProcessing();
+    $.ajax({
+      url:'/fund/addmult',
+      type:"POST",
+      data:$('#addcontacts').serialize(),
+      timeout: 10000,
+      success:function(data, textStatus, jqXHR){
+        trackEvents('/fund/addmult',' addmult', 'POST');
+				if (jqXHR.responseText=="success") {
+          setTimeout(function() {location.href= '/fund/?load=stepmult#your-contacts';}, 200);
+        } else {
+          document.getElementById('addmult').innerHTML=jqXHR.responseText;
+					endProcessing();
+        }
+      },
+      error:function(jqXHR, textStatus, errorThrown){
+        
+        var errortext = '';
+        if (status_texts[jqXHR.status]) {
+          errortext = status_texts[jqXHR.status];
+        } else if (textStatus=='timeout') {
+          errortext = 'Request timeout';
+        } else {
+          errortext = 'Unknown error';
+        }
+        document.getElementById('addmult').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: /fund/addmult<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
+				endProcessing();
+      }
+    });
+  }
+	
+	function cloneMore(selector, type) { //add row to form
+    var newElement = $(selector).clone(true);
+    var total = $('#id_' + type + '-TOTAL_FORMS').val();
+    newElement.find(':input').each(function() {
+        var name = $(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
+        var id = 'id_' + name;
+        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+    });
+    newElement.find('label').each(function() {
+        var newFor = $(this).attr('for').replace('-' + (total-1) + '-','-' + total + '-');
+        $(this).attr('for', newFor);
+    });
+    total++;
+    $('#id_' + type + '-TOTAL_FORMS').val(total);
+    $(selector).after(newElement); // only copies last row, not incl error row. but error row will load when form reloads
+  }
+
+	//analytics events
   function trackEvents(url, div_id, request_type) { //analytics events
-    console.log('trackEvents', url, div_id, request_type);
+    //console.log('trackEvents', url, div_id, request_type);
     var category;
     var action;
     if (div_id.search('addmult') > -1) {
-      console.log('addmult');
+     // console.log('addmult');
       if (request_type == 'POST') {
         action = 'Add multiple - submit';
       } else {
@@ -228,103 +323,22 @@
         action = 'Edit';
       }
     }
-    console.log(category, action)
+    console.log('trackEvents', category, action)
     if (category && action) {
       _gaq.push(['_trackEvent', category, action]);
     }
   }
-   
-  function toggle(a, b) { //donor info
-    //toggles a, border on b if a is shown
-    var e=document.getElementById(a);
-    var f=document.getElementById(b);
-    if(!e){
-			return true;
-		}
-    if(e.style.display=="none"){
-      e.style.display="block";
-      f.style.borderColor="#555";
-    } else {
-      e.style.display="none";
-      f.style.borderColor="#FFF";
-    }
-    return true;
-  }
 
-  function startProcessing() {
-    request_processing = true;
-    var loader = document.getElementById('ajax_loading');
-    if (loader) {
-      loader.style.display = "";
-    }
+	//suggested steps
+	var sug_div;
+  function showSuggestions(inp) { //shows suggested steps
+    if (sug_div) { sug_div.style.display="none"; } //hides prior set
+    var patt = new RegExp('\\d+');
+    var num = patt.exec(inp);
+    sug_div = document.getElementById('suggest_'+num);
+    sug_div.style.display="block";
   }
-
-  function endProcessing() {
-    request_processing = false;
-    var loader = document.getElementById('ajax_loading');
-    if (loader) {
-      loader.style.display = "none";
-    }
-  }
-
-  function SubmitMult() { //add contacts
-    if (request_processing) {
-      return false;
-    }
-    startProcessing();
-    $.ajax({
-      url:'/fund/addmult',
-      type:"POST",
-      data:$('#addcontacts').serialize(),
-      timeout: 10000,
-      success:function(data, textStatus, jqXHR){
-        endProcessing();
-        if (jqXHR.responseText=="success") {
-					trackEvents('/fund/addmult',' addmult', 'POST');
-          setTimeout(function() {location.href= '/fund/?load=stepmult#your-contacts';}, 200);
-        } else {
-          document.getElementById('addmult').innerHTML=jqXHR.responseText;
-        }
-      },
-      error:function(jqXHR, textStatus, errorThrown){
-        endProcessing();
-        var errortext = '';
-        if (status_texts[jqXHR.status]) {
-          errortext = status_texts[jqXHR.status];
-        } else if (textStatus=='timeout') {
-          errortext = 'Request timeout';
-        } else {
-          errortext = 'Unknown error';
-        }
-        document.getElementById('addmult').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: /fund/addmult<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
-      }
-    });
-  }
-
-  function cancelHide(div_id, replace) { //hide addmult div
-    replace = replace || '';
-    var div = document.getElementById(div_id);
-    div.innerHTML=replace;
-    div.style.borderColor="#FFF";
-  }
-
-  function cloneMore(selector, type) { //add row to mult contacts form
-    var newElement = $(selector).clone(true);
-    var total = $('#id_' + type + '-TOTAL_FORMS').val();
-    newElement.find(':input').each(function() {
-        var name = $(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
-        var id = 'id_' + name;
-        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
-    });
-    newElement.find('label').each(function() {
-        var newFor = $(this).attr('for').replace('-' + (total-1) + '-','-' + total + '-');
-        $(this).attr('for', newFor);
-    });
-    total++;
-    $('#id_' + type + '-TOTAL_FORMS').val(total);
-    $(selector).after(newElement); // only copies last row, not incl error row. but error row will load when form reloads
-  }
-
+	
   function suggestFill(source, target) { //fills input with selected step
     var text = source.innerHTML;
     if (target) {
@@ -334,16 +348,8 @@
     }
   }
 
-  var sug_div;
-  function showSuggestions(inp) { //shows suggested steps
-    if (sug_div) { sug_div.style.display="none"; } //hides prior set
-    var patt = new RegExp('\\d+');
-    var num = patt.exec(inp);
-    sug_div = document.getElementById('suggest_'+num);
-    sug_div.style.display="block";
-  }
-
-  function completeLoaded(pk, dasked, dpledged, submitted) {
+	//complete step form
+  function completeLoaded(pk, dasked, dpledged, submitted) { //loaded
     //hide fields based on what is already in the database for the contact
     //console.log('completeloaded called, submitted is ' +submitted);
     var asked_span = document.getElementById(pk+'_asked');
@@ -420,11 +426,7 @@
     }
   }
 
-  function formSaved(text) { //display message confirming form submission
-    var div = document.getElementById('form_saved');
-    div.innerHTML = text;
-  }
-
+	//on load
   $(document).ready(function() {
     var load = '{{load}}';
     var loadto = '{{loadto}}';
@@ -445,96 +447,96 @@
 {% endif %}
 
 {% if donor_list.0 %}
-<span class="header">YOUR PROGRESS</span>
+<span class="header">YOUR PROGRESS</span><!-- PROGRESS -->
 <table style="width:90%;margin-left:8%;margin-top:10px;margin-bottom:15px;text-align:center;">
-<tr>
-  <td><div align="center">{{progress.contacts}} contacts</div><div align="center" id ="chart_div" style="width:240px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
-  {% if progress.estimated > 0 %}
-  <td><div align="center" title = "Personal fundraising goal of ${{progress.estimated}} calculated based on your ask amount and estimated likelihood for each contact">{{progress.header}}</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
-  {% endif %}
-</tr>
+	<tr>
+		<td><div align="center">{{progress.contacts}} contacts</div><div align="center" id ="chart_div" style="width:240px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
+		{% if progress.estimated > 0 %}
+		<td><div align="center" title = "Personal fundraising goal of ${{progress.estimated}} calculated based on your ask amount and estimated likelihood for each contact">{{progress.header}}</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
+		{% endif %}
+	</tr>
 </table>
 {% endif %}
 
-<span class="header" id="your-contacts">YOUR CONTACTS & NEXT STEPS</span>
-{% if donor_list.0 %} <!--only show if mass form won't be showing -->
-  <div class="edit_done">[<a onclick="loadView('/fund/addmult', 'addmult')">add contacts</a>]</div>
-	<div class="donor indent" id="addmult"></div>
+<span class="header" id="your-contacts">YOUR CONTACTS & NEXT STEPS</span><!-- CONTACTS -->
+{% if donor_list.0 %} <!-- add contacts link (only if mass add won't be showing) -->
+  {% if not load %}<div class="edit_done">[<a onclick="loadView('/fund/addmult', 'addmult')">add contacts</a>]</div>{% endif %}
+	<div class="donor indent" id="addmult"></div><!-- mass forms area #1 -->
 {% endif %}
 {% load humanize %}
-{% for dict in donor_list %} <!-- per contact -->
-  <div class="donor indent" id="donor-{{dict.donor.pk}}">
-    <a class="{%if dict.donor.pledged != None%}pledged{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{dict.donor.lastname}}</b></a><br>
-    {% if dict.next_step %}
-      <div id="{{dict.donor.pk}}-nextstep">{%if dict.overdue%}<span title="This step's goal date has passed! Edit or complete it" style="display:inline;"><span class="overdue_step">! </span>{{dict.next_step}}</span>{% else %}{{dict.next_step}}{%endif%}
-      <div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}', '{{dict.donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}/done', '{{dict.donor.pk}}-nextstep', '{{dict.donor.asked}}', '{{dict.donor.pledged}}');">complete</a>]</div>
-      </div>
-    {% else %}
-      <div id="{{dict.donor.pk}}-addstep">
-      {% if dict.donor.pledged == None and dict.donor.gifted == 0 %}
-        No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
-      {% else %}
-        <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.gifted %}Donated ${{dict.donor.gifted|intcomma}}.{% elif dict.donor.pledged != None %}{% if dict.donor.pledged > 0 %}Pledged ${{dict.donor.pledged|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
-      {% endif %}
-      </div>
-    {% endif %}
+{% for dict in donor_list %} <!-- donors -->
+<div class="donor indent" id="donor-{{dict.donor.pk}}">
+	<!-- line 1 name click to toggle -->
+	<a class="{%if dict.donor.pledged != None%}pledged{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{dict.donor.lastname}}</b></a><br>
+	{% if dict.next_step %}
+		<!-- line 2 next step summary -->
+		<div id="{{dict.donor.pk}}-nextstep">{%if dict.overdue%}<span title="This step's goal date has passed! Edit or complete it" style="display:inline;"><span class="overdue_step">! </span>{{dict.next_step}}</span>{% else %}{{dict.next_step}}{%endif%}
+		<!-- edit/complete links -->
+		<div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}', '{{dict.donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}/done', '{{dict.donor.pk}}-nextstep', '{{dict.donor.asked}}', '{{dict.donor.pledged}}');">complete</a>]</div>
+		</div>
+	{% else %}
+		<div id="{{dict.donor.pk}}-addstep">
+		{% if dict.donor.pledged == None and dict.donor.gifted == 0 %}
+			<!-- line 2 add a step -->
+			No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
+		{% else %}
+			<!-- line 2 summary of response -->
+			<img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.gifted %}Donated ${{dict.donor.gifted|intcomma}}.{% elif dict.donor.pledged != None %}{% if dict.donor.pledged > 0 %}Pledged ${{dict.donor.pledged|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
+		{% endif %}
+		</div>
+	{% endif %}
 
-    <div class="donor_details indent" id="details-{{dict.donor.pk}}" style="display:none;">
-  
-    <table>
-      {% if dict.donor.gifted %}
-        <tr><td>Donated:</td><td>${{dict.donor.gifted|intcomma}}</td></tr>
-        <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
-      {% elif dict.donor.pledged != None%}
-        {% if dict.donor.pledged > 0 %}
-          <tr><td>Pledged:</td><td>${{dict.donor.pledged|intcomma}}</td></tr>
-        {% else %}
-          <tr><td colspan="2">Declined to donate.</td></tr>
-        {% endif %}
-        <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
-      {% else %}
-        {% if dict.donor.asked %}
-          <tr><td colspan="2">Asked; awaiting response.</td></tr>
-        {% endif %}
-        {% if dict.donor.amount %}
-          <tr><td>Amount to ask:</td><td>${{dict.donor.amount|intcomma}}</td></tr>
-          <tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
-        {% endif %}
-      {% endif %}
-      
-      <tr>
-        <td>{% if dict.donor.email or dict.donor.phone %}Contact info:</td>
-        <td>{{dict.donor.email|default:""}} {{dict.donor.phone|default:""}}{%endif%}</td>
-      </tr>
-      <tr>
-        <td>Notes:</td>
-        <td>{{dict.donor.notes|default:"<i>None entered.</i>"}}<br><br></td>
-      </tr>
-      
-      {% if dict.complete_steps %}
-        <tr>
-          <td>Completed steps:{% if dict.donor.pledged != None and not dict.next_step %}<br>[<a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">add step</a>]{% endif %}</td>
-          <td>{% for step in dict.complete_steps %}{{step.date|date:"n/d/y"}}: {{step.description}}<br>{% endfor %}</td>
-        </tr>
-      {% endif %}
-    </table>
-    <br>
-    
-    <div class="donor_delete" id="delete-{{dict.donor.pk}}">
-      [<a onclick="loadView('/fund/{{dict.donor.pk}}/edit', 'donor-{{dict.donor.pk}}')">edit contact</a>] [<a onclick="loadView('/fund/{{dict.donor.pk}}/delete', 'delete-{{dict.donor.pk}}')">remove contact</a>]
-    </div>
-    
+	<div class="donor_details indent" id="details-{{dict.donor.pk}}" style="display:none;"><!-- donor details (hidden) -->
+		<table>
+			{% if dict.donor.gifted %}<!-- gifted, pledged, asked, etc. -->
+				<tr><td>Donated:</td><td>${{dict.donor.gifted|intcomma}}</td></tr>
+				<tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
+			{% elif dict.donor.pledged != None%}
+				{% if dict.donor.pledged > 0 %}
+					<tr><td>Pledged:</td><td>${{dict.donor.pledged|intcomma}}</td></tr>
+				{% else %}
+					<tr><td colspan="2">Declined to donate.</td></tr>
+				{% endif %}
+				<tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
+			{% else %}
+				{% if dict.donor.asked %}
+					<tr><td colspan="2">Asked; awaiting response.</td></tr>
+				{% endif %}
+				{% if dict.donor.amount %}
+					<tr><td>Amount to ask:</td><td>${{dict.donor.amount|intcomma}}</td></tr>
+					<tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
+				{% endif %}
+			{% endif %}
+			<tr><!-- basic fields -->
+				<td>{% if dict.donor.email or dict.donor.phone %}Contact info:</td>
+				<td>{{dict.donor.email|default:""}} {{dict.donor.phone|default:""}}{%endif%}</td>
+			</tr>
+			<tr>
+				<td>Notes:</td>
+				<td>{{dict.donor.notes|default:"<i>None entered.</i>"}}<br><br></td>
+			</tr>
+			{% if dict.complete_steps %}<!-- list of complete steps -->
+				<tr>
+					<td>Completed steps:{% if dict.donor.pledged != None and not dict.next_step %}<br>[<a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">add step</a>]{% endif %}</td>
+					<td>{% for step in dict.complete_steps %}{{step.date|date:"n/d/y"}}: {{step.description}}<br>{% endfor %}</td>
+				</tr>
+			{% endif %}
+		</table>
+		<br>
+		<div class="donor_delete" id="delete-{{dict.donor.pk}}"><!-- delete/edit -->
+			[<a onclick="loadView('/fund/{{dict.donor.pk}}/edit', 'donor-{{dict.donor.pk}}')">edit contact</a>] [<a onclick="loadView('/fund/{{dict.donor.pk}}/delete', 'delete-{{dict.donor.pk}}')">remove contact</a>]
+		</div>
   </div> <!-- ends donor_details -->
 </div> <!-- ends donor -->
 {% empty %} <!--no contacts yet -->
-  {% if fd %} <!-- add estimates -->
-    {% include 'fund/add_estimates.html' %}  
-  {% else %} <!-- add contacts -->
+  {% if fd %}
+    {% include 'fund/add_estimates.html' %}<!-- add estimates -->
+  {% else %}<!-- add contacts -->
 		<div class="donor indent" id="addmult">
 		<p>You don't have any contacts yet!  Get started by adding some.  You'll be able to add, change or remove contacts at any time.</p>
 		{% include mult_template %}
 		</div>
   {% endif %}
-{% endfor %} <!--ends contacts check-->
+{% endfor %} <!--ends contacts check/loop -->
 
 {% endblock %}

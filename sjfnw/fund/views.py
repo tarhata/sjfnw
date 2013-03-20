@@ -108,7 +108,7 @@ def Home(request):
   if notif and not settings.DEBUG: #on live, only show a notification once
     logging.info('Displaying notification to ' + str(membership) + ': ' + notif)
     membership.notifications=''
-    membership.save()
+    membership.save(skip=True)
 
   #show estimates form
   if add_est and amount_missing:
@@ -339,7 +339,7 @@ def Register(request):
         if gp: #create Membership
           giv = models.GivingProject.objects.get(pk=gp)
           membership = models.Membership(member = member, giving_project = giv)
-          membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant. I\'ll be here to guide you through the fundraising process and cheer you on.</td><td><img src="/static/images/odo1.png" height=88 width=54></td></tr></table>'
+          membership.notifications = '<table><tr><td>Welcome to Project Central!<br>I\'m Odo, your Online Donor Organizing assistant. I\'ll be here to guide you through the fundraising process and cheer you on.</td><td><img src="/static/images/odo1.png" height=88 width=54 alt="Odo waving"></td></tr></table>'
           membership.save()
           member.current = membership.pk
           member.save()
@@ -409,6 +409,7 @@ def Projects(request):
   if request.method=='POST':
     form = AddProjectForm(request.POST)
     if form.is_valid():
+      logging.debug('Valid add project')
       gp = request.POST['giving_project']
       giv = models.GivingProject.objects.get(pk=gp)
       ship, new = models.Membership.objects.get_or_create(member = member, giving_project=giv)
@@ -457,7 +458,7 @@ def Support(request):
     member = request.membership.member
   elif request.membership_status==1:
     member = models.Member.objects.get(email=request.user.username)
-  return render(request, 'fund/support.html', {'member':member, 'support_email': constants.SUPPORT_EMAIL, 'support_form':constants.SUPPORT_FORM_URL})
+  return render(request, 'fund/support.html', {'member':member, 'support_email': constants.SUPPORT_EMAIL, 'support_form':constants.FUND_SUPPORT_FORM})
   
 #FORMS
 @login_required(login_url='/fund/login/')
@@ -475,6 +476,7 @@ def AddMult(request):
     logging.info(request.POST)
     formset = ContactFormset(request.POST)
     if formset.is_valid():
+      logging.info('AddMult valid formset')
       for form in formset.cleaned_data:
         if form:
           if est:
@@ -483,6 +485,8 @@ def AddMult(request):
             contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], membership = membership)
           contact.save()
       return HttpResponse("success")
+    else: #invalid
+      logging.info(formset.errors)
   else:
     formset = ContactFormset()
 
@@ -505,7 +509,7 @@ def AddEstimates(request):
   EstFormset = formset_factory(DonorEstimates, extra=0)
   if request.method=='POST':
     membership.last_activity = timezone.now()
-    membership.save()
+    membership.save(skip=True)
     formset = EstFormset(request.POST)
     logging.debug('Adding estimates - posted: ' + str(request.POST))
     if formset.is_valid():
@@ -540,12 +544,13 @@ def EditDonor(request, donor_id):
   
   if request.method == 'POST':
     request.membership.last_activity = timezone.now()
-    request.membership.save()
+    request.membership.save(skip=True)
     if est:
       form = models.DonorForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
     else:
       form = models.DonorPreForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
     if form.is_valid():
+      logging.info('Edit donor success')
       form.save()
       return HttpResponse("success")
   else:
@@ -569,7 +574,7 @@ def DeleteDonor(request, donor_id):
   
   if request.method=='POST':
     request.membership.last_activity = timezone.now()
-    request.membership.save()
+    request.membership.save(skip=True)
     donor.delete()
     return redirect(Home)
     
@@ -597,7 +602,7 @@ def AddStep(request, donor_id):
   
   if request.method == 'POST':
     membership.last_activity = timezone.now()
-    membership.save()
+    membership.save(skip=True)
     form = models.StepForm(request.POST, auto_id = str(donor.pk) + '_id_%s')
     has_step = donor.next_step
     logging.info('Single step - POST: ' + str(request.POST))
@@ -625,15 +630,17 @@ def AddMultStep(request):
   membership = request.membership
   suggested = membership.giving_project.suggested_steps.splitlines()
   
-  for donor in membership.donor_set.all():
+  for donor in membership.donor_set.order_by('-added'): #sort by added
     if not (donor.next_step or (donor.pledged is not None) or donor.gifted):
       initiald.append({'donor': donor})
       dlist.append(donor)
       size = size +1
+    if size > 9:
+      break
   StepFormSet = formset_factory(MassStep, extra=0)
   if request.method=='POST':
     membership.last_activity = timezone.now()
-    membership.save()
+    membership.save(skip=True)
     formset = StepFormSet(request.POST)
     logging.debug('Multiple steps - posted: ' + str(request.POST))
     if formset.is_valid():
@@ -645,9 +652,9 @@ def AddMultStep(request):
           step.donor.next_step = step
           step.donor.save()
           logging.info('Multiple steps - step created')
-        else:
-          logging.debug('Multiple steps - blank form')
       return HttpResponse("success")
+    else:
+      logging.info('Multiple steps invalid')
   else:
     formset = StepFormSet(initial=initiald)
     logging.info('Multiple steps - loading initial formset, size ' + str(size) + ': ' +str(dlist))
@@ -679,9 +686,10 @@ def EditStep(request, donor_id, step_id):
   
   if request.method == 'POST':
     request.membership.last_activity = timezone.now()
-    request.membership.save()
+    request.membership.save(skip=True)
     form = models.StepForm(request.POST, instance=step, auto_id = str(step.pk) + '_id_%s')
     if form.is_valid():
+      logging.debug('Edit step success')
       form.save()
       return HttpResponse("success")
   else:
@@ -712,7 +720,7 @@ def DoneStep(request, donor_id, step_id):
 
   if request.method == 'POST':
     membership.last_activity = timezone.now()
-    membership.save()
+    membership.save(skip=True)
     form = StepDoneForm(request.POST, auto_id = str(step.pk) + '_id_%s')
     if form.is_valid():
       step.completed = timezone.now()
@@ -793,7 +801,7 @@ def EmailOverdue(request):
         msg.attach_alternative(html_content, "text/html")
         msg.send()
         ship.emailed = today
-        ship.save()
+        ship.save(skip=True)
   return HttpResponse("")
 
 def NewAccounts(request):
@@ -831,8 +839,8 @@ def GiftNotify(request):
       if d.lastname:
         gift_str += ' '+d.lastname
       gift_str += '!<br>'
-    ship.notifications = '<table><tr><td>' + gift_str + '</td><td><img src="/static/images/odo2.png" height=86 width=176></td></tr></table>'
-    ship.save()
+    ship.notifications = '<table><tr><td>' + gift_str + '</td><td><img src="/static/images/odo2.png" height=86 width=176 alt="Odo flying"></td></tr></table>'
+    ship.save(skip=True)
     logging.info('Gift notification set for ' + str(ship))
   
   login_url = settings.APP_BASE_URL + 'fund/'
@@ -847,3 +855,22 @@ def GiftNotify(request):
     logging.info('Emailed gift notification to ' + to)
   donors.update(gift_notified=True)
   return HttpResponse("")
+  
+def FindDuplicates(request): #no url
+  donors = models.Donor.objects.select_related('membership').order_by('firstname', 'lastname', 'membership', '-next_step')
+  ships = []
+  deleted = 0
+  prior = None
+  matching = False
+  for donor in donors:
+    if prior and donor.membership == prior.membership and donor.firstname == prior.firstname and donor.lastname and donor.lastname == prior.lastname and not donor.talked: #matches prev, no completed steps
+      matching = True
+      donor.delete()
+      deleted += 1
+      if not donor.membership in ships:
+        ships.append(donor.membership)
+    else:
+      if matching: #break, reset
+        matching = False
+      prior = donor
+  return render(request, 'fund/test.html', {'deleted':deleted, 'ships':ships})

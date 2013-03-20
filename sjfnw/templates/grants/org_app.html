@@ -100,7 +100,7 @@ function fileChanged(field_id) { //file selected
 	if (file) {
 		uploading = true;
 		uploading_span = document.getElementById(field_id.replace('id_', '') + '_uploaded');
-		uploading_span.innerHTML = '<img src="/static/images/ajaxloader2.gif" height="16" width="16">';
+		uploading_span.innerHTML = '<img src="/static/images/ajaxloader2.gif" height="16" width="16" alt="Loading...">';
 		getUploadURL();
 	}
 }
