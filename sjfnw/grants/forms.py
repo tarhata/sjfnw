@@ -84,3 +84,15 @@ class AdminRolloverForm(forms.Form):
     
     #create field
     self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, str(c)) for c in cycles])
+
+class SearchForm(forms.Form):
+  organization = forms.CharField(max_length=255, required=False)
+  city = forms.CharField(max_length=255, required=False)
+  state = forms.MultipleChoiceField(choices = models.STATE_CHOICES)
+  giving_project = forms.MultipleChoiceField(choices = []) #TODO
+  grant_cycle = forms.MultipleChoiceField(choices = []) #TODO -- indiv or "type"
+  screening_status = forms.MultipleChoiceField(choices = models.SCREENING_CHOICES)
+  poc_bonus = forms.BooleanField(required=False)
+  geo_bonus = forms.BooleanField(required=False)
+  year_min = forms.ChoiceField(choices = range(1980, timezone.now().year))
+  year_max = forms.ChoiceField(choices = range(1980, timezone.now().year))
