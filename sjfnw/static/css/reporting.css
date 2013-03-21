@@ -1,0 +1,20 @@
+﻿.reporting ul, li {
+  list-style-type:none;
+  margin:0;
+  padding-left:0;
+}
+
+body.reporting {
+  width:800px;
+  margin:auto;
+  font-family:Verdana;
+  font-size:80%;
+}
+
+.reporting h4 {
+  margin-bottom:.5em;
+}
+
+.reporting tr {
+  vertical-align:top;
+}

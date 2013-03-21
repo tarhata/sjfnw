@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore, deferred
-from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm
+from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm
 from decorators import registered_org
 from sjfnw import constants
 import models, utils
@@ -471,6 +471,11 @@ def AdminRollover(request, app_id):
     form = AdminRolloverForm(org)
   
   return render(request, 'admin/grants/rollover.html', {'form':form, 'application':application})
+
+def SearchApps(request):
+  form = AppSearchForm()
+  
+  return render(request, 'grants/search_applications.html', {'form':form})
 
 # CRON
 def DeleteEmptyFiles(request): #/tools/delete-empty

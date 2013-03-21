@@ -70,6 +70,8 @@ urlpatterns = patterns('',
   (r'^grants/view-file/(?P<app_id>\d+)/(?P<file_type>.*)/.*$', 'grants.views.ViewFile'),
   (r'^grants/draft-file/(?P<draft_id>\d+)/(?P<file_type>.*)/.*$', 'grants.views.ViewDraftFile'),
   
+  (r'^grants/search', 'grants.views.SearchApps'),
+  
 ## GRANTS - REPORTING ##
 
   (r'^grants/grant_application/?$', 'grants.search.search'),

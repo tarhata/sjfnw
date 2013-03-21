@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="/static/css/reporting.css">
+	<title>Reports - Grant Applications</title>
+</head>
+
+<body class="reporting">
+<form class="report" id="report-grantapplication" method="POST">
+	<h2>1. Filter criteria</h2>
+	<h3>Include only applications that match your selections</h3>
+	<table>
+		<tr>
+			<td colspan="3"><h4>Year</h4>Between {{form.year_min}} and {{form.year_max}}</td>
+			<td rowspan="3"><h4>{{form.screening_status.label}}</h4>{{form.screening_status}}</td>
+		</tr>
+		<tr>
+			<td><h4>{{form.organization.label}}</h4>{{form.organization}}</td>
+			<td><h4>{{form.city.label}}</h4>{{form.city}}</td>
+			<td><h4>{{form.state.label}}</h4>{{form.state}}</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td><h4>{{form.giving_project.label}}</h4>{{form.giving_project}}</td>
+			<td><h4>{{form.grant_cycle.label}}</h4>{{form.grant_cycle}}</td>
+			<td><h4>{{form.poc_bonus.label}}</h4>{{form.poc_bonus}}<h4>{{form.geo_bonus.label}}</h4>{{form.geo_bonus}}</td>
+			<td></td>
+		</tr>
+	</table>
+	<h2>2. Reporting</h2>
+	<h3>Select the fields you want to include</h3>
+	{{form.fields}}
+	<h2>3. Output</h2>
+	<h3>Select the format for the report</h3>
+	{{form.format}}
+
+	<input type="submit" value="Run report">
+</form>
+
+</body>
+</html>

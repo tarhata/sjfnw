@@ -2,6 +2,7 @@ from django import forms
 from django.conf import settings
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from fund.models import GivingProject
 import models, datetime, logging
 
 class LoginForm(forms.Form):
@@ -85,14 +86,89 @@ class AdminRolloverForm(forms.Form):
     #create field
     self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, str(c)) for c in cycles])
 
-class SearchForm(forms.Form):
+class AppSearchForm(forms.Form):
+  #filters
+  year_min = forms.ChoiceField(choices = [(n, n) for n in range(1990, timezone.now().year)])
+  year_max = forms.ChoiceField(choices =[(n, n) for n in range(1990, timezone.now().year)])
+  screening_status = forms.MultipleChoiceField(choices = models.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
+
   organization = forms.CharField(max_length=255, required=False)
   city = forms.CharField(max_length=255, required=False)
-  state = forms.MultipleChoiceField(choices = models.STATE_CHOICES)
-  giving_project = forms.MultipleChoiceField(choices = []) #TODO
-  grant_cycle = forms.MultipleChoiceField(choices = []) #TODO -- indiv or "type"
-  screening_status = forms.MultipleChoiceField(choices = models.SCREENING_CHOICES)
+  state = forms.MultipleChoiceField(choices = models.STATE_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
+  giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
+  grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
   poc_bonus = forms.BooleanField(required=False)
   geo_bonus = forms.BooleanField(required=False)
-  year_min = forms.ChoiceField(choices = range(1980, timezone.now().year))
-  year_max = forms.ChoiceField(choices = range(1980, timezone.now().year))
+  
+  #fields
+  fields = forms.MultipleChoiceField(choices = [
+    ('id', 'id'),
+    ('giving_project_id', 'Giving_project'),
+    ('screening_status', 'Screening status'),
+    ('submission_time', 'Submission time'),
+    ('address', 'address'),
+    ('city', 'city'),
+    ('state', 'state'),
+    ('zip', 'zip'),
+    ('telephone_number', 'telephone_number'),
+    ('fax_number', 'fax_number'),
+    ('email_address', 'email_address'),
+    ('website', 'website'),
+    ('status', 'status'),
+    ('ein', 'ein'),
+    ('founded', 'founded'),
+    ('contact_person', 'contact_person'),
+    ('contact_person_title', 'contact_person_title'),
+    ('amount_requested', 'amount_requested'),
+    ('support_type', 'support_type'),
+    ('grant_period', 'grant_period'),
+    ('project_title', 'project_title'),
+    ('project_budget', 'project_budget'),
+    ('start_year', 'start_year'),
+    ('budget_last', 'budget_last'),
+    ('budget_current', 'budget_current'),
+    ('grant_request', 'grant_request'),
+    ('previous_grants', 'previous_grants'),
+    ('fiscal_org', 'fiscal_org'),
+    ('fiscal_person', 'fiscal_person'),
+    ('fiscal_telephone', 'fiscal_telephone'),
+    ('fiscal_email', 'fiscal_email'),
+    ('fiscal_address', 'fiscal_address'),
+    ('collab_ref1_name', 'collab_ref1_name'),
+    ('collab_ref1_org', 'collab_ref1_org'),
+    ('collab_ref1_phone', 'collab_ref1_phone'),
+    ('collab_ref1_email', 'collab_ref1_email'),
+    ('collab_ref2_name', 'collab_ref2_name'),
+    ('collab_ref2_org', 'collab_ref2_org'),
+    ('collab_ref2_phone', 'collab_ref2_phone'),
+    ('collab_ref2_email', 'collab_ref2_email'),
+    ('racial_justice_ref1_name', 'racial_justice_ref1_name'),
+    ('racial_justice_ref1_org', 'racial_justice_ref1_org'),
+    ('racial_justice_ref1_phone', 'racial_justice_ref1_phone'),
+    ('racial_justice_ref1_email', 'racial_justice_ref1_email'),
+    ('racial_justice_ref2_name', 'racial_justice_ref2_name'),
+    ('racial_justice_ref2_org', 'racial_justice_ref2_org'),
+    ('racial_justice_ref2_phone', 'racial_justice_ref2_phone'),
+    ('racial_justice_ref2_email', 'racial_justice_ref2_email'),
+    ('scoring_bonus_poc', 'scoring_bonus_poc'),
+    ('scoring_bonus_geo', 'scoring_bonus_geo')
+  ], widget = forms.CheckboxSelectMultiple, required = False) #link to app?
+  
+  #format (browse, csv, tsv)
+  format = forms.ChoiceField(choices = [('csv', 'CSV'), ('tsv', 'TSV'), ('browse', 'Don\'t export, just browse')])
+  
+  def __init__(self, *args, **kwargs):
+    super(AppSearchForm, self).__init__(*args, **kwargs)
+    
+    #get projects
+    choices = GivingProject.objects.values_list('title', flat = True)
+    choices = set(choices)
+    choices = [(g, g) for g in choices]
+    self.fields['giving_project'].choices = choices
+    
+    #get cycless
+    choices = models.GrantCycle.objects.values_list('title', flat = True)
+    choices = set(choices)
+    choices = [(g, g) for g in choices]
+    self.fields['grant_cycle'].choices = choices
+    
