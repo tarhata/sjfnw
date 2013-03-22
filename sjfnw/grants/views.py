@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.db import connection
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, render_to_response, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -475,8 +475,73 @@ def AdminRollover(request, app_id):
 def SearchApps(request):
   form = AppSearchForm()
   
+  if request.method=='POST':
+    logging.info('Search form submitted')
+    form = AppSearchForm(request.POST)
+    
+    if form.is_valid():
+      logging.info('A valid form')
+      options = form.cleaned_data
+      
+      apps = models.GrantApplication.objects.order_by('-submission_time').select_related('giving_project', 'grant_cycle')
+      logging.info(apps)
+
+      min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S') 
+      min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
+      max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S') 
+      max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
+      apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
+      logging.info(apps)
+
+      if options.get('organization'):
+        apps = apps.filter(organization__contains=options['organization'])
+      if options.get('city'):
+        apps = apps.filter(city=options['city'])
+      if options.get('state'):
+        apps = apps.filter(state__in=options['state'])
+      if options.get('screening_status'):
+        apps = apps.filter(screening_status__in=options.get('screening_status'))
+      if options.get('poc_bonus'):
+        apps = apps.filter(poc_bonus=True)
+      if options.get('geo_bonus'):
+        apps = apps.filter(geo_bonus=True)
+      logging.info(apps)
+
+      if options.get('giving_project'):
+        apps = apps.filter(giving_project__title__in=options.get('giving_project'))
+      if options.get('grant_cycle'):
+        apps = apps.filter(giving_project__title__in=options.get('grant_cycle'))
+      logging.info(apps)
+
+      fields = ['submission_time', 'organization', 'grant_cycle'] + options['report_basics'] + options['report_contact'] + options['report_org'] + options['report_proposal'] + options['report_budget']
+      if options['report_fiscal']:
+        fields += models.GrantApplication.fiscal_fields()
+
+      #add output check
+      return render_to_response('grants/report_results.html', {'results':results, 'fields':fields})
+    else:
+      logging.info('Invalid form!')  
   return render(request, 'grants/search_applications.html', {'form':form})
 
+def GetBrowseResults(fields, apps):
+  #fields, apps = args
+  results = []
+  for app in apps:
+    row = []
+    for field in fields:
+      if field=='screening_status':
+        val = getattr(app, field)
+        if val:
+          convert = dict(models.SCREENING_CHOICES)
+          val = convert[val]
+        row.append(val)
+      else:
+        row.append(getattr(app, field))
+    results.append(row)
+  logging.info(results)
+  
+  return results
+  
 # CRON
 def DeleteEmptyFiles(request): #/tools/delete-empty
   """ Delete all 0kb files in the blobstore """

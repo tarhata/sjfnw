@@ -70,7 +70,8 @@ urlpatterns = patterns('',
   (r'^grants/view-file/(?P<app_id>\d+)/(?P<file_type>.*)/.*$', 'grants.views.ViewFile'),
   (r'^grants/draft-file/(?P<draft_id>\d+)/(?P<file_type>.*)/.*$', 'grants.views.ViewDraftFile'),
   
-  (r'^grants/search', 'grants.views.SearchApps'),
+  (r'^grants/search$', 'grants.views.SearchApps'),
+  (r'^grants/results$', 'grants.views.ReportBrowse'),
   
 ## GRANTS - REPORTING ##
 
@@ -78,19 +79,6 @@ urlpatterns = patterns('',
   (r'^grants/grant_application/search/?', 'grants.search.search'),
   (r'^grants/grant_application/results/?', 'grants.search.results'),
   (r'^grants/grant_application/(?P<grant_application_id>\d+)/?$', 'grants.search.show'),
-
-  # These endpoints return the serialized json form of these models
-  (r'^grants/api/grant_application/results/?',
-          'grants.search.api_grant_applications'),
-
-  (r'^grants/api/grant_application/(?P<grant_application_id>\d+)/?$',
-      'grants.search.api_show_grant_application'),
-
-  (r'^grants/api/grantee/(?P<grantee_id>\d+)/?$',
-      'grants.search.api_show_grantee'),
-
-  (r'^grants/api/grant_cycle/(?P<grant_cycle_id>\d+)/?$',
-      'grants.search.api_show_grant_cycle'),
 
   # Endpoint for csv
   (r'^grants/csv/grant_application/results',

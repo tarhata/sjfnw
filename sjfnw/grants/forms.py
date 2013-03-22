@@ -88,8 +88,8 @@ class AdminRolloverForm(forms.Form):
 
 class AppSearchForm(forms.Form):
   #filters
-  year_min = forms.ChoiceField(choices = [(n, n) for n in range(1990, timezone.now().year)])
-  year_max = forms.ChoiceField(choices =[(n, n) for n in range(1990, timezone.now().year)])
+  year_min = forms.ChoiceField(choices = [(n, n) for n in range(1990, timezone.now().year+1)])
+  year_max = forms.ChoiceField(choices =[(n, n) for n in range(1990, timezone.now().year+1)], initial=timezone.now().year+1)
   screening_status = forms.MultipleChoiceField(choices = models.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
 
   organization = forms.CharField(max_length=255, required=False)
@@ -101,11 +101,14 @@ class AppSearchForm(forms.Form):
   geo_bonus = forms.BooleanField(required=False)
   
   #fields
-  fields = forms.MultipleChoiceField(choices = [
-    ('id', 'id'),
+  #always: organization, grant cycle, submission time
+  report_basics= forms.MultipleChoiceField(label='Basics', required=False, widget = forms.CheckboxSelectMultiple, choices = [
+    ('id', 'Unique id number'),
     ('giving_project_id', 'Giving_project'),
-    ('screening_status', 'Screening status'),
-    ('submission_time', 'Submission time'),
+    ('screening_status', 'Screening status')])
+  report_contact = forms.MultipleChoiceField(label='Contact', required=False, widget = forms.CheckboxSelectMultiple, choices = [
+    ('contact_person', 'contact_person'),
+    ('contact_person_title', 'contact_person_title'),
     ('address', 'address'),
     ('city', 'city'),
     ('state', 'state'),
@@ -113,46 +116,28 @@ class AppSearchForm(forms.Form):
     ('telephone_number', 'telephone_number'),
     ('fax_number', 'fax_number'),
     ('email_address', 'email_address'),
-    ('website', 'website'),
+    ('website', 'website')])
+  report_org = forms.MultipleChoiceField(label='Organization', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
     ('status', 'status'),
     ('ein', 'ein'),
-    ('founded', 'founded'),
-    ('contact_person', 'contact_person'),
-    ('contact_person_title', 'contact_person_title'),
+    ('founded', 'founded')])
+  report_proposal = forms.MultipleChoiceField(label='Grant request and project', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
     ('amount_requested', 'amount_requested'),
     ('support_type', 'support_type'),
     ('grant_period', 'grant_period'),
     ('project_title', 'project_title'),
     ('project_budget', 'project_budget'),
+    ('previous_grants', 'previous_grants')])
+  report_budget = forms.MultipleChoiceField(label='Budget', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
     ('start_year', 'start_year'),
     ('budget_last', 'budget_last'),
     ('budget_current', 'budget_current'),
-    ('grant_request', 'grant_request'),
-    ('previous_grants', 'previous_grants'),
-    ('fiscal_org', 'fiscal_org'),
-    ('fiscal_person', 'fiscal_person'),
-    ('fiscal_telephone', 'fiscal_telephone'),
-    ('fiscal_email', 'fiscal_email'),
-    ('fiscal_address', 'fiscal_address'),
-    ('collab_ref1_name', 'collab_ref1_name'),
-    ('collab_ref1_org', 'collab_ref1_org'),
-    ('collab_ref1_phone', 'collab_ref1_phone'),
-    ('collab_ref1_email', 'collab_ref1_email'),
-    ('collab_ref2_name', 'collab_ref2_name'),
-    ('collab_ref2_org', 'collab_ref2_org'),
-    ('collab_ref2_phone', 'collab_ref2_phone'),
-    ('collab_ref2_email', 'collab_ref2_email'),
-    ('racial_justice_ref1_name', 'racial_justice_ref1_name'),
-    ('racial_justice_ref1_org', 'racial_justice_ref1_org'),
-    ('racial_justice_ref1_phone', 'racial_justice_ref1_phone'),
-    ('racial_justice_ref1_email', 'racial_justice_ref1_email'),
-    ('racial_justice_ref2_name', 'racial_justice_ref2_name'),
-    ('racial_justice_ref2_org', 'racial_justice_ref2_org'),
-    ('racial_justice_ref2_phone', 'racial_justice_ref2_phone'),
-    ('racial_justice_ref2_email', 'racial_justice_ref2_email'),
-    ('scoring_bonus_poc', 'scoring_bonus_poc'),
-    ('scoring_bonus_geo', 'scoring_bonus_geo')
-  ], widget = forms.CheckboxSelectMultiple, required = False) #link to app?
+    ('grant_request', 'grant_request')])
+ 
+  report_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
+  report_collab = forms.BooleanField(label='Collaboration references', required=False)
+  report_racial_ref = forms.BooleanField(label='Racial justice references', required=False)
+  report_bonuses = forms.BooleanField(label='POC-led and geographic diversity', required=False)
   
   #format (browse, csv, tsv)
   format = forms.ChoiceField(choices = [('csv', 'CSV'), ('tsv', 'TSV'), ('browse', 'Don\'t export, just browse')])

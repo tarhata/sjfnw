@@ -306,6 +306,11 @@ class GrantApplication(models.Model):
     html += '</table>'
     return html
   timeline_display.allow_tags = True
+  
+  @classmethod
+  def fiscal_fields(cls):
+    return ['fiscal_org', 'fiscal_person', 'fiscal_telephone', 'fiscal_email', 'fiscal_address']
+    
 
 def custom_fields(f, **kwargs):
   money_fields = ['budget_last', 'budget_current', 'amount_requested', 'project_budget']
