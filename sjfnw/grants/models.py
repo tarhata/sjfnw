@@ -94,7 +94,7 @@ class TimelineWidget(MultiWidget):
 class Organization(models.Model):
   #registration fields
   name = models.CharField(max_length=255)
-  email = models.EmailField() #= django username
+  email = models.EmailField(verbose_name='Email(login)') #= django username
   
   #org contact info
   address = models.CharField(max_length=100, null=True)
@@ -110,7 +110,7 @@ class Organization(models.Model):
   status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True)
   ein = models.CharField(max_length=50, verbose_name="Organization's or Fiscal Sponsor Organization's EIN", null=True)
   founded = models.PositiveIntegerField(verbose_name='Year organization founded', null=True)
-  mission = models.TextField(null=True, blank=True)
+  mission = models.TextField()
   
   #fiscal sponsor info (if applicable)
   fiscal_org = models.CharField(verbose_name='Organization name', max_length=255, null=True, blank=True)

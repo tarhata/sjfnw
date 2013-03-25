@@ -216,12 +216,22 @@ class GrantCycleA(admin.ModelAdmin):
 
 class OrganizationA(admin.ModelAdmin):
   list_display = ('name', 'email',)
-  fields = (
-    ('name', 'email', 'telephone_number'),
-    ('address', 'city', 'state', 'zip'),
-    ('fiscal_letter'),
+  fieldsets = (
+    ('', {
+      'fields':(('name', 'email'),)
+    }),
+    ('', {
+      'fields':(('address', 'city', 'state', 'zip'), ('telephone_number', 'fax_number', 'email_address', 'website'))
+    }),
+    ('', {
+      'fields':(('status', 'ein'), ('founded', 'mission'))
+    }),
+    ('Fiscal sponsor info', {
+      'classes':('collapse',),
+      'fields':(('fiscal_org', 'fiscal_person'), ('fiscal_telephone', 'fiscal_address', 'fiscal_email'),'fiscal_letter')
+    })
   )
-  readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number', 'fax_number', 'email_address', 'website', 'status', 'ein', 'fiscal_letter')
+  readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone', 'fiscal_address', 'fiscal_email', 'fiscal_letter')
   inlines = [GrantApplicationInline, GrantLogInlineRead, GrantLogInline]
 
 class GrantApplicationA(admin.ModelAdmin):
