@@ -71,7 +71,7 @@ urlpatterns = patterns('',
   (r'^grants/draft-file/(?P<draft_id>\d+)/(?P<file_type>.*)/.*$', 'grants.views.ViewDraftFile'),
   
   (r'^grants/search$', 'grants.views.SearchApps'),
-  (r'^grants/results$', 'grants.views.ReportBrowse'),
+  (r'^grants/results$', 'grants.views.GetBrowseResults'),
   
 ## GRANTS - REPORTING ##
 
