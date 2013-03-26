@@ -1,4 +1,4 @@
-from django import forms
+﻿from django import forms
 from django.conf import settings
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -88,8 +88,8 @@ class AdminRolloverForm(forms.Form):
 
 class AppSearchForm(forms.Form):
   #filters
-  year_min = forms.ChoiceField(choices = [(n, n) for n in range(1990, timezone.now().year+1)])
-  year_max = forms.ChoiceField(choices =[(n, n) for n in range(1990, timezone.now().year+1)], initial=timezone.now().year+1)
+  year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
+  year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
   screening_status = forms.MultipleChoiceField(choices = models.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
 
   organization = forms.CharField(max_length=255, required=False)

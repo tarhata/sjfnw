@@ -8,6 +8,7 @@ from django.db import connection
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, render_to_response, get_object_or_404, redirect
+from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -16,7 +17,7 @@ from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppS
 from decorators import registered_org
 from sjfnw import constants
 import models, utils
-import datetime, logging, json, re
+import datetime, logging, json, re, csv
 
 # CONSTANTS
 LOGIN_URL = '/apply/login/'
@@ -516,14 +517,29 @@ def SearchApps(request):
       fields = ['submission_time', 'organization', 'grant_cycle'] + options['report_basics'] + options['report_contact'] + options['report_org'] + options['report_proposal'] + options['report_budget']
       if options['report_fiscal']:
         fields += models.GrantApplication.fiscal_fields()
-
+      
+      results = GetResults(fields, apps)
+      
       #add output check
-      return render_to_response('grants/report_results.html', {'results':results, 'fields':fields})
+      if options['format']=='browse':
+        return render_to_response('grants/report_results.html', {'results':results, 'fields':fields})
+      elif options['format']=='csv':
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=%s.csv' % 'grantapplications'
+        writer = csv.writer(response)
+        for row in results:
+          for i in range(len(row)):            
+            if isinstance(row[i], str):#dunno about this part
+              row[i] = row[i].encode('utf-8') 
+            elif isinstance(row[i], unicode):  
+              row[i] = row[i].encode('ISO-8859-1')
+          writer.writerow(row)
+        return response
     else:
       logging.info('Invalid form!')  
   return render(request, 'grants/search_applications.html', {'form':form})
 
-def GetBrowseResults(fields, apps):
+def GetResults(fields, apps):
   #fields, apps = args
   results = []
   for app in apps:
@@ -541,7 +557,7 @@ def GetBrowseResults(fields, apps):
   logging.info(results)
   
   return results
-  
+
 # CRON
 def DeleteEmptyFiles(request): #/tools/delete-empty
   """ Delete all 0kb files in the blobstore """
