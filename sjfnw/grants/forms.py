@@ -104,35 +104,35 @@ class AppSearchForm(forms.Form):
   #always: organization, grant cycle, submission time
   report_basics= forms.MultipleChoiceField(label='Basics', required=False, widget = forms.CheckboxSelectMultiple, choices = [
     ('id', 'Unique id number'),
-    ('giving_project_id', 'Giving_project'),
+    ('giving_project_id', 'Giving project'),
     ('screening_status', 'Screening status')])
   report_contact = forms.MultipleChoiceField(label='Contact', required=False, widget = forms.CheckboxSelectMultiple, choices = [
-    ('contact_person', 'contact_person'),
-    ('contact_person_title', 'contact_person_title'),
-    ('address', 'address'),
-    ('city', 'city'),
-    ('state', 'state'),
-    ('zip', 'zip'),
-    ('telephone_number', 'telephone_number'),
-    ('fax_number', 'fax_number'),
-    ('email_address', 'email_address'),
-    ('website', 'website')])
+    ('contact_person', 'Contact person name'),
+    ('contact_person_title', 'Contact person title'),
+    ('address', 'Address'),
+    ('city', 'City'),
+    ('state', 'State'),
+    ('zip', 'ZIP'),
+    ('telephone_number', 'Telephone number'),
+    ('fax_number', 'Fax number'),
+    ('email_address', 'Email address'),
+    ('website', 'Website')])
   report_org = forms.MultipleChoiceField(label='Organization', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
-    ('status', 'status'),
-    ('ein', 'ein'),
-    ('founded', 'founded')])
+    ('status', 'Status'),
+    ('ein', 'EIN'),
+    ('founded', 'Year founded')])
   report_proposal = forms.MultipleChoiceField(label='Grant request and project', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
-    ('amount_requested', 'amount_requested'),
-    ('support_type', 'support_type'),
-    ('grant_period', 'grant_period'),
-    ('project_title', 'project_title'),
-    ('project_budget', 'project_budget'),
-    ('previous_grants', 'previous_grants')])
+    ('amount_requested', 'Amount requested'),
+    ('support_type', 'Support type'),
+    ('grant_period', 'Grant period'),
+    ('project_title', 'Project title'),
+    ('project_budget', 'Project budget'),
+    ('previous_grants', 'Previous grants from SJF')])
   report_budget = forms.MultipleChoiceField(label='Budget', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
-    ('start_year', 'start_year'),
-    ('budget_last', 'budget_last'),
-    ('budget_current', 'budget_current'),
-    ('grant_request', 'grant_request')])
+    ('start_year', 'Start of fiscal year'),
+    ('budget_last', 'Budget last year'),
+    ('budget_current', 'Budget current year'),
+    ('grant_request', 'Description of grant request')])
  
   report_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
   report_collab = forms.BooleanField(label='Collaboration references', required=False)
