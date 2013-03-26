@@ -7,20 +7,26 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
 from django.forms.widgets import HiddenInput
+from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from fund.models import *
 from grants.models import *
 from utils import IntegerCommaField
 import fund.forms, fund.utils
-import logging
+import logging, csv
 
 ## Fund 
 
-# Methods
+# display methods
 def step_membership(obj): #Step list_display
   return obj.donor.membership
 
+def gp_year(obj): #GP list_display
+  return obj.fundraising_deadline.year
+gp_year.short_description = 'Year'
+
+# actions
 def approve(modeladmin, request, queryset): #Membership action
   logging.info('Approval button pressed; looking through queryset')
   for memship in queryset:
@@ -29,10 +35,16 @@ def approve(modeladmin, request, queryset): #Membership action
   queryset.update(approved=True)
   logging.info('Approval queryset updated')
 
-def gp_year(obj): #GP list_display
-  return obj.fundraising_deadline.year
-gp_year.short_description = 'Year'
-
+def export_donors(modeladmin, request, queryset):
+  logging.info('Export donors')
+  response = HttpResponse(mimetype='text/csv')
+  response['Content-Disposition'] = 'attachment; filename=prospects.csv'
+  writer = csv.writer(response)
+  writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member', 'Giving Project', 'Amount to ask', 'Asked', 'Pledged', 'Gifted', 'Notes'])
+  for donor in queryset:
+    writer.writerow([donor.firstname, donor.lastname, donor.phone, donor.email, donor.membership.member, donor.membership.giving_project, donor.amount, donor.asked, donor.pledged, donor.gifted, donor.notes])
+  return response
+  
 # Filters
 class PledgedBooleanFilter(SimpleListFilter): #donors & steps
   title = 'pledged'
@@ -122,6 +134,7 @@ class DonorA(admin.ModelAdmin):
   list_filter = ('membership__giving_project', 'asked', PledgedBooleanFilter, GiftedBooleanFilter)
   list_editable = ('gifted',)
   search_fields = ['firstname', 'lastname', 'membership__member__first_name', 'membership__member__last_name']
+  actions = [export_donors]
 
 class NewsA(admin.ModelAdmin):
   list_display = ('summary', 'date', 'membership')
