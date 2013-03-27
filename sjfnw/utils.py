@@ -72,6 +72,11 @@ class IntegerCommaField(forms.Field):
       value = value.replace(",", "")
     return super(IntegerCommaField, self).clean(value)
 
+class GaeLogsForm(forms.Form):
+  start = forms.SplitDateTimeField()
+  end = forms.SplitDateTimeField()
+  version_ids = forms.MultipleChoiceField(choices = [('1', '1'), ('devel', 'devel')])
+  
 #User username length patch
 def patch_user_model(model):
   

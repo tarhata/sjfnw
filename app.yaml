@@ -29,6 +29,10 @@ handlers:
   script: sjfnw.wsgi.application
   login: admin
 
+- url: /dev
+  script: sjfnw.wsgi.application
+  login: admin
+
 - url: /grants
   script: sjfnw.wsgi.application
   login: admin

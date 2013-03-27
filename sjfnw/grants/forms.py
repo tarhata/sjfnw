@@ -157,3 +157,8 @@ class AppSearchForm(forms.Form):
     choices = [(g, g) for g in choices]
     self.fields['grant_cycle'].choices = choices
     
+  def clean(self):
+    cleaned_data = super(AppSearchForm, self).clean()
+    if cleaned_data['year_max'] < cleaned_data['year_min']:
+      self._errors['year_min'] = [u'Start year must be less than end year.']
+    return cleaned_data
