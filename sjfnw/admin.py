@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from fund.models import *
 from grants.models import *
-from utils import IntegerCommaField
+from forms import IntegerCommaField
 import fund.forms, fund.utils
 import logging, csv
 

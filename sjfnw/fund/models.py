@@ -3,7 +3,7 @@ from django.db import models
 from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.utils import timezone
-from sjfnw.utils import IntegerCommaField
+from sjfnw.forms import IntegerCommaField
 from utils import NotifyApproval
 import datetime, logging
 

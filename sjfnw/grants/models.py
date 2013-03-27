@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.text import capfirst
 from google.appengine.ext import blobstore
 from sjfnw.fund.models import GivingProject
-from sjfnw.utils import IntegerCommaField, PhoneNumberField
+from sjfnw.forms import IntegerCommaField, PhoneNumberField
 import datetime, logging, json
 from sjfnw import constants
 import utils

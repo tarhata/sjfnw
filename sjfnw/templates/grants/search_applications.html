@@ -12,13 +12,13 @@
 	<h3>Include only applications that match your selections</h3>
 	<table>
 		<tr>
-			<td colspan="3"><h4>Year</h4>Between {{form.year_min}} and {{form.year_max}}</td>
-			<td rowspan="4"><h4>{{form.screening_status.label}}</h4>{{form.screening_status}}</td>
+			<td colspan="3">{{form.year_min.errors}}<h4>Year</h4>Between {{form.year_min}} and {{form.year_max}}</td>
+			<td rowspan="4">{{form.screening_status.errors}}<h4>{{form.screening_status.label}}</h4>{{form.screening_status}}</td>
 		</tr>
 		<tr>
 			<td><h4>{{form.organization.label}}</h4>{{form.organization}}</td>
 			<td><h4>{{form.city.label}}</h4>{{form.city}}</td>
-			<td rowspan="2"><h4>{{form.state.label}}</h4>{{form.state}}</td>
+			<td rowspan="2">{{form.state.errors}}<h4>{{form.state.label}}</h4>{{form.state}}</td>
 			<td></td>
 		</tr>
 		<tr>

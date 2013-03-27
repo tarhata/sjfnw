@@ -62,14 +62,19 @@ def download_logs(request):
       end = params['end'] - epoch
       end = end.total_seconds()
       #create csv
-      response = http.HttpResponse(mimetype='text/csv')
-      response['Content-Disposition'] = 'attachment; filename=%s.csv' % 'logs'
-      writer = csv.writer(response)
-      writer.writerow(['request id', 'version', 'start time', 'end time', 'resource', 'ip', 'host', 'latency', 'method', 'referrer', 'response size', 'task queue name', 'user agent',' loading'])
+      response = http.HttpResponse(mimetype='text/plain')
+      response['Content-Disposition'] = 'attachment; filename=%s.txt' % 'logs'
+      response.write('Logs from ' + str(params['start']) + ' to ' + str(params['end']) + '\n\n')
       for log in logservice.fetch(start_time=start, end_time=end, minimum_log_level=logservice.LOG_LEVEL_DEBUG, include_app_logs=True):
-        writer.writerow([log.request_id, log.version_id, log.start_time, log.end_time, log.resource, log.ip, log.host, log.latency, log.method, log.referrer, log.response_size, log.task_queue_name, log.user_agent, log.was_loading_request])
+        response.write('\n========== ' + str(log.start_time) + '    ' + log.resource + '    ' +str(log.method) + '    ' + str(log.status) + ' ==========\n\n')
+        response.write(str(log.ip) + ' - ' + log.user_agent + '\n')
+        response.write('load time: ' + str(log.latency))
+        if log.was_loading_request:
+          response.write(' (loading request)')
+        response.write(', size: ' + str(log.response_size) + ' - referrer: ' + str(log.referrer) + '\n')
         for a in log.app_logs:
-          writer.writerow([log.request_id, a.time, a.level, a.message])
+          response.write('\n' + str(a.time) + ' level ' + str(a.level) + ': --------\n' + a.message)
+        response.write('\n')
       return response
   else:
     form = utils.GaeLogsForm()
