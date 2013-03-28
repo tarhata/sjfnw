@@ -23,7 +23,7 @@ class PhoneNumberField(forms.Field):
       int(str(value))
     except (ValueError, TypeError):
       raise ValidationError(self.error_messages['invalid'])
-    return value[:3] + '-' + value[3:6] + '-' + value[6:]
+    return value[:3] + u'-' + value[3:6] + u'-' + value[6:]
   
   def clean(self, value):
     if isinstance(value, (str, unicode)):

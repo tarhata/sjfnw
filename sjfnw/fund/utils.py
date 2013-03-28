@@ -52,19 +52,19 @@ def UpdateStory(membership_id, time):
       pledged += step.pledged
   summary = membership.member.first_name
   if talked > 0:
-    summary += ' talked to ' + str(talked) + (' people' if talked>1 else ' person')
+    summary += u' talked to ' + unicode(talked) + (u' people' if talked>1 else u' person')
     if asked>0:
       if pledged > 0:
-        summary += ', asked ' + str(asked)
+        summary += u', asked ' + unicode(asked)
       else:
-        summary += ' and asked ' + str(asked)
+        summary += u' and asked ' + unicode(asked)
   elif asked > 0:
-    summary += ' asked ' + str(asked) + (' people' if asked>1 else ' person')
+    summary += u' asked ' + unicode(asked) + (u' people' if asked>1 else u' person')
   else:
     logging.error('News update with 0 talked, 0 asked. Story pk: ' + str(story.pk))
   if pledged > 0:
-    summary += ' and got $' + intcomma(pledged) + ' in pledges'
-  summary += '.'
+    summary += u' and got $' + unicode(intcomma(pledged)) + u' in pledges'
+  summary += u'.'
   logging.info(summary)
   story.summary = summary
   story.updated = timezone.now()
