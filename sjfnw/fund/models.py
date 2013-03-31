@@ -205,7 +205,7 @@ class StepForm(ModelForm): #for adding a step
 
   class Meta:
     model = Step
-    exclude = ('donor', 'completed', 'asked', 'pledged')
+    exclude = ('created', 'donor', 'completed', 'asked', 'pledged')
 
 class NewsItem(models.Model):
   date = models.DateTimeField(default=timezone.now())
