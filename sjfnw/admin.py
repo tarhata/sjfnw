@@ -226,7 +226,7 @@ class DraftGrantApplicationA(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
   list_filter = ('grant_cycle',) #extended
   fields = (('organization', 'grant_cycle', 'modified'), ('extended_deadline'))
-  readonly_fields = ('organization', 'grant_cycle', 'modified')
+  readonly_fields = ('modified')
   
   def get_readonly_fields(self, request, obj=None):
     if obj is not None: #editing - lock org & cycle
