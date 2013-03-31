@@ -79,11 +79,12 @@ def Home(request):
       donor_data[donor.pk]['next_date'] = datetime.date(2600,1,1)
     elif donor.talked:
       progress['talked'] += 1
-    if donor.pledged:
-      progress['pledged'] += donor.pledged
-      donor_data[donor.pk]['next_date'] = datetime.date(2700,1,1)
     if donor.gifted:
       progress['donated'] += donor.gifted
+      donor_data[donor.pk]['next_date'] = datetime.date(2800,1,1)
+    elif donor.pledged:
+      progress['pledged'] += donor.pledged
+      donor_data[donor.pk]['next_date'] = datetime.date(2700,1,1)
     if add_est:
       if donor.amount is not None:
         amount_entered = True
