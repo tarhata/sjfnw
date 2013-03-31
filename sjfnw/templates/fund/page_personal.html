@@ -187,6 +187,7 @@
       return false;
     }
     startProcessing();
+		console.log($(form_id).serialize());
     $.ajax({
       url:sub_url,
       type:"POST",
@@ -234,6 +235,7 @@
     }
 		console.log('Submitmult going');
     startProcessing();
+		console.log($('#addcontacts').serialize());
     $.ajax({
       url:'/fund/addmult',
       type:"POST",
