@@ -13,8 +13,9 @@ from django.utils.html import strip_tags
 from fund.models import *
 from grants.models import *
 from forms import IntegerCommaField
+import unicodecsv as csv
 import fund.forms, fund.utils
-import logging, csv
+import logging, re
 
 ## Fund 
 
@@ -40,9 +41,24 @@ def export_donors(modeladmin, request, queryset):
   response = HttpResponse(mimetype='text/csv')
   response['Content-Disposition'] = 'attachment; filename=prospects.csv'
   writer = csv.writer(response)
+  
   writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member', 'Giving Project', 'Amount to ask', 'Asked', 'Pledged', 'Gifted', 'Notes'])
   for donor in queryset:
-    writer.writerow([donor.firstname, donor.lastname, donor.phone, donor.email, donor.membership.member, donor.membership.giving_project, donor.amount, donor.asked, donor.pledged, donor.gifted, donor.notes])
+    fields = [donor.firstname, donor.lastname, donor.phone, donor.email, donor.membership.member, donor.membership.giving_project, donor.amount, donor.asked, donor.pledged, donor.gifted, donor.notes]
+    for i in fields:
+      pr = unicode(i)
+      if isinstance(i, str):
+        pr += ' str'
+      elif isinstance(i, unicode):
+        pr += ' uni'
+      else:
+        pr += ' ??'
+      logging.info([pr])
+      #logging.info(str(pr))
+      logging.info([pr.encode('utf-8')])
+      #logging.info([pr.decode('iso-8859-1').encode('utf8')])
+      #logging.info(pr.encode('ISO-8859-1'))
+    writer.writerow(fields)
   return response
   
 # Filters
@@ -133,6 +149,7 @@ class DonorA(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked', 'pledged', 'gifted')
   list_filter = ('membership__giving_project', 'asked', PledgedBooleanFilter, GiftedBooleanFilter)
   list_editable = ('gifted',)
+  exclude = ('added',)
   search_fields = ['firstname', 'lastname', 'membership__member__first_name', 'membership__member__last_name']
   actions = [export_donors]
 
