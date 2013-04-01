@@ -157,10 +157,10 @@ class DraftGrantApplication(models.Model):
   
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
-  created = models.DateTimeField(default = timezone.now())
+  created = models.DateTimeField(blank=True, default = timezone.now())
   modified = models.DateTimeField(default = timezone.now())
   
-  contents = models.TextField()
+  contents = models.TextField(default='{}')
   
   budget = models.FileField(upload_to='/', max_length=255)
   demographics = models.FileField(upload_to='/', max_length=255)
@@ -172,6 +172,9 @@ class DraftGrantApplication(models.Model):
   project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget')
   
   extended_deadline = models.DateTimeField(help_text = 'Allows this draft to be edited/submitted past the grant cycle close.', blank=True, null=True)
+  
+  class Meta:
+    unique_together = ('organization', 'grant_cycle')
 
   def __unicode__(self):
     return u'DRAFT - ' + self.organization.name + u' - ' + self.grant_cycle.title

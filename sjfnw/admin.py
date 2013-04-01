@@ -7,6 +7,7 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
 from django.forms.widgets import HiddenInput
+from django.forms import ValidationError
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from fund.models import *
@@ -190,6 +191,21 @@ class GrantLogInline(admin.TabularInline): #Org, Application
       return db_field.formfield(**kwargs)
     return super(GrantLogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
+# forms
+
+class DraftForm(ModelForm):
+  class Meta:
+    model = DraftGrantApplication
+  
+  def clean(self):
+    cleaned_data = super(DraftForm, self).clean()
+    org = cleaned_data.get('organization')
+    cycle = cleaned_data.get('grant_cycle')
+    if org and cycle:
+      if GrantApplication.objects.filter(organization=org, grant_cycle=cycle):
+        raise ValidationError('This organization has already submitted an application to this grant cycle.')
+    return cleaned_data
+
 # modelddmin
 class GrantCycleA(admin.ModelAdmin):
   list_display = ('title', 'open', 'close')
@@ -226,7 +242,8 @@ class DraftGrantApplicationA(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
   list_filter = ('grant_cycle',) #extended
   fields = (('organization', 'grant_cycle', 'modified'), ('extended_deadline'))
-  readonly_fields = ('modified')
+  readonly_fields = ('modified',)
+  form = DraftForm
   
   def get_readonly_fields(self, request, obj=None):
     if obj is not None: #editing - lock org & cycle
