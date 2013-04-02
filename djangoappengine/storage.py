@@ -56,13 +56,13 @@ class BlobstoreStorage(Storage):
     """Google App Engine Blobstore storage backend."""
 
     def _open(self, name, mode='rb'):
-        logging.info('.BlobstoreStorage_open on ' + name)
+        logging.info([name])
         return BlobstoreFile(name, mode, self)
 
     def _save(self, name, content):
     
         name = name.replace('\\', '/')
-        logging.info('.BlobstoreStorage_save on ' + name)
+        logging.info([name])
         if hasattr(content, 'file') and hasattr(content.file, 'blobstore_info'):
             data = content.file.blobstore_info
             logging.debug('1st')
