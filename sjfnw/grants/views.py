@@ -236,8 +236,8 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   for field, url in file_urls.iteritems():
     if url:
       name = getattr(draft, field).name.split('/')[-1]
-      short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
-      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + short_name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
+      #short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
+      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
     else:
       file_urls[field] = '<i>no file uploaded</i>'
 
@@ -288,7 +288,6 @@ def AddFile(request, draft_id):
       
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   logging.info([request.body])
-  logging.info(request.FILES)
   msg = False
   for key in request.FILES:
     if request.FILES[key]:
