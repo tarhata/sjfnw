@@ -74,7 +74,15 @@ function charLimitDisplay(area, limit){
 // file uploads
 var uploading = false;
 var uploading_span;
-var submit_button;
+var current_field;
+
+/* each file field has its own form
+html element ids use this pattern:
+input field: 							'id_' + fieldname
+form: 										fieldname + '_form'
+span for upload status: 	fieldname + '_uploaded'
+submit button: 						fieldname + '_submit'
+*/
 
 function clickFileInput(event, input_id) {
 	console.log(event);
@@ -88,7 +96,7 @@ function clickFileInput(event, input_id) {
 	}
 }
 
-function fileChanged(field_id) { //file selected
+function fileChanged(field_id) { //file selected - show loader, call getuploadurl
 	console.log('fileChanged');
 	if (uploading) {
 		console.log('Upload in progress; returning');
@@ -99,8 +107,8 @@ function fileChanged(field_id) { //file selected
 	console.log("Value: " + file);
 	if (file) {
 		uploading = true;
+		current_field = field_id.replace('id_', '')
 		uploading_span = document.getElementById(field_id.replace('id_', '') + '_uploaded');
-		submit_button = document.getElementById(field_id.replace('id_', '') + '_submit');
 		uploading_span.innerHTML = '<img src="/static/images/ajaxloader2.gif" height="16" width="16" alt="Loading...">';
 		getUploadURL();
 	}
@@ -111,8 +119,10 @@ function getUploadURL() { //get a url for it
 	$.ajax({
 		url: '/get-upload-url/{{draft.pk}}',
 		success: function(data) {
-			document.forms[1].action = data;
-			submit_button.click();
+			var cform = document.getElementById(current_field + '_form');
+			cform.action = data;
+			var cbutton = document.getElementById(current_field + '_submit');
+			cbutton.click();
 		},
 	});
 }
@@ -145,8 +155,7 @@ function removeFile(field_name) {
 }
 
 $(document).ready(function() {
-	//autosave_timer = window.setInterval("autoSave()", 30000);
-	upload_url_timer = window.setTimeout("getUploadURL()", 540000);
+	autosave_timer = window.setInterval("autoSave()", 30000);
 	$('.char_counter').each(function(index) {
 		var id = "id_" + this.id.replace("_counter","");
     var area = document.getElementById(id);
@@ -409,37 +418,37 @@ if($.browser.mozilla) { //stackoverflow
 			</tr><tr>
 				<td>{{form.budget1.errors}}</td>
 				<td>{{form.budget1.label}}</td>
-				<td><label for="{{form.budget1.auto_id}}">Choose file</label>{{form.budget1}}</td>
+				<td><form class="files_form" id="budget1_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><label for="{{form.budget1.auto_id}}">Choose file</label>{{form.budget1}}<input id="budget1_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="budget1_uploaded">{{file_urls.budget1}}</span></td>
 			</tr><tr>
 				<td>{{form.budget2.errors}}</td>
 				<td>{{form.budget2.label}}</td>
-				<td><label for="{{form.budget2.auto_id}}">Choose file</label>{{form.budget2}}</td>
+				<td><form class="files_form" id="budget2_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><label for="{{form.budget2.auto_id}}">Choose file</label>{{form.budget2}}<input id="budget2_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="budget2_uploaded">{{file_urls.budget2}}</span></td>
 			</tr><tr>
 				<td>{{form.budget3.errors}}</td>
 				<td>{{form.budget3.label}}</td>
-				<td><label for="{{form.budget3.auto_id}}">Choose file</label>{{form.budget3}}</td>
+				<td><form class="files_form" id="budget3_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><label for="{{form.budget3.auto_id}}">Choose file</label>{{form.budget3}}<input id="budget3_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="budget3_uploaded">{{file_urls.budget3}}</span></td>
 			</tr><tr>
 				<td>{{form.project_budget_file.errors}}</td>
 				<td>{{form.project_budget_file.label}}</td>
-				<td><label for="{{form.project_budget_file.auto_id}}">Choose file</label>{{form.project_budget_file}}</td>
+				<td><form class="files_form" id="budget4_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><label for="{{form.project_budget_file.auto_id}}">Choose file</label>{{form.project_budget_file}}<input id="budget4_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="project_budget_file_uploaded">{{file_urls.project_budget_file}}</span></td>
 			</tr><tr>
 				<td>2. Diversity chart</td>
 				<td>{{form.demographics.errors}}</td>
-				<td><label for="{{form.demographics.auto_id}}">Choose file</label>{{form.demographics}}</td>
+				<td><form class="files_form" id="demographics_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><label for="{{form.demographics.auto_id}}">Choose file</label>{{form.demographics}}<input id="demographics_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
 			</tr><tr>
 				<td>3. Funding sources</td>
 				<td>{{form.funding_sources.errors}}</td>
-				<td><label for="{{form.funding_sources.auto_id}}">Choose file</label>{{form.funding_sources}}</td>
+				<td><form class="files_form" id="funding_sourcest_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><label for="{{form.funding_sources.auto_id}}">Choose file</label>{{form.funding_sources}}<input id="funding_sources_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
 			</tr><tr>	
 				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
 				<td>{{form.fiscal_letter.errors}}</td>
-				<td><label for="{{form.fiscal_letter.auto_id}}">Choose file</label>{{form.fiscal_letter}}</td>
+				<td><form class="files_form" id="fiscal_letter_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><label for="{{form.fiscal_letter.auto_id}}">Choose file</label>{{form.fiscal_letter}}<input id="fiscal_letter_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
 			</tr>
 		</table>
