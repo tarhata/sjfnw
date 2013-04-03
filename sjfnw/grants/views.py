@@ -312,8 +312,8 @@ def AddFile(request, draft_id):
   logging.info(name)
   
   file_urls = GetFileURLs(draft)
-  short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
-  content = msg + u'~~<a href="' + file_urls[msg] + u'" target="_blank" title="' + name + '">' + short_name + u'</a> [<a onclick="removeFile(\'' + msg + u'\');">remove</a>]'
+  short_name = name#[:35] + (name[35:] and '..') #stackoverflow'd truncate
+  content = msg + u'~~<a href="' + file_urls[msg] + u'" target="_blank" title="' + name + u'">' + short_name + u'</a> [<a onclick="removeFile(\'' + msg + u'\');">remove</a>]'
   logging.info(u"AddFile returning: " + content)
   return HttpResponse(content)
 
@@ -598,7 +598,7 @@ def DraftWarning(request):
       logging.info("Email sent to " + to + "regarding draft application soon to expire")
   return HttpResponse("")
 
-# UTILS
+# UTILS (caused import probs in utils.py)
 def GetFileURLs(app):
   """ Given a draft or application
   return a dict of urls for viewing each of its files
@@ -606,10 +606,8 @@ def GetFileURLs(app):
     
   #determine whether draft or submitted
   if isinstance(app, models.GrantApplication):
-    logging.info("A submitted app!!!?!?")
     mid_url = 'grants/view-file/'
   elif isinstance(app, models.DraftGrantApplication):
-    logging.info("A draft")
     mid_url = 'grants/draft-file/'
   else:
     logging.error("GetFileURLs received invalid object")
@@ -620,8 +618,9 @@ def GetFileURLs(app):
   for field in file_urls:
     value = getattr(app, field)
     if value:
-      if not settings.DEBUG and value.name.lower().split(".")[-1] in constants.VIEWER_FORMATS: #doc viewer
+      ext = value.name.lower().split(".")[-1]
+      if not settings.DEBUG and ext in constants.VIEWER_FORMATS: #doc viewer
         file_urls[field] = 'https://docs.google.com/viewer?url='
-      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + u'/' + field
+      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + u'-' + field + u'.' + ext
   
   return file_urls
