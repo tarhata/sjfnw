@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
 from django.forms.widgets import HiddenInput
 from django.http import HttpResponse
+from django.forms import ValidationError
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from fund.models import *
@@ -233,7 +234,19 @@ class AppAdminForm(ModelForm):
   class Meta:
     model = GrantApplication
 
-    # modeladmin
+class DraftForm(ModelForm):
+  class Meta:
+    model = DraftGrantApplication
+  
+  def clean(self):
+    cleaned_data = super(DraftForm, self).clean()
+    org = cleaned_data.get('organization')
+    cycle = cleaned_data.get('grant_cycle')
+    if org and cycle:
+      if GrantApplication.objects.filter(organization=org, grant_cycle=cycle):
+        raise ValidationError('This organization has already submitted an application to this grant cycle.')
+    return cleaned_data
+
 class GrantCycleA(admin.ModelAdmin):
   list_display = ('title', 'open', 'close')
   fields = (
@@ -280,7 +293,8 @@ class DraftGrantApplicationA(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
   list_filter = ('grant_cycle',) #extended
   fields = (('organization', 'grant_cycle', 'modified'), ('extended_deadline'))
-  readonly_fields = ('organization', 'grant_cycle', 'modified')
+  readonly_fields = ('modified',)
+  form = DraftForm
   
   def get_readonly_fields(self, request, obj=None):
     if obj is not None: #editing - lock org & cycle

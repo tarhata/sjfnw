@@ -88,8 +88,8 @@ urlpatterns += patterns('grants.views',
   
   #reading
   (r'^grants/view/(?P<app_id>\d+)/?$', 'ViewApplication'),
-  (r'^grants/view-file/(?P<app_id>\d+)/(?P<file_type>.*)/.*$', 'ViewFile'),
-  (r'^grants/draft-file/(?P<draft_id>\d+)/(?P<file_type>.*)/.*$', 'ViewDraftFile'),
+  (r'^grants/view-file/(?P<app_id>\d+)/(?P<file_type>.*)/?$', 'ViewFile'),
+  (r'^grants/draft-file/(?P<draft_id>\d+)/(?P<file_type>.*)/?$', 'ViewDraftFile'),
   
   #reporting
   (r'^grants/search$', 'SearchApps'),

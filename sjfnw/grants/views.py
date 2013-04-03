@@ -235,7 +235,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   file_urls = GetFileURLs(draft)
   for field, url in file_urls.iteritems():
     if url:
-      name = str(getattr(draft, field)).split('/')[-1]
+      name = getattr(draft, field).name.split('/')[-1]
       short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
       file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + short_name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
     else:
@@ -286,13 +286,15 @@ def AddFile(request, draft_id):
   """ Upload a file (saves to draft, included when submitting)
     Template needs: link domain, draft pk, field name or id, file name """
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
-  logging.info('AddFile called: ' + str(request.FILES.lists()))
+  logging.info([request.body])
+  logging.info(request.FILES)
   msg = False
   for key in request.FILES:
     if request.FILES[key]:
+      logging.info([request.FILES[key]])
       if hasattr(draft, key):
         old = getattr(draft, key)
-        deferred.defer(utils.DeleteBlob, old)
+        #deferred.defer(utils.DeleteBlob, old)
         setattr(draft, key, request.FILES[key])
         msg = key
         break
@@ -300,15 +302,18 @@ def AddFile(request, draft_id):
         logging.error('Tried to add an unknown file field ' + str(key))
   draft.modified = timezone.now()
   draft.save()
+  logging.info(msg)
   if not msg:
     return HttpResponse("ERRORRRRRR")
   name = getattr(draft, msg)
-  name = str(name).split('/')[-1]
+  logging.info(name)
+  name = name.name.split('/')[-1]
+  logging.info(name)
   
   file_urls = GetFileURLs(draft)
   short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
-  content = msg + '~~<a href="' + file_urls[msg] + '" target="_blank" title="' + name + '">' + short_name + '</a> [<a onclick="removeFile(\'' + msg + '\');">remove</a>]'
-  logging.info("AddFile returning: " + content)
+  content = msg + u'~~<a href="' + file_urls[msg] + u'" target="_blank" title="' + name + '">' + short_name + u'</a> [<a onclick="removeFile(\'' + msg + u'\');">remove</a>]'
+  logging.info(u"AddFile returning: " + content)
   return HttpResponse(content)
 
 def RemoveFile(request, draft_id, file_field):
@@ -614,9 +619,11 @@ def GetFileURLs(app):
   for field in file_urls:
     value = getattr(app, field)
     if value:
-      filename = str(value).split('/')[-1]
-      if not settings.DEBUG and str(value).lower().split(".")[-1] in constants.VIEWER_FORMATS: #doc viewer
+      filename = value.name.split('/')[-1]
+      logging.info([filename])
+      logging.info([filename.encode('utf-8')])
+      if not settings.DEBUG and value.name.lower().split(".")[-1] in constants.VIEWER_FORMATS: #doc viewer
         file_urls[field] = 'https://docs.google.com/viewer?url='
-      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + '/' + field + '/' + filename
+      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + '/' + field
   
   return file_urls
