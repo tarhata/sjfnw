@@ -2,13 +2,11 @@
 from django.http import HttpResponse, Http404
 from django.utils import timezone
 from google.appengine.ext import blobstore
-from sjfnw import constants
 import datetime, logging, re
 
 def FindBlobKey(body):
-  """Given request.body, extracts uploaded blobkey """
+  """ Extract blobkey from request.body """
   key = re.search('blob-key="(.*?)"', body)
-  logging.info(key)
   if key:
     key = key.group(1)
   else:
@@ -16,21 +14,17 @@ def FindBlobKey(body):
   logging.info(key)
   return key
   
-def FindBlob(file_field, both=False):
-  """Given contents of a file field, return the blob itself.
-  if both==True, return the blobinfo also """
+def FindBlob(file_field):
+  """Given contents of a file field, return the blob. """
   
-  #filefield stores key that gets the blobinfo
   key = file_field.name.split('/', 1)[0]
   if key:
     blob = blobstore.BlobInfo.get(key)
     if blob:
-      #all binfo properties refer to the blobinfo itself, not the blob
       logging.info('Found blob - filename ' + blob.filename + ', size ' + str(blob.size) + ', type ' + blob.content_type)
       return blob
 
   raise Http404('Blob not found')
-
 
 def ServeBlob(application, field_name):
   """Returns file from the Blobstore for serving
@@ -52,8 +46,7 @@ def DeleteBlob(file_field):
   if not file_field:
     logging.info('Delete empty')
     return
-  binfo, blob = FindBlob(file_field, both=True)
-  binfo.delete()
+  blob = FindBlob(file_field)
   blob.delete()
   logging.info('Blob deleted')
   return HttpResponse("deleted")

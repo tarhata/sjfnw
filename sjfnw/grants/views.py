@@ -283,8 +283,9 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
     return HttpResponse("")
 
 def AddFile(request, draft_id):
-  """ Upload a file (saves to draft, included when submitting)
-    Template needs: link domain, draft pk, field name or id, file name """
+  """ Upload a file to the draft
+      Called by javascript in application page """
+      
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   logging.info([request.body])
   logging.info(request.FILES)
@@ -619,11 +620,8 @@ def GetFileURLs(app):
   for field in file_urls:
     value = getattr(app, field)
     if value:
-      filename = value.name.split('/')[-1]
-      logging.info([filename])
-      logging.info([filename.encode('utf-8')])
       if not settings.DEBUG and value.name.lower().split(".")[-1] in constants.VIEWER_FORMATS: #doc viewer
         file_urls[field] = 'https://docs.google.com/viewer?url='
-      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + '/' + field
+      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + u'/' + field
   
   return file_urls
