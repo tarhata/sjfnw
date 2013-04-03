@@ -292,7 +292,7 @@ def AddFile(request, draft_id):
   msg = False
   for key in request.FILES:
     if request.FILES[key]:
-      logging.info([request.FILES[key]])
+      logging.info(request.FILES[key])
       if hasattr(draft, key):
         old = getattr(draft, key)
         #deferred.defer(utils.DeleteBlob, old)
