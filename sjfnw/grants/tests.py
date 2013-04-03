@@ -9,6 +9,11 @@ from models import GrantApplication, DraftGrantApplication, Organization, GrantC
 import sys, datetime, re, json, unittest
 from sjfnw.constants import TEST_MIDDLEWARE, APP_FILE_FIELDS
 
+""" TO DO
+  each file field add
+  file viewing
+  char limit
+"""
 def setCycleDates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
       open, open, closed, upcoming, open """
