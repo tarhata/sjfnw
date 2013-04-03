@@ -443,7 +443,7 @@ if($.browser.mozilla) { //stackoverflow
 			</tr><tr>
 				<td>3. Funding sources</td>
 				<td>{{form.funding_sources.errors}}</td>
-				<td><form class="files_form" id="funding_sourcest_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><label for="{{form.funding_sources.auto_id}}">Choose file</label>{{form.funding_sources}}<input id="funding_sources_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
+				<td><form class="files_form" id="funding_sources_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><label for="{{form.funding_sources.auto_id}}">Choose file</label>{{form.funding_sources}}<input id="funding_sources_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
 			</tr><tr>	
 				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"></td>
