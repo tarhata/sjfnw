@@ -203,6 +203,10 @@ div.formwrapper input[type="file"] {
   -webkit-appearance:button; /* Safari and Chrome */
 }
 
+form.files_form {
+  margin:0;
+}
+
 iframe.upload {
   height:0;
   width:0;
@@ -210,9 +214,10 @@ iframe.upload {
 }
 
 table#file_upload_table td{
-  line-height:1.75em;
+  line-height:2em;
   white-space:nowrap;
   overflow:ellipsis;
+  vertical-align:middle;
 }
 
 /* -- other specific fields */
