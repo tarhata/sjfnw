@@ -6,7 +6,7 @@ import datetime, logging, re
 
 def FindBlobKey(body):
   """ Extract blobkey from request.body """
-  key = re.search('blob-key="(.*?)"', body)
+  key = re.search('blob-key="?([\w\-]*)"?', body)
   if key:
     key = key.group(1)
   else:
