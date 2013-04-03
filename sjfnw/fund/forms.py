@@ -59,10 +59,8 @@ class MassStep(forms.Form):
     if date:
       if not desc: #date, no desc - invalid
         self._errors["description"] = self.error_class([msg])
-        del cleaned_data["description"]
     elif desc: # desc, no date - invalid
       self._errors["date"] = self.error_class(['Please enter a date in mm/dd/yyyy format.'])
-      del cleaned_data["date"]
     else: #neither - valid, but not wanted in data
       cleaned_data = []
     return cleaned_data
