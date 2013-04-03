@@ -74,7 +74,7 @@ function charLimitDisplay(area, limit){
 // file uploads
 var uploading = false;
 var uploading_span;
-var file_fields;
+var submit_button;
 
 function clickFileInput(event, input_id) {
 	console.log(event);
@@ -100,6 +100,7 @@ function fileChanged(field_id) { //file selected
 	if (file) {
 		uploading = true;
 		uploading_span = document.getElementById(field_id.replace('id_', '') + '_uploaded');
+		submit_button = document.getElementById(field_id.replace('id_', '') + '_submit');
 		uploading_span.innerHTML = '<img src="/static/images/ajaxloader2.gif" height="16" width="16" alt="Loading...">';
 		getUploadURL();
 	}
@@ -111,7 +112,7 @@ function getUploadURL() { //get a url for it
 		url: '/get-upload-url/{{draft.pk}}',
 		success: function(data) {
 			document.forms[1].action = data;
-			document.getElementById('hidden_file_submit').click();
+			submit_button.click();
 		},
 	});
 }
@@ -144,7 +145,7 @@ function removeFile(field_name) {
 }
 
 $(document).ready(function() {
-	autosave_timer = window.setInterval("autoSave()", 30000);
+	//autosave_timer = window.setInterval("autoSave()", 30000);
 	upload_url_timer = window.setTimeout("getUploadURL()", 540000);
 	$('.char_counter').each(function(index) {
 		var id = "id_" + this.id.replace("_counter","");
@@ -153,7 +154,6 @@ $(document).ready(function() {
 		charLimitDisplay(area, limit);
 	});
 	iframe = document.getElementById("id_upload_frame");
-	file_fields = $('input[type=file]');
 });
 
 if($.browser.mozilla) { //stackoverflow
@@ -388,8 +388,7 @@ if($.browser.mozilla) { //stackoverflow
 	</form>
 
 	<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="iframeUpdated(this);"></iframe><!--hidden iframe for file submissions -->
-
-	<form id="files_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data">	
+	
 		<h4>File uploads</h4><!-- Files -->
 		<p><a href="/apply/info/{{cycle.pk}}" target="_blank">Download templates here.</a><br><br>
 		Templates for budgets, funding sources and diversity chart can be downloaded above.  For budget documents, you may use your own format if preferred.</p>
@@ -400,7 +399,7 @@ if($.browser.mozilla) { //stackoverflow
 			<tr>
 				<td style="width:150px;vertical-align:top;">1. Budget</td>
 				<td style="width:175px;">All in one file</td>
-				<td style="width:100px;"><label for="{{form.budget.auto_id}}">Choose file</label>{{form.budget}}</td>
+				<td style="width:100px;"><form class="files_form" id="budget_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><label for="{{form.budget.auto_id}}">Choose file</label>{{form.budget}}<input id="budget_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td style="width:350px;"><span id="budget_uploaded">{{file_urls.budget}}</span></td>
 			</tr><tr style="line-height:2em;">
 				<td></td>
@@ -445,8 +444,8 @@ if($.browser.mozilla) { //stackoverflow
 			</tr>
 		</table>
 		{% endautoescape %}
-		<div align="center"><input id="hidden_file_submit" type="submit" value="Submit files" style="display:none;"/></div>
-	</form>
+		<div align="center"></div>
+
 	<div align="center">
 		<img id="ajax_loading" src="/static/images/ajaxloader.gif" style="display:none;"><br>
 		<button onclick="autoSave(submit=true);">Submit application</button>

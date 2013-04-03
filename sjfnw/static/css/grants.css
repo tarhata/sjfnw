@@ -196,7 +196,7 @@ div.formwrapper input[type="file"] {
   width: 95px;
 }
 
-#files_form label { /* make it look like a button */
+.files_form label { /* make it look like a button */
   padding: 1px 8px;
   appearance:button;
   -moz-appearance:button; /* Firefox */
