@@ -247,6 +247,7 @@ class DraftForm(ModelForm):
         raise ValidationError('This organization has already submitted an application to this grant cycle.')
     return cleaned_data
 
+# modeladmin
 class GrantCycleA(admin.ModelAdmin):
   list_display = ('title', 'open', 'close')
   fields = (

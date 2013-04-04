@@ -206,7 +206,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   else: #GET
 
     #get initial data
-    if cr: #load profile
+    if cr or draft.contents=='{}': #load profile
       dict = model_to_dict(organization, exclude = ['fiscal_letter',])
       draft.fiscal_letter = organization.fiscal_letter
       draft.contents = json.dumps(dict)
