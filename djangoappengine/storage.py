@@ -166,6 +166,8 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
       
         #import pdb; pdb.set_trace() 
         logging.info('BlobstoreFileUploadHandler.new_file')
+        logging.info(args)
+        logging.info(kwargs)
         super(BlobstoreFileUploadHandler, self).new_file(*args, **kwargs)
         
         blobkey = FindBlobKey(self.request.body)
@@ -189,9 +191,13 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
         if not self.active:
             logging.info('not active')
             return
-
+        blobinfo = BlobInfo(self.blobkey)
+        logging.info(blobinfo)
+        logging.info(blobinfo.filename)
+        logging.info(blobinfo.content_type)
+        logging.info(blobinfo.size)
         return BlobstoreUploadedFile(
-            blobinfo=BlobInfo(self.blobkey),
+            blobinfo=blobinfo,
             charset=self.charset)
 
 
@@ -202,6 +208,9 @@ class BlobstoreUploadedFile(UploadedFile):
 
     def __init__(self, blobinfo, charset):
         logging.info('BlobstoreUploadedFile.__init__')
+        #logging.info(blobinfo.filename)
+        #logging.info(blobinfo.content_type)
+        #logging.info(blobinfo.size)
         super(BlobstoreUploadedFile, self).__init__(
             BlobReader(blobinfo.key()), blobinfo.filename,
             blobinfo.content_type, blobinfo.size, charset)
