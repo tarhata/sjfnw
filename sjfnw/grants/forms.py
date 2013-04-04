@@ -25,7 +25,7 @@ class RegisterForm(forms.Form):
       del cleaned_data["passwordtwo"]
     return cleaned_data 
 
-class RolloverForm(forms.Form):
+class RolloverForm(forms.Form): #used by org
   """Fields created on init:
   application - any of org's submitted apps
   draft - any of org's drafts
