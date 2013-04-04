@@ -6,15 +6,15 @@ import datetime, logging, re
 
 def FindBlobKey(body):
   """ Extract blobkey from request.body """
-  if settings.DEBUG:
+  if settings.DEBUG: #on dev server, has quotes around it
     key = re.search('blob-key="(.*)"', body)
   else:
-    key = re.search('blob-key=(.*)', body)
+    key = re.search('blob-key=(\S*)', body)
   if key:
     key = key.group(1)
   else:
     key = None
-  logging.info('FindBlobKey gets ' + str(key))
+  logging.info(['FindBlobKey gets ' + str(key)])
   return key
   
 def FindBlob(file_field):
