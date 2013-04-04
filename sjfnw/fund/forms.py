@@ -2,7 +2,7 @@
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from sjfnw.utils import IntegerCommaField
+from sjfnw.forms import IntegerCommaField
 import models
 import datetime, logging
 

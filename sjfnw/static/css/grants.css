@@ -196,11 +196,15 @@ div.formwrapper input[type="file"] {
   width: 95px;
 }
 
-#files_form label { /* make it look like a button */
+.files_form label { /* make it look like a button */
   padding: 1px 8px;
   appearance:button;
   -moz-appearance:button; /* Firefox */
   -webkit-appearance:button; /* Safari and Chrome */
+}
+
+form.files_form {
+  margin:0;
 }
 
 iframe.upload {
@@ -210,9 +214,10 @@ iframe.upload {
 }
 
 table#file_upload_table td{
-  line-height:1.75em;
+  line-height:2em;
   white-space:nowrap;
   overflow:ellipsis;
+  vertical-align:middle;
 }
 
 /* -- other specific fields */
@@ -243,12 +248,12 @@ input#grant_submit {
 
 iframe.info_frame { 
   width:100%;
-  height:2550px;
+  height:500px;
   border:0px;
 }
 
 button#apply-now {
-  margin-bottom:20px;
+  margin-top:20px;
   font-size:135%;
   font-weight:bold;
 }

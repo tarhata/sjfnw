@@ -1,8 +1,19 @@
 ﻿{% extends 'grants/base.html' %}
 {% block title %}Grant cycle information | {{block.super}}{% endblock %}
+{% block script %}
+<script type="text/javascript">
+$(document).ready(function() {
+   $("#ifr").load(function() {
+      $("#loading").hide();
+      this.style.visibility = '';
+   });
+});
+</script>
+{% endblock %}
 {% block content %}
+<img id="loading" src="/static/images/ajaxloader.gif" alt="Loading..." style="margin:100px 0 0 50%;">
+<iframe id = "ifr" class="info_frame" src="{{cycle.info_page}}" style="visibility:hidden;"></iframe>
 {% if cycle.is_open %}
 <div align="center"><button id="apply-now" onclick="location.href='/apply/{{cycle.pk}}'">Continue to application</button></div>
 {% endif %}
-<iframe class="info_frame" src="{{cycle.info_page}}"></iframe>
 {% endblock %}

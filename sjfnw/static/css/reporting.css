@@ -1,0 +1,35 @@
+﻿.reporting ul, li {
+  list-style-type:none;
+  margin:0;
+  padding-left:0;
+}
+
+body {
+  width:800px;
+  margin:auto;
+  font-family:Verdana;
+  font-size:80%;
+}
+
+h4 {
+  margin-bottom:.5em;
+}
+
+h3 {
+  margin-top:-.5em;
+}
+
+.reporting tr {
+  vertical-align:top;
+}
+
+.reporting td {
+  padding:0 1em;
+}
+
+input#run {
+  display:block;
+  margin:2em auto;
+  font-size:1.5em;
+  padding:.25em .5em;
+}

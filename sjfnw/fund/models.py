@@ -3,7 +3,7 @@ from django.db import models
 from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.utils import timezone
-from sjfnw.utils import IntegerCommaField
+from sjfnw.forms import IntegerCommaField
 from utils import NotifyApproval
 import datetime, logging
 
@@ -28,7 +28,7 @@ class GivingProject(models.Model):
   resources = models.ManyToManyField('Resource', through = 'ProjectResource', null=True, blank=True)
 
   def __unicode__(self):
-    return self.title+' '+unicode(self.fundraising_deadline.year)
+    return self.title+u' '+unicode(self.fundraising_deadline.year)
 
   def save(self, *args, **kwargs):
     logging.debug(self.suggested_steps.count('\r'))
@@ -47,7 +47,7 @@ class Member(models.Model):
   current = models.IntegerField(default=0)
 
   def __unicode__(self):
-    return unicode(self.first_name +' '+self.last_name)
+    return unicode(self.first_name +u' '+self.last_name)
 
 class Membership(models.Model): #relationship b/n member and gp
   giving_project = models.ForeignKey(GivingProject)
@@ -141,7 +141,7 @@ class Donor(models.Model):
 
   def __unicode__(self):
     if self.lastname:
-      return self.firstname+' '+self.lastname
+      return self.firstname + u' ' + self.lastname
     else:
       return self.firstname
 

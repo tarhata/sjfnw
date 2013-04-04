@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="/static/css/reporting.css">
+	<title>Reports - Grant Applications</title>
+</head>
+
+<body class="reporting">
+{{form.errors}}
+<form class="report" id="report-grantapplication" method="POST">
+	<h2>1. Filter criteria</h2>
+	<h3>Include only applications that match your selections</h3>
+	<table>
+		<tr>
+			<td colspan="3">{{form.year_min.errors}}<h4>Year</h4>Between {{form.year_min}} and {{form.year_max}}</td>
+			<td rowspan="4">{{form.screening_status.errors}}<h4>{{form.screening_status.label}}</h4>{{form.screening_status}}</td>
+		</tr>
+		<tr>
+			<td><h4>{{form.organization.label}}</h4>{{form.organization}}</td>
+			<td><h4>{{form.city.label}}</h4>{{form.city}}</td>
+			<td rowspan="2">{{form.state.errors}}<h4>{{form.state.label}}</h4>{{form.state}}</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td><h4>{{form.giving_project.label}}</h4>{{form.giving_project}}</td>
+			<td><h4>{{form.grant_cycle.label}}</h4>{{form.grant_cycle}}</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td><h4>{{form.poc_bonus.label}}</h4>{{form.poc_bonus}}</td>
+			<td><h4>{{form.geo_bonus.label}}</h4>{{form.geo_bonus}}</td>
+		</tr>
+	</table>
+	<h2>2. Reporting</h2>
+	<h3>Select the fields you want to include</h3>
+	<table>
+		<tr>
+			<td><h4>{{form.report_basics.label}}</h4>{{form.report_basics}}<h4>{{form.report_org.label}}</h4>{{form.report_org}}</td>
+			<td><h4>{{form.report_contact.label}}</h4>{{form.report_contact}}</td>
+			<td><h4>{{form.report_proposal.label}}</h4>{{form.report_proposal}}</td>
+		</tr><tr>
+			<td><h4>{{form.report_budget.label}}</h4>{{form.report_budget}}</td>
+			<td><h4>{{form.report_collab.label}}</h4>{{form.report_collab}}<h4>{{form.report_racial_ref.label}}</h4>{{form.report_racial_ref}}</td>
+			<td><h4>{{form.report_bonuses.label}}</h4>{{form.report_bonuses}}<h4>{{form.report_fiscal.label}}</h4>{{form.report_fiscal}}</td>
+		</tr>
+	</table>
+	<h2>3. Output</h2>
+	<h3>Select the format for the report</h3>
+	{{form.format}}
+
+	<input type="submit" id ="run" value="Run report">
+</form>
+
+</body>
+</html>

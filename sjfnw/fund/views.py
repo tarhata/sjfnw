@@ -544,6 +544,8 @@ def EditDonor(request, donor_id):
   est = request.membership.giving_project.require_estimates() #showing estimates t/f
   
   if request.method == 'POST':
+    logging.info(request.body)
+    logging.info(request.POST)
     request.membership.last_activity = timezone.now()
     request.membership.save(skip=True)
     if est:

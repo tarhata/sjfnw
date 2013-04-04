@@ -7,21 +7,28 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
 from django.forms.widgets import HiddenInput
+from django.http import HttpResponse
 from django.forms import ValidationError
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from fund.models import *
 from grants.models import *
-from utils import IntegerCommaField
+from forms import IntegerCommaField
+import unicodecsv as csv
 import fund.forms, fund.utils
-import logging
+import logging, re
 
 ## Fund 
 
-# Methods
+# display methods
 def step_membership(obj): #Step list_display
   return obj.donor.membership
 
+def gp_year(obj): #GP list_display
+  return obj.fundraising_deadline.year
+gp_year.short_description = 'Year'
+
+# actions
 def approve(modeladmin, request, queryset): #Membership action
   logging.info('Approval button pressed; looking through queryset')
   for memship in queryset:
@@ -30,10 +37,31 @@ def approve(modeladmin, request, queryset): #Membership action
   queryset.update(approved=True)
   logging.info('Approval queryset updated')
 
-def gp_year(obj): #GP list_display
-  return obj.fundraising_deadline.year
-gp_year.short_description = 'Year'
-
+def export_donors(modeladmin, request, queryset):
+  logging.info('Export donors')
+  response = HttpResponse(mimetype='text/csv')
+  response['Content-Disposition'] = 'attachment; filename=prospects.csv'
+  writer = csv.writer(response)
+  
+  writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member', 'Giving Project', 'Amount to ask', 'Asked', 'Pledged', 'Gifted', 'Notes'])
+  for donor in queryset:
+    fields = [donor.firstname, donor.lastname, donor.phone, donor.email, donor.membership.member, donor.membership.giving_project, donor.amount, donor.asked, donor.pledged, donor.gifted, donor.notes]
+    for i in fields:
+      pr = unicode(i)
+      if isinstance(i, str):
+        pr += ' str'
+      elif isinstance(i, unicode):
+        pr += ' uni'
+      else:
+        pr += ' ??'
+      logging.info([pr])
+      #logging.info(str(pr))
+      logging.info([pr.encode('utf-8')])
+      #logging.info([pr.decode('iso-8859-1').encode('utf8')])
+      #logging.info(pr.encode('ISO-8859-1'))
+    writer.writerow(fields)
+  return response
+  
 # Filters
 class PledgedBooleanFilter(SimpleListFilter): #donors & steps
   title = 'pledged'
@@ -122,7 +150,9 @@ class DonorA(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked', 'pledged', 'gifted')
   list_filter = ('membership__giving_project', 'asked', PledgedBooleanFilter, GiftedBooleanFilter)
   list_editable = ('gifted',)
+  exclude = ('added',)
   search_fields = ['firstname', 'lastname', 'membership__member__first_name', 'membership__member__last_name']
+  actions = [export_donors]
 
 class NewsA(admin.ModelAdmin):
   list_display = ('summary', 'date', 'membership')
@@ -192,6 +222,17 @@ class GrantLogInline(admin.TabularInline): #Org, Application
     return super(GrantLogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 # forms
+class AppAdminForm(ModelForm):
+  
+  def clean(self):
+    cleaned_data = super(AppAdminForm, self).clean()
+    status = cleaned_data.get("screening_status")
+    if status >=100:
+      logging.info('Require check details')
+    return cleaned_data
+    
+  class Meta:
+    model = GrantApplication
 
 class DraftForm(ModelForm):
   class Meta:
@@ -206,7 +247,6 @@ class DraftForm(ModelForm):
         raise ValidationError('This organization has already submitted an application to this grant cycle.')
     return cleaned_data
 
-# modelddmin
 class GrantCycleA(admin.ModelAdmin):
   list_display = ('title', 'open', 'close')
   fields = (
@@ -219,15 +259,26 @@ class GrantCycleA(admin.ModelAdmin):
 
 class OrganizationA(admin.ModelAdmin):
   list_display = ('name', 'email',)
-  fields = (
-    ('name', 'email', 'telephone_number'),
-    ('address', 'city', 'state', 'zip'),
-    ('fiscal_letter'),
+  fieldsets = (
+    ('', {
+      'fields':(('name', 'email'),)
+    }),
+    ('', {
+      'fields':(('address', 'city', 'state', 'zip'), ('telephone_number', 'fax_number', 'email_address', 'website'))
+    }),
+    ('', {
+      'fields':(('status', 'ein'), ('founded', 'mission'))
+    }),
+    ('Fiscal sponsor info', {
+      'classes':('collapse',),
+      'fields':(('fiscal_org', 'fiscal_person'), ('fiscal_telephone', 'fiscal_address', 'fiscal_email'),'fiscal_letter')
+    })
   )
-  readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number', 'fax_number', 'email_address', 'website', 'status', 'ein', 'fiscal_letter')
+  readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone', 'fiscal_address', 'fiscal_email', 'fiscal_letter')
   inlines = [GrantApplicationInline, GrantLogInlineRead, GrantLogInline]
 
 class GrantApplicationA(admin.ModelAdmin):
+  form = AppAdminForm
   fieldsets = (
     '', {'fields': (('organization', 'grant_cycle', 'submission_time', 'view_link'),)}
     ),(
@@ -237,7 +288,7 @@ class GrantApplicationA(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')  
   list_filter = ('grant_cycle', 'screening_status')
   inlines = [GrantLogInlineRead, GrantLogInline]
-
+  
 class DraftGrantApplicationA(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
   list_filter = ('grant_cycle',) #extended

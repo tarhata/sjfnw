@@ -1,7 +1,8 @@
-from django import forms
+﻿from django import forms
 from django.conf import settings
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from fund.models import GivingProject
 import models, datetime, logging
 
 class LoginForm(forms.Form):
@@ -84,3 +85,80 @@ class AdminRolloverForm(forms.Form):
     
     #create field
     self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, str(c)) for c in cycles])
+
+class AppSearchForm(forms.Form):
+  #filters
+  year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
+  year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
+  screening_status = forms.MultipleChoiceField(choices = models.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
+
+  organization = forms.CharField(max_length=255, required=False)
+  city = forms.CharField(max_length=255, required=False)
+  state = forms.MultipleChoiceField(choices = models.STATE_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
+  giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
+  grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
+  poc_bonus = forms.BooleanField(required=False)
+  geo_bonus = forms.BooleanField(required=False)
+  
+  #fields
+  #always: organization, grant cycle, submission time
+  report_basics= forms.MultipleChoiceField(label='Basics', required=False, widget = forms.CheckboxSelectMultiple, choices = [
+    ('id', 'Unique id number'),
+    ('giving_project_id', 'Giving project'),
+    ('screening_status', 'Screening status')])
+  report_contact = forms.MultipleChoiceField(label='Contact', required=False, widget = forms.CheckboxSelectMultiple, choices = [
+    ('contact_person', 'Contact person name'),
+    ('contact_person_title', 'Contact person title'),
+    ('address', 'Address'),
+    ('city', 'City'),
+    ('state', 'State'),
+    ('zip', 'ZIP'),
+    ('telephone_number', 'Telephone number'),
+    ('fax_number', 'Fax number'),
+    ('email_address', 'Email address'),
+    ('website', 'Website')])
+  report_org = forms.MultipleChoiceField(label='Organization', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
+    ('status', 'Status'),
+    ('ein', 'EIN'),
+    ('founded', 'Year founded')])
+  report_proposal = forms.MultipleChoiceField(label='Grant request and project', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
+    ('amount_requested', 'Amount requested'),
+    ('support_type', 'Support type'),
+    ('grant_period', 'Grant period'),
+    ('project_title', 'Project title'),
+    ('project_budget', 'Project budget'),
+    ('previous_grants', 'Previous grants from SJF')])
+  report_budget = forms.MultipleChoiceField(label='Budget', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
+    ('start_year', 'Start of fiscal year'),
+    ('budget_last', 'Budget last year'),
+    ('budget_current', 'Budget current year'),
+    ('grant_request', 'Description of grant request')])
+ 
+  report_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
+  report_collab = forms.BooleanField(label='Collaboration references', required=False)
+  report_racial_ref = forms.BooleanField(label='Racial justice references', required=False)
+  report_bonuses = forms.BooleanField(label='POC-led and geographic diversity', required=False)
+  
+  #format (browse, csv, tsv)
+  format = forms.ChoiceField(choices = [('csv', 'CSV'), ('tsv', 'TSV'), ('browse', 'Don\'t export, just browse')])
+  
+  def __init__(self, *args, **kwargs):
+    super(AppSearchForm, self).__init__(*args, **kwargs)
+    
+    #get projects
+    choices = GivingProject.objects.values_list('title', flat = True)
+    choices = set(choices)
+    choices = [(g, g) for g in choices]
+    self.fields['giving_project'].choices = choices
+    
+    #get cycless
+    choices = models.GrantCycle.objects.values_list('title', flat = True)
+    choices = set(choices)
+    choices = [(g, g) for g in choices]
+    self.fields['grant_cycle'].choices = choices
+    
+  def clean(self):
+    cleaned_data = super(AppSearchForm, self).clean()
+    if cleaned_data['year_max'] < cleaned_data['year_min']:
+      self._errors['year_min'] = [u'Start year must be less than end year.']
+    return cleaned_data

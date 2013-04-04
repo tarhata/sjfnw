@@ -7,16 +7,17 @@ from django.core.urlresolvers import reverse
 from django.db import connection
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, render_to_response, get_object_or_404, redirect
+from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore, deferred
-from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm
+from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm
 from decorators import registered_org
 from sjfnw import constants
 import models, utils
-import datetime, logging, json, re
+import datetime, logging, json, re, csv
 
 # CONSTANTS
 LOGIN_URL = '/apply/login/'
@@ -234,9 +235,9 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   file_urls = GetFileURLs(draft)
   for field, url in file_urls.iteritems():
     if url:
-      name = str(getattr(draft, field)).split('/')[-1]
-      short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
-      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + short_name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
+      name = getattr(draft, field).name.split('/')[-1]
+      #short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
+      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
     else:
       file_urls[field] = '<i>no file uploaded</i>'
 
@@ -275,20 +276,22 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
     #get or create saved json, update it
     logging.debug("Autosaving")
     dict = json.dumps(request.POST)
-    logging.debug(dict)
+    #logging.debug(dict)
     draft.contents = dict
     draft.modified = timezone.now()
     draft.save()
     return HttpResponse("")
 
 def AddFile(request, draft_id):
-  """ Upload a file (saves to draft, included when submitting)
-    Template needs: link domain, draft pk, field name or id, file name """
+  """ Upload a file to the draft
+      Called by javascript in application page """
+      
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
-  logging.info('AddFile called: ' + str(request.FILES.lists()))
+  logging.info([request.body])
   msg = False
   for key in request.FILES:
     if request.FILES[key]:
+      logging.info(request.FILES[key])
       if hasattr(draft, key):
         old = getattr(draft, key)
         deferred.defer(utils.DeleteBlob, old)
@@ -299,15 +302,16 @@ def AddFile(request, draft_id):
         logging.error('Tried to add an unknown file field ' + str(key))
   draft.modified = timezone.now()
   draft.save()
+  logging.info(msg)
   if not msg:
     return HttpResponse("ERRORRRRRR")
   name = getattr(draft, msg)
-  name = str(name).split('/')[-1]
+  name = name.name.split('/')[-1]
   
   file_urls = GetFileURLs(draft)
-  short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
-  content = msg + '~~<a href="' + file_urls[msg] + '" target="_blank" title="' + name + '">' + short_name + '</a> [<a onclick="removeFile(\'' + msg + '\');">remove</a>]'
-  logging.info("AddFile returning: " + content)
+  short_name = name#[:35] + (name[35:] and '..') #stackoverflow'd truncate
+  content = msg + u'~~<a href="' + file_urls[msg] + u'" target="_blank" title="' + name + u'">' + short_name + u'</a> [<a onclick="removeFile(\'' + msg + u'\');">remove</a>]'
+  logging.info(u"AddFile returning: " + content)
   return HttpResponse(content)
 
 def RemoveFile(request, draft_id, file_field):
@@ -472,6 +476,91 @@ def AdminRollover(request, app_id):
   
   return render(request, 'admin/grants/rollover.html', {'form':form, 'application':application})
 
+def SearchApps(request):
+  form = AppSearchForm()
+  
+  if request.method=='POST':
+    logging.info('Search form submitted')
+    form = AppSearchForm(request.POST)
+    
+    if form.is_valid():
+      logging.info('A valid form')
+      options = form.cleaned_data
+      
+      apps = models.GrantApplication.objects.order_by('-submission_time').select_related('giving_project', 'grant_cycle')
+      logging.info(apps)
+
+      min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S') 
+      min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
+      max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S') 
+      max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
+      apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
+      logging.info(apps)
+
+      if options.get('organization'):
+        apps = apps.filter(organization__contains=options['organization'])
+      if options.get('city'):
+        apps = apps.filter(city=options['city'])
+      if options.get('state'):
+        apps = apps.filter(state__in=options['state'])
+      if options.get('screening_status'):
+        apps = apps.filter(screening_status__in=options.get('screening_status'))
+      if options.get('poc_bonus'):
+        apps = apps.filter(poc_bonus=True)
+      if options.get('geo_bonus'):
+        apps = apps.filter(geo_bonus=True)
+      logging.info(apps)
+
+      if options.get('giving_project'):
+        apps = apps.filter(giving_project__title__in=options.get('giving_project'))
+      if options.get('grant_cycle'):
+        apps = apps.filter(giving_project__title__in=options.get('grant_cycle'))
+      logging.info(apps)
+
+      fields = ['submission_time', 'organization', 'grant_cycle'] + options['report_basics'] + options['report_contact'] + options['report_org'] + options['report_proposal'] + options['report_budget']
+      if options['report_fiscal']:
+        fields += models.GrantApplication.fiscal_fields()
+      
+      results = GetResults(fields, apps)
+      
+      #add output check
+      if options['format']=='browse':
+        return render_to_response('grants/report_results.html', {'results':results, 'fields':fields})
+      elif options['format']=='csv':
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=%s.csv' % 'grantapplications'
+        writer = csv.writer(response)
+        for row in results:
+          for i in range(len(row)):            
+            if isinstance(row[i], str):#dunno about this part
+              row[i] = row[i].encode('utf-8') 
+            elif isinstance(row[i], unicode):  
+              row[i] = row[i].encode('ISO-8859-1')
+          writer.writerow(row)
+        return response
+    else:
+      logging.info('Invalid form!')  
+  return render(request, 'grants/search_applications.html', {'form':form})
+
+def GetResults(fields, apps):
+  #fields, apps = args
+  results = []
+  for app in apps:
+    row = []
+    for field in fields:
+      if field=='screening_status':
+        val = getattr(app, field)
+        if val:
+          convert = dict(models.SCREENING_CHOICES)
+          val = convert[val]
+        row.append(val)
+      else:
+        row.append(getattr(app, field))
+    results.append(row)
+  logging.info(results)
+  
+  return results
+
 # CRON
 def DeleteEmptyFiles(request): #/tools/delete-empty
   """ Delete all 0kb files in the blobstore """
@@ -506,7 +595,7 @@ def DraftWarning(request):
       logging.info("Email sent to " + to + "regarding draft application soon to expire")
   return HttpResponse("")
 
-# UTILS
+# UTILS (caused import probs in utils.py)
 def GetFileURLs(app):
   """ Given a draft or application
   return a dict of urls for viewing each of its files
@@ -514,10 +603,8 @@ def GetFileURLs(app):
     
   #determine whether draft or submitted
   if isinstance(app, models.GrantApplication):
-    logging.info("A submitted app!!!?!?")
     mid_url = 'grants/view-file/'
   elif isinstance(app, models.DraftGrantApplication):
-    logging.info("A draft")
     mid_url = 'grants/draft-file/'
   else:
     logging.error("GetFileURLs received invalid object")
@@ -528,9 +615,9 @@ def GetFileURLs(app):
   for field in file_urls:
     value = getattr(app, field)
     if value:
-      filename = str(value).split('/')[-1]
-      if not settings.DEBUG and str(value).lower().split(".")[-1] in constants.VIEWER_FORMATS: #doc viewer
+      ext = value.name.lower().split(".")[-1]
+      if not settings.DEBUG and ext in constants.VIEWER_FORMATS: #doc viewer
         file_urls[field] = 'https://docs.google.com/viewer?url='
-      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + '/' + field + '/' + filename
+      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + u'-' + field + u'.' + ext
   
   return file_urls

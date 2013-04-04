@@ -20,7 +20,8 @@ from google.appengine.api import files
 from google.appengine.api.images import get_serving_url, NotImageError
 from google.appengine.ext.blobstore import BlobInfo, BlobKey, delete, \
     create_upload_url, BLOB_KEY_HEADER, BLOB_RANGE_HEADER, BlobReader
-import logging
+import logging #
+from sjfnw.grants.utils import FindBlobKey #
 
 def prepare_upload(request, url, **kwargs):
     return create_upload_url(url), {}
@@ -56,13 +57,13 @@ class BlobstoreStorage(Storage):
     """Google App Engine Blobstore storage backend."""
 
     def _open(self, name, mode='rb'):
-        logging.info('.BlobstoreStorage_open on ' + name)
+        logging.info('storage open ' + str([name]))
         return BlobstoreFile(name, mode, self)
 
     def _save(self, name, content):
     
         name = name.replace('\\', '/')
-        logging.info('.BlobstoreStorage_save on ' + name)
+        logging.info('storage _save on ' + str([name]))
         if hasattr(content, 'file') and hasattr(content.file, 'blobstore_info'):
             data = content.file.blobstore_info
             logging.debug('1st')
@@ -161,11 +162,13 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
     """
 
     def new_file(self, *args, **kwargs):
+        """field_name, file_name, content_type, content_length, charset=None"""
+      
         #import pdb; pdb.set_trace() 
         logging.info('BlobstoreFileUploadHandler.new_file')
         super(BlobstoreFileUploadHandler, self).new_file(*args, **kwargs)
         
-        blobkey = None # self.content_type_extra.get('blob-key')
+        blobkey = FindBlobKey(self.request.body)
         self.active = blobkey is not None
         if self.active:
             self.blobkey = BlobKey(blobkey)
@@ -184,8 +187,8 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
         """
         logging.info('BlobstoreFileUploadHandler.file_complete')
         if not self.active:
+            logging.info('not active')
             return
-
         return BlobstoreUploadedFile(
             blobinfo=BlobInfo(self.blobkey),
             charset=self.charset)

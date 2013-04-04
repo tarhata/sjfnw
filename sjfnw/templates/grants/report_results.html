@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="/static/css/reporting.css">
+	<title>Reports - Grant Applications</title>
+</head>
+
+<body>
+<table>
+  <tr>
+    {% for field in fields %}<td>{{field}}</td>{% endfor %}
+	</tr>
+	{% for row in results %}
+	<tr>
+		{% for i in row %}<td>{{i}}</td>{% endfor %}
+	</tr>
+	{% endfor %}
+</table>
+
+</body>
+</html>

@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.text import capfirst
 from google.appengine.ext import blobstore
 from sjfnw.fund.models import GivingProject
-from sjfnw.utils import IntegerCommaField, PhoneNumberField
+from sjfnw.forms import IntegerCommaField, PhoneNumberField
 import datetime, logging, json
 from sjfnw import constants
 import utils
@@ -94,7 +94,7 @@ class TimelineWidget(MultiWidget):
 class Organization(models.Model):
   #registration fields
   name = models.CharField(max_length=255)
-  email = models.EmailField() #= django username
+  email = models.EmailField(verbose_name='Email(login)') #= django username
   
   #org contact info
   address = models.CharField(max_length=100, null=True)
@@ -110,7 +110,7 @@ class Organization(models.Model):
   status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True)
   ein = models.CharField(max_length=50, verbose_name="Organization's or Fiscal Sponsor Organization's EIN", null=True)
   founded = models.PositiveIntegerField(verbose_name='Year organization founded', null=True)
-  mission = models.TextField(null=True, blank=True)
+  mission = models.TextField()
   
   #fiscal sponsor info (if applicable)
   fiscal_org = models.CharField(verbose_name='Organization name', max_length=255, null=True, blank=True)
@@ -309,6 +309,11 @@ class GrantApplication(models.Model):
     html += '</table>'
     return html
   timeline_display.allow_tags = True
+  
+  @classmethod
+  def fiscal_fields(cls):
+    return ['fiscal_org', 'fiscal_person', 'fiscal_telephone', 'fiscal_email', 'fiscal_address']
+    
 
 def custom_fields(f, **kwargs):
   money_fields = ['budget_last', 'budget_current', 'amount_requested', 'project_budget']
