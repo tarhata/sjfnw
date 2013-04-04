@@ -276,7 +276,7 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
     #get or create saved json, update it
     logging.debug("Autosaving")
     dict = json.dumps(request.POST)
-    logging.debug(dict)
+    #logging.debug(dict)
     draft.contents = dict
     draft.modified = timezone.now()
     draft.save()
@@ -294,7 +294,7 @@ def AddFile(request, draft_id):
       logging.info(request.FILES[key])
       if hasattr(draft, key):
         old = getattr(draft, key)
-        #deferred.defer(utils.DeleteBlob, old)
+        deferred.defer(utils.DeleteBlob, old)
         setattr(draft, key, request.FILES[key])
         msg = key
         break
@@ -306,9 +306,7 @@ def AddFile(request, draft_id):
   if not msg:
     return HttpResponse("ERRORRRRRR")
   name = getattr(draft, msg)
-  logging.info(name)
   name = name.name.split('/')[-1]
-  logging.info(name)
   
   file_urls = GetFileURLs(draft)
   short_name = name#[:35] + (name[35:] and '..') #stackoverflow'd truncate
