@@ -9,11 +9,6 @@ from models import GrantApplication, DraftGrantApplication, Organization, GrantC
 import sys, datetime, re, json, unittest
 from sjfnw.constants import TEST_MIDDLEWARE, APP_FILE_FIELDS
 
-""" TO DO
-  each file field add
-  file viewing
-  char limit
-"""
 def setCycleDates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
       open, open, closed, upcoming, open """
@@ -56,6 +51,7 @@ def logInAdmin(self): #just a django superuser
   self.client.login(username = 'admin@gmail.com', password = 'admin')
 
 def alterDraftTimeline(draft, values):
+  """ values: list of timeline widget values (0-14) """
   contents_dict = json.loads(draft.contents)
   for i in range(15):
     contents_dict['timeline_' + str(i)] = values[i]
@@ -69,6 +65,9 @@ def alterDraftFiles(draft, files_dict):
   draft.save()
 
 def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in draft
+  """ Timeline formats:
+        submitted: json'd list, in order, no file names
+        draft: mixed in with other contents by widget name: timeline_0 - timeline_14 """
   draft_contents = json.loads(draft.contents)
   app_timeline = json.loads(app.timeline)
   for field, value in draft_contents.iteritems():
@@ -85,8 +84,6 @@ def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in
 #@unittest.skip('Not right now')
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplySuccessfulTests(TestCase):
-  
-  """ TODO: apply with deadline extension """
 
   fixtures = ['test_grants.json',] 
   
@@ -253,7 +250,7 @@ class ApplyValidationTests(TestCase):
     self.assertFormError(response, 'form', 'project_budget', "This field is required when applying for project support.")
     self.assertFormError(response, 'form', 'project_budget_file', "This field is required when applying for project support.")
   
-  def test_timeline_validation1(self):
+  def test_timeline_validation_incomplete(self):
     
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     answers = [
@@ -267,7 +264,7 @@ class ApplyValidationTests(TestCase):
     response = self.client.post('/apply/3/', follow=True)
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">All three columns are required for each quarter that you include in your timeline.</div>')
     
-  def test_timeline_validation1(self):
+  def test_timeline_validation_empty(self):
     
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     answers = [

@@ -61,12 +61,14 @@ function autoSave(submit){
 // character limits
 function charLimitDisplay(area, limit){
 	var counter = document.getElementById(area.name + '_counter');
-	var diff = limit - area.value.length;
+	var words = area.value.match(/[^ \r\n]+/g) || [];
+	console.log(words);
+	var diff = limit - words.length;
   if (diff >= 0) {
-    counter.innerHTML = diff + ' characters remaining';
+    counter.innerHTML = diff + ' words remaining';
     counter.className = 'char_counter_ok';
   } else {
-    counter.innerHTML = -diff + ' characters over the limit';
+    counter.innerHTML = -diff + ' words over the limit';
     counter.className = 'char_counter_over';
   } 
 }
@@ -242,7 +244,7 @@ if($.browser.mozilla) { //stackoverflow
 				<td>{{form.contact_person.label_tag}}{{form.contact_person}}</td>
 				<td>{{form.contact_person_title.label_tag}}{{form.contact_person_title}}</td>
 			</tr><tr>
-				<td colspan="2"><div class="vertical_cushion">{{form.mission.label_tag}}{{form.mission.errors}}<span class="char_counter" id="mission_counter">750</span></div>
+				<td colspan="2"><div class="vertical_cushion">{{form.mission.label_tag}}{{form.mission.errors}}<span class="char_counter" id="mission_counter">150</span></div>
 				{{form.mission}}</td>
 			</tr><tr>
 				<td colspan="2">{{form.previous_grants.errors}}</td>
@@ -273,7 +275,7 @@ if($.browser.mozilla) { //stackoverflow
 				<td>{{form.project_title.label_tag}}{{form.project_title}}</td>
 				<td>{{form.project_budget.label_tag}} ${{form.project_budget}}</td>
 			</tr><tr>
-				<td colspan="2"><div class="vertical_cushion">{{form.grant_request.label_tag}}{{form.grant_request.errors}}<span class="char_counter" id="grant_request_counter">600</span></div>
+				<td colspan="2"><div class="vertical_cushion">{{form.grant_request.label_tag}}{{form.grant_request.errors}}<span class="char_counter" id="grant_request_counter">100</span></div>
 				{{form.grant_request}}</td>
 			</tr><tr>
 				<td><br><u>Fiscal sponsor information (if applicable)</u></td><!-- Fiscal sponsor info -->

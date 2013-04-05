@@ -1,7 +1,7 @@
 ﻿from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxLengthValidator
+from django.core.validators import BaseValidator
 from django.db import models
 from django.forms import ModelForm, Textarea
 from django.forms.widgets import FileInput, MultiWidget
@@ -10,11 +10,11 @@ from django.utils.text import capfirst
 from google.appengine.ext import blobstore
 from sjfnw.fund.models import GivingProject
 from sjfnw.forms import IntegerCommaField, PhoneNumberField
-import datetime, logging, json
+import datetime, logging, json, re
 from sjfnw import constants
 import utils
 
-NARRATIVE_CHAR_LIMITS = [0, 1800, 900, 2700, 1800, 1800, 2700, 1800]
+NARRATIVE_CHAR_LIMITS = [0, 300, 150, 450, 300, 300, 450, 300]
 NARRATIVE_TEXTS = ['Placeholder for 0',
   'Describe your organization\'s mission, history and major accomplishments.', #1
   'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ul><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ul>', #2
@@ -189,9 +189,12 @@ class DraftGrantApplication(models.Model):
       return True
     else:
       return False
-    
-class CharLimitValidator(MaxLengthValidator):
-  message = 'Please limit this response to %(limit_value)s characters or less.'
+
+class WordLimitValidator(BaseValidator):
+    compare = lambda self, a, b: a > b
+    clean   = lambda self, x: len(re.findall(r'[^ \n\r]+', x))
+    message = u'Ensure this value has at most %(limit_value)d words (it has %(show_value)d).'
+    code = 'max_words'
 
 def validate_file_extension(value):
   if not str(value).lower().split(".")[-1] in constants.ALLOWED_FILE_TYPES:
@@ -219,7 +222,7 @@ class GrantApplication(models.Model):
   status = models.CharField(max_length=50, choices=STATUS_CHOICES)
   ein = models.CharField(max_length=50, verbose_name="Organization or Fiscal Sponsor EIN")
   founded = models.PositiveIntegerField(verbose_name='Year founded')
-  mission = models.TextField(verbose_name="Mission statement", validators=[CharLimitValidator(750)])
+  mission = models.TextField(verbose_name="Mission statement", validators=[WordLimitValidator(150)])
   previous_grants = models.CharField(max_length=255, verbose_name="Previous SJF grants awarded (amounts and year)", blank=True)
   
   #budget info
@@ -228,7 +231,7 @@ class GrantApplication(models.Model):
   budget_current = models.PositiveIntegerField(verbose_name='Org. budget this fiscal year')
   
   #this grant info
-  grant_request = models.TextField(verbose_name="Briefly summarize the grant request", validators=[CharLimitValidator(600)])
+  grant_request = models.TextField(verbose_name="Briefly summarize the grant request", validators=[WordLimitValidator(100)])
   contact_person = models.CharField(max_length=250, verbose_name= 'Name', help_text='Contact person for this grant application')
   contact_person_title = models.CharField(max_length=100, verbose_name='Title')
   grant_period = models.CharField(max_length=250, blank=True, verbose_name='Grant period (if different than fiscal year)')
@@ -246,13 +249,13 @@ class GrantApplication(models.Model):
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, blank=True)
   
   #narrative
-  narrative1 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
-  narrative2 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[2])], verbose_name = NARRATIVE_TEXTS[2])
-  narrative3 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[3])], verbose_name = NARRATIVE_TEXTS[3])
-  narrative4 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[4])], verbose_name = NARRATIVE_TEXTS[4])
-  narrative5 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[5])], verbose_name = NARRATIVE_TEXTS[5])
-  narrative6 = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
-  cycle_question = models.TextField(validators=[CharLimitValidator(NARRATIVE_CHAR_LIMITS[7])], blank=True)
+  narrative1 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
+  narrative2 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[2])], verbose_name = NARRATIVE_TEXTS[2])
+  narrative3 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[3])], verbose_name = NARRATIVE_TEXTS[3])
+  narrative4 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[4])], verbose_name = NARRATIVE_TEXTS[4])
+  narrative5 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[5])], verbose_name = NARRATIVE_TEXTS[5])
+  narrative6 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
+  cycle_question = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[7])], blank=True)
   
   timeline = models.TextField()
   
@@ -317,8 +320,7 @@ class GrantApplication(models.Model):
   def fiscal_fields(cls):
     return ['fiscal_org', 'fiscal_person', 'fiscal_telephone', 'fiscal_email', 'fiscal_address']
     
-
-def custom_fields(f, **kwargs):
+def custom_fields(f, **kwargs): #sets phonenumber and money fields
   money_fields = ['budget_last', 'budget_current', 'amount_requested', 'project_budget']
   phone_fields = ['telephone_number', 'fax_number', 'fiscal_telephone', 'collab_ref1_phone', 'collab_ref2_phone', 'racial_justice_ref1_phone', 'racial_justice_ref2_phone']
   kwargs['required'] = not f.blank
