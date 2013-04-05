@@ -1,5 +1,6 @@
 ﻿from django.core.validators import MaxValueValidator
 from django.db import models
+from django.db.models import Sum
 from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.utils import timezone
@@ -37,6 +38,13 @@ class GivingProject(models.Model):
 
   def require_estimates(self):
     return self.fundraising_training <= timezone.now()
+  
+  def estimated(self):
+    donors = Donor.objects.filter(membership__giving_project=self)
+    estimated = 0
+    for donor in donors:
+      estimated += donor.estimated()
+    return estimated
 
 class Member(models.Model):
   email = models.EmailField()

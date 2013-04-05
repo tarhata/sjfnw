@@ -122,7 +122,8 @@ class GivingProjectAdminForm(ModelForm):
 
 # ModelAdmin
 class GivingProjectA(admin.ModelAdmin):
-  list_display = ('title', gp_year)
+  list_display = ('title', gp_year, 'estimated')
+  readonly_fields = ('estimated',)
   fields = (
     ('title', 'public'),
     ('fundraising_training', 'fundraising_deadline'),
