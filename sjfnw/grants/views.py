@@ -470,7 +470,15 @@ def AdminRollover(request, app_id):
   if request.method=='POST':
     form = AdminRolloverForm(org, request.POST)
     if form.is_valid():
-      logging.info("Successy")
+      cycle = get_object_or_404(models.GrantCycle, pk = int(form.cleaned_data['cycle']))
+      logging.info("Success rollover of " + unicode(application) + ' to ' + str(cycle))
+      application.pk = None
+      application.screening_status = 10
+      application.submission_time = timezone.now()
+      application.grant_cycle = cycle
+      application.giving_project = None
+      application.save()
+      return redirect('/admin/grants/grantapplication/'+str(application.pk)+'/')
   else:
     form = AdminRolloverForm(org)
     cycle_count = str(form['cycle']).count('<option value')
