@@ -158,7 +158,7 @@ class DraftGrantApplication(models.Model):
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
   created = models.DateTimeField(blank=True, default = timezone.now())
-  modified = models.DateTimeField(default = timezone.now())
+  modified = models.DateTimeField(blank=True, default = timezone.now())
   
   contents = models.TextField(default='{}')
   
@@ -201,7 +201,7 @@ class GrantApplication(models.Model):
   """ Submitted grant application """
   
   #automated fields
-  submission_time = models.DateTimeField(default=timezone.now(), verbose_name='Submitted')
+  submission_time = models.DateTimeField(blank=True, default=timezone.now(), verbose_name='Submitted')
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
   
@@ -294,6 +294,9 @@ class GrantApplication(models.Model):
   scoring_bonus_poc = models.BooleanField(default=False, verbose_name='Scoring bonus for POC-led')
   scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity')
   
+  class Meta:
+    unique_together = ('organization', 'grant_cycle')
+
   def __unicode__(self):
     return unicode(self.organization) + u' - ' + unicode(self.grant_cycle) + u' - ' + unicode(self.submission_time.year)
   
