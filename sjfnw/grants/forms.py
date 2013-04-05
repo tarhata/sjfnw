@@ -74,7 +74,7 @@ class AdminRolloverForm(forms.Form):
   def __init__(self, organization, *args, **kwargs):
     super(AdminRolloverForm, self).__init__(*args, **kwargs)
     
-    #get apps & drafts
+    #get apps & drafts (for eliminating cycles)
     submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time').select_related('grant_cycle')
     drafts = models.DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
     

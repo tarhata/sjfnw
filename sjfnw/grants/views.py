@@ -473,8 +473,9 @@ def AdminRollover(request, app_id):
       logging.info("Successy")
   else:
     form = AdminRolloverForm(org)
-  
-  return render(request, 'admin/grants/rollover.html', {'form':form, 'application':application})
+    cycle_count = str(form['cycle']).count('<option value')
+    
+  return render(request, 'admin/grants/rollover.html', {'form':form, 'application':application, 'count':cycle_count})
 
 def SearchApps(request):
   form = AppSearchForm()
