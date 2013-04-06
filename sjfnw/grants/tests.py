@@ -9,11 +9,6 @@ from models import GrantApplication, DraftGrantApplication, Organization, GrantC
 import sys, datetime, re, json, unittest
 from sjfnw.constants import TEST_MIDDLEWARE, APP_FILE_FIELDS
 
-""" TO DO
-  each file field add
-  file viewing
-  char limit
-"""
 def setCycleDates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
       open, open, closed, upcoming, open """
@@ -56,6 +51,7 @@ def logInAdmin(self): #just a django superuser
   self.client.login(username = 'admin@gmail.com', password = 'admin')
 
 def alterDraftTimeline(draft, values):
+  """ values: list of timeline widget values (0-14) """
   contents_dict = json.loads(draft.contents)
   for i in range(15):
     contents_dict['timeline_' + str(i)] = values[i]
@@ -69,6 +65,9 @@ def alterDraftFiles(draft, files_dict):
   draft.save()
 
 def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in draft
+  """ Timeline formats:
+        submitted: json'd list, in order, no file names
+        draft: mixed in with other contents by widget name: timeline_0 - timeline_14 """
   draft_contents = json.loads(draft.contents)
   app_timeline = json.loads(app.timeline)
   for field, value in draft_contents.iteritems():
@@ -84,9 +83,92 @@ def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in
 
 #@unittest.skip('Not right now')
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplySuccessfulTests(TestCase):
+class Register(TestCase):
+
+  fixtures = ['test_grants.json',] 
   
-  """ TODO: apply with deadline extension """
+  def setUp(self):
+    pass
+  
+  def valid_registration(self):
+    
+    registration = {
+      'email': 'uniquenewyork@gmail.com',
+      'password': 'one',
+      'passwordtwo': 'one',
+      'organization': 'Unique, New York'
+      }
+    
+    self.assertEqual(0, Organization.objects.filter(name='Unique, New York').count())
+    self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
+    
+    response = self.client.post('/apply/register', registration, follow=True)
+    
+    self.assertEqual(1, Organization.objects.filter(name='Unique, New York').count())
+    self.assertEqual(1, User.objects.filter(email='uniquenewyork@gmail.com').count())
+    self.assertTemplateUsed(response, 'grants/org_home.html')
+    
+  def test_repeat_org_name(self):
+    
+    registration = {
+      'email': 'uniquenewyork@gmail.com',
+      'password': 'one',
+      'passwordtwo': 'one',
+      'organization': 'officemax foundation'
+      }
+    
+    self.assertEqual(1, Organization.objects.filter(name='OfficeMax Foundation').count())
+    self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
+    
+    response = self.client.post('/apply/register', registration, follow=True)
+    
+    self.assertEqual(1, Organization.objects.filter(name='OfficeMax Foundation').count())
+    self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
+    self.assertTemplateUsed(response, 'grants/org_login_register.html')
+    self.assertEqual(response.context['register_errors'], 'That organization is already registered. Log in instead.')
+    
+  def test_repeat_org_email(self):
+    
+    registration = {
+      'email': 'newacct@gmail.com',
+      'password': 'one',
+      'passwordtwo': 'one',
+      'organization': 'Brand New'
+    }
+    
+    self.assertEqual(1, Organization.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
+    
+    response = self.client.post('/apply/register', registration, follow=True)
+    
+    self.assertEqual(1, Organization.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
+    self.assertTemplateUsed(response, 'grants/org_login_register.html')
+    self.assertEqual(response.context['register_errors'], 'That organization is already registered. Log in instead.')
+  
+  def test_repeat_user_email(self):
+    
+    user = User.objects.create_user('bababa@gmail.com', 'newacct@gmail.com', 'noob')
+    
+    registration = {
+      'email': 'bababa@gmail.com',
+      'password': 'one',
+      'passwordtwo': 'one',
+      'organization': 'Brand New'
+      }
+    
+    self.assertEqual(1, User.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
+    
+    response = self.client.post('/apply/register', registration, follow=True)
+    
+    self.assertEqual(1, User.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
+    self.assertTemplateUsed(response, 'grants/org_login_register.html')
+    self.assertEqual(response.context['register_errors'], 'That email is registered with Project Central. Please register using a different email.')
+    
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class ApplySuccessful(TestCase):
 
   fixtures = ['test_grants.json',] 
   
@@ -96,14 +178,15 @@ class ApplySuccessfulTests(TestCase):
   
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_post_valid_app(self):
-    """ scenario: start with a complete draft, post to apply
+    """ 
+      scenario: start with a complete draft, post to apply
                   general, no fiscal, all-in-one budget
 
-        verify: response is success page
-                grantapplication created
-                draft deleted
-                email sent
-                org profile updated """
+      verify: response is success page
+              grantapplication created
+              draft deleted
+              email sent
+              org profile updated """
 
     org = Organization.objects.get(pk = 2)
     self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
@@ -175,7 +258,7 @@ class ApplySuccessfulTests(TestCase):
     self.assertEqual(app.budget, '')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplyBlockedTests(TestCase):
+class ApplyBlocked(TestCase):
  
   fixtures = ['test_grants.json',]   
   def setUp(self):
@@ -203,7 +286,7 @@ class ApplyBlockedTests(TestCase):
     self.assertEqual(404, response.status_code)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplyValidationTests(TestCase):
+class ApplyValidation(TestCase):
   """TO DO
       fiscal
       collab
@@ -253,7 +336,7 @@ class ApplyValidationTests(TestCase):
     self.assertFormError(response, 'form', 'project_budget', "This field is required when applying for project support.")
     self.assertFormError(response, 'form', 'project_budget_file', "This field is required when applying for project support.")
   
-  def test_timeline_validation1(self):
+  def test_timeline_validation_incomplete(self):
     
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     answers = [
@@ -267,7 +350,7 @@ class ApplyValidationTests(TestCase):
     response = self.client.post('/apply/3/', follow=True)
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">All three columns are required for each quarter that you include in your timeline.</div>')
     
-  def test_timeline_validation1(self):
+  def test_timeline_validation_empty(self):
     
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     answers = [
@@ -282,7 +365,7 @@ class ApplyValidationTests(TestCase):
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">This field is required.</div>')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)    
-class StartApplicationTests(TestCase): #MIGHT BE OUT OF DATE
+class StartApplication(TestCase): #MIGHT BE OUT OF DATE
   
   fixtures = ['test_grants.json',]  
   def setUp(self):
@@ -321,7 +404,7 @@ class StartApplicationTests(TestCase): #MIGHT BE OUT OF DATE
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class DraftWarningTests(TestCase):
+class DraftWarning(TestCase):
   
   fixtures = ['test_grants.json',]
   def setUp(self):
@@ -392,7 +475,7 @@ class DraftWarningTests(TestCase):
     self.assertEqual(len(mail.outbox), 0)
   
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class RolloverTests(TestCase):
+class OrgRollover(TestCase):
   """ Basic success
   content,   timeline,   files,   not extra cycle q   """
   
@@ -468,7 +551,7 @@ class RolloverTests(TestCase):
     self.assertContains(response, 'Select')
       
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class RevertTests(TestCase):
+class Revert(TestCase):
   
   fixtures = ['test_grants.json',]
   
@@ -500,7 +583,7 @@ class RevertTests(TestCase):
     assertDraftAppMatch(self, draft, app, False)
    
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class DraftTests(TestCase):
+class Draft(TestCase):
   
   fixtures = ['test_grants.json',]
   
@@ -520,8 +603,23 @@ class DraftTests(TestCase):
     self.assertEqual(200, response.status_code)
     new_draft = DraftGrantApplication.objects.get(organization_id =2, grant_cycle_id=5)
     self.assertEqual(json.loads(complete_draft.contents), json.loads(new_draft.contents))
-  
-  """ TO DO
+
+    
+""" TO DO - files
+  as of 4/4/13 this one throws error from deferred going off. i imagine blobstore api will cause a problem too.
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  def test_add_file(self):
+    
+    draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=2)
+    self.assertEqual('', draft.budget)  
+    budget = open('sjfnw/grants/fixtures/test_grants_guide.txt')
+    form_data = {'budget': budget}
+    
+    response = self.client.post('/apply/2/add-file/', form_data)
+    budget.close()
+
+    self.assertEqual(200, response.status_code)  
+    
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_add_file(self):
     
@@ -535,18 +633,16 @@ class DraftTests(TestCase):
     
   def discard(self):
     pass
-    
   """
 
-  """ TO DO 
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class HomePageTests(TestCase):
+""" TO DO - HomePage
+  @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+  class HomePage(TestCase):
   
   # Viewing data on the home page
       #  submitted apps sorting
       #  display of submitted, drafts, past-due drafts
       #  display/sorting of cycles
   def load_home_page(self):
-    pass
-    
-"""
+    pass   
+  """

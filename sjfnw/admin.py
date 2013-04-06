@@ -174,6 +174,15 @@ def rollover(obj): #GrantApplication fieldset
   return '<a href="rollover">Copy to another grant cycle</a>'
 rollover.allow_tags = True
 
+def organization_link(obj):
+  return u'<a href="/admin/grants/organization/' + str(obj.organization.pk) + '/" target="_blank">' + unicode(obj.organization) + '</a>'
+organization_link.allow_tags = True
+organization_link.short_description = 'Organization'
+
+def edit_application(obj): #GrantApplication fieldset
+  return '<a href="/admin/grants/grantapplication/' + str(obj.pk) + '/" target="_blank">Edit</a>'
+edit_application.allow_tags = True
+
 # inlines
 class GrantApplicationCycleInline(admin.TabularInline): #Cycle
   model = GrantApplication
@@ -188,8 +197,8 @@ class GrantApplicationInline(admin.TabularInline): #Org
   extra = 0
   max_num = 0
   can_delete = False
-  readonly_fields = ('submission_time', 'grant_cycle', 'screening_status')
-  fields = ('submission_time', 'grant_cycle', 'screening_status')
+  readonly_fields = ('submission_time', 'grant_cycle', 'screening_status', edit_application, 'view_link')
+  fields = ('submission_time', 'grant_cycle', 'screening_status', edit_application, 'view_link')
 
 class GrantLogInlineRead(admin.TabularInline): #Org, Application
   model = GrantApplicationLog
@@ -248,6 +257,7 @@ class DraftForm(ModelForm):
         raise ValidationError('This organization has already submitted an application to this grant cycle.')
     return cleaned_data
 
+# modeladmin
 class GrantCycleA(admin.ModelAdmin):
   list_display = ('title', 'open', 'close')
   fields = (
@@ -281,11 +291,11 @@ class OrganizationA(admin.ModelAdmin):
 class GrantApplicationA(admin.ModelAdmin):
   form = AppAdminForm
   fieldsets = (
-    '', {'fields': (('organization', 'grant_cycle', 'submission_time', 'view_link'),)}
+    '', {'fields': ((organization_link, 'grant_cycle', 'submission_time', 'view_link'),)}
     ),(
-    'Admin fields', {'fields': ('screening_status', ('scoring_bonus_poc', 'scoring_bonus_geo'), (revert_grant))}
+    'Admin fields', {'fields': (('screening_status', 'giving_project'),('scoring_bonus_poc', 'scoring_bonus_geo'), (revert_grant, rollover))}
     )
-  readonly_fields = ('organization', 'grant_cycle', 'submission_time', 'view_link', revert_grant)
+  readonly_fields = (organization_link, 'grant_cycle', 'submission_time', 'view_link', revert_grant, rollover)
   list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')  
   list_filter = ('grant_cycle', 'screening_status')
   inlines = [GrantLogInlineRead, GrantLogInline]

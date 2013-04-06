@@ -27,18 +27,19 @@ def OrgLogin(request):
   login_errors=''
   if request.method=='POST':
     form = LoginForm(request.POST)
-    email = request.POST['email'].lower()
-    password = request.POST['password']
-    user = authenticate(username=email, password=password)
-    if user:
-      if user.is_active:
-        login(request, user)
-        return redirect(OrgHome)
+    if form.is_valid():
+      email = request.POST['email'].lower()
+      password = request.POST['password']
+      user = authenticate(username=email, password=password)
+      if user:
+        if user.is_active:
+          login(request, user)
+          return redirect(OrgHome)
+        else:
+          login_errors='Your account is inactive. Please contact an administrator.'
+          logging.warning('Inactive org account tried to log in, username: ' + email)
       else:
-        login_errors='Your account is inactive. Please contact an administrator.'
-        logging.warning('Inactive org account tried to log in, username: ' + email)
-    else:
-      login_errors ="Your password didn't match. Please try again."
+        login_errors ="Your password didn't match. Please try again."
   else:
     form = LoginForm()
   register = RegisterForm()
@@ -206,7 +207,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   else: #GET
 
     #get initial data
-    if cr: #load profile
+    if cr or draft.contents=='{}': #load profile
       dict = model_to_dict(organization, exclude = ['fiscal_letter',])
       draft.fiscal_letter = organization.fiscal_letter
       draft.contents = json.dumps(dict)
@@ -470,11 +471,20 @@ def AdminRollover(request, app_id):
   if request.method=='POST':
     form = AdminRolloverForm(org, request.POST)
     if form.is_valid():
-      logging.info("Successy")
+      cycle = get_object_or_404(models.GrantCycle, pk = int(form.cleaned_data['cycle']))
+      logging.info("Success rollover of " + unicode(application) + ' to ' + str(cycle))
+      application.pk = None
+      application.screening_status = 10
+      application.submission_time = timezone.now()
+      application.grant_cycle = cycle
+      application.giving_project = None
+      application.save()
+      return redirect('/admin/grants/grantapplication/'+str(application.pk)+'/')
   else:
     form = AdminRolloverForm(org)
-  
-  return render(request, 'admin/grants/rollover.html', {'form':form, 'application':application})
+    cycle_count = str(form['cycle']).count('<option value')
+    
+  return render(request, 'admin/grants/rollover.html', {'form':form, 'application':application, 'count':cycle_count})
 
 def SearchApps(request):
   form = AppSearchForm()
