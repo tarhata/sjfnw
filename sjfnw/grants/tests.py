@@ -83,7 +83,93 @@ def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in
 
 #@unittest.skip('Not right now')
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplySuccessfulTests(TestCase):
+class Register(TestCase):
+
+  fixtures = ['test_grants.json',] 
+  
+  def setUp(self):
+    pass
+  
+  def valid_registration(self):
+    
+    registration = {
+      'email': 'uniquenewyork@gmail.com',
+      'password': 'one',
+      'passwordtwo': 'one',
+      'organization': 'Unique, New York'
+      }
+    
+    self.assertEqual(0, Organization.objects.filter(name='Unique, New York').count())
+    self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
+    
+    response = self.client.post('/apply/register', registration, follow=True)
+    
+    self.assertEqual(1, Organization.objects.filter(name='Unique, New York').count())
+    self.assertEqual(1, User.objects.filter(email='uniquenewyork@gmail.com').count())
+    self.assertTemplateUsed(response, 'grants/org_home.html')
+    
+  def test_repeat_org_name(self):
+    
+    registration = {
+      'email': 'uniquenewyork@gmail.com',
+      'password': 'one',
+      'passwordtwo': 'one',
+      'organization': 'officemax foundation'
+      }
+    
+    self.assertEqual(1, Organization.objects.filter(name='OfficeMax Foundation').count())
+    self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
+    
+    response = self.client.post('/apply/register', registration, follow=True)
+    
+    self.assertEqual(1, Organization.objects.filter(name='OfficeMax Foundation').count())
+    self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
+    self.assertTemplateUsed(response, 'grants/org_login_register.html')
+    self.assertEqual(response.context['register_errors'], 'That organization is already registered. Log in instead.')
+    
+  def test_repeat_org_email(self):
+    
+    registration = {
+      'email': 'newacct@gmail.com',
+      'password': 'one',
+      'passwordtwo': 'one',
+      'organization': 'Brand New'
+    }
+    
+    self.assertEqual(1, Organization.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
+    
+    response = self.client.post('/apply/register', registration, follow=True)
+    
+    self.assertEqual(1, Organization.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
+    self.assertTemplateUsed(response, 'grants/org_login_register.html')
+    self.assertEqual(response.context['register_errors'], 'That organization is already registered. Log in instead.')
+  
+  def test_repeat_user_email(self):
+    
+    user = User.objects.create_user('bababa@gmail.com', 'newacct@gmail.com', 'noob')
+    
+    registration = {
+      'email': 'bababa@gmail.com',
+      'password': 'one',
+      'passwordtwo': 'one',
+      'organization': 'Brand New'
+      }
+    
+    self.assertEqual(1, User.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
+    
+    response = self.client.post('/apply/register', registration, follow=True)
+    
+    self.assertEqual(1, User.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
+    self.assertTemplateUsed(response, 'grants/org_login_register.html')
+    self.assertEqual(response.context['register_errors'], 'That email is registered with Project Central. Please register using a different email.')
+    
+    
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class ApplySuccessful(TestCase):
 
   fixtures = ['test_grants.json',] 
   
@@ -172,7 +258,7 @@ class ApplySuccessfulTests(TestCase):
     self.assertEqual(app.budget, '')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplyBlockedTests(TestCase):
+class ApplyBlocked(TestCase):
  
   fixtures = ['test_grants.json',]   
   def setUp(self):
@@ -200,7 +286,7 @@ class ApplyBlockedTests(TestCase):
     self.assertEqual(404, response.status_code)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplyValidationTests(TestCase):
+class ApplyValidation(TestCase):
   """TO DO
       fiscal
       collab
@@ -279,7 +365,7 @@ class ApplyValidationTests(TestCase):
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">This field is required.</div>')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)    
-class StartApplicationTests(TestCase): #MIGHT BE OUT OF DATE
+class StartApplication(TestCase): #MIGHT BE OUT OF DATE
   
   fixtures = ['test_grants.json',]  
   def setUp(self):
@@ -318,7 +404,7 @@ class StartApplicationTests(TestCase): #MIGHT BE OUT OF DATE
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class DraftWarningTests(TestCase):
+class DraftWarning(TestCase):
   
   fixtures = ['test_grants.json',]
   def setUp(self):
@@ -389,7 +475,7 @@ class DraftWarningTests(TestCase):
     self.assertEqual(len(mail.outbox), 0)
   
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class RolloverTests(TestCase):
+class OrgRollover(TestCase):
   """ Basic success
   content,   timeline,   files,   not extra cycle q   """
   
@@ -465,7 +551,7 @@ class RolloverTests(TestCase):
     self.assertContains(response, 'Select')
       
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class RevertTests(TestCase):
+class Revert(TestCase):
   
   fixtures = ['test_grants.json',]
   
@@ -497,7 +583,7 @@ class RevertTests(TestCase):
     assertDraftAppMatch(self, draft, app, False)
    
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class DraftTests(TestCase):
+class Draft(TestCase):
   
   fixtures = ['test_grants.json',]
   
@@ -537,7 +623,7 @@ class DraftTests(TestCase):
 
   """ TO DO 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class HomePageTests(TestCase):
+class HomePage(TestCase):
   
   # Viewing data on the home page
       #  submitted apps sorting
