@@ -27,18 +27,19 @@ def OrgLogin(request):
   login_errors=''
   if request.method=='POST':
     form = LoginForm(request.POST)
-    email = request.POST['email'].lower()
-    password = request.POST['password']
-    user = authenticate(username=email, password=password)
-    if user:
-      if user.is_active:
-        login(request, user)
-        return redirect(OrgHome)
+    if form.is_valid():
+      email = request.POST['email'].lower()
+      password = request.POST['password']
+      user = authenticate(username=email, password=password)
+      if user:
+        if user.is_active:
+          login(request, user)
+          return redirect(OrgHome)
+        else:
+          login_errors='Your account is inactive. Please contact an administrator.'
+          logging.warning('Inactive org account tried to log in, username: ' + email)
       else:
-        login_errors='Your account is inactive. Please contact an administrator.'
-        logging.warning('Inactive org account tried to log in, username: ' + email)
-    else:
-      login_errors ="Your password didn't match. Please try again."
+        login_errors ="Your password didn't match. Please try again."
   else:
     form = LoginForm()
   register = RegisterForm()
