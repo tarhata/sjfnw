@@ -167,7 +167,6 @@ class Register(TestCase):
     self.assertTemplateUsed(response, 'grants/org_login_register.html')
     self.assertEqual(response.context['register_errors'], 'That email is registered with Project Central. Please register using a different email.')
     
-    
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplySuccessful(TestCase):
 
@@ -179,14 +178,15 @@ class ApplySuccessful(TestCase):
   
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_post_valid_app(self):
-    """ scenario: start with a complete draft, post to apply
+    """ 
+      scenario: start with a complete draft, post to apply
                   general, no fiscal, all-in-one budget
 
-        verify: response is success page
-                grantapplication created
-                draft deleted
-                email sent
-                org profile updated """
+      verify: response is success page
+              grantapplication created
+              draft deleted
+              email sent
+              org profile updated """
 
     org = Organization.objects.get(pk = 2)
     self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
@@ -603,8 +603,23 @@ class Draft(TestCase):
     self.assertEqual(200, response.status_code)
     new_draft = DraftGrantApplication.objects.get(organization_id =2, grant_cycle_id=5)
     self.assertEqual(json.loads(complete_draft.contents), json.loads(new_draft.contents))
-  
-  """ TO DO
+
+    
+""" TO DO - files
+  as of 4/4/13 this one throws error from deferred going off. i imagine blobstore api will cause a problem too.
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  def test_add_file(self):
+    
+    draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=2)
+    self.assertEqual('', draft.budget)  
+    budget = open('sjfnw/grants/fixtures/test_grants_guide.txt')
+    form_data = {'budget': budget}
+    
+    response = self.client.post('/apply/2/add-file/', form_data)
+    budget.close()
+
+    self.assertEqual(200, response.status_code)  
+    
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_add_file(self):
     
@@ -618,18 +633,16 @@ class Draft(TestCase):
     
   def discard(self):
     pass
-    
   """
 
-  """ TO DO 
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class HomePage(TestCase):
+""" TO DO - HomePage
+  @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+  class HomePage(TestCase):
   
   # Viewing data on the home page
       #  submitted apps sorting
       #  display of submitted, drafts, past-due drafts
       #  display/sorting of cycles
   def load_home_page(self):
-    pass
-    
-"""
+    pass   
+  """
