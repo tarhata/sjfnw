@@ -551,7 +551,7 @@ class OrgRollover(TestCase):
     self.assertContains(response, 'Select')
       
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class Revert(TestCase):
+class AdminRevert(TestCase):
   
   fixtures = ['test_grants.json',]
   
@@ -581,7 +581,24 @@ class Revert(TestCase):
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=1).count())
     draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
     assertDraftAppMatch(self, draft, app, False)
-   
+
+@unittest.skip('Incomplete')   
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class AdminRollover(TestCase):
+  fixtures = ['test_grants.json',]
+  
+  def setUp(self):
+    setCycleDates()
+
+@unittest.skip('Incomplete')    
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class DraftExtension(TestCase):
+  fixtures = ['test_grants.json',]
+  
+  def setUp(self):
+    setCycleDates()
+    logInAdmin(self)
+
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class Draft(TestCase):
   

@@ -379,12 +379,6 @@ class MainPageContent(TestCase):
         test that notif shows up on next load
         test that notif is gone on next load """
   
-"""
- TEST IDEAS
- 
-  registration
-  gift notification & email
-  forms in general
-  update story
-    
-"""
+""" TEST IDEAS
+      gift notification & email
+      update story (deferred) """
