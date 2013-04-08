@@ -18,23 +18,27 @@
                   };
                      
     function drawChart() {
+			chart_div = document.getElementById('chart_div');
+			if (chart_div) {
+				// Create the data table.
+				var data = new google.visualization.DataTable();
+				data.addColumn('string', 'Status');
+				data.addColumn('number', 'Contacts');
+				data.addRows([
+					["Haven't contacted", {{progress.contactsremaining}}],
+					["Talked to", {{progress.talked}}],
+					['Asked', {{progress.asked}}]
+				]);
 
-      // Create the data table.
-      var data = new google.visualization.DataTable();
-      data.addColumn('string', 'Status');
-      data.addColumn('number', 'Contacts');
-      data.addRows([
-        ["Haven't contacted", {{progress.contactsremaining}}],
-        ["Talked to", {{progress.talked}}],
-        ['Asked', {{progress.asked}}]
-      ]);
-
-      // Instantiate and draw our chart, passing in some options.
-      var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-      chart.draw(data, options);
-      if ({{progress.estimated}} > 0) {
-        drawChart2();
-      }
+				// Instantiate and draw our chart, passing in some options.
+				var chart = new google.visualization.PieChart(chart_div);
+				chart.draw(data, options);
+				if ({{progress.estimated}} > 0) {
+					drawChart2();
+				}
+			} else {
+				console.log('no chart div, not running drawchart');
+			}
     }
     
     function drawChart2() {
@@ -67,10 +71,15 @@
 
   function textProgress() {
     console.log('textProgress');
-    document.getElementById('chart_div').innerHTML = "<br><br>Haven't contacted: {{progress.contactsremaining}}<br>Talked to: {{progress.talked}}<br>Asked: {{progress.asked}}";
-    if ({{progress.estimated}} > 0) {
-      document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{progress.togo|default:'0'}}<br>Pledged: ${{progress.pledged}}<br>Donated: ${{progress.donated}}";
-    }
+    chart = document.getElementById('chart_div');
+		if (chart) {
+			chart.innerHTML = "<br><br>Haven't contacted: {{progress.contactsremaining}}<br>Talked to: {{progress.talked}}<br>Asked: {{progress.asked}}";
+			if ({{progress.estimated}} > 0) {
+				document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{progress.togo|default:'0'}}<br>Pledged: ${{progress.pledged}}<br>Donated: ${{progress.donated}}";
+			}
+		} else {
+			console.log('no chart div, not running textprogress');
+		}
   }
 </script>
 <script type="text/javascript"><!-- custom js for this page -->
