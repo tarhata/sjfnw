@@ -1,16 +1,18 @@
 ﻿{% extends 'grants/base.html' %}
 {% block title %}Rollover | {{block.super}}{% endblock %}
 {% block content %}
-<p>This form lets you copy all the data from one application over into a new draft for a different grant cycle.  You will be able to edit it  to your liking before submitting.</p>
 {% if cycle_count == 1 %}
-<p>There are no eligible grant cycles at this time.</p>
-<p>You can not copy an application into a grant cycles that you have already applied to or for which you have a draft in progress already.</p>
+<p>There are no eligible grant cycles to copy into at this time.</p>
+<p>You can not copy an application into a grant cycle that you have already applied to or for which you have a draft in progress already.</p>
+<p><a href="/apply">Go back</a></p>
 {% elif apps_count == 2 %}
 <p>You don't have any draft or submitted applications to copy.</p>
+<p><a href="/apply">Go back</a></p>
 {% else %}
+<p>This form lets you copy all the data from one application over into a new draft for a different grant cycle.  You will be able to edit it  to your liking before submitting.</p>
 <div id="rollover_form"><form method="POST" action="/apply/copy">
 1. Select the cycle you wish to apply to: {{form.cycle.errors}}<br>
-{{form.cycle}} <img style="width:10px;height:10;" class="info" src="/static/images/info.png" title="Cycles that you have already applied to or for which you have a draft in progress are not included.">
+{{form.cycle}} <img style="width:10px;height:10;" class="info" src="/static/images/info.png" title="Cycles that you have already applied to or for which you have a draft in progress are not included." alt="Cycles that you have already applied to or for which you have a draft in progress are not included.">
 <br><br>
 2. Select an application or draft to copy: {{form.application.errors}}{{form.draft.errors}}<br>
 {{form.application}} {{form.draft}}
