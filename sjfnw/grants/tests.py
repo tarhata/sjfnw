@@ -589,8 +589,9 @@ class AdminRollover(TestCase):
   
   def setUp(self):
     setCycleDates()
-
-@unittest.skip('Incomplete')    
+    logInAdmin(self)
+  
+ 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftExtension(TestCase):
   fixtures = ['test_grants.json',]
@@ -599,6 +600,20 @@ class DraftExtension(TestCase):
     setCycleDates()
     logInAdmin(self)
 
+  def test_create_draft(self):
+    """ Admin create a draft for Fresh New Org """
+    
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1).count())
+    
+    response = self.client.post('/admin/grants/draftgrantapplication/add/', {'organization': '1', 'grant_cycle': '3', 'extended_deadline_0': '2013-04-07', 'extended_deadline_1': '11:19:46'}, follow=True)
+    
+    self.assertEqual(302, response.status_code)
+    new = DraftGrantApplication.objects.get(organization_id=1) #in effect, asserts 1 draft
+    self.assertTrue(new.editable)
+
+  def test_org_drafts_list(self):
+    pass
+    
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class Draft(TestCase):
   
