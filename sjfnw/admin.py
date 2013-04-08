@@ -300,6 +300,9 @@ class GrantApplicationA(admin.ModelAdmin):
   list_filter = ('grant_cycle', 'screening_status')
   inlines = [GrantLogInlineRead, GrantLogInline]
   
+  def has_add_permission(self, request):
+    return False
+  
 class DraftGrantApplicationA(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
   list_filter = ('grant_cycle',) #extended
