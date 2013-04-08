@@ -303,6 +303,9 @@ class GrantApplication(models.Model):
   def __unicode__(self):
     return unicode(self.organization) + u' - ' + unicode(self.grant_cycle) + u' - ' + unicode(self.submission_time.year)
   
+  def id_number(self):
+    return self.pk + 5211 #picking up after the access db
+
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
   view_link.allow_tags = True
