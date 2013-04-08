@@ -94,29 +94,29 @@ class TimelineWidget(MultiWidget):
 class Organization(models.Model):
   #registration fields
   name = models.CharField(max_length=255)
-  email = models.EmailField(verbose_name='Email(login)') #= django username
+  email = models.EmailField(max_length=100, verbose_name='Email(login)') #= django username
   
   #org contact info
-  address = models.CharField(max_length=100, null=True)
-  city = models.CharField(max_length=50, null=True)
-  state = models.CharField(max_length=2,choices=STATE_CHOICES, null=True)
-  zip = models.CharField(max_length=50, null=True)
-  telephone_number = models.CharField(max_length=20, null=True)
-  fax_number = models.CharField(max_length=20, null=True, blank=True)
-  email_address = models.EmailField(null=True)
+  address = models.CharField(max_length=100, blank=True)
+  city = models.CharField(max_length=50, blank=True)
+  state = models.CharField(max_length=2,choices=STATE_CHOICES, null=True, blank=True)
+  zip = models.CharField(max_length=50, blank=True)
+  telephone_number = models.CharField(max_length=20, blank=True)
+  fax_number = models.CharField(max_length=20, blank=True)
+  email_address = models.EmailField(max_length=100, blank=True)
   website = models.CharField(max_length=50, null=True, blank=True)
   
   #org info
-  status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True)
-  ein = models.CharField(max_length=50, verbose_name="Organization's or Fiscal Sponsor Organization's EIN", null=True)
-  founded = models.PositiveIntegerField(verbose_name='Year organization founded', null=True)
-  mission = models.TextField()
+  status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True, blank=True)
+  ein = models.CharField(max_length=50, verbose_name="Organization's or Fiscal Sponsor Organization's EIN", blank=True)
+  founded = models.PositiveIntegerField(verbose_name='Year organization founded', null=True, blank=True)
+  mission = models.TextField(blank=True)
   
   #fiscal sponsor info (if applicable)
   fiscal_org = models.CharField(verbose_name='Organization name', max_length=255, null=True, blank=True)
   fiscal_person = models.CharField(verbose_name='Contact person', max_length=255, null=True, blank=True)
   fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
-  fiscal_email = models.CharField(verbose_name='Email address', max_length=70, null=True, blank=True)
+  fiscal_email = models.CharField(verbose_name='Email address', max_length=100, null=True, blank=True)
   fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
   fiscal_letter = models.FileField(upload_to='/', null=True,blank=True)
    
@@ -215,7 +215,7 @@ class GrantApplication(models.Model):
   zip = models.CharField(max_length=50)
   telephone_number = models.CharField(max_length=20)
   fax_number = models.CharField(max_length=20, blank=True, verbose_name = 'Fax number (optional)', error_messages={'invalid': u'Enter a 10-digit fax number (including area code).'})
-  email_address = models.EmailField()
+  email_address = models.EmailField(max_length=100)
   website = models.CharField(max_length=50, blank=True, verbose_name = 'Website (optional)')
   
   #org info
@@ -263,23 +263,23 @@ class GrantApplication(models.Model):
   collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.', verbose_name='Name', max_length = 150)
   collab_ref1_org = models.CharField(verbose_name='Organization', max_length = 150)
   collab_ref1_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
-  collab_ref1_email = models.EmailField(verbose_name='Email', blank=True)
+  collab_ref1_email = models.EmailField(max_length=100, verbose_name='Email', blank=True)
   
   collab_ref2_name = models.CharField(verbose_name='Name', max_length = 150)
   collab_ref2_org = models.CharField(verbose_name='Organization', max_length = 150)
   collab_ref2_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
-  collab_ref2_email = models.EmailField(verbose_name='Email', blank=True)
+  collab_ref2_email = models.EmailField(max_length=100, verbose_name='Email', blank=True)
   
   #racial justice references (after narrative 6)
   racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, please list at least one organization led by people of color that we can contact as a reference for your racial justice work.', verbose_name='Name', max_length = 150, blank=True)
   racial_justice_ref1_org = models.CharField(verbose_name='Organization', max_length = 150, blank=True)
   racial_justice_ref1_phone = models.CharField(verbose_name='Phone number', max_length = 20, blank=True)
-  racial_justice_ref1_email = models.EmailField(verbose_name='Email', blank=True)
+  racial_justice_ref1_email = models.EmailField(max_length=100, verbose_name='Email', blank=True)
  
   racial_justice_ref2_name = models.CharField(verbose_name='Name', max_length = 150, blank=True)
   racial_justice_ref2_org = models.CharField(verbose_name='Organization', max_length = 150, blank=True)
   racial_justice_ref2_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
-  racial_justice_ref2_email = models.EmailField(verbose_name='Email', blank=True) 
+  racial_justice_ref2_email = models.EmailField(max_length=100, verbose_name='Email', blank=True) 
   
   #files
   budget = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)

@@ -47,7 +47,7 @@ class GivingProject(models.Model):
     return estimated
 
 class Member(models.Model):
-  email = models.EmailField()
+  email = models.EmailField(max_length=100)
   first_name = models.CharField(max_length=100)
   last_name = models.CharField(max_length=100)
 
@@ -142,7 +142,7 @@ class Donor(models.Model):
   gift_notified = models.BooleanField(default=False)
 
   phone = models.CharField(max_length=15, null=True, blank=True)
-  email = models.EmailField(null=True, blank=True)
+  email = models.EmailField(max_length=100, null=True, blank=True)
   notes = models.TextField(blank=True)
 
   next_step = models.ForeignKey('Step', related_name = '+', null=True, blank=True) #don't need to go backwards
