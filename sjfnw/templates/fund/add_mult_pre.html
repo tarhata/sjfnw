@@ -7,6 +7,9 @@
     <td>First name</td>
     <td>Last name</td>
   </tr>
+	<tr>
+		<td colspan="2">{{empty_error|safe}}</td>
+	</tr>
   {%for form in formset%}
     <tr>
       <td>{{form.firstname.errors}}</td>

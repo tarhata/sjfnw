@@ -9,6 +9,9 @@
     <td>Amount to ask</td>
     <td>Likelihood</td>
   </tr>
+	<tr>
+		<td colspan="4">{{empty_error|safe}}</td>
+	</tr>
   {%for form in formset%}
     <tr>
       <td>{{form.firstname.errors}}</td>

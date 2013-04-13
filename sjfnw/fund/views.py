@@ -465,36 +465,43 @@ def Support(request):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def AddMult(request):
+  logging.info(request.path)
   membership = request.membership
   est = membership.giving_project.require_estimates() #showing estimates t/f
   if est:
     ContactFormset = formset_factory(MassDonor, extra=5)
   else:
     ContactFormset = formset_factory(MassDonorPre, extra=5)
+  empty_error = ''
   if request.method=='POST':
     membership.last_activity = timezone.now()
     membership.save()
     logging.info(request.POST)
     formset = ContactFormset(request.POST)
     if formset.is_valid():
-      logging.info('AddMult valid formset')
-      for form in formset.cleaned_data:
-        if form:
-          if est:
-            contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], amount= form['amount'], likelihood= form['likelihood'], membership = membership)
-          else:
-            contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], membership = membership)
-          contact.save()
-      return HttpResponse("success")
+      if formset.has_changed():
+        logging.info('AddMult valid formset')
+        count = 0
+        for form in formset.cleaned_data:
+          if form:
+            count += 1
+            if est:
+              contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], amount= form['amount'], likelihood= form['likelihood'], membership = membership)
+            else:
+              contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], membership = membership)
+            contact.save()
+        return HttpResponse("success")
+      else: #empty formset
+        empty_error = u'<ul class="errorlist"><li>Please enter at least one contact.</li></ul>'
     else: #invalid
       logging.info(formset.errors)
   else:
     formset = ContactFormset()
 
   if est:
-    return render(request, 'fund/add_mult.html', {'formset':formset})
+    return render(request, 'fund/add_mult.html', {'formset':formset, 'empty_error':empty_error})
   else:
-    return render(request, 'fund/add_mult_pre.html', {'formset':formset})
+    return render(request, 'fund/add_mult_pre.html', {'formset':formset, 'empty_error':empty_error})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
