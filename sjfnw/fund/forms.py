@@ -44,7 +44,7 @@ class MassDonorPre(forms.Form):
 class DonorEstimates(forms.Form):
   donor = forms.ModelChoiceField(queryset=models.Donor.objects.all(), widget=forms.HiddenInput())
   amount = IntegerCommaField(label='*Estimated donation ($)', widget=forms.TextInput(attrs={'class':'tq'}))
-  likelihood = forms.IntegerField(label='*Estimated likelihood (%)', widget=forms.TextInput(attrs={'class':'half'}))
+  likelihood = forms.IntegerField(label='*Estimated likelihood (%)', validators=[validators.MaxValueValidator(100)], widget=forms.TextInput(attrs={'class':'half'}))
   
 class MassStep(forms.Form):
   date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datePicker'}, format = '%m/%d/%Y'), error_messages = {'invalid':'Please enter a date in mm/dd/yyyy format.'})
