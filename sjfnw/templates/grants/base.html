@@ -2,21 +2,21 @@
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-	<title>{% block title %}Social Justice Fund Grants{% endblock %}</title>
-	<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<link rel="stylesheet" type="text/css" href="/static/css/base.css"/>
-  <link rel="stylesheet" type="text/css" href="/static/css/grants.css"/>
-	<!--[if IE]>
-	<link rel="stylesheet" type="text/css" href="/static/css/ie.css"/>
-	<![endif]-->
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-	<script type="text/javascript"><!--google analytics -->
+  <title>{% block title %}Social Justice Fund Grants{% endblock %}</title>
+  <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="stylesheet" type="text/css" href="/static/css/base.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/grants.css">
+  <!--[if IE]>
+  <link rel="stylesheet" type="text/css" href="/static/css/ie.css">
+  <![endif]-->
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script type="text/javascript"><!--google analytics -->
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-28076150-2']); 
 
-		//custom variable #1 user type, session level
-    _gaq.push(['_setCustomVar', 1, 'User type', {% if user.username == 'sjfnwads@gmail.com' %}'Aisa'{% elif user.is_staff %}'Staff'{% elif user.is_authenticated %}'User'{% else %}'Anonymous'{% endif %}, 2]); 		
+    //custom variable #1 user type, session level
+    _gaq.push(['_setCustomVar', 1, 'User type', {% if user.username == 'sjfnwads@gmail.com' %}'Aisa'{% elif user.is_staff %}'Staff'{% elif user.is_authenticated %}'User'{% else %}'Anonymous'{% endif %}, 2]);     
     _gaq.push(['_trackPageview']);
 
     (function() {
@@ -25,27 +25,27 @@
       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
   </script>
-	{% block script %}{% endblock %}
+  {% block script %}{% endblock %}
 </head>
 
 <body>
-	<div id="org_wrapper">
-		<div id="nav_menu">
-				<a href="{% url grants.views.OrgHome %}">
-					<img id="logo" src="/static/images/logo_horiz.png" align="middle" alt="Social Justice Fund NW Logo">home
-				</a>
-		</div>
-		{% block content %} {% endblock %}	
-		<br><br><br>
-		<table id="org_footer"><tr>
-			<td style="width:25%;"><a href="{% url grants.views.OrgSupport %}">support</a></td>
-			<td style="width:25%;"><a href="http://socialjusticefund.org">socialjusticefund.org</a></td>
-			<td style="width:45%;text-align:right;">
-			{% if user.is_authenticated %}
-				{{user.email}} | <a href="/logout">log out</a>
-			{% elif not register %}<a href="{% url grants.views.OrgLogin %}">log in</a>{% endif %}</td>
-		</tr></table>
-	</div>
+  <div id="org_wrapper">
+    <div id="nav_menu">
+        <a href="{% url grants.views.OrgHome %}">
+          <img id="logo" src="/static/images/logo_horiz.png" align="middle" alt="Social Justice Fund NW Logo">home
+        </a>
+    </div>
+    {% block content %} {% endblock %}  
+    <br><br><br>
+    <table id="org_footer"><tr>
+      <td style="width:25%;"><a href="{% url grants.views.OrgSupport %}">support</a></td>
+      <td style="width:25%;"><a href="http://socialjusticefund.org">socialjusticefund.org</a></td>
+      <td style="width:45%;text-align:right;">
+      {% if user.is_authenticated %}
+        {{user.email}} | <a href="/logout">log out</a>
+      {% elif not register %}<a href="{% url grants.views.OrgLogin %}">log in</a>{% endif %}</td>
+    </tr></table>
+  </div>
 </body>
 
 </html>
