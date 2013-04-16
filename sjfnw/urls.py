@@ -28,6 +28,7 @@ urlpatterns = patterns('',
   
   #dev
   (r'^dev/logs/?$', 'views.download_logs'),
+  (r'^dev/jslog/?', 'views.log_javascript'),
   )
 
 #direct to templates
