@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+	<link rel="stylesheet" type="text/css" href="/static/css/base.css">
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script type="text/javascript">
+	
+	</script>
+</head>
+
+<body>
+<div class="reading_header">
+	<div class="title">
+		{{application.organization}} - {{application.grant_cycle}}<br>
+		{{application.submission_time}}
+	</div>
+</div>
+<div class="reading_sidebar">
+	<div class="contents">
+		<ol>
+			<li>Application form</li>
+			{% if application.fiscal_letter %}
+			<li>Fiscal letter</li>
+			{% endif %}
+			{% if application.budget %}
+			<li>Budget</li>
+			{% else %}
+			<li>Annual statement</li>
+			<li>Annual operating budget</li>
+			{% if application.budget3 %}
+			<li>Balance sheet</li>
+			{% endif %}
+			{% if application.project_budget_file %}
+			<li>Project budget</li>
+			{% endif %}
+			{% endif %}
+			<li>Funding sources</li>
+			<li>Diversity chart</li>			
+		</ol>
+	</div>
+</div>
+
+<div class="reading_pane">
+	<iframe src="">
+</div>
+
+</body>
