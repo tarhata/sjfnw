@@ -9,50 +9,46 @@ import grants, fund, views
 
 handler404 = 'views.page_not_found'
 handler500 = 'views.server_error'
-
 urlpatterns = patterns('',
-
-  ## ADMIN ##
+  (r'^/?$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
   
+  # admin
   (r'^admin/', include(admin.site.urls)),
   (r'^admin$', views.admin_redirect),
   (r'^admin-advanced/', include(advanced_admin.urls)),
   (r'^admin-advanced$', views.admin_adv_redirect),
 
-  ## GENERAL ##    
-
-  (r'^/?$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
+  # logout
   (r'^logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/apply'}),
-  
   (r'^fund/logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/fund'}),
   
-  #dev
+  # dev
   (r'^dev/logs/?$', 'views.download_logs'),
   (r'^dev/jslog/?', 'views.log_javascript'),
   )
 
-#direct to templates
+# direct to templates
 urlpatterns += patterns('', 
   (r'^apply/nr', direct_to_template, {'template': 'grants/not_grantee.html'}),
   (r'^apply/submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
   )
 
-#password resets
+# password resets
 urlpatterns += patterns('', 
-  #grants
+  # grants
   (r'^apply/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'grants/reset.html', 'from_email':constants.GRANT_EMAIL, 'email_template_name':'grants/password_reset_email.html', 'post_reset_redirect':'/apply/reset-sent'}),
   (r'^apply/reset-sent/?', 'django.contrib.auth.views.password_reset_done', {'template_name':'grants/password_reset_done.html'}),
   (r'^apply/reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'grants/password_reset_confirm.html'}, 'org-reset'),
   (r'^apply/reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'grants/password_reset_complete.html'}),
   
-  #reset password
+  # fund
   (r'^fund/reset/?$', 'django.contrib.auth.views.password_reset', {'template_name':'fund/reset.html', 'from_email':constants.FUND_EMAIL, 'email_template_name':'fund/password_reset_email.html', 'subject_template_name':'registration/password_reset_subject.txt'}),
   (r'^fund/reset-sent/?', 'django.contrib.auth.views.password_reset_done', {'template_name':'fund/password_reset_done.html'}),
   (r'^fund/reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'fund/password_reset_confirm.html'}, 'fund-reset'),
   (r'^fund/reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'fund/password_reset_complete.html'}),
   )
 
-## GRANTS ##
+# GRANTS
 urlpatterns += patterns('grants.views',  
 
   #login, logout, registration
@@ -97,7 +93,7 @@ urlpatterns += patterns('grants.views',
   (r'^grants/results$', 'GetResults'),
   )
 
-## FUNDRAISING ##
+# FUNDRAISING
 urlpatterns += patterns('fund.views',  
   
   #login, logout, registration
@@ -112,7 +108,7 @@ urlpatterns += patterns('fund.views',
   #main pages
   (r'^fund/?$', 'Home'),
   (r'^fund/gp/?', 'ProjectPage'),
-  (r'^fund/scoring/?', 'ScoringList'),
+  (r'^fund/grants/?', 'GrantList'),
   
   #forms - contacts
   (r'^fund/addmult', 'AddMult'),

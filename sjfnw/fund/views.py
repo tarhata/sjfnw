@@ -17,13 +17,23 @@ from forms import *
 from google.appengine.ext import deferred, ereporter
 from sjfnw import constants
 from sjfnw.grants.models import GrantApplication
-from sjfnw.scoring.models import ApplicationRating
 import pytz, utils, json, models, datetime, random, logging
 
 if not settings.DEBUG:
   ereporter.register_logger()
 
 # MAIN VIEWS
+
+def get_block_content(membership, first, second, third):
+  contents = []
+  if first:
+     contents.append(models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2])
+  if second:
+    contents.append(models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date'))
+  if third:
+    pass
+  return contents
+
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def Home(request):
@@ -249,7 +259,7 @@ def ProjectPage(request):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def ScoringList(request):
+def GrantList(request):
   
   membership = request.membership
   member = membership.member
@@ -262,33 +272,17 @@ def ScoringList(request):
   #base
   header = project.title
   
-  grant_list = GrantApplication.objects.filter(giving_project = project) #TEMP want to filter by gp
-  logging.info("grant list:" + str(grant_list))
+  grant_list = GrantApplication.objects.filter(giving_project = project)
   
-  unreviewed = []
-  reviewed = []
-  in_progress = []
-  for grant in grant_list:
-    try: 
-      review =ApplicationRating.objects.get(application = grant, membership = membership)
-      if review.submitted:
-        reviewed.append(grant)
-      else: 
-        in_progress.append(grant)
-    except ApplicationRating.DoesNotExist:
-      unreviewed.append(grant)
-  
-  return render(request, 'fund/scoring_list.html',
-  { '3active':'true',
-    'header':header,
-    'news':news,
-    'member':member,
-    'steps':steps,
-    'membership':membership,
-    'grant_list':grant_list,
-    'unreviewed':unreviewed,
-    'reviewed':reviewed,
-    'in_progress':in_progress })
+  return render(request, 'fund/grant_list.html',
+    { '3active':'true',
+      'header':header,
+      'news':news,
+      'member':member,
+      'steps':steps,
+      'membership':membership,
+      'grant_list':grant_list,
+    })
 
 # LOGIN & REGISTRATION
 def FundLogin(request):
