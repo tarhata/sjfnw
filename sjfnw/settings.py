@@ -36,7 +36,6 @@ INSTALLED_APPS = (
   'django.contrib.messages',
   'sjfnw.grants',
   'sjfnw.fund',
-  'sjfnw.scoring',
   'pytz',
   'djangoappengine', # last so it can override a few manage.py commands
 )
