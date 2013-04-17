@@ -26,7 +26,7 @@ class MembershipMiddleware(object):
   
   def process_view(self, request, view_func, view_args, view_kwargs):
     #logging.debug(str(view_func.__module__))
-    if view_func.__module__.startswith('fund') or view_func.__module__.startswith('scoring'):
+    if view_func.__module__.startswith('fund'):
       if request.user.is_authenticated():
         request.membership_status=0
         request.membership=None
