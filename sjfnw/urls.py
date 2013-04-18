@@ -84,7 +84,7 @@ urlpatterns += patterns('grants.views',
   (r'^admin-advanced/grants/grantapplication/(?P<app_id>\d+)/rollover', 'AdminRollover'),
   
   #reading
-  (r'^grants/view/(?P<app_id>\d+)/?$', 'ViewApplication'),
+  (r'^grants/view/(?P<app_id>\d+)/?$', 'ReadApplication'),
   (r'^grants/view-file/(?P<app_id>\d+)-(?P<file_type>.*)\.', 'ViewFile'),
   (r'^grants/draft-file/(?P<draft_id>\d+)-(?P<file_type>.*)\.', 'ViewDraftFile'),
   

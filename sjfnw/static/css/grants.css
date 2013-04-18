@@ -260,6 +260,38 @@ button#apply-now {
 
 /* grant reading */
 
+div.reading_header{
+  border-bottom:1px solid black;
+  width:100%;
+  position:fixed;
+  background:white;
+}
+
+div.reading_sidebar{
+  width:200px;
+  border-right:1px solid black;
+  margin-top:65px;
+  position:fixed;
+}
+
+div.reading_pane{
+  margin-left:200px;
+  margin-top:65px;
+  position:absolute;
+  z-index:-1;
+}
+
+iframe#reading_frame{
+  border:none;
+  width:100%;
+  height:100%;
+}
+
+div.title{
+  font-size:1.5em;
+  font-weight:bold;
+  margin:5px auto 5px auto;
+}
 div#formreader label{
   text-decoration:underline;  
 }
