@@ -33,10 +33,12 @@
 </head>
 
 <body>
-<div class="reading_header"><!-- header -->
-	<div class="title">{{app.organization}} - {{app.grant_cycle}}<br>{{app.submission_time}}</div>
-</div>
 <div class="reading_sidebar"><!-- sidebar -->
+	<div class="title">
+		<h2>{{app.organization}}</h2>
+		<h2>{{app.grant_cycle}}</h2>
+		{{app.submission_time|date:"F j, Y"}}
+	</div>
 	<div class="contents">
 		<ol>
 			<li><a onclick="showMain()">Application form</a></li>
