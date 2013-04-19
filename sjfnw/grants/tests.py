@@ -605,11 +605,13 @@ class DraftExtension(TestCase):
     
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1).count())
     
-    response = self.client.post('/admin/grants/draftgrantapplication/add/', {'organization': '1', 'grant_cycle': '3', 'extended_deadline_0': '2013-04-07', 'extended_deadline_1': '11:19:46'}, follow=True)
+    response = self.client.post('/admin/grants/draftgrantapplication/add/', {'organization': '1', 'grant_cycle': '3', 'extended_deadline_0': '2013-04-07', 'extended_deadline_1': '11:19:46'})
     
-    self.assertEqual(302, response.status_code)
+    self.assertEqual(response.status_code, 302)
     new = DraftGrantApplication.objects.get(organization_id=1) #in effect, asserts 1 draft
     self.assertTrue(new.editable)
+    self.assertIn('/admin/grants/draftgrantapplication/', response.__getitem__('location'), )
+   
 
   def test_org_drafts_list(self):
     pass
