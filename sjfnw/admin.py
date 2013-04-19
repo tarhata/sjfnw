@@ -291,9 +291,9 @@ class OrganizationA(admin.ModelAdmin):
 class GrantApplicationA(admin.ModelAdmin):
   form = AppAdminForm
   fieldsets = (
-    '', {'fields': ((organization_link, 'grant_cycle', 'submission_time', 'view_link'),)}
+    'Application', {'fields': ((organization_link, 'grant_cycle', 'submission_time', 'view_link'),)}
     ),(
-    'Admin fields', {'fields': (('screening_status', 'giving_project'),('scoring_bonus_poc', 'scoring_bonus_geo'), (revert_grant, rollover))}
+    'Administration', {'fields': (('screening_status', 'giving_project'),('scoring_bonus_poc', 'scoring_bonus_geo'), (revert_grant, rollover))}
     )
   readonly_fields = (organization_link, 'grant_cycle', 'submission_time', 'view_link', revert_grant, rollover)
   list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')  

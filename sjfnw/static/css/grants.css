@@ -262,13 +262,48 @@ button#apply-now {
 
 /* grant reading */
 
-div#formreader label{
-  text-decoration:underline;  
+div.reading_sidebar{
+  width:200px;
+  border-right:1px solid black;
+  position:fixed;
+  height:100%;
 }
 
-div#formreader table tr td{
-  padding-top:5px;
+div.reading_pane{
+  margin-left:210px;
+  height:100%;
+}
+
+div#main_content{
+  width:725px;
+}
+
+iframe#reading_frame{
+  border:none;
+  width:100%;
+  height:100%;
+}
+
+div.title{
+  text-align:center;
   padding-bottom:5px;
+  border-bottom:1px solid black;
+}
+
+div.heading_sm_margin{
+  font-size:1.3em;
+  font-weight:bold;
+  margin-bottom:.25em;
+}
+
+div.contents{
+  margin:20px 0 0 10px;
+  font-size:1.2em;
+  line-height:1.3em;
+}
+
+ol.contents{
+  margin-top:0;
 }
 
 table#timeline_display {

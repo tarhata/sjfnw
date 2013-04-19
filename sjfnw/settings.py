@@ -13,7 +13,7 @@ if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.geten
     }
   }
   DEBUG = False
-  APP_BASE_URL = 'http://sjf-nw.appspot.com/' #until i learn how to do this
+  APP_BASE_URL = 'https://sjf-nw.appspot.com/' #until i learn how to do this
 else:
   DATABASES = {
     'default': {
@@ -36,7 +36,6 @@ INSTALLED_APPS = (
   'django.contrib.messages',
   'sjfnw.grants',
   'sjfnw.fund',
-  'sjfnw.scoring',
   'pytz',
   'djangoappengine', # last so it can override a few manage.py commands
 )

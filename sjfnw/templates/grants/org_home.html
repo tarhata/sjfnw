@@ -42,7 +42,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 	<table class="list">
 	{%for sub in submitted%}
 		<tr><td><li>{{sub.grant_cycle}}</li></td>
-		<td><a href="{% url grants.views.ViewApplication sub.pk %}">View</a></td>
+		<td><a href="{% url grants.views.ReadApplication sub.pk %}">View</a></td>
 		<td>Submitted {{sub.submission_time|date:"n/j/y"}}</td>
 		</tr>
 	{%endfor%}

@@ -427,6 +427,15 @@ def ViewApplication(request, app_id):
 
   return render(request, 'grants/view_app.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls})
 
+def ReadApplication(request, app_id):
+  user = request.user
+  app = get_object_or_404(models.GrantApplication, pk=app_id)
+  form = models.GrantApplicationModelForm(app.grant_cycle)
+  #set up doc viewer for applicable files
+  file_urls = GetFileURLs(app)
+  
+  return render(request, 'grants/reading.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls})
+
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
   return utils.ServeBlob(application, file_type)
@@ -434,6 +443,7 @@ def ViewFile(request, app_id, file_type):
 def ViewDraftFile(request, draft_id, file_type):
   application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
   return utils.ServeBlob(application, file_type)
+
 
 # ADMIN
 
@@ -626,8 +636,7 @@ def GetFileURLs(app):
     value = getattr(app, field)
     if value:
       ext = value.name.lower().split(".")[-1]
-      if not settings.DEBUG and ext in constants.VIEWER_FORMATS: #doc viewer
-        file_urls[field] = 'https://docs.google.com/viewer?url='
       file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + u'-' + field + u'.' + ext
-  
+      if not settings.DEBUG and ext in constants.VIEWER_FORMATS: #doc viewer
+        file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field] + '&embedded=true'
   return file_urls

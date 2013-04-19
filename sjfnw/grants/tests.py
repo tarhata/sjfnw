@@ -551,7 +551,7 @@ class OrgRollover(TestCase):
     self.assertContains(response, 'Select')
       
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class Revert(TestCase):
+class AdminRevert(TestCase):
   
   fixtures = ['test_grants.json',]
   
@@ -581,7 +581,41 @@ class Revert(TestCase):
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=1).count())
     draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
     assertDraftAppMatch(self, draft, app, False)
+
+@unittest.skip('Incomplete')   
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class AdminRollover(TestCase):
+  fixtures = ['test_grants.json',]
+  
+  def setUp(self):
+    setCycleDates()
+    logInAdmin(self)
+  
+ 
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class DraftExtension(TestCase):
+  fixtures = ['test_grants.json',]
+  
+  def setUp(self):
+    setCycleDates()
+    logInAdmin(self)
+
+  def test_create_draft(self):
+    """ Admin create a draft for Fresh New Org """
+    
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1).count())
+    
+    response = self.client.post('/admin/grants/draftgrantapplication/add/', {'organization': '1', 'grant_cycle': '3', 'extended_deadline_0': '2013-04-07', 'extended_deadline_1': '11:19:46'})
+    
+    self.assertEqual(response.status_code, 302)
+    new = DraftGrantApplication.objects.get(organization_id=1) #in effect, asserts 1 draft
+    self.assertTrue(new.editable)
+    self.assertIn('/admin/grants/draftgrantapplication/', response.__getitem__('location'), )
    
+
+  def test_org_drafts_list(self):
+    pass
+    
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class Draft(TestCase):
   

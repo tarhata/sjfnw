@@ -80,3 +80,9 @@ def download_logs(request):
     form = utils.GaeLogsForm()
   
   return render(request, 'get_logs.html', {'form':form})
+
+def log_javascript(request):
+  logging.info('log_js')
+  if request.method=='POST':
+    logging.warning(request.POST)  
+  return http.HttpResponse('success')
