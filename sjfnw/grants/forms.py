@@ -6,11 +6,11 @@ from fund.models import GivingProject
 import models, datetime, logging
 
 class LoginForm(forms.Form):
-  email = forms.EmailField()
+  email = forms.EmailField(max_length=255)
   password = forms.CharField(widget=forms.PasswordInput())
 
 class RegisterForm(forms.Form):
-  email = forms.EmailField(max_length=100)
+  email = forms.EmailField(max_length=255)
   password = forms.CharField(widget=forms.PasswordInput())
   passwordtwo = forms.CharField(widget=forms.PasswordInput(), label="Re-enter password")
   organization = forms.CharField()

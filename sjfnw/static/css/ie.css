@@ -1,4 +1,4 @@
-﻿#files_form label { /* make it look like a button */
+﻿.files_form label { /* make it look like a button */
   color: buttontext;
   background-color: buttonface;
   border: 2px outset buttonface;

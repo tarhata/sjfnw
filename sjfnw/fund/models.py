@@ -1,5 +1,6 @@
 ﻿from django.core.validators import MaxValueValidator
 from django.db import models
+from django.db.models import Sum
 from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.utils import timezone
@@ -37,9 +38,16 @@ class GivingProject(models.Model):
 
   def require_estimates(self):
     return self.fundraising_training <= timezone.now()
+  
+  def estimated(self):
+    donors = Donor.objects.filter(membership__giving_project=self)
+    estimated = 0
+    for donor in donors:
+      estimated += donor.estimated()
+    return estimated
 
 class Member(models.Model):
-  email = models.EmailField()
+  email = models.EmailField(max_length=100)
   first_name = models.CharField(max_length=100)
   last_name = models.CharField(max_length=100)
 
@@ -134,7 +142,7 @@ class Donor(models.Model):
   gift_notified = models.BooleanField(default=False)
 
   phone = models.CharField(max_length=15, null=True, blank=True)
-  email = models.EmailField(null=True, blank=True)
+  email = models.EmailField(max_length=100, null=True, blank=True)
   notes = models.TextField(blank=True)
 
   next_step = models.ForeignKey('Step', related_name = '+', null=True, blank=True) #don't need to go backwards

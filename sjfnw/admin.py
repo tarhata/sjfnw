@@ -122,7 +122,8 @@ class GivingProjectAdminForm(ModelForm):
 
 # ModelAdmin
 class GivingProjectA(admin.ModelAdmin):
-  list_display = ('title', gp_year)
+  list_display = ('title', gp_year, 'estimated')
+  readonly_fields = ('estimated',)
   fields = (
     ('title', 'public'),
     ('fundraising_training', 'fundraising_deadline'),
@@ -298,6 +299,9 @@ class GrantApplicationA(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')  
   list_filter = ('grant_cycle', 'screening_status')
   inlines = [GrantLogInlineRead, GrantLogInline]
+  
+  def has_add_permission(self, request):
+    return False
   
 class DraftGrantApplicationA(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')

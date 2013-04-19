@@ -18,23 +18,27 @@
                   };
                      
     function drawChart() {
+			chart_div = document.getElementById('chart_div');
+			if (chart_div) {
+				// Create the data table.
+				var data = new google.visualization.DataTable();
+				data.addColumn('string', 'Status');
+				data.addColumn('number', 'Contacts');
+				data.addRows([
+					["Haven't contacted", {{progress.contactsremaining}}],
+					["Talked to", {{progress.talked}}],
+					['Asked', {{progress.asked}}]
+				]);
 
-      // Create the data table.
-      var data = new google.visualization.DataTable();
-      data.addColumn('string', 'Status');
-      data.addColumn('number', 'Contacts');
-      data.addRows([
-        ["Haven't contacted", {{progress.contactsremaining}}],
-        ["Talked to", {{progress.talked}}],
-        ['Asked', {{progress.asked}}]
-      ]);
-
-      // Instantiate and draw our chart, passing in some options.
-      var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-      chart.draw(data, options);
-      if ({{progress.estimated}} > 0) {
-        drawChart2();
-      }
+				// Instantiate and draw our chart, passing in some options.
+				var chart = new google.visualization.PieChart(chart_div);
+				chart.draw(data, options);
+				if ({{progress.estimated}} > 0) {
+					drawChart2();
+				}
+			} else {
+				console.log('no chart div, not running drawchart');
+			}
     }
     
     function drawChart2() {
@@ -67,10 +71,15 @@
 
   function textProgress() {
     console.log('textProgress');
-    document.getElementById('chart_div').innerHTML = "<br><br>Haven't contacted: {{progress.contactsremaining}}<br>Talked to: {{progress.talked}}<br>Asked: {{progress.asked}}";
-    if ({{progress.estimated}} > 0) {
-      document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{progress.togo|default:'0'}}<br>Pledged: ${{progress.pledged}}<br>Donated: ${{progress.donated}}";
-    }
+    chart = document.getElementById('chart_div');
+		if (chart) {
+			chart.innerHTML = "<br><br>Haven't contacted: {{progress.contactsremaining}}<br>Talked to: {{progress.talked}}<br>Asked: {{progress.asked}}";
+			if ({{progress.estimated}} > 0) {
+				document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{progress.togo|default:'0'}}<br>Pledged: ${{progress.pledged}}<br>Donated: ${{progress.donated}}";
+			}
+		} else {
+			console.log('no chart div, not running textprogress');
+		}
   }
 </script>
 <script type="text/javascript"><!-- custom js for this page -->
@@ -144,13 +153,14 @@
       console.log('Request processing; load view denied');
       return false;
     }
+		console.log(get_url + ' load requested');
     startProcessing();
     $.ajax({
       url:get_url,
       type:"GET",
       timeout: 10000,
       success:function(data, textStatus, jqXHR){
-        //console.log(get_url);
+        console.log(get_url + ' loaded');
         document.getElementById(div_id).innerHTML=jqXHR.responseText; //fill the div
         var pks = get_url.match(/\d+/g);
         if (pks && pks[1]) { //donor-specific form loading
@@ -176,6 +186,7 @@
         } else {
           errortext = 'Unknown error'
         }
+				console.log('Error loading ' + get_url + ': ' + errortext)
         document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + get_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
       }
     });
@@ -187,7 +198,7 @@
       return false;
     }
     startProcessing();
-    console.log($(form_id).serialize());
+		console.log('Submission to ' + sub_url + ' requested');
     $.ajax({
       url:sub_url,
       type:"POST",
@@ -196,8 +207,10 @@
       success:function(data, textStatus, jqXHR){
         trackEvents(sub_url, div_id, 'POST');
         if (jqXHR.responseText=="success") {
+					console.log('Submission to ' + sub_url + ' returned success; redirecting');
           setTimeout(function() {location.href='/fund/';}, 200);
         } else {
+					console.log('Submission to ' + sub_url + ' returned text');
           document.getElementById(div_id).innerHTML=jqXHR.responseText;
           if (sub_url.match('done')) {
             var pks = sub_url.match(/\d+/g);
@@ -220,7 +233,8 @@
           errortext = 'Unknown error'
         }
         document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + sub_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
-        if (date) {
+        console.log('Error submitting to ' + sub_url + ': ' + errortext);
+				if (date) {
           datepicker();
         }
       }
@@ -233,9 +247,8 @@
       console.log('Submitmult rejected; request in progress');
       return false;
     }
-    console.log('Submitmult going');
+		console.log('Submit mult pressed');
     startProcessing();
-    console.log($('#addcontacts').serialize());
     $.ajax({
       url:'/fund/addmult',
       type:"POST",
@@ -243,15 +256,16 @@
       timeout: 10000,
       success:function(data, textStatus, jqXHR){
         trackEvents('/fund/addmult',' addmult', 'POST');
-        if (jqXHR.responseText=="success") {
+				if (jqXHR.responseText=="success") {
+					console.log('Submitmult successful; redirecting');
           setTimeout(function() {location.href= '/fund/?load=stepmult#your-contacts';}, 200);
         } else {
+					console.log('Submitmult returned form errors' );
           document.getElementById('addmult').innerHTML=jqXHR.responseText;
           endProcessing();
         }
       },
       error:function(jqXHR, textStatus, errorThrown){
-        
         var errortext = '';
         if (status_texts[jqXHR.status]) {
           errortext = status_texts[jqXHR.status];
@@ -261,13 +275,15 @@
           errortext = 'Unknown error';
         }
         document.getElementById('addmult').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: /fund/addmult<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
-        endProcessing();
+				console.log('Error submitting add mult: ' + errortext);
+				endProcessing();
       }
     });
   }
-  
-  function cloneMore(selector, type) { //add row to form
-    var newElement = $(selector).clone(true);
+	
+	function cloneMore(selector, type) { //add row to form
+    console.log('Adding a row to form');
+		var newElement = $(selector).clone(true);
     var total = $('#id_' + type + '-TOTAL_FORMS').val();
     newElement.find(':input').each(function() {
         var name = $(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
