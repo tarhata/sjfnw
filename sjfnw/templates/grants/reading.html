@@ -15,16 +15,20 @@
 	}
 	
 	function showAttachment(){
-		var results = frame.contentDocument.body.innerHTML;
-		console.log("The iframe changed! New contents: " + results);
-		if (results) {
-			console.log('displaying an attachment');
-			frame.style.display = '';
-			main_div.style.display = 'none';
+		if (frame){
+			console.log('show attachment');
+			var results = frame.contentDocument.body.innerHTML;
+			console.log("The iframe changed! New contents: " + results);
+			if (results) {
+				console.log('displaying iframe');
+				frame.style.display = '';
+				main_div.style.display = 'none';
+			}
 		}
 	}
 	
 	$(document).ready(function() {
+		console.log('doc is ready');
 		main_div = document.getElementById('main_content');
 		frame = document.getElementById('reading_frame');
 		console.log(frame);
