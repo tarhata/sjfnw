@@ -636,8 +636,7 @@ def GetFileURLs(app):
     value = getattr(app, field)
     if value:
       ext = value.name.lower().split(".")[-1]
-      if not settings.DEBUG and ext in constants.VIEWER_FORMATS: #doc viewer
-        file_urls[field] = 'https://docs.google.com/viewer?url='
       file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + u'-' + field + u'.' + ext
-  
+      if not settings.DEBUG and ext in constants.VIEWER_FORMATS: #doc viewer
+        file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field] + '&embedded=true'
   return file_urls
