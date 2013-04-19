@@ -35,13 +35,14 @@
 <body>
 <div class="reading_sidebar"><!-- sidebar -->
 	<div class="title">
-		<h2>{{app.organization}}</h2>
-		<h2>{{app.grant_cycle}}</h2>
+		<div class="heading_sm_margin">{{app.organization}}</div>
+		<div class="heading_sm_margin">{{app.grant_cycle}}</div>
 		{{app.submission_time|date:"F j, Y"}}
 	</div>
 	<div class="contents">
-		<ol>
-			<li><a onclick="showMain()">Application form</a></li>
+		<a onclick="showMain()">Application form</a><br><br>
+		Uploaded files:
+		<ol class="contents">
 			{% if app.fiscal_letter %}<!-- fiscal letter -- update -->
 			<li><a href="{{file_urls.fiscal_letter}}" target="reading_frame">Fiscal letter</a></li>
 			{% endif %}
