@@ -47,7 +47,7 @@ class GivingProject(models.Model):
     return estimated
 
 class Member(models.Model):
-  email = models.EmailField(max_length=100)
+  email = models.EmailField(max_length=100, unique=True)
   first_name = models.CharField(max_length=100)
   last_name = models.CharField(max_length=100)
 

@@ -71,7 +71,7 @@ STATUS_CHOICES = [
 class Organization(models.Model):
   #registration fields
   name = models.CharField(max_length=255)
-  email = models.EmailField(max_length=100, verbose_name='Email(login)') #= django username
+  email = models.EmailField(max_length=100, verbose_name='Email(login)', unique=True) #= django username
   
   #org contact info
   address = models.CharField(max_length=100, blank=True)
