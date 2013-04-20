@@ -158,7 +158,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     #get fields & files from draft
     draft_data = json.loads(draft.contents)
     logging.debug('draft data: ' + str(draft_data))
-    files_data = model_to_dict(draft, fields = constants.APP_FILE_FIELDS)
+    files_data = model_to_dict(draft, fields = draft.file_fields())
     
     #add automated fields
     draft_data['organization'] = organization.pk
@@ -243,7 +243,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       file_urls[field] = '<i>no file uploaded</i>'
 
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
+  {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
 
 def TestApply(request):
   drafts = models.DraftGrantApplication.objects.all()
@@ -361,7 +361,7 @@ def CopyApp(request, organization):
       if app:
         try:
           application = models.GrantApplication.objects.get(pk = int(app))
-          content = model_to_dict(application, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
+          content = model_to_dict(application, exclude = application.file_fields() + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
           content.update(dict(zip(constants.TIMELINE_FIELDS, json.loads(application.timeline))))
           content = json.dumps(content)
         except models.GrantApplication.DoesNotExist:
@@ -382,7 +382,7 @@ def CopyApp(request, organization):
       
       #set contents & files
       new_draft.contents = content
-      for field in constants.APP_FILE_FIELDS:
+      for field in application.file_fields():
         setattr(new_draft, field, getattr(application, field))
       new_draft.save()
       logging.info("CopyApp -- content and files set")
@@ -446,7 +446,6 @@ def ViewDraftFile(request, draft_id, file_type):
 
 
 # ADMIN
-
 def RedirToApply(request):
   return redirect('/apply/')
 
@@ -459,10 +458,10 @@ def AppToDraft(request, app_id):
   if request.method == 'POST':
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
-    content = model_to_dict(submitted_app, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline'])
+    content = model_to_dict(submitted_app, exclude = submitted_app.file_fields() + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline'])
     content.update(dict(zip(constants.TIMELINE_FIELDS, json.loads(submitted_app.timeline))))
     draft.contents = json.dumps(content)
-    for field in constants.APP_FILE_FIELDS:
+    for field in submitted_app.file_fields():
       setattr(draft, field, getattr(submitted_app, field))
     draft.modified = timezone.now()
     draft.save()
@@ -571,7 +570,7 @@ def GetResults(fields, apps):
       if field=='screening_status':
         val = getattr(app, field)
         if val:
-          convert = dict(models.SCREENING_CHOICES)
+          convert = dict(models.GrantApplication.SCREENING_CHOICES)
           val = convert[val]
         row.append(val)
       else:

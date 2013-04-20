@@ -53,3 +53,15 @@ def DeleteBlob(file_field):
   blob.delete()
   logging.info('Blob deleted')
   return HttpResponse("deleted")
+
+def GrantPermission(user, application, membership=None):
+  """ Return a number indicating viewing permission for a submitted app.
+        user: django user object
+        application: GrantApplication
+        membership: Membership object, if applicable """
+  """
+    user -- is staff or email matches app.org.email (not the contact one, the login one)
+    member - membership.giving project matches app.org.giving_project
+  """
+  
+  return True

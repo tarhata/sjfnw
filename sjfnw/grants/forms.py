@@ -90,7 +90,7 @@ class AppSearchForm(forms.Form):
   #filters
   year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
   year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
-  screening_status = forms.MultipleChoiceField(choices = models.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
+  screening_status = forms.MultipleChoiceField(choices = models.GrantApplication.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
 
   organization = forms.CharField(max_length=255, required=False)
   city = forms.CharField(max_length=255, required=False)

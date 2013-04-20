@@ -7,7 +7,7 @@ from django.utils.html import strip_tags
 from google.appengine.ext import testbed
 from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
 import sys, datetime, re, json, unittest
-from sjfnw.constants import TEST_MIDDLEWARE, APP_FILE_FIELDS
+from sjfnw.constants import TEST_MIDDLEWARE
 
 def setCycleDates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
@@ -59,7 +59,9 @@ def alterDraftTimeline(draft, values):
   draft.save()
 
 def alterDraftFiles(draft, files_dict):
-  files = dict(zip(APP_FILE_FIELDS, files_dict))
+  """ File list should match this order:
+  ['budget', 'demographics', 'funding_sources', 'budget1', 'budget2', 'budget3', 'project_budget_file', 'fiscal_letter'] """
+  files = dict(zip(GrantApplication.file_fields(), files_dict))
   for key, val in files.iteritems():
     setattr(draft, key, val)
   draft.save()
@@ -76,7 +78,7 @@ def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in
       self.assertEqual(value, app_timeline[i])
     else:
       self.assertEqual(value, getattr(app, field))
-  for field in APP_FILE_FIELDS:
+  for field in GrantApplication.file_fields():
     self.assertEqual(getattr(draft, field), getattr(app, field))
   if exclude_cycle:
     self.assertNotIn('cycle_question', draft_contents)
@@ -245,7 +247,7 @@ class ApplySuccessful(TestCase):
                 files match  """
                 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    files = ['', 'diversity_chart.doc', 'diversity_chart.doc', '', 'fileuploads3.png', 'notes.txt', '', '']
+    files = ['', 'diversity_chart.doc', 'diversity_chart.doc', 'notes.txt', 'fileuploads3.png', '', '', '']
     alterDraftFiles(draft, files)
     response = self.client.post('/apply/3/', follow=True)
     
@@ -305,7 +307,7 @@ class ApplyValidation(TestCase):
         verify: no submission
                 error response  """
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    files = ['budget.doc', 'diversity_chart.doc', '', '', 'fileuploads3.png', 'notes.txt', '', '']
+    files = ['budget.doc', 'diversity_chart.doc', 'notes.txt', '', 'fileuploads3.png', 'notes.txt', '', '']
     alterDraftFiles(draft, files)
     response = self.client.post('/apply/3/', follow=True)
     
@@ -325,7 +327,7 @@ class ApplyValidation(TestCase):
     contents_dict = json.loads(draft.contents)
     contents_dict['support_type'] = 'Project support'
     draft.contents = json.dumps(contents_dict)
-    files = ['', 'diversity_chart.doc', 'diversity_chart.doc', '', 'fileuploads3.png', 'notes.txt', '', '']
+    files = ['fileuploads3.png', 'diversity_chart.doc', 'diversity_chart.doc', '', '', '', '', '']
     alterDraftFiles(draft, files)
     
     response = self.client.post('/apply/3/', follow=True)
@@ -509,7 +511,7 @@ class OrgRollover(TestCase):
     nq = new_contents.pop('cycle_question', '')
     self.assertEqual(old_contents, new_contents)
     self.assertNotEqual(cq, nq)
-    for field in APP_FILE_FIELDS:
+    for field in GrantApplication.file_fields():
       self.assertEqual(getattr(draft, field), getattr(new_draft, field))
     
   def test_app_rollover(self):
