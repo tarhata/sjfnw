@@ -16,6 +16,7 @@ from google.appengine.ext import blobstore, deferred
 from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm
 from decorators import registered_org
 from sjfnw import constants
+from sjfnw.fund.models import Member
 import models, utils
 import datetime, logging, json, re, csv
 
@@ -90,6 +91,13 @@ def OrgSupport(request):
   'support_email':constants.SUPPORT_EMAIL,
   'support_form':constants.GRANT_SUPPORT_FORM})
 
+def PreApply(request, cycle_id):
+  cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
+  if not cycle.info_page:
+    raise Http404
+  logging.info(cycle.info_page)
+  return render(request, 'grants/pre_apply.html', {'cycle':cycle})
+
 # REGISTERED ORG VIEWS
 @login_required(login_url=LOGIN_URL)
 @registered_org()
@@ -123,20 +131,10 @@ def OrgHome(request, organization):
     'upcoming':upcoming,
     'applied':applied})
 
-def PreApply(request, cycle_id):
-  cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
-  if not cycle.info_page:
-    raise Http404
-  logging.info(cycle.info_page)
-  return render(request, 'grants/pre_apply.html', {'cycle':cycle})
-
 @login_required(login_url=LOGIN_URL)
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   """Get or submit the whole application form """
-  
-  referer = request.META.get('HTTP_REFERER')
-  logging.info(referer)
   
   #check cycle exists
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
@@ -244,26 +242,6 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
   return render(request, 'grants/org_app.html',
   {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
-
-def TestApply(request):
-  drafts = models.DraftGrantApplication.objects.all()
-  searched = 0
-  modified = 0
-  old_timeline_fields = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
-
-  for draft in drafts:
-    contents = json.loads(draft.contents)
-    if 'timeline_1_date' in contents: #old timeline format
-      logging.info('Orig contents: ' + draft.contents)
-      for i in range(15):
-        contents[constants.TIMELINE_FIELDS[i]] = contents.pop(old_timeline_fields[i])
-      modified +=1
-      logging.info('New contents: ' + str(contents))
-    searched +=1
-    draft.contents = json.dumps(contents)
-    draft.save()
-  logging.info(str(searched) + ' drafts searched, ' + str(modified) + ' drafts modified.')
-  return render(request, 'grants/file_upload.html')
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()
@@ -418,32 +396,63 @@ def DiscardDraft(request, organization, draft_id):
     raise Http404
 
 # VIEW APPS/FILES
-def ViewApplication(request, app_id):
-  user = request.user
-  app = get_object_or_404(models.GrantApplication, pk=app_id)
-  form = models.GrantApplicationModelForm(app.grant_cycle)
-  #set up doc viewer for applicable files
-  file_urls = GetFileURLs(app)
 
-  return render(request, 'grants/view_app.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls})
+def view_permission(user, application):
+  """ Return a number indicating viewing permission for a submitted app.
+      
+      Args:
+        user: django user object
+        application: GrantApplication
+      
+      Returns:
+        0 - does not have permission to view
+        1 - member with perm
+        2 - staff
+        3 - app creator
+  """
+  if user.is_staff:
+    return 2
+  elif user.email == application.organization.email:
+    return 3
+  else:
+    try:
+      member = Member.objects.get(email=user.email).select_related()
+      for ship in member.membership_set:
+        if membership.giving_project == application.giving_project:
+          return 1
+      return 0
+    except Member.DoesNotExist:
+      return 0
 
+def CannotView(request):
+  return render(request, 'grants/blocked.html', {'contact_url':'/support#contact'})
+
+@login_required(login_url=LOGIN_URL)
 def ReadApplication(request, app_id):
   user = request.user
   app = get_object_or_404(models.GrantApplication, pk=app_id)
+  perm = view_permission(user, app)
+  logging.info('perm is ' + str(perm))
+  if perm == 0:
+    return redirect(CannotView)
   form = models.GrantApplicationModelForm(app.grant_cycle)
-  #set up doc viewer for applicable files
   file_urls = GetFileURLs(app)
   
-  return render(request, 'grants/reading.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls})
+  return render(request, 'grants/reading.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls, 'perm':perm})
 
+@login_required(login_url=LOGIN_URL)
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
+  if view_permission(request.user, application) == 0:
+    return redirect(CannotView)
   return utils.ServeBlob(application, file_type)
 
+@login_required(login_url=LOGIN_URL)
 def ViewDraftFile(request, draft_id, file_type):
   application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
+  if view_permission(request.user, application) == 0:
+    return redirect(CannotView)
   return utils.ServeBlob(application, file_type)
-
 
 # ADMIN
 def RedirToApply(request):

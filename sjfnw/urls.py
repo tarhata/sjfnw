@@ -71,7 +71,6 @@ urlpatterns += patterns('grants.views',
   (r'^apply/copy/?$', 'CopyApp'),
   
   (r'^org/?$', 'RedirToApply'),
-  (r'^apply/test/?$', 'TestApply'),
   
   #cron
   (r'^mail/drafts/?', 'DraftWarning'),
@@ -87,6 +86,7 @@ urlpatterns += patterns('grants.views',
   (r'^grants/view/(?P<app_id>\d+)/?$', 'ReadApplication'),
   (r'^grants/view-file/(?P<app_id>\d+)-(?P<file_type>.*)\.', 'ViewFile'),
   (r'^grants/draft-file/(?P<draft_id>\d+)-(?P<file_type>.*)\.', 'ViewDraftFile'),
+  (r'^grants/blocked', 'CannotView'),
   
   #reporting
   (r'^grants/search$', 'SearchApps'),
