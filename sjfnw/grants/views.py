@@ -135,7 +135,7 @@ def OrgHome(request, organization):
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   """Get or submit the whole application form """
-  
+
   #check cycle exists
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
 
@@ -224,6 +224,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
     #try to determine initial load - cheaty way
     # 1) if referer, make sure it wasn't from copy 2) check for mission from profile 3) make sure grant request is not there (since it's not in prof)
+    referer = request.META.get('HTTP_REFERER')
     if not (referer and referer.find('copy') != -1) and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
       profiled = True
 
@@ -340,7 +341,7 @@ def CopyApp(request, organization):
         try:
           application = models.GrantApplication.objects.get(pk = int(app))
           content = model_to_dict(application, exclude = application.file_fields() + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
-          content.update(dict(zip(constants.TIMELINE_FIELDS, json.loads(application.timeline))))
+          content.update(dict(zip(['timeline_' + str(i) for i in range(15)], json.loads(application.timeline))))
           content = json.dumps(content)
         except models.GrantApplication.DoesNotExist:
           logging.error('CopyApp - submitted app ' + app + ' not found')
@@ -468,7 +469,7 @@ def AppToDraft(request, app_id):
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
     content = model_to_dict(submitted_app, exclude = submitted_app.file_fields() + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline'])
-    content.update(dict(zip(constants.TIMELINE_FIELDS, json.loads(submitted_app.timeline))))
+    content.update(dict(zip(['timeline_' + str(i) for i in range(15)], json.loads(submitted_app.timeline))))
     draft.contents = json.dumps(content)
     for field in submitted_app.file_fields():
       setattr(draft, field, getattr(submitted_app, field))
