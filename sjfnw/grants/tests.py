@@ -8,7 +8,7 @@ from google.appengine.ext import testbed
 from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
 import sys, datetime, re, json, unittest
 from sjfnw.constants import TEST_MIDDLEWARE
-from sjfnw.fund.models import Member
+from sjfnw.fund.models import Member, GivingProject
 
 def setCycleDates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
@@ -62,7 +62,7 @@ def alterDraftTimeline(draft, values):
 def alterDraftFiles(draft, files_dict):
   """ File list should match this order:
   ['budget', 'demographics', 'funding_sources', 'budget1', 'budget2', 'budget3', 'project_budget_file', 'fiscal_letter'] """
-  files = dict(zip(GrantApplication.file_fields(), files_dict))
+  files = dict(zip(DraftGrantApplication.file_fields(), files_dict))
   for key, val in files.iteritems():
     setattr(draft, key, val)
   draft.save()
@@ -248,16 +248,17 @@ class ApplySuccessful(TestCase):
                 files match  """
                 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    files = ['', 'diversity_chart.doc', 'diversity_chart.doc', 'notes.txt', 'fileuploads3.png', '', '', '']
+    files = ['', 'funding_sources.docx', 'diversity.docx', 'budget1.doc', 'budget2.txt', '', '', '']
     alterDraftFiles(draft, files)
-    response = self.client.post('/apply/3/', follow=True)
     
+    response = self.client.post('/apply/3/', follow=True)
+  
     org = Organization.objects.get(pk = 2)
     self.assertTemplateUsed(response, 'grants/submitted.html')
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
-    self.assertEqual(app.budget1, files[4])
-    self.assertEqual(app.budget2, files[5])
+    self.assertEqual(app.budget1, files[3])
+    self.assertEqual(app.budget2, files[4])
     self.assertEqual(app.budget, '')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
@@ -301,14 +302,16 @@ class ApplyValidation(TestCase):
     setCycleDates()
     logInTesty(self)
   
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_file_validation_budget(self):
     """ scenario: budget + some other budget files
                   no funding sources
                   
         verify: no submission
                 error response  """
+
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    files = ['budget.doc', 'diversity_chart.doc', 'notes.txt', '', 'fileuploads3.png', 'notes.txt', '', '']
+    files = ['budget.doc', 'diversity.docx', '', 'budget1.doc', 'budget2.txt', 'budget3.png', '', '']
     alterDraftFiles(draft, files)
     response = self.client.post('/apply/3/', follow=True)
     
@@ -317,28 +320,27 @@ class ApplyValidation(TestCase):
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
     self.assertFormError(response, 'form', 'funding_sources', "This field is required.")
     self.assertFormError(response, 'form', 'budget', "Budget documents should be uploaded all in one file OR in the individual fields below.")
-  
+
   def test_project_requirements(self):
     """ scenario: support type = project, b1 & b2, no other project info given
         verify: not submitted
                 no app created, draft still exists
                 form errors - project title, project budget, project budget file """
                 
-    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    draft = DraftGrantApplication.objects.get(pk=2)
     contents_dict = json.loads(draft.contents)
     contents_dict['support_type'] = 'Project support'
     draft.contents = json.dumps(contents_dict)
-    files = ['fileuploads3.png', 'diversity_chart.doc', 'diversity_chart.doc', '', '', '', '', '']
-    alterDraftFiles(draft, files)
+    draft.save()
     
     response = self.client.post('/apply/3/', follow=True)
+    
     self.assertTemplateUsed(response, 'grants/org_app.html')
     self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
     self.assertFormError(response, 'form', 'project_title', "This field is required when applying for project support.")
     self.assertFormError(response, 'form', 'project_budget', "This field is required when applying for project support.")
-    self.assertFormError(response, 'form', 'project_budget_file', "This field is required when applying for project support.")
-  
+
   def test_timeline_validation_incomplete(self):
     
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
@@ -352,7 +354,7 @@ class ApplyValidation(TestCase):
     
     response = self.client.post('/apply/3/', follow=True)
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">All three columns are required for each quarter that you include in your timeline.</div>')
-    
+
   def test_timeline_validation_empty(self):
     
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
@@ -646,7 +648,9 @@ class ViewGrantPermissions(TestCase):
   fixtures = ['test_grants.json', 'sjfnw/fund/fixtures/test_fund.json']
   
   def setUp(self):
-    pass
+    app = GrantApplication.objects.get(pk=1)
+    app.giving_project = GivingProject.objects.get(pk=2)
+    app.save()
   
   def test_author(self):
     logInTesty(self)

@@ -142,11 +142,11 @@ class DraftGrantApplication(models.Model):
   budget = models.FileField(upload_to='/', max_length=255)
   demographics = models.FileField(upload_to='/', max_length=255)
   funding_sources = models.FileField(upload_to='/', max_length=255)
-  fiscal_letter = models.FileField(upload_to='/', max_length=255)
   budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement')
   budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating')
   budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet')
   project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget')
+  fiscal_letter = models.FileField(upload_to='/', max_length=255)
   
   extended_deadline = models.DateTimeField(help_text = 'Allows this draft to be edited/submitted past the grant cycle close.', blank=True, null=True)
   
@@ -166,6 +166,10 @@ class DraftGrantApplication(models.Model):
       return True
     else:
       return False
+
+  @classmethod
+  def file_fields(cls):
+    return [f.name for f in filter(lambda x: isinstance(x, models.FileField), cls._meta.fields)]
 
 class WordLimitValidator(BaseValidator):
     compare = lambda self, a, b: a > b

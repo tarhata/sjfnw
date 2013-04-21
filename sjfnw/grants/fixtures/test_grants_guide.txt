@@ -34,10 +34,12 @@ DRAFTS
  
 DRAFT FILES
 
-  Any file in the media folder will work.  Currently:
-    Picture0001.jpg
-    toggloptions.png
-    fileuploads3.png
+  Any file in the media folder will work.  Currently (in order of files list):
     budget.doc
-    diversity_chart.doc
-    notes.txt
+    funding_sources.docx
+    diversity.docx
+    budget1.doc
+    budget2.txt
+    budget3.png    
+    project.png
+    fiscal.jpg
