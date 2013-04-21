@@ -15,7 +15,7 @@
     <div class="block_header">Project progress</div>
     {% for new in news|slice:":3" %}<div class="block-item">{{new.date|date:"n/d/y" }}: {{new.summary}}</div>{% endfor %}
   </div>
-  <div class="top_block{% if 3active %} active_block{% endif %}" id="scoring_block" onclick="location.href='/fund/scoring';">
+  <div class="top_block{% if 3active %} active_block{% endif %}" id="scoring_block" onclick="location.href='/fund/grants';">
     <div class="block_header">Grants</div>
     <div class="block-item block-bottom">Grants are not available yet.</div>
   </div></div>

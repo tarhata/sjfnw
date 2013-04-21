@@ -26,9 +26,9 @@ if not settings.DEBUG:
 
 def get_block_content(membership, first, second, third):
   contents = []
-  if first:
+  if first: #home page does its own thing
      contents.append(models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2])
-  if second:
+  if second: #all the same, some just slice it
     contents.append(models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date'))
   if third:
     pass

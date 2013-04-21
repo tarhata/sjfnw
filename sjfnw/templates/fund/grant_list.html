@@ -1,45 +1,15 @@
 {% extends 'fund/blocks.html' %}
-<head>
-  <link href="index.css" type="text/css" rel="stylesheet" />
-</head>
 
 {% block title %}Grants {{block.super}}{% endblock %}
 
-{% block progress %}
-<div id="progress_container">
-  <div id="progress_bar" style="width:0%"></div>
-</div>
-<div id="progress_desc">You have scored 0% of grants</div>
-{% endblock %}
-
 {% block content %}
-{% if not unreviewed and not reviewed and not in_progress %}
-  Grants are not available yet.
+{% if not grant_list %}
+<p>Grants are not available yet.</p>
 {% else %}
-  <div>
-    Pending
-    <ul>
-    {% for grant in unreviewed %}
-      <li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
-    {% endfor %}
-     </ul>
-  </div>
-  <div>
-    In Process
-    <ul>
-    {% for grant in in_progress %}
-      <li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
-    {% endfor %}
-     </ul>
-  </div>
-  <div>
-    Submitted
-    <ul>
-    {% for grant in reviewed %}
-      <li><a href="/scoring/reading/{{grant.pk}}/">{{grant.organization}}</a></li>
-    {% endfor %}
-     </ul>
-  </div>
+<p>Click to open a grant application in a new tab.</p>
+{% for grant in grant_list %}
+<a href="/grants/view/{{grant.pk}}" target="_blank">{{grant.organization}}</a><br>
+{% endfor %}
 {% endif %}
 
 {% endblock %}
