@@ -10,10 +10,10 @@
   
 ORGANIZATIONS
 
-  1 Fresh New Org - newacct@gmail.com
+  1 Fresh New Org - neworg@gmail.com
     (nothing associated)
   
-  2 OfficeMax Foundation - testacct@gmail.com
+  2 OfficeMax Foundation - testorg@gmail.com
     Drafts:     1 (cycle 2), 2 (cycle 3)
     Submitted:  1 (cycle 1)
 

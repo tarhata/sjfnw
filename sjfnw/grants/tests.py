@@ -8,6 +8,7 @@ from google.appengine.ext import testbed
 from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
 import sys, datetime, re, json, unittest
 from sjfnw.constants import TEST_MIDDLEWARE
+from sjfnw.fund.models import Member
 
 def setCycleDates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
@@ -39,12 +40,12 @@ def setCycleDates():
   cycle.save()
 
 def logInTesty(self): # 2 OfficeMax Foundation
-  self.user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')
-  self.client.login(username = 'testacct@gmail.com', password = 'testy')
+  self.user = User.objects.create_user('testorg@gmail.com', 'testorg@gmail.com', 'testy')
+  self.client.login(username = 'testorg@gmail.com', password = 'testy')
 
 def logInNewbie(self): # 1 Fresh New Org
-  user = User.objects.create_user('newacct@gmail.com', 'newacct@gmail.com', 'noob')
-  self.client.login(username = 'newacct@gmail.com', password = 'noob')
+  user = User.objects.create_user('neworg@gmail.com', 'neworg@gmail.com', 'noob')
+  self.client.login(username = 'neworg@gmail.com', password = 'noob')
 
 def logInAdmin(self): #just a django superuser
   superuser = User.objects.create_superuser('admin@gmail.com', 'admin@gmail.com', 'admin')
@@ -132,25 +133,25 @@ class Register(TestCase):
   def test_repeat_org_email(self):
     
     registration = {
-      'email': 'newacct@gmail.com',
+      'email': 'neworg@gmail.com',
       'password': 'one',
       'passwordtwo': 'one',
       'organization': 'Brand New'
     }
     
-    self.assertEqual(1, Organization.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(1, Organization.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
     
     response = self.client.post('/apply/register', registration, follow=True)
     
-    self.assertEqual(1, Organization.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(1, Organization.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
     self.assertTemplateUsed(response, 'grants/org_login_register.html')
     self.assertEqual(response.context['register_errors'], 'That organization is already registered. Log in instead.')
   
   def test_repeat_user_email(self):
     
-    user = User.objects.create_user('bababa@gmail.com', 'newacct@gmail.com', 'noob')
+    user = User.objects.create_user('bababa@gmail.com', 'neworg@gmail.com', 'noob')
     
     registration = {
       'email': 'bababa@gmail.com',
@@ -159,12 +160,12 @@ class Register(TestCase):
       'organization': 'Brand New'
       }
     
-    self.assertEqual(1, User.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(1, User.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
     
     response = self.client.post('/apply/register', registration, follow=True)
     
-    self.assertEqual(1, User.objects.filter(email='newacct@gmail.com').count())
+    self.assertEqual(1, User.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
     self.assertTemplateUsed(response, 'grants/org_login_register.html')
     self.assertEqual(response.context['register_errors'], 'That email is registered with Project Central. Please register using a different email.')
@@ -593,7 +594,6 @@ class AdminRollover(TestCase):
     setCycleDates()
     logInAdmin(self)
   
- 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftExtension(TestCase):
   fixtures = ['test_grants.json',]
@@ -640,6 +640,53 @@ class Draft(TestCase):
     new_draft = DraftGrantApplication.objects.get(organization_id =2, grant_cycle_id=5)
     self.assertEqual(json.loads(complete_draft.contents), json.loads(new_draft.contents))
 
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class ViewGrantPermissions(TestCase):
+
+  fixtures = ['test_grants.json', 'sjfnw/fund/fixtures/test_fund.json']
+  
+  def setUp(self):
+    pass
+  
+  def test_author(self):
+    logInTesty(self)
+    
+    response = self.client.get('/grants/view/1')
+    
+    self.assertTemplateUsed(response, 'grants/reading.html')
+    self.assertEqual(3, response.context['perm'])
+  
+  def test_other_org(self):
+    logInNewbie(self)
+    
+    response = self.client.get('/grants/view/1', follow=True)
+    
+    self.assertTemplateUsed(response, 'grants/blocked.html')
+  
+  def test_staff(self):
+    logInAdmin(self)
+    
+    response = self.client.get('/grants/view/1', follow=True)
+    
+    self.assertTemplateUsed(response, 'grants/reading.html')
+    self.assertEqual(2, response.context['perm'])
+  
+  def test_valid_member(self):
+    user = User.objects.create_user('newacct@gmail.com', 'newacct@gmail.com', 'noob')
+    self.client.login(username = 'newacct@gmail.com', password = 'noob')
+    
+    response = self.client.get('/grants/view/1', follow=True)
+    
+    self.assertTemplateUsed(response, 'grants/reading.html')
+    self.assertEqual(1, response.context['perm'])
+  
+  def test_invalid_member(self):
+    user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'noob')
+    self.client.login(username = 'testacct@gmail.com', password = 'noob')
+    
+    response = self.client.get('/grants/view/1', follow=True)
+    
+    self.assertTemplateUsed(response, 'grants/blocked.html')
     
 """ TO DO - files
   as of 4/4/13 this one throws error from deferred going off. i imagine blobstore api will cause a problem too.

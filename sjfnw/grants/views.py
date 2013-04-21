@@ -416,9 +416,9 @@ def view_permission(user, application):
     return 3
   else:
     try:
-      member = Member.objects.get(email=user.email).select_related()
-      for ship in member.membership_set:
-        if membership.giving_project == application.giving_project:
+      member = Member.objects.select_related().get(email=user.email)
+      for ship in member.membership_set.all():
+        if ship.giving_project == application.giving_project:
           return 1
       return 0
     except Member.DoesNotExist:

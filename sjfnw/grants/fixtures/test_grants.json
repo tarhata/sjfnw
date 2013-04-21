@@ -81,7 +81,7 @@
       "fiscal_letter": "", 
       "fiscal_email": "", 
       "email_address": "as@gmail.com", 
-      "email": "newacct@gmail.com", 
+      "email": "neworg@gmail.com", 
       "ein": ""
     }
   },
@@ -107,7 +107,7 @@
       "fiscal_letter": "", 
       "fiscal_email": "", 
       "email_address": "as@gmail.com", 
-      "email": "testacct@gmail.com", 
+      "email": "testorg@gmail.com", 
       "ein": "654"
     }
   },
@@ -176,7 +176,7 @@
       "telephone_number": "(325) 586 8965", 
       "budget": "toggloptions.png", 
       "scoring_bonus_poc": false, 
-      "giving_project": null, 
+      "giving_project": 2, 
       "cycle_question": "The other question ahahaha", 
       "collab_ref1_email": "", 
       "racial_justice_ref1_org": "", 
