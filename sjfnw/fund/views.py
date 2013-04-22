@@ -324,13 +324,15 @@ def Register(request):
       else:
         #create User and Member
         new_user = User.objects.create_user(username_email, username_email, password)
-        new_user.save()
         fn = request.POST['first_name']
         ln = request.POST['last_name']
-        gp = request.POST['giving_project']
+        new_user.first_name = fn
+        new_user.last_name = ln
+        new_user.save()
         member = models.Member(email = username_email, first_name = fn, last_name = ln)
         member.save()
         logging.info('Registration - user and member objects created for ' + username_email)
+        gp = request.POST['giving_project']
         if gp: #create Membership
           giv = models.GivingProject.objects.get(pk=gp)
           membership = models.Membership(member = member, giving_project = giv)
