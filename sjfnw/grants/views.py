@@ -277,7 +277,7 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
     #get or create saved json, update it
     logging.debug("Autosaving")
     dict = json.dumps(request.POST)
-    #logging.debug(dict)
+    logging.debug(dict)
     draft.contents = dict
     draft.modified = timezone.now()
     draft.save()

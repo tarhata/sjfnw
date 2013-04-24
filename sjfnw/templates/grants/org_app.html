@@ -62,7 +62,7 @@ function autoSave(submit){
 function charLimitDisplay(area, limit){
 	var counter = document.getElementById(area.name + '_counter');
 	var words = area.value.match(/[^ \r\n]+/g) || [];
-	console.log(words);
+	//console.log(words);
 	var diff = limit - words.length;
   if (diff >= 0) {
     counter.innerHTML = diff + ' words remaining';
