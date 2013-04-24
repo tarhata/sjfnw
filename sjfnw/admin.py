@@ -38,15 +38,16 @@ def approve(modeladmin, request, queryset): #Membership action
   logging.info('Approval queryset updated')
 
 def export_donors(modeladmin, request, queryset):
-  logging.info('Export donors')
+  logging.info('Export donors called by ' + request.user.email)
   response = HttpResponse(mimetype='text/csv')
   response['Content-Disposition'] = 'attachment; filename=prospects.csv'
   writer = csv.writer(response)
   
   writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member', 'Giving Project', 'Amount to ask', 'Asked', 'Pledged', 'Gifted', 'Notes'])
+  count = 0
   for donor in queryset:
     fields = [donor.firstname, donor.lastname, donor.phone, donor.email, donor.membership.member, donor.membership.giving_project, donor.amount, donor.asked, donor.pledged, donor.gifted, donor.notes]
-    for i in fields:
+    """ for i in fields:
       pr = unicode(i)
       if isinstance(i, str):
         pr += ' str'
@@ -59,7 +60,10 @@ def export_donors(modeladmin, request, queryset):
       logging.info([pr.encode('utf-8')])
       #logging.info([pr.decode('iso-8859-1').encode('utf8')])
       #logging.info(pr.encode('ISO-8859-1'))
+      """
     writer.writerow(fields)
+    count += 1
+  logging.info(str(count) + ' donors exported')
   return response
   
 # Filters
