@@ -83,7 +83,7 @@
 				<td>{{form.email_address.label_tag}}{{app.email_address}}</td>
 				<td>{{form.website.label_tag}}{{app.website}}</td>
 			</tr><tr>
-				<td><label>{{form.contact_person.help_text}}</label></td>
+				<td><b>{{form.contact_person.help_text}}</b></td>
 				<td>{{app.contact_person}}, {{app.contact_person_title}}</td>
 			</tr><tr>	
 				<td>{{form.status.label_tag}}{{app.status}}</td>
@@ -121,29 +121,29 @@
 				<td>{{form.fiscal_telephone.label_tag}}{{app.fiscal_telephone}}</td>
 			</tr><tr>
 				<td>{{form.fiscal_email.label_tag}}{{app.fiscal_email}}</td>
-				<td><label>Fiscal sponsor letter:</label><a href="{{file_urls.fiscal_letter}}" target="_blank">View</a></td>
+				<td><b>Fiscal sponsor letter:</b><a href="{{file_urls.fiscal_letter}}" target="_blank">View</a></td>
 			</tr>
 			{% endif %}
 		</table>
 
 		<h4>Narratives</h4><!-- Narrative -->
-		<p>1. {{form.narrative1.label}}</p>
+		<p><b>1. {{form.narrative1.label}}</b></p>
 		<p>{{app.narrative1}}</p>
-		<p>2. {{form.narrative2.label}}</p>
+		<p><b>2. {{form.narrative2.label}}</b></p>
 		<p>{{app.narrative2}}</p>
-		<p>3. {{form.narrative3.label}}</p>
+		<p><b>3. {{form.narrative3.label}}</b></p>
 		<p>{{app.narrative3}}</p>
-		<p>4. {{form.narrative4.label}}</p>
+		<p><b>4. {{form.narrative4.label}}</b></p>
 		<p>{{app.narrative4}}</p>
 		{{app.timeline_display}}
-		<p>5. {{form.narrative5.label}}</p>
+		<p><b>5. {{form.narrative5.label}}</b></p>
 		<p>{{app.narrative5}}</p>
-		<p>{{form.collab_ref1_name.help_text}}</p>
+		<p><b>{{form.collab_ref1_name.help_text}}</b></p>
 		<p>1. {{app.collab_ref1_name}}, {{app.collab_ref1_org}}. {{app.collab_ref1_phone|add:" "}}{{app.collab_ref1_email}}</p>
 		<p>2. {{app.collab_ref2_name}}, {{app.collab_ref2_org}}. {{app.collab_ref2_phone|add:" "}}{{app.collab_ref2_email}}</p>
-		<p>6. {{form.narrative6.label}}</p>
+		<p><b>6. {{form.narrative6.label}}</b></p>
 		<p>{{app.narrative6}}</p>
-		<p>{{form.racial_justice_ref1_name.help_text}}</p>
+		<p><b>{{form.racial_justice_ref1_name.help_text}}</b></p>
 		{% if app.racial_justice_ref1_org %}
 			<p>1. {{app.racial_justice_ref1_name}}, {{app.racial_justice_ref1_org}}. {{app.racial_justice_ref1_phone|add:" "}}{{app.racial_justice_ref1_email}}</p>
 			{% if app.racial_justice_ref2_name %}
@@ -151,7 +151,7 @@
 			{% endif %}
 		{% else %}N/A{% endif %}
 		{% if app.cycle_question %}
-		<p>7. {{form.cycle_question.label}}</p>
+		<p><b>7. {{form.cycle_question.label}}</b></p>
 		<p>{{app.cycle_question}}</p>
 		{% endif %}
 	{% endautoescape %}
