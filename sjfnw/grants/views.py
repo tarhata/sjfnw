@@ -265,11 +265,16 @@ def TestApply(request):
   logging.info(str(searched) + ' drafts searched, ' + str(modified) + ' drafts modified.')
   return render(request, 'grants/file_upload.html')
 
-@login_required(login_url=LOGIN_URL)
-@registered_org()
-def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
+def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Saves non-file fields to a draft """
-  
+  if not request.user.is_authenticated():
+    return HttpResponse(LOGIN_URL, status=401)
+  try:
+    organization = models.Organization.objects.get(email=request.user.username)
+    logging.info(organization)
+  except models.Organization.DoesNotExist:
+    return HttpResponse('/apply/nr', status=401)
+
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
   draft = get_object_or_404(models.DraftGrantApplication, organization=organization, grant_cycle=cycle)
   
@@ -281,7 +286,7 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
     draft.contents = dict
     draft.modified = timezone.now()
     draft.save()
-    return HttpResponse("")
+    return HttpResponse("success")
 
 def AddFile(request, draft_id):
   """ Upload a file to the draft
