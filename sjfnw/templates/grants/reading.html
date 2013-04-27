@@ -16,10 +16,8 @@
 	
 	function showAttachment(){
 		if (frame){
-			console.log('show attachment');
-			var results = frame.contentDocument.body.innerHTML;
-			console.log("The iframe changed! New contents: " + results);
-			if (results) {
+			console.log('The iframe changed');
+			if (frame.contentDocument.body) {
 				console.log('displaying iframe');
 				frame.style.display = '';
 				main_div.style.display = 'none';
