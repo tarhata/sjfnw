@@ -32,10 +32,6 @@ handlers:
 - url: /dev
   script: sjfnw.wsgi.application
   login: admin
-
-- url: /grants
-  script: sjfnw.wsgi.application
-  login: admin
   
 - url: /static/admin
   static_dir: sjfnw/static/django_admin
