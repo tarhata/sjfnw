@@ -27,12 +27,6 @@ urlpatterns = patterns('',
   (r'^dev/jslog/?', 'views.log_javascript'),
   )
 
-# direct to templates
-urlpatterns += patterns('', 
-  (r'^apply/nr', direct_to_template, {'template': 'grants/not_grantee.html'}),
-  (r'^apply/submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
-  )
-
 # password resets
 urlpatterns += patterns('', 
   # grants
@@ -49,29 +43,34 @@ urlpatterns += patterns('',
   )
 
 # GRANTS
+urlpatterns += patterns('', 
+  (r'^apply/nr', direct_to_template, {'template': 'grants/not_grantee.html'}),
+  (r'^apply/submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
+  )
 urlpatterns += patterns('grants.views',  
-
+  
+  (r'^org/?$', 'RedirToApply'),
+  
   #login, logout, registration
   (r'^apply/login/?$', 'OrgLogin'),
   (r'^apply/register/?$', 'OrgRegister'),
 
-  #main pages
+  #home page
   (r'^apply/?$','OrgHome'),
+  (r'^apply/(?P<draft_id>\d+)/DELETE/?$', 'DiscardDraft'),
+  (r'^apply/copy/?$', 'CopyApp'),
   (r'^apply/support/?', 'OrgSupport'),
   
   #application
   (r'^apply/(?P<cycle_id>\d+)/?$','Apply'),
   (r'^apply/info/(?P<cycle_id>\d+)/?$','PreApply'),
+  
+  #application ajax
   (r'^apply/(?P<draft_id>\d+)/add-file/?$', 'AddFile'),
   (r'^get-upload-url/(?P<draft_id>\d+)/?$','RefreshUploadUrl'),
   (r'^apply/(?P<draft_id>\d+)/remove/(?P<file_field>.*)/?$', 'RemoveFile'), 
-  
   (r'^apply/(?P<cycle_id>\d+)/autosave/?$','AutoSaveApp'),
-  (r'^apply/(?P<draft_id>\d+)/DELETE/?$', 'DiscardDraft'),
-  (r'^apply/copy/?$', 'CopyApp'),
-  
-  (r'^org/?$', 'RedirToApply'),
-  
+
   #cron
   (r'^mail/drafts/?', 'DraftWarning'),
   (r'^tools/delete-empty', 'DeleteEmptyFiles'),
@@ -93,7 +92,7 @@ urlpatterns += patterns('grants.views',
   (r'^grants/results$', 'GetResults'),
   )
 
-# FUNDRAISING
+# PROJECT CENTRAL
 urlpatterns += patterns('fund.views',  
   
   #login, logout, registration
