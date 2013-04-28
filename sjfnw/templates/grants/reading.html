@@ -5,6 +5,21 @@
 	<link rel="stylesheet" type="text/css" href="/static/css/base.css">
 	<link rel="stylesheet" type="text/css" href="/static/css/grants.css">
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script type="text/javascript"><!--google analytics -->
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28076150-2']);
+    
+    //custom variable #1 user type, session level
+    _gaq.push(['_setCustomVar', 1, 'User type', {% if user.username == 'sjfnwads@gmail.com' %}'Aisa'{% elif user.is_staff %}'Staff'{% elif perm == 3 %}'Organization'{% elif perm == 1 %}'Member'{% else %}'Unknown'{% endif %}, 2]); 
+    
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
 	<script type="text/javascript">
 	var main_div;
 	var frame;
@@ -47,7 +62,7 @@
 		<a onclick="showMain()">Application form</a><br><br>
 		Uploaded files:
 		<ol class="contents">
-			{% if app.fiscal_letter %}<!-- fiscal letter -- update -->
+			{% if app.fiscal_letter and perm > 1 %}
 			<li><a href="{{file_urls.fiscal_letter}}" target="reading_frame">Fiscal letter</a></li>
 			{% endif %}
 			{% if app.budget %}
