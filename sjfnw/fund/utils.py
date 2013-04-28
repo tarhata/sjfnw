@@ -37,7 +37,7 @@ def UpdateStory(membership_id, time):
   talkedlist = [] #for talk counts, don't want to double up
   askedlist = []
   for step in steps:
-    logging.debug(str(step))
+    logging.debug(unicode(step))
     if step.asked:
       asked += 1
       askedlist.append(step.donor)
@@ -80,4 +80,4 @@ def NotifyApproval(membership):
   msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com']) #bcc for testing
   msg.attach_alternative(html_content, "text/html")
   msg.send()
-  logging.info('Approval email sent to ' + str(membership) + ' at ' + to)
+  logging.info('Approval email sent to ' + unicode(membership) + ' at ' + to)

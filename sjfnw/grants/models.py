@@ -178,7 +178,7 @@ class WordLimitValidator(BaseValidator):
     code = 'max_words'
 
 def validate_file_extension(value):
-  if not str(value).lower().split(".")[-1] in constants.ALLOWED_FILE_TYPES:
+  if not value.name.lower().split(".")[-1] in constants.ALLOWED_FILE_TYPES:
     raise ValidationError(u'That file type is not supported.')
 
 class GrantApplication(models.Model):
