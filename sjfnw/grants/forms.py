@@ -123,16 +123,15 @@ class AppSearchForm(forms.Form):
     ('founded', 'Year founded')])
   report_proposal = forms.MultipleChoiceField(label='Grant request and project', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
     ('amount_requested', 'Amount requested'),
+    ('grant_request', 'Description of grant request'),
     ('support_type', 'Support type'),
     ('grant_period', 'Grant period'),
     ('project_title', 'Project title'),
     ('project_budget', 'Project budget'),
     ('previous_grants', 'Previous grants from SJF')])
-  report_budget = forms.MultipleChoiceField(label='Budget', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
-    ('start_year', 'Start of fiscal year'),
+  report_budget = forms.MultipleChoiceField(label='Budget', required=False, widget = forms.CheckboxSelectMultiple, choices = [('start_year', 'Start of fiscal year'),
     ('budget_last', 'Budget last year'),
-    ('budget_current', 'Budget current year'),
-    ('grant_request', 'Description of grant request')])
+    ('budget_current', 'Budget current year')])
  
   report_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
   report_collab = forms.BooleanField(label='Collaboration references', required=False)

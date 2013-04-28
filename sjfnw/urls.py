@@ -88,8 +88,8 @@ urlpatterns += patterns('grants.views',
   (r'^grants/blocked', 'CannotView'),
   
   #reporting
-  (r'^grants/search$', 'SearchApps'),
-  (r'^grants/results$', 'GetResults'),
+  (r'^admin/grants/search/?', 'SearchApps'),
+  (r'^admin/grants/results/?', 'GetResults'),
   )
 
 # PROJECT CENTRAL

@@ -1,22 +1,7 @@
-﻿.reporting ul, li {
+﻿.report ul, .report li {
   list-style-type:none;
   margin:0;
   padding-left:0;
-}
-
-body {
-  width:800px;
-  margin:auto;
-  font-family:Verdana;
-  font-size:80%;
-}
-
-h4 {
-  margin-bottom:.5em;
-}
-
-h3 {
-  margin-top:-.5em;
 }
 
 .reporting tr {
@@ -24,7 +9,43 @@ h3 {
 }
 
 .reporting td {
-  padding:0 1em;
+  padding:0 1.25em .5em 0;
+}
+
+body {
+  font-family:Verdana;
+  font-size:80%;
+}
+
+form.report{
+  margin-left:215px;
+}
+
+.heading{
+  font-size:1.3em;
+  font-weight:bold;
+}
+
+.heading td{
+  border-top:1px dashed black;
+  padding-top:5px;
+  margin-bottom:1em;
+}
+
+.sub_heading{
+  font-size:1em;
+}
+
+div.form{
+  width:700px;
+  height:100%;
+  margin-left:60px;
+  display:inline-block;
+}
+
+h4 {
+  font-size:1em;
+  margin-bottom:.5em;
 }
 
 input#run {
@@ -32,4 +53,27 @@ input#run {
   margin:2em auto;
   font-size:1.5em;
   padding:.25em .5em;
+}
+
+.mult_select{
+  margin:0 0 .5em .5em;
+}
+
+a.back_link{
+  position:fixed;
+}
+
+div.help{
+  position:fixed;
+  padding:5px;
+  width: 190px;
+  margin: 65px 0 0 0;
+  border: 1px dotted black;
+}
+
+.help h3{
+  margin-top:0;
+}
+.help ul{
+  padding-left:20px;
 }
