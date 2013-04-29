@@ -538,9 +538,9 @@ def SearchApps(request):
       if options.get('screening_status'):
         apps = apps.filter(screening_status__in=options.get('screening_status'))
       if options.get('poc_bonus'):
-        apps = apps.filter(poc_bonus=True)
+        apps = apps.filter(scoring_bonus_poc=True)
       if options.get('geo_bonus'):
-        apps = apps.filter(geo_bonus=True)
+        apps = apps.filter(scoring_bonus_geo=True)
 
       if options.get('giving_project'):
         apps = apps.filter(giving_project__title__in=options.get('giving_project'))

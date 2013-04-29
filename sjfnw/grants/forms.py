@@ -104,7 +104,7 @@ class AppSearchForm(forms.Form):
   #always: organization, grant cycle, submission time
   report_basics= forms.MultipleChoiceField(label='Basics', required=False, widget = forms.CheckboxSelectMultiple, choices = [
     ('id', 'Unique id number'),
-    ('giving_project_id', 'Giving project'),
+    ('giving_project', 'Giving project'),
     ('screening_status', 'Screening status')])
   report_contact = forms.MultipleChoiceField(label='Contact', required=False, widget = forms.CheckboxSelectMultiple, choices = [
     ('contact_person', 'Contact person name'),
@@ -129,7 +129,8 @@ class AppSearchForm(forms.Form):
     ('project_title', 'Project title'),
     ('project_budget', 'Project budget'),
     ('previous_grants', 'Previous grants from SJF')])
-  report_budget = forms.MultipleChoiceField(label='Budget', required=False, widget = forms.CheckboxSelectMultiple, choices = [('start_year', 'Start of fiscal year'),
+  report_budget = forms.MultipleChoiceField(label='Budget', required=False, widget = forms.CheckboxSelectMultiple, choices = [
+    ('start_year', 'Start of fiscal year'),
     ('budget_last', 'Budget last year'),
     ('budget_current', 'Budget current year')])
  
