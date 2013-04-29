@@ -1,24 +1,25 @@
-﻿.report ul, .report li {
+﻿body {
+  font-family:Verdana;
+  font-size:80%;
+}
+
+/** SEARCH **/
+.report_form ul, .report_form li {
   list-style-type:none;
   margin:0;
   padding-left:0;
 }
 
-.reporting tr {
+div.report_form{
+  float:left;
+}
+
+.report_form tr {
   vertical-align:top;
 }
 
-.reporting td {
+.report_form td {
   padding:0 1.25em .5em 0;
-}
-
-body {
-  font-family:Verdana;
-  font-size:80%;
-}
-
-form.report{
-  margin-left:215px;
 }
 
 .heading{
@@ -36,44 +37,59 @@ form.report{
   font-size:1em;
 }
 
-div.form{
-  width:700px;
-  height:100%;
-  margin-left:60px;
-  display:inline-block;
+h1 {
+  margin:.25em 0 .5em 0;
 }
 
-h4 {
+h4 { /** section labels **/
   font-size:1em;
   margin-bottom:.5em;
 }
 
-input#run {
+input#run { /** run the report button **/
   display:block;
   margin:2em auto;
   font-size:1.5em;
   padding:.25em .5em;
 }
 
-.mult_select{
+.mult_select{ /** toggle all checkboxes in a section **/
   margin:0 0 .5em .5em;
 }
 
-a.back_link{
-  position:fixed;
+.help_toggle{
+  float:right;
+  position:relative;
+  margin: -3em 2em 0 0;
+  cursor:pointer;
 }
 
-div.help{
-  position:fixed;
+#help{
+  float:left;
+  position:relative;
+  margin:-3em 0 0 1em;
   padding:5px;
-  width: 190px;
-  margin: 65px 0 0 0;
-  border: 1px dotted black;
+  width: 200px;
+  border: 1px solid #555;
+  display:none;
 }
 
-.help h3{
-  margin-top:0;
-}
-.help ul{
+#help ul{
   padding-left:20px;
+}
+
+/** RESULTS **/
+.report_results{
+  border-collapse:collapse;
+}
+
+.report_results,
+.report_results th{
+  border:1px solid #222;
+  padding:5px;
+}
+
+.report_results td{
+  border:1px dotted #555;
+  padding:5px;
 }

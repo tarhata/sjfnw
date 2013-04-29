@@ -555,29 +555,30 @@ def SearchApps(request):
       if options['report_fiscal']:
         fields += models.GrantApplication.fiscal_fields()
       
-      results = GetResults(fields, apps)
+      results = get_results(fields, apps)
+      fields = [f.capitalize().replace('_', ' ') for f in fields] #for display
       
-      #add output check
       if options['format']=='browse':
         return render_to_response('grants/report_results.html', {'results':results, 'fields':fields})
       elif options['format']=='csv':
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=%s.csv' % 'grantapplications'
         writer = csv.writer(response)
+        writer.writerow(fields)
         for row in results:
-          for i in range(len(row)):            
-            if isinstance(row[i], str):#dunno about this part
-              row[i] = row[i].encode('utf-8') 
-            elif isinstance(row[i], unicode):  
-              row[i] = row[i].encode('ISO-8859-1')
           writer.writerow(row)
         return response
     else:
       logging.info('Invalid form!')  
   return render(request, 'grants/search_applications.html', {'form':form})
 
-def GetResults(fields, apps):
-  #fields, apps = args
+def get_results(fields, apps):
+  """ Return a list of lists.  Each list represents an app, contains selected field values
+      
+      Arguments:
+        fields - list of fields to include
+        apps - queryset of applications """
+        
   results = []
   for app in apps:
     row = []
