@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 from random import randint, shuffle
 from datetime import timedelta
-import string
+import string, json
 from sjfnw.grants import models
 from sjfnw.fund.models import GivingProject
 
@@ -67,7 +67,7 @@ def generate_applications(self):
         app.narrative5 = random_words(100)
         app.narrative6 = random_words(100)
         #app.cycle_question
-        app.timeline = "[\"Jan\", \"Chillin\", \"Not applicable\", \"Feb\", \"Petting dogs\", \"5 dogs\", \"Mar\", \"Planting daffodils\", \"s\", \"July\", \"Walking around Greenlake\", \"9 times\", \"August\", \"Reading in the shade\", \"No sunburns\"]"
+        app.timeline = json.loads(["Jan", "Chillin", "Not applicable", "Feb", "Petting dogs", "5 dogs", "Mar", "Planting daffodils", "s", "July", "Walking around Greenlake", "9 times", "August", "Reading in the shade", "No sunburns"])
 
         app.collab_ref1_name = random_words(25)
         app.collab_ref1_org = random_words(25)
@@ -142,7 +142,7 @@ def generate_giving_projects(self): #6
 
 def random_phone():
   ph = ''
-  for i in range(1, 10):
+  for i in range(0, 10):
     ph += str(randint(1, 9))
   return ph[:3] + u'-' + ph[3:6] + u'-' + ph[6:]
 
@@ -169,5 +169,3 @@ def random_string(length, spaces):
   for i in range(0, length):
     str += chars[randint(0, le-1)]
   return str
-    
-#command should check to make sure this isn't real db
