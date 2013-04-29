@@ -522,14 +522,12 @@ def SearchApps(request):
       options = form.cleaned_data
       
       apps = models.GrantApplication.objects.order_by('-submission_time').select_related('giving_project', 'grant_cycle')
-      logging.info(apps)
 
       min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S') 
       min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
       max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S') 
       max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
       apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
-      logging.info(apps)
 
       if options.get('organization'):
         apps = apps.filter(organization__contains=options['organization'])
@@ -543,13 +541,11 @@ def SearchApps(request):
         apps = apps.filter(poc_bonus=True)
       if options.get('geo_bonus'):
         apps = apps.filter(geo_bonus=True)
-      logging.info(apps)
 
       if options.get('giving_project'):
         apps = apps.filter(giving_project__title__in=options.get('giving_project'))
       if options.get('grant_cycle'):
         apps = apps.filter(giving_project__title__in=options.get('grant_cycle'))
-      logging.info(apps)
 
       fields = ['submission_time', 'organization', 'grant_cycle'] + options['report_basics'] + options['report_contact'] + options['report_org'] + options['report_proposal'] + options['report_budget']
       if options['report_fiscal']:
