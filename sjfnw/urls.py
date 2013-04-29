@@ -89,7 +89,6 @@ urlpatterns += patterns('grants.views',
   
   #reporting
   (r'^admin/grants/search/?', 'SearchApps'),
-  (r'^admin/grants/results/?', 'GetResults'),
   )
 
 # PROJECT CENTRAL
