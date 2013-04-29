@@ -139,7 +139,7 @@ class AppSearchForm(forms.Form):
   report_bonuses = forms.BooleanField(label='POC-led and geographic diversity', required=False)
   
   #format (browse, csv, tsv)
-  format = forms.ChoiceField(choices = [('csv', 'CSV'), ('tsv', 'TSV'), ('browse', 'Don\'t export, just browse')])
+  format = forms.ChoiceField(choices = [('csv', 'CSV'), ('browse', 'Don\'t export, just browse')])
   
   def __init__(self, *args, **kwargs):
     super(AppSearchForm, self).__init__(*args, **kwargs)
@@ -150,7 +150,7 @@ class AppSearchForm(forms.Form):
     choices = [(g, g) for g in choices]
     self.fields['giving_project'].choices = choices
     
-    #get cycless
+    #get cycles
     choices = models.GrantCycle.objects.values_list('title', flat = True)
     choices = set(choices)
     choices = [(g, g) for g in choices]
@@ -159,5 +159,5 @@ class AppSearchForm(forms.Form):
   def clean(self):
     cleaned_data = super(AppSearchForm, self).clean()
     if cleaned_data['year_max'] < cleaned_data['year_min']:
-      self._errors['year_min'] = [u'Start year must be less than end year.']
+      self._errors['year_min'] = [u'Start year must be less than or equal to end year.']
     return cleaned_data
