@@ -60,6 +60,10 @@ div.indent {
 	padding:7px;
 }
 
+p.indent {
+  margin-left:1em;
+}
+
 .hidden {
 	display:none;
 }

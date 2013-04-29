@@ -278,6 +278,10 @@ div#main_content{
   width:725px;
 }
 
+#main_content label{
+  font-weight:bold;
+}
+
 iframe#reading_frame{
   border:none;
   width:100%;

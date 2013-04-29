@@ -244,11 +244,16 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   return render(request, 'grants/org_app.html',
   {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
 
-@login_required(login_url=LOGIN_URL)
-@registered_org()
-def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
+def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Saves non-file fields to a draft """
-  
+  if not request.user.is_authenticated():
+    return HttpResponse(LOGIN_URL, status=401)
+  try:
+    organization = models.Organization.objects.get(email=request.user.username)
+    logging.info(organization)
+  except models.Organization.DoesNotExist:
+    return HttpResponse('/apply/nr', status=401)
+
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
   draft = get_object_or_404(models.DraftGrantApplication, organization=organization, grant_cycle=cycle)
   
@@ -256,11 +261,11 @@ def AutoSaveApp(request, organization, cycle_id):  # /apply/[cycle_id]/autosave/
     #get or create saved json, update it
     logging.debug("Autosaving")
     dict = json.dumps(request.POST)
-    #logging.debug(dict)
+    logging.debug(dict)
     draft.contents = dict
     draft.modified = timezone.now()
     draft.save()
-    return HttpResponse("")
+    return HttpResponse("success")
 
 def AddFile(request, draft_id):
   """ Upload a file to the draft

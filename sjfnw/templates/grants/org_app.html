@@ -20,33 +20,39 @@ function autoSave(submit){
 		url:"/apply/"+{{cycle.pk}}+"/autosave/",
 		type:"POST",
 		data:$('form').serialize(),
-		success:function(){
-			if (submit) {
-				var submit_all = document.getElementById('hidden_submit_app');
-				submit_all.click();
+		success:function(data, textStatus, jqXHR){
+			if (jqXHR.status==200) {
+				if (submit) {
+					var submit_all = document.getElementById('hidden_submit_app');
+					submit_all.click();
+				}
+				var monthNames = [ "January", "February", "March", "April", "May", "June",
+				"July", "August", "September", "October", "November", "December" ];
+				var d = new Date();
+				var h = d.getHours();
+				var m = d.getMinutes();
+				/*var s = d.getSeconds();*/
+				var dd = "a.m.";
+				if (h >= 12) {
+					h = h-12;
+					dd = "p.m.";
+				}
+				if (h == 0) {
+					h = 12;
+				}
+				m = m<10?"0"+m:m;
+				/* s = s<10?"0"+s:s; */
+				var da = monthNames[d.getMonth()]+' '+d.getDate()+', '+h+':'+m+dd;
+				document.getElementById('autosaved').innerHTML=da;
+			}else{
+				document.getElementById('autosaved').innerHTML='Unknown error<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>';
 			}
-			var monthNames = [ "January", "February", "March", "April", "May", "June",
-			"July", "August", "September", "October", "November", "December" ];
-			var d = new Date();
-			var h = d.getHours();
-			var m = d.getMinutes();
-			/*var s = d.getSeconds();*/
-			var dd = "a.m.";
-			if (h >= 12) {
-				h = h-12;
-				dd = "p.m.";
-			}
-			if (h == 0) {
-				h = 12;
-			}
-			m = m<10?"0"+m:m;
-			/* s = s<10?"0"+s:s; */
-			var da = monthNames[d.getMonth()]+' '+d.getDate()+', '+h+':'+m+dd;
-			document.getElementById('autosaved').innerHTML=da;
 		},
 		error:function(jqXHR, textStatus, errorThrown){
 			var errortext = ''
-      if (status_texts[jqXHR.status]) {
+      if(jqXHR.status==401){
+				location.href = jqXHR.responseText + '?next=' + location.href;
+			} else if (status_texts[jqXHR.status]) {
         errortext = status_texts[jqXHR.status]
       } else if (textStatus=='timeout') {
         errortext = 'Request timeout'
@@ -62,7 +68,7 @@ function autoSave(submit){
 function charLimitDisplay(area, limit){
 	var counter = document.getElementById(area.name + '_counter');
 	var words = area.value.match(/[^ \r\n]+/g) || [];
-	console.log(words);
+	//console.log(words);
 	var diff = limit - words.length;
   if (diff >= 0) {
     counter.innerHTML = diff + ' words remaining';
@@ -190,7 +196,7 @@ if($.browser.mozilla) { //stackoverflow
 		<div align="center">
 			<h1>{{cycle}} Application</h1>
 			{% if cycle.info_page %}<a href="/apply/info/{{cycle.pk}}" target="_blank">application instructions</a><br><br>{% endif %}
-			<span id="last_saved">Last saved: <span id="autosaved">{{draft.modified|date:"F j, g:ia"}}</span></span>
+			<span id="last_saved" title="The form is automatically saved every 30 seconds">Last saved: <span id="autosaved">{{draft.modified|date:"F j, g:ia"}}</span></span>
 		</div>
 		
 		{% autoescape off %}
