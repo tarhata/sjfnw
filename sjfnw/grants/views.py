@@ -519,16 +519,16 @@ def SearchApps(request):
     
     if form.is_valid():
       logging.info('A valid form')
-      options = form.cleaned_data
       
+      options = form.cleaned_data
       apps = models.GrantApplication.objects.order_by('-submission_time').select_related('giving_project', 'grant_cycle')
-
+      
+      #filters
       min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S') 
       min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
       max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S') 
       max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
       apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
-
       if options.get('organization'):
         apps = apps.filter(organization__contains=options['organization'])
       if options.get('city'):
@@ -541,19 +541,28 @@ def SearchApps(request):
         apps = apps.filter(scoring_bonus_poc=True)
       if options.get('geo_bonus'):
         apps = apps.filter(scoring_bonus_geo=True)
-
       if options.get('giving_project'):
         apps = apps.filter(giving_project__title__in=options.get('giving_project'))
       if options.get('grant_cycle'):
         apps = apps.filter(giving_project__title__in=options.get('grant_cycle'))
-
+      
+      #fields
       fields = ['submission_time', 'organization', 'grant_cycle'] + options['report_basics'] + options['report_contact'] + options['report_org'] + options['report_proposal'] + options['report_budget']
       if options['report_fiscal']:
         fields += models.GrantApplication.fiscal_fields()
+      if options['report_collab']:
+        fields += [f for f in filter(lambda x: x.startswith('collab_ref'), models.GrantApplication._meta.get_all_field_names())]
+      if options['report_racial_ref']:
+        fields += [f for f in filter(lambda x: x.startswith('racial_justice'), models.GrantApplication._meta.get_all_field_names())]
+      if options['report_bonuses']:
+        fields.append('scoring_bonus_poc')
+        fields.append('scoring_bonus_geo')
       
+      #get results
       results = get_results(fields, apps)
       fields = [f.capitalize().replace('_', ' ') for f in fields] #for display
       
+      #format results
       if options['format']=='browse':
         return render_to_response('grants/report_results.html', {'results':results, 'fields':fields})
       elif options['format']=='csv':
