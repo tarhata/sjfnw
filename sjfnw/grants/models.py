@@ -94,7 +94,10 @@ class Organization(models.Model):
   fiscal_person = models.CharField(verbose_name='Contact person', max_length=255, null=True, blank=True)
   fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address', max_length=100, null=True, blank=True)
-  fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, null=True, blank=True)
+  fiscal_address = models.CharField(verbose_name='Address', max_length=255, null=True, blank=True)
+  fiscal_city = models.CharField(verbose_name='City', max_length=50, blank=True)
+  fiscal_state = models.CharField(verbose_name='State', max_length=2, choices=STATE_CHOICES, blank=True)
+  fiscal_zip = models.CharField(verbose_name='ZIP', max_length=50, blank=True)
   fiscal_letter = models.FileField(upload_to='/', null=True,blank=True)
    
   def __unicode__(self):
@@ -228,18 +231,21 @@ class GrantApplication(models.Model):
   fiscal_person = models.CharField(verbose_name='Contact person', max_length=255, blank=True)
   fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address', max_length=70, blank=True)
-  fiscal_address = models.CharField(verbose_name='Address/City/State/ZIP', max_length=255, blank=True)
+  fiscal_address = models.CharField(verbose_name='Address', max_length=255, blank=True)
+  fiscal_city = models.CharField(verbose_name='City', max_length=50, blank=True)
+  fiscal_state = models.CharField(verbose_name='State', max_length=2, choices=STATE_CHOICES, blank=True)
+  fiscal_zip = models.CharField(verbose_name='ZIP', max_length=50, blank=True)
   
   #narratives 
   NARRATIVE_CHAR_LIMITS = [0, 300, 150, 450, 300, 300, 450, 300]
   NARRATIVE_TEXTS = ['Placeholder for 0',
-  'Describe your organization\'s mission, history and major accomplishments.', #1
-  'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ul><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ul>', #2
-  'Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ul><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues?</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ul>', #3
-  'Please describe your workplan, covering at least the next 12 months. (You will list the activities and objectives in the timeline form below the narrative.)<ul><li>What are your overall goals and strategies for the coming year?</li><li>How will you assess whether you have met your objectives and goals?</li></ul>', #4
-  'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organization\'s role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
-  'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. Tell us how your organization is working toward racial justice and how you are drawing connections to economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i> If you are a primarily white-led organization, also describe how you work as an ally to communities of color.', #6
-  ]
+    'Describe your organization\'s mission, history and major accomplishments.', #1
+    'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ul><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ul>', #2
+    'Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ul><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues?</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ul>', #3
+    'Please describe your workplan, covering at least the next 12 months. (You will list the activities and objectives in the timeline form below the narrative.)<ul><li>What are your overall goals and strategies for the coming year?</li><li>How will you assess whether you have met your objectives and goals?</li></ul>', #4
+    'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organization\'s role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
+    'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. Tell us how your organization is working toward racial justice and how you are drawing connections to economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i> If you are a primarily white-led organization, also describe how you work as an ally to communities of color.', #6
+    ]
   narrative1 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
   narrative2 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[2])], verbose_name = NARRATIVE_TEXTS[2])
   narrative3 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[3])], verbose_name = NARRATIVE_TEXTS[3])
@@ -468,8 +474,11 @@ class GrantApplicationModelForm(ModelForm):
     phone = cleaned_data.get('fiscal_telephone')
     email = cleaned_data.get('fiscal_email')
     address = cleaned_data.get('fiscal_address')
+    city = cleaned_data.get('fiscal_city')
+    state = cleaned_data.get('fiscal_state')
+    zip = cleaned_data.get('fiscal_zip')
     file = cleaned_data.get('fiscal_letter')
-    if (org or person or phone or email or address):
+    if (org or person or phone or email or address or city or state or zip):
       if not org:
         self._errors["fiscal_org"] = '<div class="form_error">This field is required.</div>'
       if not person:
@@ -480,6 +489,12 @@ class GrantApplicationModelForm(ModelForm):
         self._errors["fiscal_email"] = '<div class="form_error">This field is required.</div>'
       if not address:
         self._errors["fiscal_address"] = '<div class="form_error">This field is required.</div>'
+      if not city:
+        self._errors["fiscal_city"] = '<div class="form_error">This field is required.</div>'
+      if not state:
+        self._errors["fiscal_state"] = '<div class="form_error">This field is required.</div>'
+      if not zip:
+        self._errors["fiscal_zip"] = '<div class="form_error">This field is required.</div>'
       if not file:
         self._errors["fiscal_letter"] = '<div class="form_error">This field is required.</div>'
       
