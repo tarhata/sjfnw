@@ -88,7 +88,7 @@
 	<!-- main content -->
 	<div id="main_content">
 	{% autoescape off %}{% load humanize %}
-		<h4>Organization and Grant Request Profile</h4><!-- Profile -->
+		<h2>Organization and Grant Request Profile</h2><!-- Profile -->
 		<table style="width:100%;">
 			<tr>
 				<td colspan="2">{{form.address.label_tag}}{{app.address}} {{app.city}}, {{app.state}} {{app.zip}}</td>
@@ -107,25 +107,25 @@
 			</tr><tr>
 				<td>{{form.ein.label_tag}}{{app.ein}}</td>
 			</tr><tr>
-				<td colspan="2">{{form.mission.label_tag}}{{app.mission}}</td>
+				<td colspan="2"><p>{{form.mission.label_tag}}{{app.mission}}</p></td>
 			</tr><tr>
 				<td>{{form.start_year.label_tag}}{{app.start_year}}</td>
-				<td>{{form.grant_period.label_tag}}{{app.grant_period}}</td>
+				<td>{{form.grant_period.label_tag}}{{app.grant_period|default:"n/a"}}</td>
 			</tr><tr>
 				<td>{{form.budget_last.label_tag}}${{app.budget_last|intcomma}}</td>
 				<td>{{form.budget_current.label_tag}}${{app.budget_current|intcomma}}</td>
 			</tr><tr>
 				<td colspan="2">{{form.previous_grants.label_tag}}{{app.previous_grants}}</td>
 			</tr><tr>
-				<td>{{form.amount_requested.label_tag}}{{app.amount_requested|intcomma}}</td>
+				<td>{{form.amount_requested.label_tag}}${{app.amount_requested|intcomma}}</td>
 				<td>{{form.support_type.label_tag}}{{app.support_type}}</td>
 			</tr><tr>
-				<td>{{form.project_title.label_tag}}{{app.project_title|default:"N/A"}}</td>
+				<td>{{form.project_title.label_tag}}{{app.project_title|default:"n/a"}}</td>
 				{%if app.project_budget%}
 				<td>{{form.project_budget.label_tag}}${{app.project_budget|intcomma}}</td>
 				{%endif%}
 			</tr><tr>
-				<td colspan="2">{{form.grant_request.label_tag}}{{app.grant_request}}</td>
+				<td colspan="2"><p>{{form.grant_request.label_tag}}{{app.grant_request}}</p></td>
 			</tr><tr>
 			{%if app.fiscal_org%}
 				<td colspan="2"><b>Fiscal sponsor information</b></td><!-- Fiscal sponsor info -->
@@ -142,21 +142,26 @@
 			{% endif %}
 		</table>
 
-		<h4>Narratives</h4><!-- Narrative -->
+		<h2>Narratives</h2><!-- Narrative -->
 		<p><b>1. {{form.narrative1.label}}</b></p>
 		<p>{{app.narrative1}}</p>
+		<br>
 		<p><b>2. {{form.narrative2.label}}</b></p>
 		<p>{{app.narrative2}}</p>
+		<br>
 		<p><b>3. {{form.narrative3.label}}</b></p>
 		<p>{{app.narrative3}}</p>
+		<br>
 		<p><b>4. {{form.narrative4.label}}</b></p>
 		<p>{{app.narrative4}}</p>
 		{{app.timeline_display}}
+		<br>
 		<p><b>5. {{form.narrative5.label}}</b></p>
 		<p>{{app.narrative5}}</p>
 		<p><b>{{form.collab_ref1_name.help_text}}</b></p>
 		<p>1. {{app.collab_ref1_name}}, {{app.collab_ref1_org}}. {{app.collab_ref1_phone|add:" "}}{{app.collab_ref1_email}}</p>
 		<p>2. {{app.collab_ref2_name}}, {{app.collab_ref2_org}}. {{app.collab_ref2_phone|add:" "}}{{app.collab_ref2_email}}</p>
+		<br>
 		<p><b>6. {{form.narrative6.label}}</b></p>
 		<p>{{app.narrative6}}</p>
 		<p><b>{{form.racial_justice_ref1_name.help_text}}</b></p>
@@ -167,6 +172,7 @@
 			{% endif %}
 		{% else %}N/A{% endif %}
 		{% if app.cycle_question %}
+		<br>
 		<p><b>7. {{form.cycle_question.label}}</b></p>
 		<p>{{app.cycle_question}}</p>
 		{% endif %}
