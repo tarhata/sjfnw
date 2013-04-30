@@ -1,35 +1,95 @@
-﻿.reporting ul, li {
+﻿body {
+  font-family:Verdana;
+  font-size:80%;
+}
+
+/** SEARCH **/
+.report_form ul, .report_form li {
   list-style-type:none;
   margin:0;
   padding-left:0;
 }
 
-body {
-  width:800px;
-  margin:auto;
-  font-family:Verdana;
-  font-size:80%;
+div.report_form{
+  float:left;
 }
 
-h4 {
-  margin-bottom:.5em;
-}
-
-h3 {
-  margin-top:-.5em;
-}
-
-.reporting tr {
+.report_form tr {
   vertical-align:top;
 }
 
-.reporting td {
-  padding:0 1em;
+.report_form td {
+  padding:0 1.25em .5em 0;
 }
 
-input#run {
+.heading{
+  font-size:1.3em;
+  font-weight:bold;
+}
+
+.heading td{
+  border-top:1px dashed black;
+  padding-top:5px;
+  margin-bottom:1em;
+}
+
+.sub_heading{
+  font-size:1em;
+}
+
+h1 {
+  margin:.25em 0 .5em 0;
+}
+
+h4 { /** section labels **/
+  font-size:1em;
+  margin-bottom:.5em;
+}
+
+input#run { /** run the report button **/
   display:block;
   margin:2em auto;
   font-size:1.5em;
   padding:.25em .5em;
+}
+
+.mult_select{ /** toggle all checkboxes in a section **/
+  margin:0 0 .5em .5em;
+}
+
+.help_toggle{
+  float:right;
+  position:relative;
+  margin: -3em 2em 0 0;
+  cursor:pointer;
+}
+
+#help{
+  float:left;
+  position:relative;
+  margin:-3em 0 0 1em;
+  padding:5px;
+  width: 200px;
+  border: 1px solid #555;
+  display:none;
+}
+
+#help ul{
+  padding-left:20px;
+}
+
+/** RESULTS **/
+.report_results{
+  border-collapse:collapse;
+}
+
+.report_results,
+.report_results th{
+  border:1px solid #222;
+  padding:5px;
+}
+
+.report_results td{
+  border:1px dotted #555;
+  padding:5px;
 }

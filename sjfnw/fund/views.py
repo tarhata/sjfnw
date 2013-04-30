@@ -26,9 +26,9 @@ if not settings.DEBUG:
 
 def get_block_content(membership, first, second, third):
   contents = []
-  if first:
+  if first: #home page does its own thing
      contents.append(models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2])
-  if second:
+  if second: #all the same, some just slice it
     contents.append(models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date'))
   if third:
     pass
@@ -324,13 +324,15 @@ def Register(request):
       else:
         #create User and Member
         new_user = User.objects.create_user(username_email, username_email, password)
-        new_user.save()
         fn = request.POST['first_name']
         ln = request.POST['last_name']
-        gp = request.POST['giving_project']
+        new_user.first_name = fn
+        new_user.last_name = ln
+        new_user.save()
         member = models.Member(email = username_email, first_name = fn, last_name = ln)
         member.save()
         logging.info('Registration - user and member objects created for ' + username_email)
+        gp = request.POST['giving_project']
         if gp: #create Membership
           giv = models.GivingProject.objects.get(pk=gp)
           membership = models.Membership(member = member, giving_project = giv)

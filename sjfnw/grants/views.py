@@ -16,6 +16,7 @@ from google.appengine.ext import blobstore, deferred
 from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm
 from decorators import registered_org
 from sjfnw import constants
+from sjfnw.fund.models import Member
 import models, utils
 import datetime, logging, json, re, csv
 
@@ -90,6 +91,13 @@ def OrgSupport(request):
   'support_email':constants.SUPPORT_EMAIL,
   'support_form':constants.GRANT_SUPPORT_FORM})
 
+def PreApply(request, cycle_id):
+  cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
+  if not cycle.info_page:
+    raise Http404
+  logging.info(cycle.info_page)
+  return render(request, 'grants/pre_apply.html', {'cycle':cycle})
+
 # REGISTERED ORG VIEWS
 @login_required(login_url=LOGIN_URL)
 @registered_org()
@@ -123,21 +131,11 @@ def OrgHome(request, organization):
     'upcoming':upcoming,
     'applied':applied})
 
-def PreApply(request, cycle_id):
-  cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
-  if not cycle.info_page:
-    raise Http404
-  logging.info(cycle.info_page)
-  return render(request, 'grants/pre_apply.html', {'cycle':cycle})
-
 @login_required(login_url=LOGIN_URL)
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   """Get or submit the whole application form """
-  
-  referer = request.META.get('HTTP_REFERER')
-  logging.info(referer)
-  
+
   #check cycle exists
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
 
@@ -158,7 +156,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     #get fields & files from draft
     draft_data = json.loads(draft.contents)
     logging.debug('draft data: ' + str(draft_data))
-    files_data = model_to_dict(draft, fields = constants.APP_FILE_FIELDS)
+    files_data = model_to_dict(draft, fields = draft.file_fields())
     
     #add automated fields
     draft_data['organization'] = organization.pk
@@ -226,6 +224,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
     #try to determine initial load - cheaty way
     # 1) if referer, make sure it wasn't from copy 2) check for mission from profile 3) make sure grant request is not there (since it's not in prof)
+    referer = request.META.get('HTTP_REFERER')
     if not (referer and referer.find('copy') != -1) and organization.mission and ((not 'grant_request' in dict) or (not dict['grant_request'])):
       profiled = True
 
@@ -243,27 +242,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       file_urls[field] = '<i>no file uploaded</i>'
 
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'limits':models.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
-
-def TestApply(request):
-  drafts = models.DraftGrantApplication.objects.all()
-  searched = 0
-  modified = 0
-  old_timeline_fields = ['timeline_1_date', 'timeline_1_activities', 'timeline_1_goals', 'timeline_2_date', 'timeline_2_activities', 'timeline_2_goals', 'timeline_3_date', 'timeline_3_activities', 'timeline_3_goals', 'timeline_4_date', 'timeline_4_activities', 'timeline_4_goals', 'timeline_5_date', 'timeline_5_activities', 'timeline_5_goals']
-
-  for draft in drafts:
-    contents = json.loads(draft.contents)
-    if 'timeline_1_date' in contents: #old timeline format
-      logging.info('Orig contents: ' + draft.contents)
-      for i in range(15):
-        contents[constants.TIMELINE_FIELDS[i]] = contents.pop(old_timeline_fields[i])
-      modified +=1
-      logging.info('New contents: ' + str(contents))
-    searched +=1
-    draft.contents = json.dumps(contents)
-    draft.save()
-  logging.info(str(searched) + ' drafts searched, ' + str(modified) + ' drafts modified.')
-  return render(request, 'grants/file_upload.html')
+  {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
 
 def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Saves non-file fields to a draft """
@@ -366,8 +345,8 @@ def CopyApp(request, organization):
       if app:
         try:
           application = models.GrantApplication.objects.get(pk = int(app))
-          content = model_to_dict(application, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
-          content.update(dict(zip(constants.TIMELINE_FIELDS, json.loads(application.timeline))))
+          content = model_to_dict(application, exclude = application.file_fields() + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'cycle_question', 'timeline'])
+          content.update(dict(zip(['timeline_' + str(i) for i in range(15)], json.loads(application.timeline))))
           content = json.dumps(content)
         except models.GrantApplication.DoesNotExist:
           logging.error('CopyApp - submitted app ' + app + ' not found')
@@ -387,7 +366,7 @@ def CopyApp(request, organization):
       
       #set contents & files
       new_draft.contents = content
-      for field in constants.APP_FILE_FIELDS:
+      for field in application.file_fields():
         setattr(new_draft, field, getattr(application, field))
       new_draft.save()
       logging.info("CopyApp -- content and files set")
@@ -423,35 +402,65 @@ def DiscardDraft(request, organization, draft_id):
     raise Http404
 
 # VIEW APPS/FILES
-def ViewApplication(request, app_id):
-  user = request.user
-  app = get_object_or_404(models.GrantApplication, pk=app_id)
-  form = models.GrantApplicationModelForm(app.grant_cycle)
-  #set up doc viewer for applicable files
-  file_urls = GetFileURLs(app)
 
-  return render(request, 'grants/view_app.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls})
+def view_permission(user, application):
+  """ Return a number indicating viewing permission for a submitted app.
+      
+      Args:
+        user: django user object
+        application: GrantApplication
+      
+      Returns:
+        0 - does not have permission to view
+        1 - member with perm
+        2 - staff
+        3 - app creator
+  """
+  if user.is_staff:
+    return 2
+  elif user.email == application.organization.email:
+    return 3
+  else:
+    try:
+      member = Member.objects.select_related().get(email=user.email)
+      for ship in member.membership_set.all():
+        if ship.giving_project == application.giving_project:
+          return 1
+      return 0
+    except Member.DoesNotExist:
+      return 0
 
+def CannotView(request):
+  return render(request, 'grants/blocked.html', {'contact_url':'/support#contact'})
+
+@login_required(login_url=LOGIN_URL)
 def ReadApplication(request, app_id):
   user = request.user
   app = get_object_or_404(models.GrantApplication, pk=app_id)
+  perm = view_permission(user, app)
+  logging.info('perm is ' + str(perm))
+  if perm == 0:
+    return redirect(CannotView)
   form = models.GrantApplicationModelForm(app.grant_cycle)
-  #set up doc viewer for applicable files
   file_urls = GetFileURLs(app)
   
-  return render(request, 'grants/reading.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls})
+  return render(request, 'grants/reading.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls, 'perm':perm})
 
+@login_required(login_url=LOGIN_URL)
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
+  if view_permission(request.user, application) == 0:
+    return redirect(CannotView)
   return utils.ServeBlob(application, file_type)
 
+@login_required(login_url=LOGIN_URL)
 def ViewDraftFile(request, draft_id, file_type):
   application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
+  if view_permission(request.user, application) == 0:
+    return redirect(CannotView)
   return utils.ServeBlob(application, file_type)
 
-
 # ADMIN
-
 def RedirToApply(request):
   return redirect('/apply/')
 
@@ -464,10 +473,10 @@ def AppToDraft(request, app_id):
   if request.method == 'POST':
     #create draft from app
     draft = models.DraftGrantApplication(organization = organization, grant_cycle = grant_cycle)
-    content = model_to_dict(submitted_app, exclude = constants.APP_FILE_FIELDS + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline'])
-    content.update(dict(zip(constants.TIMELINE_FIELDS, json.loads(submitted_app.timeline))))
+    content = model_to_dict(submitted_app, exclude = submitted_app.file_fields() + ['organization', 'grant_cycle', 'submission_time', 'screening_status', 'giving_project', 'scoring_bonus_poc', 'scoring_bonus_geo', 'timeline'])
+    content.update(dict(zip(['timeline_' + str(i) for i in range(15)], json.loads(submitted_app.timeline))))
     draft.contents = json.dumps(content)
-    for field in constants.APP_FILE_FIELDS:
+    for field in submitted_app.file_fields():
       setattr(draft, field, getattr(submitted_app, field))
     draft.modified = timezone.now()
     draft.save()
@@ -510,18 +519,16 @@ def SearchApps(request):
     
     if form.is_valid():
       logging.info('A valid form')
-      options = form.cleaned_data
       
+      options = form.cleaned_data
       apps = models.GrantApplication.objects.order_by('-submission_time').select_related('giving_project', 'grant_cycle')
-      logging.info(apps)
-
+      
+      #filters
       min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S') 
       min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
       max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S') 
       max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
       apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
-      logging.info(apps)
-
       if options.get('organization'):
         apps = apps.filter(organization__contains=options['organization'])
       if options.get('city'):
@@ -531,44 +538,52 @@ def SearchApps(request):
       if options.get('screening_status'):
         apps = apps.filter(screening_status__in=options.get('screening_status'))
       if options.get('poc_bonus'):
-        apps = apps.filter(poc_bonus=True)
+        apps = apps.filter(scoring_bonus_poc=True)
       if options.get('geo_bonus'):
-        apps = apps.filter(geo_bonus=True)
-      logging.info(apps)
-
+        apps = apps.filter(scoring_bonus_geo=True)
       if options.get('giving_project'):
         apps = apps.filter(giving_project__title__in=options.get('giving_project'))
       if options.get('grant_cycle'):
         apps = apps.filter(giving_project__title__in=options.get('grant_cycle'))
-      logging.info(apps)
-
+      
+      #fields
       fields = ['submission_time', 'organization', 'grant_cycle'] + options['report_basics'] + options['report_contact'] + options['report_org'] + options['report_proposal'] + options['report_budget']
       if options['report_fiscal']:
         fields += models.GrantApplication.fiscal_fields()
+      if options['report_collab']:
+        fields += [f for f in filter(lambda x: x.startswith('collab_ref'), models.GrantApplication._meta.get_all_field_names())]
+      if options['report_racial_ref']:
+        fields += [f for f in filter(lambda x: x.startswith('racial_justice'), models.GrantApplication._meta.get_all_field_names())]
+      if options['report_bonuses']:
+        fields.append('scoring_bonus_poc')
+        fields.append('scoring_bonus_geo')
       
-      results = GetResults(fields, apps)
+      #get results
+      results = get_results(fields, apps)
+      fields = [f.capitalize().replace('_', ' ') for f in fields] #for display
       
-      #add output check
+      #format results
       if options['format']=='browse':
         return render_to_response('grants/report_results.html', {'results':results, 'fields':fields})
       elif options['format']=='csv':
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=%s.csv' % 'grantapplications'
         writer = csv.writer(response)
+        writer.writerow(fields)
         for row in results:
-          for i in range(len(row)):            
-            if isinstance(row[i], str):#dunno about this part
-              row[i] = row[i].encode('utf-8') 
-            elif isinstance(row[i], unicode):  
-              row[i] = row[i].encode('ISO-8859-1')
           writer.writerow(row)
         return response
     else:
       logging.info('Invalid form!')  
   return render(request, 'grants/search_applications.html', {'form':form})
 
-def GetResults(fields, apps):
-  #fields, apps = args
+def get_results(fields, apps):
+  """ Return a list of lists.  Each list represents an app, contains selected field values
+      
+      Arguments:
+        fields - list of fields to include
+        apps - queryset of applications """
+        
   results = []
   for app in apps:
     row = []
@@ -576,7 +591,7 @@ def GetResults(fields, apps):
       if field=='screening_status':
         val = getattr(app, field)
         if val:
-          convert = dict(models.SCREENING_CHOICES)
+          convert = dict(models.GrantApplication.SCREENING_CHOICES)
           val = convert[val]
         row.append(val)
       else:

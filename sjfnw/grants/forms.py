@@ -45,8 +45,8 @@ class RolloverForm(forms.Form): #used by org
     
     #create fields
     self.fields['application'] = forms.ChoiceField(choices = [('', '--- Submitted applications ---')] + [(a.id, str(a.grant_cycle) + ' - submitted ' + datetime.datetime.strftime(a.submission_time, '%m/%d/%y')) for a in submitted], required=False, initial = 0)
-    self.fields['draft'] = forms.ChoiceField(choices = [('', '--- Saved drafts ---')] + [(d.id, str(d.grant_cycle) + ' - modified ' + datetime.datetime.strftime(d.modified, '%m/%d/%y')) for d in drafts], required=False, initial = 0)
-    self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Open cycles ---')] + [(c.id, str(c)) for c in cycles])
+    self.fields['draft'] = forms.ChoiceField(choices = [('', '--- Saved drafts ---')] + [(d.id, unicode(d.grant_cycle) + ' - modified ' + datetime.datetime.strftime(d.modified, '%m/%d/%y')) for d in drafts], required=False, initial = 0)
+    self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Open cycles ---')] + [(c.id, unicode(c)) for c in cycles])
   
   def clean(self):
     cleaned_data = super(RolloverForm, self).clean()
@@ -84,13 +84,13 @@ class AdminRolloverForm(forms.Form):
     cycles = models.GrantCycle.objects.filter(close__gt = cutoff).exclude(id__in=exclude_cycles)
     
     #create field
-    self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, str(c)) for c in cycles])
+    self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, unicode(c)) for c in cycles])
 
 class AppSearchForm(forms.Form):
   #filters
   year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
   year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
-  screening_status = forms.MultipleChoiceField(choices = models.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
+  screening_status = forms.MultipleChoiceField(choices = models.GrantApplication.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
 
   organization = forms.CharField(max_length=255, required=False)
   city = forms.CharField(max_length=255, required=False)
@@ -104,7 +104,7 @@ class AppSearchForm(forms.Form):
   #always: organization, grant cycle, submission time
   report_basics= forms.MultipleChoiceField(label='Basics', required=False, widget = forms.CheckboxSelectMultiple, choices = [
     ('id', 'Unique id number'),
-    ('giving_project_id', 'Giving project'),
+    ('giving_project', 'Giving project'),
     ('screening_status', 'Screening status')])
   report_contact = forms.MultipleChoiceField(label='Contact', required=False, widget = forms.CheckboxSelectMultiple, choices = [
     ('contact_person', 'Contact person name'),
@@ -123,16 +123,16 @@ class AppSearchForm(forms.Form):
     ('founded', 'Year founded')])
   report_proposal = forms.MultipleChoiceField(label='Grant request and project', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
     ('amount_requested', 'Amount requested'),
+    ('grant_request', 'Description of grant request'),
     ('support_type', 'Support type'),
     ('grant_period', 'Grant period'),
     ('project_title', 'Project title'),
     ('project_budget', 'Project budget'),
     ('previous_grants', 'Previous grants from SJF')])
-  report_budget = forms.MultipleChoiceField(label='Budget', required=False, widget = forms.CheckboxSelectMultiple, choices = [  
+  report_budget = forms.MultipleChoiceField(label='Budget', required=False, widget = forms.CheckboxSelectMultiple, choices = [
     ('start_year', 'Start of fiscal year'),
     ('budget_last', 'Budget last year'),
-    ('budget_current', 'Budget current year'),
-    ('grant_request', 'Description of grant request')])
+    ('budget_current', 'Budget current year')])
  
   report_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
   report_collab = forms.BooleanField(label='Collaboration references', required=False)
@@ -140,7 +140,7 @@ class AppSearchForm(forms.Form):
   report_bonuses = forms.BooleanField(label='POC-led and geographic diversity', required=False)
   
   #format (browse, csv, tsv)
-  format = forms.ChoiceField(choices = [('csv', 'CSV'), ('tsv', 'TSV'), ('browse', 'Don\'t export, just browse')])
+  format = forms.ChoiceField(choices = [('csv', 'CSV'), ('browse', 'Don\'t export, just browse')])
   
   def __init__(self, *args, **kwargs):
     super(AppSearchForm, self).__init__(*args, **kwargs)
@@ -151,7 +151,7 @@ class AppSearchForm(forms.Form):
     choices = [(g, g) for g in choices]
     self.fields['giving_project'].choices = choices
     
-    #get cycless
+    #get cycles
     choices = models.GrantCycle.objects.values_list('title', flat = True)
     choices = set(choices)
     choices = [(g, g) for g in choices]
@@ -160,5 +160,5 @@ class AppSearchForm(forms.Form):
   def clean(self):
     cleaned_data = super(AppSearchForm, self).clean()
     if cleaned_data['year_max'] < cleaned_data['year_min']:
-      self._errors['year_min'] = [u'Start year must be less than end year.']
+      self._errors['year_min'] = [u'Start year must be less than or equal to end year.']
     return cleaned_data

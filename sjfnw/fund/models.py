@@ -47,7 +47,7 @@ class GivingProject(models.Model):
     return estimated
 
 class Member(models.Model):
-  email = models.EmailField(max_length=100)
+  email = models.EmailField(max_length=100, unique=True)
   first_name = models.CharField(max_length=100)
   last_name = models.CharField(max_length=100)
 
@@ -77,7 +77,7 @@ class Membership(models.Model): #relationship b/n member and gp
         previous = Membership.objects.get(id=self.id)
         logging.debug('Previously: ' + str(previous.approved) + ', now: ' + str(self.approved))
         if self.approved and not previous.approved: #newly approved!
-          logging.debug('Detected approval on save for ' + str(self))
+          logging.debug('Detected approval on save for ' + unicode(self))
           NotifyApproval(self)
       except Membership.DoesNotExist: pass
     super(Membership, self).save(*args, **kwargs)

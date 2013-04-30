@@ -27,12 +27,6 @@ urlpatterns = patterns('',
   (r'^dev/jslog/?', 'views.log_javascript'),
   )
 
-# direct to templates
-urlpatterns += patterns('', 
-  (r'^apply/nr', direct_to_template, {'template': 'grants/not_grantee.html'}),
-  (r'^apply/submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
-  )
-
 # password resets
 urlpatterns += patterns('', 
   # grants
@@ -49,30 +43,34 @@ urlpatterns += patterns('',
   )
 
 # GRANTS
+urlpatterns += patterns('', 
+  (r'^apply/nr', direct_to_template, {'template': 'grants/not_grantee.html'}),
+  (r'^apply/submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
+  )
 urlpatterns += patterns('grants.views',  
-
+  
+  (r'^org/?$', 'RedirToApply'),
+  
   #login, logout, registration
   (r'^apply/login/?$', 'OrgLogin'),
   (r'^apply/register/?$', 'OrgRegister'),
 
-  #main pages
+  #home page
   (r'^apply/?$','OrgHome'),
+  (r'^apply/(?P<draft_id>\d+)/DELETE/?$', 'DiscardDraft'),
+  (r'^apply/copy/?$', 'CopyApp'),
   (r'^apply/support/?', 'OrgSupport'),
   
   #application
   (r'^apply/(?P<cycle_id>\d+)/?$','Apply'),
   (r'^apply/info/(?P<cycle_id>\d+)/?$','PreApply'),
+  
+  #application ajax
   (r'^apply/(?P<draft_id>\d+)/add-file/?$', 'AddFile'),
   (r'^get-upload-url/(?P<draft_id>\d+)/?$','RefreshUploadUrl'),
   (r'^apply/(?P<draft_id>\d+)/remove/(?P<file_field>.*)/?$', 'RemoveFile'), 
-  
   (r'^apply/(?P<cycle_id>\d+)/autosave/?$','AutoSaveApp'),
-  (r'^apply/(?P<draft_id>\d+)/DELETE/?$', 'DiscardDraft'),
-  (r'^apply/copy/?$', 'CopyApp'),
-  
-  (r'^org/?$', 'RedirToApply'),
-  (r'^apply/test/?$', 'TestApply'),
-  
+
   #cron
   (r'^mail/drafts/?', 'DraftWarning'),
   (r'^tools/delete-empty', 'DeleteEmptyFiles'),
@@ -87,13 +85,13 @@ urlpatterns += patterns('grants.views',
   (r'^grants/view/(?P<app_id>\d+)/?$', 'ReadApplication'),
   (r'^grants/view-file/(?P<app_id>\d+)-(?P<file_type>.*)\.', 'ViewFile'),
   (r'^grants/draft-file/(?P<draft_id>\d+)-(?P<file_type>.*)\.', 'ViewDraftFile'),
+  (r'^grants/blocked', 'CannotView'),
   
   #reporting
-  (r'^grants/search$', 'SearchApps'),
-  (r'^grants/results$', 'GetResults'),
+  (r'^admin/grants/search/?', 'SearchApps'),
   )
 
-# FUNDRAISING
+# PROJECT CENTRAL
 urlpatterns += patterns('fund.views',  
   
   #login, logout, registration

@@ -6,9 +6,9 @@
 </head>
 
 <body>
-<table>
+<table class="report_results">
   <tr>
-    {% for field in fields %}<td>{{field}}</td>{% endfor %}
+    {% for field in fields %}<th>{{field}}</th>{% endfor %}
 	</tr>
 	{% for row in results %}
 	<tr>

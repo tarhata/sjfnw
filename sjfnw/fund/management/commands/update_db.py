@@ -8,7 +8,7 @@ class Command(BaseCommand):
   def handle(self, *args, **options):
     self.stdout.write('Beginning.\n')
     for donor in Donor.objects.all():
-      self.stdout.write(str(donor) + ' ' + str(donor.next_step is not None))
+      self.stdout.write(unicode(donor) + ' ' + str(donor.next_step is not None))
       steps = donor.step_set.filter(completed__isnull = True)
       if steps:
         donor.next_step = steps[0]

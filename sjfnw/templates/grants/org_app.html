@@ -299,7 +299,18 @@ if($.browser.mozilla) { //stackoverflow
 			</tr><tr>
 				<td colspan="2">{{form.fiscal_address.errors}}</td>
 			</tr><tr>
-				<td colspan="2">{{form.fiscal_address.label_tag}}{{form.fiscal_address}}</td>
+				<td>{{form.fiscal_address.errors}}</td>
+				<td>{{form.fiscal_city.errors}}</td>
+			</tr><tr>
+				<td>{{form.fiscal_address.label_tag}}{{form.fiscal_address}}</td>
+				<td>{{form.fiscal_city.label_tag}}{{form.fiscal_city}} </td>
+			</tr>   
+			<tr>
+				<td>{{form.fiscal_state.errors}}</td>
+				<td>{{form.fiscal_zip.errors}}</td>
+			</tr><tr>
+				<td>{{form.fiscal_state.label_tag}}{{form.fiscal_state}}</td>
+				<td>{{form.fiscal_zip.label_tag}}{{form.fiscal_zip}}</td>
 			</tr><tr>
 				<td colspan="2" style="height:28px;">* Upload fiscal letter at the bottom of the form if applicable.</td>
 			</tr>
