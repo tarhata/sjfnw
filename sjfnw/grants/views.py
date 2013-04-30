@@ -544,7 +544,7 @@ def SearchApps(request):
       if options.get('giving_project'):
         apps = apps.filter(giving_project__title__in=options.get('giving_project'))
       if options.get('grant_cycle'):
-        apps = apps.filter(giving_project__title__in=options.get('grant_cycle'))
+        apps = apps.filter(grant_cycle__title__in=options.get('grant_cycle'))
       
       #fields
       fields = ['submission_time', 'organization', 'grant_cycle'] + options['report_basics'] + options['report_contact'] + options['report_org'] + options['report_proposal'] + options['report_budget']
@@ -578,11 +578,12 @@ def SearchApps(request):
   return render(request, 'grants/search_applications.html', {'form':form})
 
 def get_results(fields, apps):
-  """ Return a list of lists.  Each list represents an app, contains selected field values
+  """ 
+    Return a list of lists.  Each list represents an app, contains selected field values
       
-      Arguments:
-        fields - list of fields to include
-        apps - queryset of applications """
+    Arguments:
+      fields - list of fields to include
+      apps - queryset of applications """
         
   results = []
   for app in apps:
