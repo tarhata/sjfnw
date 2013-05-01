@@ -375,7 +375,7 @@ class GrantApplication(models.Model):
   
   def timeline_display(self):
     logging.info(self.timeline)
-	timeline = json.dumps(self.timeline)
+    timeline = json.dumps(self.timeline)
     html = '<table id="timeline_display"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
     for i in range(0, 15, 3):
       html += '<tr><th class="left">q' + str((i+3)/3) + '</th><td>' + timeline[i] + '</td><td>' + timeline[i+1] + '</td><td>' + timeline[i+2] +'</td></tr>'
