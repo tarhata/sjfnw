@@ -446,14 +446,12 @@ def ReadApplication(request, app_id):
   
   return render(request, 'grants/reading.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls, 'perm':perm})
 
-@login_required(login_url=LOGIN_URL)
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
   if view_permission(request.user, application) == 0:
     return redirect(CannotView)
   return utils.ServeBlob(application, file_type)
 
-@login_required(login_url=LOGIN_URL)
 def ViewDraftFile(request, draft_id, file_type):
   application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
   if view_permission(request.user, application) == 0:
