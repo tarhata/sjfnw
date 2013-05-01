@@ -52,12 +52,11 @@ class TimelineWidget(MultiWidget):
     html += '</table>'
     return html
   
-  """ Get single value from the widgetz """
+  """ Get single value from the widgetz (this is what is stored in DB) """
   def value_from_datadict(self, data, files, name):
     val_list = []
     for i, widget in enumerate(self.widgets):
        val_list.append(widget.value_from_datadict(data, files, name + '_%s' % i))
-    logging.info(val_list)
     return json.dumps(val_list)
 
 #used by org & app
@@ -374,8 +373,8 @@ class GrantApplication(models.Model):
   view_link.allow_tags = True
   
   def timeline_display(self):
-    logging.info(self.timeline)
-    timeline = json.dumps(self.timeline)
+    logging.info(type(self.timeline))
+    timeline = json.loads(self.timeline)
     html = '<table id="timeline_display"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
     for i in range(0, 15, 3):
       html += '<tr><th class="left">q' + str((i+3)/3) + '</th><td>' + timeline[i] + '</td><td>' + timeline[i+1] + '</td><td>' + timeline[i+2] +'</td></tr>'
