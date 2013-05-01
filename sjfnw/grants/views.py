@@ -448,14 +448,10 @@ def ReadApplication(request, app_id):
 
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
-  if view_permission(request.user, application) == 0:
-    return redirect(CannotView)
   return utils.ServeBlob(application, file_type)
 
 def ViewDraftFile(request, draft_id, file_type):
   application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
-  if view_permission(request.user, application) == 0:
-    return redirect(CannotView)
   return utils.ServeBlob(application, file_type)
 
 # ADMIN
