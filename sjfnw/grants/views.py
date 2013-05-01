@@ -545,11 +545,14 @@ def SearchApps(request):
         apps = apps.filter(giving_project__title__in=options.get('giving_project'))
       if options.get('grant_cycle'):
         apps = apps.filter(grant_cycle__title__in=options.get('grant_cycle'))
+      if options.get('has_fiscal_sponsor'):
+        apps = apps.exclude(fiscal_org='')
       
       #fields
       fields = ['submission_time', 'organization', 'grant_cycle'] + options['report_basics'] + options['report_contact'] + options['report_org'] + options['report_proposal'] + options['report_budget']
       if options['report_fiscal']:
         fields += models.GrantApplication.fiscal_fields()
+        fields.remove('fiscal_letter')
       if options['report_collab']:
         fields += [f for f in filter(lambda x: x.startswith('collab_ref'), models.GrantApplication._meta.get_all_field_names())]
       if options['report_racial_ref']:
