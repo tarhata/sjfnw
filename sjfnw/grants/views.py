@@ -216,6 +216,10 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
     else: #load a draft
       dict = json.loads(draft.contents)
+      timeline = []
+      for i in range(15): #covering both timeline formats
+        timeline.append(dict['timeline_' + str(i)])
+      dict['timeline'] = json.dumps(timeline)
       logging.debug('Loading draft: ' + str(dict))
     
     #check if draft can be submitted
