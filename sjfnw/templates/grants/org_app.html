@@ -198,9 +198,6 @@ if($.browser.mozilla) { //stackoverflow
 			{% if cycle.info_page %}<a href="/apply/info/{{cycle.pk}}" target="_blank">application instructions</a><br><br>{% endif %}
 			<span id="last_saved" title="The form is automatically saved every 30 seconds">Last saved: <span id="autosaved">{{draft.modified|date:"F j, g:ia"}}</span></span>
 		</div>
-		<div style="border:2px groove red;padding:0 10px;margin:10px 0;"><p><b>Notice:</b> There is currently a technical issue that may prevent you from submitting your application.  We are working to resolve it as quickly as possible and will have a fix or an update by 9am on May 3rd.</p>
-		<p>In the mean time, any changes you make will be saved to your draft.  We apologize for the inconvenience.</p>
-		</div>
 		{% autoescape off %}
 		<table id="application_form"><!-- Form starts -->
 			<tr>
