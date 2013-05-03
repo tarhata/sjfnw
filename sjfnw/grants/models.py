@@ -410,8 +410,8 @@ class GrantApplicationModelForm(ModelForm):
     exclude = ['screening_status', 'submission_time'] #auto fields with defaults
     widgets = {
       #char limits
-      'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 750)'}),
-      'grant_request': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 600)'}),
+      'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 150)'}),
+      'grant_request': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 100)'}),
       'narrative1': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[1]) + ')'}),
       'narrative2': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[2]) + ')'}),
       'narrative3': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[3]) + ')'}),
