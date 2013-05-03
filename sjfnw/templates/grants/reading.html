@@ -107,7 +107,7 @@
 			</tr><tr>
 				<td>{{form.ein.label_tag}}{{app.ein}}</td>
 			</tr><tr>
-				<td colspan="2"><p>{{form.mission.label_tag}}{{app.mission}}</p></td>
+				<td colspan="2"><p>{{form.mission.label_tag}}{{app.mission|linebreaks}}</p></td>
 			</tr><tr>
 				<td>{{form.start_year.label_tag}}{{app.start_year}}</td>
 				<td>{{form.grant_period.label_tag}}{{app.grant_period|default:"n/a"}}</td>
@@ -125,7 +125,7 @@
 				<td>{{form.project_budget.label_tag}}${{app.project_budget|intcomma}}</td>
 				{%endif%}
 			</tr><tr>
-				<td colspan="2"><p>{{form.grant_request.label_tag}}{{app.grant_request}}</p></td>
+				<td colspan="2"><p>{{form.grant_request.label_tag}}{{app.grant_request|linebreaks}}</p></td>
 			</tr><tr>
 			{%if app.fiscal_org%}
 				<td colspan="2"><b>Fiscal sponsor information</b></td><!-- Fiscal sponsor info -->
@@ -144,26 +144,26 @@
 
 		<h2>Narratives</h2><!-- Narrative -->
 		<p><b>1. {{form.narrative1.label}}</b></p>
-		<p>{{app.narrative1}}</p>
+		<p>{{app.narrative1|linebreaks}}</p>
 		<br>
 		<p><b>2. {{form.narrative2.label}}</b></p>
-		<p>{{app.narrative2}}</p>
+		<p>{{app.narrative2|linebreaks}}</p>
 		<br>
 		<p><b>3. {{form.narrative3.label}}</b></p>
-		<p>{{app.narrative3}}</p>
+		<p>{{app.narrative3|linebreaks}}</p>
 		<br>
 		<p><b>4. {{form.narrative4.label}}</b></p>
-		<p>{{app.narrative4}}</p>
-		{{app.timeline_display}}
+		<p>{{app.narrative4|linebreaks}}</p>
+		{{app.timeline_display|linebreaks}}
 		<br>
 		<p><b>5. {{form.narrative5.label}}</b></p>
-		<p>{{app.narrative5}}</p>
+		<p>{{app.narrative5|linebreaks}}</p>
 		<p><b>{{form.collab_ref1_name.help_text}}</b></p>
 		<p>1. {{app.collab_ref1_name}}, {{app.collab_ref1_org}}. {{app.collab_ref1_phone|add:" "}}{{app.collab_ref1_email}}</p>
 		<p>2. {{app.collab_ref2_name}}, {{app.collab_ref2_org}}. {{app.collab_ref2_phone|add:" "}}{{app.collab_ref2_email}}</p>
 		<br>
 		<p><b>6. {{form.narrative6.label}}</b></p>
-		<p>{{app.narrative6}}</p>
+		<p>{{app.narrative6|linebreaks}}</p>
 		<p><b>{{form.racial_justice_ref1_name.help_text}}</b></p>
 		{% if app.racial_justice_ref1_org %}
 			<p>1. {{app.racial_justice_ref1_name}}, {{app.racial_justice_ref1_org}}. {{app.racial_justice_ref1_phone|add:" "}}{{app.racial_justice_ref1_email}}</p>
@@ -174,7 +174,7 @@
 		{% if app.cycle_question %}
 		<br>
 		<p><b>7. {{form.cycle_question.label}}</b></p>
-		<p>{{app.cycle_question}}</p>
+		<p>{{app.cycle_question|linebreaks}}</p>
 		{% endif %}
 	{% endautoescape %}
 	</div>
