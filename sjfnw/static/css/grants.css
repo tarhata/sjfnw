@@ -314,7 +314,7 @@ table#timeline_display {
   margin:auto;
   padding:0 5px;
   border:1px solid black;
-  text-align:center;
+  text-align:left;
   border-collapse:collapse;
 }
 
