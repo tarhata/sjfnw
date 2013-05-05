@@ -16,7 +16,7 @@ from decorators import approved_membership
 from forms import *
 from google.appengine.ext import deferred, ereporter
 from sjfnw import constants
-from sjfnw.grants.models import GrantApplication
+from sjfnw.grants.models import Organization, GrantApplication
 import pytz, utils, json, models, datetime, random, logging
 
 if not settings.DEBUG:
@@ -435,7 +435,11 @@ def SetCurrent(request, ship_id):
 #ERROR & HELP PAGES
 @login_required(login_url='/fund/login/')
 def NotMember(request):
-  return render(request, 'fund/not_member.html', {'contact_url':'/fund/support#contact'})
+  try:
+    org = Organization.objects.get(email=request.user.username)
+  except Organization.DoesNotExist:
+    org = False
+  return render(request, 'fund/not_member.html', {'contact_url':'/fund/support#contact', 'org':org})
 
 @login_required(login_url='/fund/login/')
 def NotApproved(request):
