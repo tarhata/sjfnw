@@ -277,7 +277,7 @@ def AddFile(request, draft_id):
       Called by javascript in application page """
       
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
-  logging.info([request.body])
+  logging.info(request.user.username)
   msg = False
   for key in request.FILES:
     if request.FILES[key]:
