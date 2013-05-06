@@ -18,7 +18,3 @@ cron:
 - description: daily exception report
   url: /_ereporter?sender=sjfnwads@gmail.com&to=aisapatino@gmail.com
   schedule: every 1 hours
-
-- description: clear empty files from blobstore
-  url: /tools/delete-empty
-  schedule: every monday 14:25

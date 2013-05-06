@@ -38,7 +38,7 @@ def ServeBlob(application, field_name):
   file_field = getattr(application, field_name)
   if not file_field:
     logging.warning('Unknown file type ' + field_name)
-    return Http404
+    raise Http404
   
   blob = FindBlob(file_field)
   
