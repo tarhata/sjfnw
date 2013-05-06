@@ -292,6 +292,7 @@ def AddFile(request, draft_id):
         logging.error('Tried to add an unknown file field ' + str(key))
   draft.modified = timezone.now()
   draft.save()
+  logging.info(unicode(draft.organization))
   logging.info(msg)
   if not msg:
     return HttpResponse("ERRORRRRRR")
