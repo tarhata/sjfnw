@@ -198,6 +198,11 @@ if($.browser.mozilla) { //stackoverflow
 			{% if cycle.info_page %}<a href="/apply/info/{{cycle.pk}}" target="_blank">application instructions</a><br><br>{% endif %}
 			<span id="last_saved" title="The form is automatically saved every 30 seconds">Last saved: <span id="autosaved">{{draft.modified|date:"F j, g:ia"}}</span></span>
 		</div>
+		{% if form.errors %}
+		<div style="border:2px groove red;padding:0 10px;margin:10px 0;text-align:center;">
+			<p>Please resolve the errors below and try submitting again.</p>
+		</div>
+		{% endif %}
 		{% autoescape off %}
 		<table id="application_form"><!-- Form starts -->
 			<tr>
