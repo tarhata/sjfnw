@@ -24,7 +24,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 		<td>{% if save.grant_cycle.info_page %}<a href="/apply/info/{{save.grant_cycle.pk}}" target="_blank">Cycle info</a>{% endif %}</td>
 		<td><a href="{% url grants.views.Apply save.grant_cycle.pk %}"><b>Edit draft</b></a></td>
 		<td>Modified {{save.modified|date:"n/j g:iA"|lower}}</td>
-		<td>Due {{save.grant_cycle.close|date:"n/j g:iA"|lower}}</td>
+		<td>Due {% if save.extended_deadline %}{{save.extended_deadline|date:"n/j g:iA"|lower}}{% else %}{{save.grant_cycle.close|date:"n/j g:iA"|lower}}{% endif %}</td>
 		{% else %}
 		<td><i><li>{{save.grant_cycle}}</li></td>
 		<td colspan="4">Cycle closed on {{save.grant_cycle.close|date:"n/j"}}</i></td>
