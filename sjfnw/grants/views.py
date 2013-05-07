@@ -553,6 +553,7 @@ def SearchApps(request):
       logging.info('A valid form')
       
       options = form.cleaned_data
+      logging.info(options)
       apps = models.GrantApplication.objects.order_by('-submission_time').select_related('giving_project', 'grant_cycle')
       
       #filters
@@ -579,7 +580,7 @@ def SearchApps(request):
         apps = apps.filter(giving_project__title__in=options.get('giving_project'))
       logging.info('After gp, count is ' + str(apps.count()))
       if options.get('grant_cycle'):
-        apps = apps.filter(giving_project__title__in=options.get('grant_cycle'))
+        apps = apps.filter(grant_cycle__title__in=options.get('grant_cycle'))
       logging.info('After cycle, count is ' + str(apps.count()))
       
       #fields
