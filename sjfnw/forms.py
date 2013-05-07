@@ -27,7 +27,7 @@ class PhoneNumberField(forms.Field):
   
   def clean(self, value):
     if isinstance(value, (str, unicode)):
-      value = re.sub('[()\-\s]', '', str(value))
+      value = re.sub('[()\-\s]', '', value)
       if value and len(value) != 10:
         raise ValidationError(self.error_messages['invalid'])
     return super(PhoneNumberField, self).clean(value)
