@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore, deferred
-from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm
+from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm, LoginAsOrgForm
 from decorators import registered_org
 from sjfnw import constants
 from sjfnw.fund.models import Member
@@ -120,7 +120,11 @@ def OrgHome(request, organization):
       closed.append(cycle)
     elif status=='upcoming':
       upcoming.append(cycle)
-
+  
+  user_override = request.GET.get('user')
+  if user_override:
+    user_override = '?user=' + user_override
+  
   return render(request, 'grants/org_home.html', {
     'organization':organization,
     'submitted':submitted,
@@ -129,13 +133,19 @@ def OrgHome(request, organization):
     'closed':closed,
     'open':open,
     'upcoming':upcoming,
-    'applied':applied})
+    'applied':applied,
+    'user_override':user_override})
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   """Get or submit the whole application form """
-
+  
+  #staff override
+  user_override = request.GET.get('user')
+  if user_override:
+    user_override = '?user=' + user_override
+    
   #check cycle exists
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
 
@@ -247,14 +257,18 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       file_urls[field] = '<i>no file uploaded</i>'
 
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
+  {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled, 'org':organization, 'user_override':user_override})
 
 def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Saves non-file fields to a draft """
   if not request.user.is_authenticated():
     return HttpResponse(LOGIN_URL, status=401)
+  username = request.user.username
+  if request.user.is_staff and request.GET.get('user'): #staff override
+    username = request.GET.get('user')
+    logging.info('Staff override - ' + request.user.username + ' logging in as ' + username)
   try:
-    organization = models.Organization.objects.get(email=request.user.username)
+    organization = models.Organization.objects.get(email=username)
     logging.info(organization)
   except models.Organization.DoesNotExist:
     return HttpResponse('/apply/nr', status=401)
@@ -275,7 +289,7 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
 def AddFile(request, draft_id):
   """ Upload a file to the draft
       Called by javascript in application page """
-      
+  
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   logging.info([request.body])
   msg = False
@@ -319,7 +333,15 @@ def RemoveFile(request, draft_id, file_field):
   
 def RefreshUploadUrl(request, draft_id):
   """ Get a blobstore url for uploading a file """
-  upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file')
+  
+  #staff override
+  user_override = request.GET.get('user')
+  if user_override:
+    user_override = '?user=' + user_override
+  else:
+    user_override = ''
+    
+  upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file' + user_override)
   return HttpResponse(upload_url)
 
 # COPY / DELETE APPS
@@ -510,6 +532,16 @@ def AdminRollover(request, app_id):
     
   return render(request, 'admin/grants/rollover.html', {'form':form, 'application':application, 'count':cycle_count})
 
+def Impersonate(request):
+  
+  if request.method=='POST':
+    form = LoginAsOrgForm(request.POST)
+    if form.is_valid():
+      org = form.cleaned_data['organization']
+      return redirect('/apply/?user='+org)
+  form = LoginAsOrgForm()
+  return render(request, 'admin/grants/impersonate.html', {'form':form})
+  
 def SearchApps(request):
   form = AppSearchForm()
   

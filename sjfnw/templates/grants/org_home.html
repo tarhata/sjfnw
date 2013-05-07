@@ -5,7 +5,7 @@
 function confirmation(draft_pk) { //confirmation window before discarding a draft
 	var conf = confirm("Discard this draft?  It cannot be recovered.")
 	if (conf){
-		window.location = '/apply/'+draft_pk+'/DELETE'
+		window.location = '/apply/'+draft_pk+'/DELETE{{user_override|default:''}}'
 	}
 }
 </script>
@@ -21,8 +21,8 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 		<tr>
 		{% if save.editable %}
 		<td><li>{{save.grant_cycle}}</li></td>
-		<td>{% if save.grant_cycle.info_page %}<a href="/apply/info/{{save.grant_cycle.pk}}" target="_blank">Cycle info</a>{% endif %}</td>
-		<td><a href="{% url grants.views.Apply save.grant_cycle.pk %}"><b>Edit draft</b></a></td>
+		<td>{% if save.grant_cycle.info_page %}<a href="/apply/info/{{save.grant_cycle.pk}}{{user_override|default:''}}" target="_blank">Cycle info</a>{% endif %}</td>
+		<td><a href="{% url grants.views.Apply save.grant_cycle.pk %}{{user_override|default:''}}"><b>Edit draft</b></a></td>
 		<td>Modified {{save.modified|date:"n/j g:iA"|lower}}</td>
 		<td>Due {% if save.extended_deadline %}{{save.extended_deadline|date:"n/j g:iA"|lower}}{% else %}{{save.grant_cycle.close|date:"n/j g:iA"|lower}}{% endif %}</td>
 		{% else %}
@@ -54,7 +54,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 
 <h4>Tools</h4>
 	<ul>
-		<li><a href="/apply/copy">Copy/rollover an application</a></li>
+		<li><a href="/apply/copy{{user_override|default:''}}">Copy/rollover an application</a></li>
 	</ul>
 </div>
 
@@ -66,8 +66,8 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 	<table class="list">
   {% for ope in open %}
 		<tr><td><li>{{ope}}</li></td>
-		<td>{% if ope.info_page %}<a href="/apply/info/{{ope.pk}}" target="_blank">Cycle info</a>{% endif %}</td>
-		<td><b><a href="{% url grants.views.Apply ope.pk %}">Apply</a></b></td>
+		<td>{% if ope.info_page %}<a href="/apply/info/{{ope.pk}}{{user_override|default:''}}" target="_blank">Cycle info</a>{% endif %}</td>
+		<td><b><a href="{% url grants.views.Apply ope.pk %}{{user_override|default:''}}">Apply</a></b></td>
 		<td>Closes {{ope.close|date:"n/j/y"}}</a></td>
 		</tr>
   {% endfor %}
