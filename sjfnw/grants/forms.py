@@ -94,7 +94,7 @@ class AppSearchForm(forms.Form):
 
   organization = forms.CharField(max_length=255, required=False)
   city = forms.CharField(max_length=255, required=False)
-  state = forms.MultipleChoiceField(choices = models.STATE_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
+  state = forms.MultipleChoiceField(choices = models.STATE_CHOICES[:5], widget = forms.CheckboxSelectMultiple, required = False)
   giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
   grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
   poc_bonus = forms.BooleanField(required=False)
