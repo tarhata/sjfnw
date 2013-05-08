@@ -403,6 +403,8 @@ def CopyApp(request, organization):
 
     else: #INVALID FORM
       logging.warning('form invalid')
+      cycle_count = str(form['cycle']).count('<option value')
+      apps_count = str(form['application']).count('<option value') + str(form['draft']).count('<option value')
   
   else: #GET
     form = RolloverForm(organization)
