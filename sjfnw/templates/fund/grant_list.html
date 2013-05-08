@@ -3,11 +3,11 @@
 {% block title %}Grants {{block.super}}{% endblock %}
 
 {% block content %}
-{% if not grant_list %}
+{% if not grants %}
 <p>Grants are not available yet.</p>
 {% else %}
 <p>Click to open a grant application in a new tab.</p>
-{% for grant in grant_list %}
+{% for grant in grants %}
 <a href="/grants/view/{{grant.pk}}" target="_blank">{{grant.organization}}</a><br>
 {% endfor %}
 {% endif %}

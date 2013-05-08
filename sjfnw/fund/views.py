@@ -24,14 +24,13 @@ if not settings.DEBUG:
 
 # MAIN VIEWS
 
-def get_block_content(membership, first, second, third):
+def get_block_content(membership, first=True):
   contents = []
   if first: #home page does its own thing
      contents.append(models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2])
-  if second: #all the same, some just slice it
-    contents.append(models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date'))
-  if third:
-    pass
+  contents.append(models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date'))
+  contents.append(GrantApplication.objects.filter(giving_project=membership.giving_project, screening_status__gte=50))
+  logging.info(contents)
   return contents
 
 @login_required(login_url='/fund/login/')
@@ -63,7 +62,9 @@ def Home(request):
   member = membership.member
   
   #top content
-  news = models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date')
+  news, grants = get_block_content(membership, first=False)
+  logging.info(news)
+  logging.info(grants)
   header = membership.giving_project.title
 
   #donors
@@ -153,6 +154,7 @@ def Home(request):
       'progress':progress,
       'member':member,
       'news':news,
+      'grants':grants,
       'steps':step_list,
       'membership':membership,
       'notif':notif,
@@ -202,6 +204,7 @@ def Home(request):
       'progress':progress,
       'member':member,
       'news':news,
+      'grants':grants,
       'steps':upcoming_steps,
       'membership':membership,
       'notif':notif,
@@ -220,8 +223,7 @@ def ProjectPage(request):
   project = membership.giving_project
   
   #blocks
-  news = models.NewsItem.objects.filter(membership__giving_project=project).order_by('-date')
-  steps = models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2]
+  steps, news, grants = get_block_content(membership)
   
   project_progress = {'contacts':0, 'talked':0, 'asked':0, 'pledged':0, 'donated':0}
   donors = list(models.Donor.objects.filter(membership__giving_project=project))
@@ -251,6 +253,7 @@ def ProjectPage(request):
   {'2active':'true',
   'header':header,
   'news':news,
+  'grants':grants,
   'member':member,
   'steps':steps,
   'membership':membership,
@@ -266,13 +269,10 @@ def GrantList(request):
   project = membership.giving_project
   
   #blocks
-  news = models.NewsItem.objects.filter(membership__giving_project=project).order_by('-date')
-  steps = models.Step.objects.filter(donor__membership=membership, completed__isnull=True).order_by('date')[:3]
+  steps, news, grants = get_block_content(membership)
   
   #base
   header = project.title
-  
-  grant_list = GrantApplication.objects.filter(giving_project = project)
   
   return render(request, 'fund/grant_list.html',
     { '3active':'true',
@@ -281,7 +281,7 @@ def GrantList(request):
       'member':member,
       'steps':steps,
       'membership':membership,
-      'grant_list':grant_list,
+      'grants':grants,
     })
 
 # LOGIN & REGISTRATION
