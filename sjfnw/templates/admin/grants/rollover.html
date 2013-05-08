@@ -10,13 +10,12 @@
 {% if count > 1 %}
 <p>This will make a copy of this application for another grant cycle.</p>
 <p>The new application will not be editable by the organization -- if they want to modify it before submitting to the other cycle, they should do the rollover themselves.</p>
-{{count}}
+<p>You cannot rollover into a cycle for which this organization already has a submitted application or a draft.</p>
 <form action="" method="post">
 	{{form}}
 	<input type="submit" value="Yes, I'm sure" />
 </form>
 {% else %}<!-- no cycles available -->
 <p>This application is not eligible to be copied to any other grant cycles at this time.</p>
-<p>You cannot rollover into a cycle for which this organization already has a submitted application or a draft.</p>
 {% endif %}
 {% endblock %}
