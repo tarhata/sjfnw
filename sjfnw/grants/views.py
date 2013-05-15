@@ -291,31 +291,36 @@ def AddFile(request, draft_id):
       Called by javascript in application page """
   
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
-  logging.info([request.body])
-  msg = False
+  logging.info(unicode(draft.organization))
+  logging.info([request.body]) #don't remove this without fixing storage to not access body
+  file_name = False
   for key in request.FILES:
-    if request.FILES[key]:
-      logging.info(request.FILES[key])
+    file_name = unicode(request.FILES[key])
+    logging.info(file_name)
+    if file_name:
       if hasattr(draft, key):
+        # delete previous file
         old = getattr(draft, key)
-        deferred.defer(utils.DeleteBlob, old)
-        setattr(draft, key, request.FILES[key])
-        msg = key
+        if old:
+          deferred.defer(utils.DeleteBlob, old)
+        # set new file
+        if len(file_name) > 65:
+          #shorten it so extension fits in FileField
+          file_name = file_name.split(".")[0][:60].rstrip() + u'.' + file_name.split(".")[1]
+        setattr(draft, key, file_name)
+        field_name = key
         break
       else:
         logging.error('Tried to add an unknown file field ' + str(key))
   draft.modified = timezone.now()
   draft.save()
-  logging.info(unicode(draft.organization))
-  logging.info(msg)
-  if not msg:
+  
+  logging.info(file_name)
+  if not (file_name and field_name):
     return HttpResponse("ERRORRRRRR")
-  name = getattr(draft, msg)
-  name = name.name.split('/')[-1]
   
   file_urls = GetFileURLs(draft)
-  short_name = name#[:35] + (name[35:] and '..') #stackoverflow'd truncate
-  content = msg + u'~~<a href="' + file_urls[msg] + u'" target="_blank" title="' + name + u'">' + short_name + u'</a> [<a onclick="removeFile(\'' + msg + u'\');">remove</a>]'
+  content = field_name + u'~~<a href="' + file_urls[field_name] + u'" target="_blank" title="' + file_name + u'">' + file_name + u'</a> [<a onclick="removeFile(\'' + field_name + u'\');">remove</a>]'
   logging.info(u"AddFile returning: " + content)
   return HttpResponse(content)
 
