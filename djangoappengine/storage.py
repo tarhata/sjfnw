@@ -23,15 +23,13 @@ from google.appengine.ext.blobstore import BlobInfo, BlobKey, delete, \
 import logging #
 from sjfnw.grants.utils import FindBlobKey #
 
-def prepare_upload(request, url, **kwargs):
+def prepare_upload(request, url, **kwargs): #not using
     return create_upload_url(url), {}
 
 
-def serve_file(request, file, save_as, content_type, **kwargs):
-    logging.info('djapp .storage serve_file called on: ' + str(file))
+def serve_file(request, file, save_as, content_type, **kwargs): #not using
     if hasattr(file, 'file') and hasattr(file.file, 'blobstore_info'):
         blobkey = file.file.blobstore_info.key()
-        logging.info('file.file.blobstore_info.key: ' + str(blobkey))
     elif hasattr(file, 'blobstore_info'):
         blobkey = file.blobstore_info.key()
         logging.info('file.blobstore_info.key: ' + str(blobkey))
