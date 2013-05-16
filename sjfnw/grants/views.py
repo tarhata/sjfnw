@@ -296,8 +296,8 @@ def AddFile(request, draft_id):
   blob_file = False
   for key in request.FILES:
     blob_file = request.FILES[key]
-    logging.info(blob_file)
     if blob_file:
+      logging.info(blob_file)
       if hasattr(draft, key):
         # delete previous file
         old = getattr(draft, key)
