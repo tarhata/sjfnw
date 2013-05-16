@@ -525,11 +525,9 @@ def AddEstimates(request):
       for form in formset.cleaned_data:
         if form:
           current = form['donor']
-          logging.debug(current)
           current.amount = form['amount']
           current.likelihood = form['likelihood']
           current.save()
-          logging.debug('Amount & likelihood entered for ' + str(current))
       return HttpResponse("success")
   else:
     formset = EstFormset(initial=initiald)
