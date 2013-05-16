@@ -35,33 +35,92 @@ class TimelineWidget(MultiWidget):
     )
     super(TimelineWidget, self).__init__(_widgets, attrs)
   
-  """ passed values from the database in a single value object
-      decompress breaks this up for display in the widget.
-      takes a single "compressed" value and returns a list."""
+  
   def decompress(self, value):
+    """ break single database value up for widget display
+          argument: database value (json string representing list of vals)
+          returns: list of values to be displayed in widgets """
+          
     if value:
       return json.loads(value)
     return [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
   
-  """Subclasses may implement format_output(), which takes the list of rendered
-    widgets and returns a string of HTML that formats them any way you'd like."""
+  
   def format_output(self, rendered_widgets):
+    """ format the widgets for display
+          args: list of rendered widgets
+          returns: a string of HTML for displaying the widgets """
+          
     html = '<table id="timeline_form"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
     for i in range(0, len(rendered_widgets), 3):
       html += '<tr><th class="left">q' + str((i+3)/3) + '</th><td>' + rendered_widgets[i] + '</td><td>' + rendered_widgets[i+1] + '</td><td>' + rendered_widgets[i+2] +'</td></tr>'
     html += '</table>'
     return html
   
-  """ Get single value from the widgetz """
   def value_from_datadict(self, data, files, name):
+    """ Consolodate widget data into a single value 
+        returns:
+          json'd list of values """
+
     val_list = []
     for i, widget in enumerate(self.widgets):
        val_list.append(widget.value_from_datadict(data, files, name + '_%s' % i))
-    logging.info(val_list)
     return json.dumps(val_list)
 
 #used by org & app
-STATE_CHOICES = [('OR', 'OR'), ('WA', 'WA'), ('ID', 'ID'), ('WY', 'WY'), ('MT', 'MT'),] 
+STATE_CHOICES = [
+  ('ID', 'ID'),
+  ('MT', 'MT'),
+  ('OR', 'OR'),
+  ('WA', 'WA'),
+  ('WY', 'WY'),
+  
+  ('AL', 'AL'),
+  ('AK', 'AK'),
+  ('AZ', 'AZ'),
+  ('AR', 'AR'),
+  ('CA', 'CA'),
+  ('CO', 'CO'),
+  ('CT', 'CT'),
+  ('DE', 'DE'),
+  ('FL', 'FL'),
+  ('GA', 'GA'),
+  ('HI', 'HI'),
+  ('IL', 'IL'),
+  ('IN', 'IN'),
+  ('IA', 'IA'),
+  ('KS', 'KS'),
+  ('KY', 'KY'),
+  ('LA', 'LA'),
+  ('ME', 'ME'),
+  ('MD', 'MD'),
+  ('MA', 'MA'),
+  ('MI', 'MI'),
+  ('MN', 'MN'),
+  ('MS', 'MS'),
+  ('MO', 'MO'),
+  ('NE', 'NE'),
+  ('NV', 'NV'),
+  ('NH', 'NH'),
+  ('NJ', 'NJ'),
+  ('NM', 'NM'),
+  ('NY', 'NY'),
+  ('NC', 'NC'),
+  ('ND', 'ND'),
+  ('OH', 'OH'),
+  ('OK', 'OK'),
+  ('PA', 'PA'),
+  ('RI', 'RI'),
+  ('SC', 'SC'),
+  ('SD', 'SD'),
+  ('TN', 'TN'),
+  ('TX', 'TX'),
+  ('UT', 'UT'),
+  ('VT', 'VT'),
+  ('VA', 'VA'),
+  ('WV', 'WV'),
+  ('WI', 'WI')]
+
 STATUS_CHOICES = [
   ('Tribal government', 'Federally recognized American Indian tribal government'),   
   ('501c3', '501(c)3 organization as recognized by the IRS'),
@@ -322,10 +381,11 @@ class GrantApplication(models.Model):
   view_link.allow_tags = True
   
   def timeline_display(self):
-    logging.info(self.timeline)
+    logging.info(type(self.timeline))
+    timeline = json.loads(self.timeline)
     html = '<table id="timeline_display"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
     for i in range(0, 15, 3):
-      html += '<tr><th class="left">q' + str((i+3)/3) + '</th><td>' + self.timeline[i] + '</td><td>' + self.timeline[i+1] + '</td><td>' + self.timeline[i+2] +'</td></tr>'
+      html += '<tr><th class="left">q' + str((i+3)/3) + '</th><td>' + timeline[i] + '</td><td>' + timeline[i+1] + '</td><td>' + timeline[i+2] +'</td></tr>'
     html += '</table>'
     return html
   timeline_display.allow_tags = True
@@ -358,8 +418,8 @@ class GrantApplicationModelForm(ModelForm):
     exclude = ['screening_status', 'submission_time'] #auto fields with defaults
     widgets = {
       #char limits
-      'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 750)'}),
-      'grant_request': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 600)'}),
+      'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 150)'}),
+      'grant_request': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 100)'}),
       'narrative1': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[1]) + ')'}),
       'narrative2': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[2]) + ')'}),
       'narrative3': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[3]) + ')'}),

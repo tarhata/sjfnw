@@ -23,15 +23,13 @@ from google.appengine.ext.blobstore import BlobInfo, BlobKey, delete, \
 import logging #
 from sjfnw.grants.utils import FindBlobKey #
 
-def prepare_upload(request, url, **kwargs):
+def prepare_upload(request, url, **kwargs): #not using
     return create_upload_url(url), {}
 
 
-def serve_file(request, file, save_as, content_type, **kwargs):
-    logging.info('djapp .storage serve_file called on: ' + str(file))
+def serve_file(request, file, save_as, content_type, **kwargs): #not using
     if hasattr(file, 'file') and hasattr(file.file, 'blobstore_info'):
         blobkey = file.file.blobstore_info.key()
-        logging.info('file.file.blobstore_info.key: ' + str(blobkey))
     elif hasattr(file, 'blobstore_info'):
         blobkey = file.blobstore_info.key()
         logging.info('file.blobstore_info.key: ' + str(blobkey))
@@ -66,12 +64,12 @@ class BlobstoreStorage(Storage):
         logging.info('storage _save on ' + str([name]))
         if hasattr(content, 'file') and hasattr(content.file, 'blobstore_info'):
             data = content.file.blobstore_info
-            logging.debug('1st')
+            #logging.debug('1st')
         elif hasattr(content, 'blobstore_info'):
             data = content.blobstore_info
-            logging.debug('2nd')
+            #logging.debug('2nd')
         elif isinstance(content, File):
-            logging.debug('3rd, is file')
+            #logging.debug('3rd, is file')
             guessed_type = mimetypes.guess_type(name)[0]
             file_name = files.blobstore.create(mime_type=guessed_type or 'application/octet-stream', _blobinfo_uploaded_filename=name)
 
@@ -92,10 +90,15 @@ class BlobstoreStorage(Storage):
             if isinstance(data, BlobInfo):
                 logging.info('data is blobinfo, storing its key')
                 data = data.key()
-            logging.info('Returning ' + name.lstrip('/') + ' containing ' + str(data))
-            #import pdb; pdb.set_trace()
+
+            name = name.lstrip('/')
+            if len(name) > 65:
+              #shorten it so extension fits in FileField
+              name = name.split(".")[0][:60].rstrip() + u'.' + name.split(".")[1]
+              logging.info(name)
+            logging.info('Returning ' + str(data) + name )
   
-            return '%s/%s' % (data, name.lstrip('/'))
+            return '%s/%s' % (data, name)
         else:
             raise ValueError("The App Engine Blobstore only supports "
                              "BlobInfo values. Data can't be uploaded "
@@ -164,7 +167,6 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
     def new_file(self, *args, **kwargs):
         """field_name, file_name, content_type, content_length, charset=None"""
       
-        #import pdb; pdb.set_trace() 
         logging.info('BlobstoreFileUploadHandler.new_file')
         super(BlobstoreFileUploadHandler, self).new_file(*args, **kwargs)
         

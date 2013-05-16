@@ -31,7 +31,7 @@
 <body>
   <div id="org_wrapper">
     <div id="nav_menu">
-        <a href="{% url grants.views.OrgHome %}">
+        <a href="{% url grants.views.OrgHome %}{{user_override|default:''}}">
           <img id="logo" src="/static/images/logo_horiz.png" align="middle" alt="Social Justice Fund NW Logo">home
         </a>
     </div>

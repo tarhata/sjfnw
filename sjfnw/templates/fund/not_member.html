@@ -3,6 +3,15 @@
 {% block title %}Not member {{block.super}}{% endblock %}
 
 {% block content %}
+{% if org %}
+<div class="error_message">Not registered as a giving project member</div>
+<p>Project Central is for giving project members.  This account is registered with our online grant application.</p>
+
+<p>If you are trying to access the online grant application please go <a href='/apply'>here</a>.</p>
+
+<p>If you are also in a giving project and are trying to access Project Central please <a href='/fund/login'>register or login</a> with a different email.  Separate logins are required for Project Central and the online grant application.</p>
+{% else %}
 <div class="error_message">Your account wasn't registered properly.</div>
 Please <a href="{{contact_url}}">contact</a> site admin to have it fixed.  Include your name and the email address you used to log in.
+{% endif %}
 {% endblock %}

@@ -14,10 +14,10 @@ def FindBlobKey(body):
     key = key.group(1)
   else:
     key = None
-  logging.info(['FindBlobKey gets ' + str(key)])
+  logging.info(['Extracted blobkey from request.body: ' + str(key)])
   return key
   
-def FindBlob(file_field):
+def FindBlob(file_field, hide_errors=False):
   """Given contents of a file field, return the blob. """
   
   key = file_field.name.split('/', 1)[0]
@@ -26,8 +26,11 @@ def FindBlob(file_field):
     if blob:
       logging.info('Found blob - filename ' + blob.filename + ', size ' + str(blob.size) + ', type ' + blob.content_type)
       return blob
-
-  raise Http404('Blob not found')
+  
+  if hide_errors:
+    return False
+  else:
+    raise Http404('Blob not found')
 
 def ServeBlob(application, field_name):
   """Returns file from the Blobstore for serving
@@ -38,7 +41,7 @@ def ServeBlob(application, field_name):
   file_field = getattr(application, field_name)
   if not file_field:
     logging.warning('Unknown file type ' + field_name)
-    return Http404
+    raise Http404
   
   blob = FindBlob(file_field)
   
@@ -49,7 +52,10 @@ def DeleteBlob(file_field):
   if not file_field:
     logging.info('Delete empty')
     return
-  blob = FindBlob(file_field)
-  blob.delete()
-  logging.info('Blob deleted')
-  return HttpResponse("deleted")
+  blob = FindBlob(file_field, hide_errors=True)
+  if blob:
+    blob.delete()
+    logging.info('Blob deleted')
+    return HttpResponse("deleted")
+  else:
+    return HttpResponse("nothing deleted")

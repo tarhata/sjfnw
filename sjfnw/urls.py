@@ -80,6 +80,7 @@ urlpatterns += patterns('grants.views',
   (r'^admin-advanced/grants/grantapplication/(?P<app_id>\d+)/revert', 'AppToDraft'),
   (r'^admin/grants/grantapplication/(?P<app_id>\d+)/rollover', 'AdminRollover'),
   (r'^admin-advanced/grants/grantapplication/(?P<app_id>\d+)/rollover', 'AdminRollover'),
+  (r'^admin/grants/organization/login', 'Impersonate'),
   
   #reading
   (r'^grants/view/(?P<app_id>\d+)/?$', 'ReadApplication'),

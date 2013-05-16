@@ -94,7 +94,7 @@ class AppSearchForm(forms.Form):
 
   organization = forms.CharField(max_length=255, required=False)
   city = forms.CharField(max_length=255, required=False)
-  state = forms.MultipleChoiceField(choices = models.STATE_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
+  state = forms.MultipleChoiceField(choices = models.STATE_CHOICES[:5], widget = forms.CheckboxSelectMultiple, required = False)
   giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
   grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
   has_fiscal_sponsor = forms.BooleanField(required=False)
@@ -163,3 +163,11 @@ class AppSearchForm(forms.Form):
     if cleaned_data['year_max'] < cleaned_data['year_min']:
       self._errors['year_min'] = [u'Start year must be less than or equal to end year.']
     return cleaned_data
+
+class LoginAsOrgForm(forms.Form):
+  
+  def __init__(self, *args, **kwargs):
+    super(LoginAsOrgForm, self).__init__(*args, **kwargs)
+    
+    orgs = models.Organization.objects.order_by('name')
+    self.fields['organization'] = forms.ChoiceField(choices = [('', '--- Organizations ---')] + [(o.email, unicode(o)) for o in orgs])

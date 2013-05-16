@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from google.appengine.ext import blobstore, deferred
-from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm
+from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm, LoginAsOrgForm
 from decorators import registered_org
 from sjfnw import constants
 from sjfnw.fund.models import Member
@@ -120,7 +120,11 @@ def OrgHome(request, organization):
       closed.append(cycle)
     elif status=='upcoming':
       upcoming.append(cycle)
-
+  
+  user_override = request.GET.get('user')
+  if user_override:
+    user_override = '?user=' + user_override
+  
   return render(request, 'grants/org_home.html', {
     'organization':organization,
     'submitted':submitted,
@@ -129,13 +133,19 @@ def OrgHome(request, organization):
     'closed':closed,
     'open':open,
     'upcoming':upcoming,
-    'applied':applied})
+    'applied':applied,
+    'user_override':user_override})
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   """Get or submit the whole application form """
-
+  
+  #staff override
+  user_override = request.GET.get('user')
+  if user_override:
+    user_override = '?user=' + user_override
+    
   #check cycle exists
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
 
@@ -216,6 +226,11 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
     else: #load a draft
       dict = json.loads(draft.contents)
+      timeline = []
+      for i in range(15): #covering both timeline formats
+        if 'timeline_' + str(i) in dict:
+          timeline.append(dict['timeline_' + str(i)])
+      dict['timeline'] = json.dumps(timeline)
       logging.debug('Loading draft: ' + str(dict))
     
     #check if draft can be submitted
@@ -242,14 +257,18 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       file_urls[field] = '<i>no file uploaded</i>'
 
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled})
+  {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled, 'org':organization, 'user_override':user_override})
 
 def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Saves non-file fields to a draft """
   if not request.user.is_authenticated():
     return HttpResponse(LOGIN_URL, status=401)
+  username = request.user.username
+  if request.user.is_staff and request.GET.get('user'): #staff override
+    username = request.GET.get('user')
+    logging.info('Staff override - ' + request.user.username + ' logging in as ' + username)
   try:
-    organization = models.Organization.objects.get(email=request.user.username)
+    organization = models.Organization.objects.get(email=username)
     logging.info(organization)
   except models.Organization.DoesNotExist:
     return HttpResponse('/apply/nr', status=401)
@@ -270,32 +289,34 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
 def AddFile(request, draft_id):
   """ Upload a file to the draft
       Called by javascript in application page """
-      
+  
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
-  logging.info([request.body])
-  msg = False
+  logging.info(unicode(draft.organization))
+  logging.info([request.body]) #don't remove this without fixing storage to not access body
+  blob_file = False
   for key in request.FILES:
-    if request.FILES[key]:
-      logging.info(request.FILES[key])
+    blob_file = request.FILES[key]
+    if blob_file:
+      logging.info(blob_file)
       if hasattr(draft, key):
+        # delete previous file
         old = getattr(draft, key)
-        deferred.defer(utils.DeleteBlob, old)
-        setattr(draft, key, request.FILES[key])
-        msg = key
+        if old:
+          deferred.defer(utils.DeleteBlob, old)
+        # set new file
+        setattr(draft, key, blob_file)
+        field_name = key
         break
       else:
         logging.error('Tried to add an unknown file field ' + str(key))
   draft.modified = timezone.now()
   draft.save()
-  logging.info(msg)
-  if not msg:
+  
+  if not (blob_file and field_name):
     return HttpResponse("ERRORRRRRR")
-  name = getattr(draft, msg)
-  name = name.name.split('/')[-1]
   
   file_urls = GetFileURLs(draft)
-  short_name = name#[:35] + (name[35:] and '..') #stackoverflow'd truncate
-  content = msg + u'~~<a href="' + file_urls[msg] + u'" target="_blank" title="' + name + u'">' + short_name + u'</a> [<a onclick="removeFile(\'' + msg + u'\');">remove</a>]'
+  content = field_name + u'~~<a href="' + file_urls[field_name] + u'" target="_blank" title="' + unicode(blob_file) + u'">' + unicode(blob_file) + u'</a> [<a onclick="removeFile(\'' + field_name + u'\');">remove</a>]'
   logging.info(u"AddFile returning: " + content)
   return HttpResponse(content)
 
@@ -313,7 +334,15 @@ def RemoveFile(request, draft_id, file_field):
   
 def RefreshUploadUrl(request, draft_id):
   """ Get a blobstore url for uploading a file """
-  upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file')
+  
+  #staff override
+  user_override = request.GET.get('user')
+  if user_override:
+    user_override = '?user=' + user_override
+  else:
+    user_override = ''
+    
+  upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file' + user_override)
   return HttpResponse(upload_url)
 
 # COPY / DELETE APPS
@@ -375,6 +404,8 @@ def CopyApp(request, organization):
 
     else: #INVALID FORM
       logging.warning('form invalid')
+      cycle_count = str(form['cycle']).count('<option value')
+      apps_count = str(form['application']).count('<option value') + str(form['draft']).count('<option value')
   
   else: #GET
     form = RolloverForm(organization)
@@ -446,18 +477,12 @@ def ReadApplication(request, app_id):
   
   return render(request, 'grants/reading.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls, 'perm':perm})
 
-@login_required(login_url=LOGIN_URL)
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
-  if view_permission(request.user, application) == 0:
-    return redirect(CannotView)
   return utils.ServeBlob(application, file_type)
 
-@login_required(login_url=LOGIN_URL)
 def ViewDraftFile(request, draft_id, file_type):
   application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
-  if view_permission(request.user, application) == 0:
-    return redirect(CannotView)
   return utils.ServeBlob(application, file_type)
 
 # ADMIN
@@ -510,6 +535,16 @@ def AdminRollover(request, app_id):
     
   return render(request, 'admin/grants/rollover.html', {'form':form, 'application':application, 'count':cycle_count})
 
+def Impersonate(request):
+  
+  if request.method=='POST':
+    form = LoginAsOrgForm(request.POST)
+    if form.is_valid():
+      org = form.cleaned_data['organization']
+      return redirect('/apply/?user='+org)
+  form = LoginAsOrgForm()
+  return render(request, 'admin/grants/impersonate.html', {'form':form})
+  
 def SearchApps(request):
   form = AppSearchForm()
   
@@ -521,6 +556,7 @@ def SearchApps(request):
       logging.info('A valid form')
       
       options = form.cleaned_data
+      logging.info(options)
       apps = models.GrantApplication.objects.order_by('-submission_time').select_related('giving_project', 'grant_cycle')
       
       #filters
@@ -529,6 +565,7 @@ def SearchApps(request):
       max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S') 
       max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
       apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
+      logging.info('After year, count is ' + str(apps.count()))
       if options.get('organization'):
         apps = apps.filter(organization__contains=options['organization'])
       if options.get('city'):
@@ -537,12 +574,14 @@ def SearchApps(request):
         apps = apps.filter(state__in=options['state'])
       if options.get('screening_status'):
         apps = apps.filter(screening_status__in=options.get('screening_status'))
+      logging.info('After screening status, count is ' + str(apps.count()))
       if options.get('poc_bonus'):
         apps = apps.filter(scoring_bonus_poc=True)
       if options.get('geo_bonus'):
         apps = apps.filter(scoring_bonus_geo=True)
       if options.get('giving_project'):
         apps = apps.filter(giving_project__title__in=options.get('giving_project'))
+      logging.info('After gp, count is ' + str(apps.count()))
       if options.get('grant_cycle'):
         apps = apps.filter(grant_cycle__title__in=options.get('grant_cycle'))
       if options.get('has_fiscal_sponsor'):
