@@ -3,12 +3,9 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
-from django.core.urlresolvers import reverse
-from django.db import connection
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, render_to_response, get_object_or_404, redirect
-from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -18,7 +15,7 @@ from decorators import registered_org
 from sjfnw import constants
 from sjfnw.fund.models import Member
 import models, utils
-import datetime, logging, json, re, csv
+import datetime, logging, json, csv
 
 # CONSTANTS
 LOGIN_URL = '/apply/login/'
@@ -190,7 +187,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
           organization.save()
         logging.info('Organization profile updated')
       else:
-        logging.error('Org profile not updated.  User: %s, application id: %s', request.user.email, application.pk)
+        logging.error('Org profile not updated.  User: %s, application id: %s', request.user.email, new_app.pk)
 
       #send email confirmation
       subject, from_email = 'Grant application submitted', constants.GRANT_EMAIL
@@ -661,7 +658,6 @@ def DraftWarning(request):
   7 day warning if created 7+ days before close, otherwise 3 day warning """
   
   drafts = models.DraftGrantApplication.objects.all()
-  now = timezone.now()
   eight = datetime.timedelta(days=8)
   
   for draft in drafts:

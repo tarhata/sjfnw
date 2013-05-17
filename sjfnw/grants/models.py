@@ -1,5 +1,4 @@
-﻿from django.conf import settings
-from django.contrib.auth.models import User
+﻿from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import BaseValidator
 from django.db import models
@@ -7,12 +6,10 @@ from django.forms import ModelForm, Textarea
 from django.forms.widgets import FileInput, MultiWidget
 from django.utils import timezone
 from django.utils.text import capfirst
-from google.appengine.ext import blobstore
 from sjfnw.fund.models import GivingProject
 from sjfnw.forms import IntegerCommaField, PhoneNumberField
-import datetime, logging, json, re
+import logging, json, re
 from sjfnw import constants
-import utils
 
 class TimelineWidget(MultiWidget):
   def __init__(self, attrs=None):
