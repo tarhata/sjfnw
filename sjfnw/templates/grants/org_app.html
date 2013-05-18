@@ -19,7 +19,7 @@ function autoSave(submit){
 	$.ajax({
 		url:"/apply/{{cycle.pk}}/autosave/{{user_override|default:''}}",
 		type:"POST",
-		data:$('form').serialize(),
+		data:$('form').serialize() + "&user_id=" + user_id,
 		success:function(data, textStatus, jqXHR){
 			if (jqXHR.status==200) {
 				if (submit) {
@@ -160,14 +160,18 @@ function removeFile(field_name) {
 			r_span.innerHTML = '<i>no file uploaded</i>';
 		},
 	});
+}
 
-  function randomString(length, chars) {
-    var result = '';
-    for (var i = length; i > 0; --i) result += chars[Math.round(Math.random() * (chars.length - 1))];
-    return result;
+var user_id;
+
+function setUserID() {
+  var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  var result = '';
+  for (var i = 16; i > 0; --i){
+    result += chars[Math.round(Math.random() * (chars.length - 1))];
   }
-  var rString = randomString(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
-
+  user_id = result;
+  console.log(user_id);
 }
 
 $(document).ready(function() {
@@ -179,6 +183,7 @@ $(document).ready(function() {
 		charLimitDisplay(area, limit);
 	});
 	iframe = document.getElementById("id_upload_frame");
+  setUserID();
 });
 
 if($.browser.mozilla) { //stackoverflow
