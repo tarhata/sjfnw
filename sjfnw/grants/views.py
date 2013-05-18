@@ -300,10 +300,10 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   draft = get_object_or_404(models.DraftGrantApplication, organization=organization, grant_cycle=cycle)
 
   if request.method == 'POST':
+    logging.info([request.GET.get('override')])
     #get or create saved json, update it
     logging.debug("Autosaving")
     dict = json.dumps(request.POST)
-    logging.debug(dict)
     draft.contents = dict
     draft.modified = timezone.now()
     draft.modified_by = request.POST.get('user_id')

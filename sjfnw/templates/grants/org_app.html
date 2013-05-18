@@ -1,6 +1,7 @@
 ﻿{% extends 'grants/base.html' %}
 {% block title %}Application form | {{block.super}}{% endblock %}
 {% block script %}
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script type="text/javascript">
 // autosaving
 var autosave_timer;
@@ -17,7 +18,7 @@ var status_texts = { //for ajax error messages
 
 function autoSave(submit){
 	$.ajax({
-		url:"/apply/{{cycle.pk}}/autosave/{{user_override|default:''}}",
+		url:"/apply/{{cycle.pk}}/autosave/{{user_override|default:'?'}}&override=" + override,
 		type:"POST",
 		data:$('form').serialize() + "&user_id=" + user_id,
 		success:function(data, textStatus, jqXHR){
@@ -26,7 +27,7 @@ function autoSave(submit){
 					var submit_all = document.getElementById('hidden_submit_app');
 					submit_all.click();
 				}
-				var monthNames = [ "January", "February#00B34D", "March", "April", "May", "June",
+				var monthNames = [ "January", "February", "March", "April", "May", "June",
 				"July", "August", "September", "October", "November", "December" ];
 				var d = new Date();
 				var h = d.getHours();
@@ -162,7 +163,8 @@ function removeFile(field_name) {
 	});
 }
 
-var user_id;
+var user_id = '';
+var override = 0;
 
 function setUserID() {
   var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
