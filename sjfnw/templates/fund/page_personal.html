@@ -5,8 +5,8 @@
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript"><!-- charts -->
   var text_progress = false;
-  if (Modernizr.inlinesvg) { 
-    
+  if (Modernizr.inlinesvg) {
+
     var options = {chartArea: {left:0, top:8, width:'100%', height:'85%'},
                     legend: {alignment:'center', textStyle: {fontSize:11}},
                     tooltip: {showColorCode: false, textStyle: {fontSize:14}},
@@ -16,7 +16,7 @@
                     reverseCategories: true,
                     sliceVisibilityThreshold:0
                   };
-                     
+
     function drawChart() {
 			chart_div = document.getElementById('chart_div');
 			if (chart_div) {
@@ -40,7 +40,7 @@
 				console.log('no chart div, not running drawchart');
 			}
     }
-    
+
     function drawChart2() {
 
       // Create the data table.
@@ -52,18 +52,18 @@
         ["Pledged", {{progress.pledged}}],
         ['Donated', {{progress.donated}}]
       ]);
-      
+
       // Instantiate and draw our chart, passing in some options.
       var chart = new google.visualization.PieChart(document.getElementById('chart_div2'));
-      chart.draw(data, options);           
+      chart.draw(data, options);
     }
-    
+
     // Load the Visualization API and the piechart package.
     google.load('visualization', '1.0', {'packages':['corechart']});
 
     // Set a callback to run when the Google Visualization API is loaded.
     google.setOnLoadCallback(drawChart);
-    
+
   } else { //browser cannot support charts
     console.log('Browser does not support charts; text_progress = true');
     text_progress = true;
@@ -96,7 +96,7 @@
   };
 
   var submitted_messages = { //maps sub_url to a success message to display after reload
-    
+
 
   };
 
@@ -110,7 +110,7 @@
     });
     $( ".datePicker" ).datepicker();
   }
-  
+
   function toggle(a, b) { //donor info
     //toggles a, border on b if a is shown
     var e=document.getElementById(a);
@@ -127,7 +127,7 @@
     }
     return true;
   }
-  
+
   //ajax - general
   var request_processing = false;
   function startProcessing() {
@@ -147,7 +147,7 @@
       loader.style.display = "none";
     }
   }
-  
+
   function loadView(get_url, div_id, dasked, dpledged) {
     if (request_processing) {
       console.log('Request processing; load view denied');
@@ -169,7 +169,7 @@
           if (dasked) {
             completeLoaded(pks[1], dasked, dpledged);
           }
-        } else if (div_id == 'addmult') { 
+        } else if (div_id == 'addmult') {
           document.getElementById(div_id).style.borderColor="#555";
         }
         datepicker();
@@ -280,19 +280,19 @@
       }
     });
   }
-	
-	function cloneMore(selector, type) { //add row to form
+
+  function cloneMore(selector, type) { //add row to form
     console.log('Adding a row to form');
-		var newElement = $(selector).clone(true);
+    var newElement = $(selector).clone(true);
     var total = $('#id_' + type + '-TOTAL_FORMS').val();
     newElement.find(':input').each(function() {
         var name = $(this).attr('name').replace('-' + (total-1) + '-','-' + total + '-');
-        var id = 'id_' + name;
-        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+    var id = 'id_' + name;
+    $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
     });
     newElement.find('label').each(function() {
-        var newFor = $(this).attr('for').replace('-' + (total-1) + '-','-' + total + '-');
-        $(this).attr('for', newFor);
+    var newFor = $(this).attr('for').replace('-' + (total-1) + '-','-' + total + '-');
+    $(this).attr('for', newFor);
     });
     total++;
     $('#id_' + type + '-TOTAL_FORMS').val(total);
@@ -327,7 +327,7 @@
         } else {
           action = 'Complete step - load';
         }
-      }  
+      }
     } else if (request_type == 'POST') {
       //console.log('POST');
       if (url.search(/step$/) > -1) {
@@ -356,7 +356,7 @@
     sug_div = document.getElementById('suggest_'+num);
     sug_div.style.display="block";
   }
-  
+
   function suggestFill(source, target) { //fills input with selected step
     var text = source.innerHTML;
     if (target) {
@@ -443,7 +443,7 @@
       }
     }
   }
-  
+
   //log errors
   function logError(msg, url, line) {
     var dict = {msg: msg, script: url, line: line, url: window.location};
@@ -471,7 +471,7 @@
       }
     });
   }
-  
+
   //on load
   $(document).ready(function() {
     var load = '{{load}}';
