@@ -278,9 +278,10 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   #check user is logged in
   if not request.user.is_authenticated():
     return HttpResponse(LOGIN_URL, status=401)
+  #get username
   username = request.user.username
-  #check for staff impersonating an org
-  if request.user.is_staff and request.GET.get('user'): #staff override
+  #check for staff impersonating an org - override username
+  if request.user.is_staff and request.GET.get('user'):
     username = request.GET.get('user')
     logging.info('Staff override - ' + request.user.username + ' logging in as ' + username)
 
@@ -302,6 +303,7 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
     logging.debug(dict)
     draft.contents = dict
     draft.modified = timezone.now()
+    draft.modified_by = request.POST.get('user_id')
     draft.save()
     return HttpResponse("success")
 
