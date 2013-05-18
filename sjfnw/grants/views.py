@@ -227,6 +227,9 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
   else: #GET
 
+    #check for recent autosave - may indicate multiple editors
+    flag = draft.modified + datetime.timedelta(seconds=35) > timezone.now()
+
     #get initial data
     if cr or draft.contents=='{}': #load profile
       dict = model_to_dict(organization, exclude = ['fiscal_letter',])
@@ -270,7 +273,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       file_urls[field] = '<i>no file uploaded</i>'
 
   return render(request, 'grants/org_app.html',
-  {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled, 'org':organization, 'user_override':user_override})
+    {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled, 'org':organization, 'user_override':user_override, 'flag':flag})
 
 def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Saves non-file fields to a draft """
