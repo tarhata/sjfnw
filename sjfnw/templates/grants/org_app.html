@@ -57,7 +57,7 @@ function autoSave(submit, override){
 			var errortext = ''
       if (jqXHR.status==409){ //conflict - pause autosave and confirm override
         window.clearInterval(autosave_timer);
-        showOverrideWarning();
+        showOverrideWarning(2);
       } else {
         if(jqXHR.status==401){
           location.href = jqXHR.responseText + '?next=' + location.href;
@@ -130,7 +130,7 @@ function fileChanged(field_id) { //file selected - show loader, call getuploadur
 	}
 }
 
-function getUploadURL() { //get a url for it
+function getUploadURL() { // gets url & submits file to it
 	console.log('getUploadURL');
 	$.ajax({
 		url: '/get-upload-url/{{draft.pk}}',
@@ -179,7 +179,7 @@ if($.browser.mozilla) { //make file upload labels work in firefox
   });
 }
 
-//user id & save override
+// user id & save override
 var user_id = '';
 
 function setUserID() {
@@ -192,15 +192,15 @@ function setUserID() {
   console.log(user_id);
 }
 
-function showOverrideWarning(){
-  $('#override_dialog').dialog({
+function showOverrideWarning(ver){
+  $('#override_dialog'+ver).dialog({
     title: 'Warning: simultaneous editing',
     modal: true,
     buttons: [
       {text:'Proceed anyway',
       click: function(){
           console.log('override!');
-          $('#override_dialog').dialog("close");
+          $('#override_dialog'+ver).dialog("close");
           autoSave(false, override=true);
           autosave_timer = window.setInterval("autoSave()", 30000);
       }},
@@ -227,8 +227,8 @@ $(document).ready(function() {
   //set user id
   setUserID();
   //check whether it was edited recently -- show override confirmation
-  if ('{{flag}}'){
-    showOverrideWarning();
+  if ('{{flag}}' == 'True'){
+    showOverrideWarning(1);
   } else { //if not warning, start autosave
     autosave_timer = window.setInterval("autoSave()", 30000);
   }
@@ -239,16 +239,28 @@ $(document).ready(function() {
 
 {% block content %}
 {% load tz %}
-<div id="override_dialog" style="display:none;">
+<!-- override dialog when opening an app -->
+<div id="override_dialog1" style="display:none;">
   <input type="hidden" autofocus="autofocus" />
-  You may be seeing this message because
+  You may be seeing this message because:
   <ul>
     <li>You just refreshed this page or closed and re-opened it</li>
     <li>You have this page open in another tab or window</li>
     <li>Someone else in your org has this application form open</li>
   </ul>
-  If you proceed, your saves will be
+  If you proceed, your saves will overwrite any other changes that are made.
 </div>
+<!-- override dialog when autosave reports a conflict -->
+<div id="override_dialog2" style="display:none;">
+  <input type="hidden" autofocus="autofocus" />
+  The last autosave did not complete due to a potential conflict.  You may be seeing this if:
+  <ul>
+    <li>You have this application open in another tab or window</li>
+    <li>Someone else in your org has started editing this application</li>
+  </ul>
+  Only one person at a time should work on an application.  If you proceed, your saves will overwrite any other changes that are made.
+</div>
+<!-- form wrapper -->
 <div class="formwrapper">
 	<form id="non_file" action="/apply/{{cycle.pk}}/{{user_override|default:''}}" method="POST" accept-charset="UTF-8">
 
