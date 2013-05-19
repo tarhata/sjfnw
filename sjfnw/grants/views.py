@@ -9,12 +9,15 @@ from django.shortcuts import render, render_to_response, get_object_or_404, redi
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
+
 from google.appengine.ext import blobstore, deferred
-from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm, LoginAsOrgForm
-from decorators import registered_org
+
 from sjfnw import constants
 from sjfnw.fund.models import Member
+from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm, LoginAsOrgForm
+from decorators import registered_org
 import models, utils
+
 import datetime, logging, json, csv
 
 # CONSTANTS
@@ -136,7 +139,7 @@ def OrgHome(request, organization):
 @login_required(login_url=LOGIN_URL)
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
-  """Get or submit the whole application form """
+  """ Get or submit the whole application form """
 
   #staff override
   user_override = request.GET.get('user')
@@ -260,7 +263,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled, 'org':organization, 'user_override':user_override, 'flag':flag})
 
 def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
-  """ Saves non-file fields to a draft """
+  """ Save non-file fields to a draft """
 
   #check user is logged in
   if not request.user.is_authenticated():
@@ -294,7 +297,8 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
         if draft.modified_by and draft.modified_by != curr_user: #last save wasn't this userid
           logging.info('Requiring confirmation')
           return HttpResponse("confirm override", status=409)
-
+    else:
+      logging.info('Override skipped check')
     #get or create saved json, update it
     logging.debug("Autosaving")
     draft.contents = json.dumps(request.POST)
@@ -304,7 +308,7 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
     return HttpResponse("success")
 
 def AddFile(request, draft_id):
-  """ Upload a file to the draft
+  """ Upload a file to a draft
       Called by javascript in application page """
 
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
@@ -637,8 +641,8 @@ def SearchApps(request):
   return render(request, 'grants/search_applications.html', {'form':form})
 
 def get_results(fields, apps):
-  """
-    Return a list of lists.  Each list represents an app, contains selected field values
+  """ Return a list of apps
+      Each app is in list form, containing selected values
 
     Arguments:
       fields - list of fields to include
@@ -662,18 +666,9 @@ def get_results(fields, apps):
   return results
 
 # CRON
-def DeleteEmptyFiles(request): #/tools/delete-empty
-  """ Delete all 0kb files in the blobstore """
-  infos = blobstore.BlobInfo.all().filter('size =', 0)
-  count = 0
-  for i in infos:
-    count += 1
-    i.delete()
-  logging.info('Deleted ' + str(count) + 'empty files.')
-  return HttpResponse("done")
 
 def DraftWarning(request):
-  """ Warns of impending draft freeze
+  """ Warn orgs of impending draft freezes
   Do not change cron sched -- it depends on running only once/day
   7 day warning if created 7+ days before close, otherwise 3 day warning """
 
@@ -696,9 +691,18 @@ def DraftWarning(request):
 
 # UTILS (caused import probs in utils.py)
 def GetFileURLs(app):
-  """ Given a draft or application
-  return a dict of urls for viewing each of its files
-  taking into account whether it can be viewed in google doc viewer """
+  """ Get viewing urls for the files in a given draft or app
+
+    Args:
+      app: GrantApplication or DraftGrantApplication object
+
+    Returns:
+      a dict of urls for viewing each file, taking into account whether it can be viewed in google doc viewer
+      keys are the name of the django model fields. i.e. budget, budget1, funding_sources
+
+    Raises:
+      returns an empty dict if the given object is not valid
+  """
 
   #determine whether draft or submitted
   if isinstance(app, models.GrantApplication):
