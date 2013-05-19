@@ -159,6 +159,7 @@ div.ui-dialog {
   position:fixed;
   background-color:white;
   border:2px outset #8B0E04;
+  padding:5px;
 }
 
 .ui-dialog-titlebar {
@@ -171,6 +172,7 @@ div.ui-dialog {
 
 .ui-dialog-buttonset {
   text-align:center;
+  margin-top:5px;
 }
 
 .ui-dialog-titlebar-close {

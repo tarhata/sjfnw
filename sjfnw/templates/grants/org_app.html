@@ -1,7 +1,6 @@
 ﻿{% extends 'grants/base.html' %}
 {% block title %}Application form | {{block.super}}{% endblock %}
 {% block script %}
-<!--<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/smoothness/jquery-ui.min.css"></script>-->
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script type="text/javascript">
 // autosaving
@@ -17,50 +16,60 @@ var status_texts = { //for ajax error messages
   504: '504 Gateway timeout',
 }
 
-function autoSave(submit){
+function getCurrentTime(){
+  var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+  var d = new Date();
+  var h = d.getHours();
+  var m = d.getMinutes();
+  /*var s = d.getSeconds();*/
+  var dd = "a.m.";
+  if (h >= 12) {
+    h = h-12;
+    dd = "p.m.";
+  }
+  if (h == 0) {
+    h = 12;
+  }
+  m = m<10?"0"+m:m;
+  /* s = s<10?"0"+s:s; */
+  return monthNames[d.getMonth()]+' '+d.getDate()+', '+h+':'+m+dd;
+}
+
+function autoSave(submit, override){
+  if (!override){ override = 'false'; }
 	$.ajax({
 		url:"/apply/{{cycle.pk}}/autosave/{{user_override|default:'?'}}&override=" + override,
 		type:"POST",
 		data:$('form').serialize() + '&user_id=' + user_id,
 		success:function(data, textStatus, jqXHR){
 			if (jqXHR.status==200) {
-				if (submit) {
+				if (submit) { //trigger the submit button
 					var submit_all = document.getElementById('hidden_submit_app');
 					submit_all.click();
-				}
-				var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
-				var d = new Date();
-				var h = d.getHours();
-				var m = d.getMinutes();
-				/*var s = d.getSeconds();*/
-				var dd = "a.m.";
-				if (h >= 12) {
-					h = h-12;
-					dd = "p.m.";
-				}
-				if (h == 0) {
-					h = 12;
-				}
-				m = m<10?"0"+m:m;
-				/* s = s<10?"0"+s:s; */
-				var da = monthNames[d.getMonth()]+' '+d.getDate()+', '+h+':'+m+dd;
-				document.getElementById('autosaved').innerHTML=da;
-			}else{
+				} else { //update 'last saved'
+          document.getElementById('autosaved').innerHTML=getCurrentTime();
+        }
+			} else { //unexpected status code
 				document.getElementById('autosaved').innerHTML='Unknown error<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>';
 			}
 		},
 		error:function(jqXHR, textStatus, errorThrown){
 			var errortext = ''
-      if(jqXHR.status==401){
-				location.href = jqXHR.responseText + '?next=' + location.href;
-			} else if (status_texts[jqXHR.status]) {
-        errortext = status_texts[jqXHR.status]
-      } else if (textStatus=='timeout') {
-        errortext = 'Request timeout'
+      if (jqXHR.status==409){ //conflict - pause autosave and confirm override
+        window.clearInterval(autosave_timer);
+        showOverrideWarning();
       } else {
-        errortext = 'Unknown error'
+        if(jqXHR.status==401){
+          location.href = jqXHR.responseText + '?next=' + location.href;
+        } else if (status_texts[jqXHR.status]) {
+          errortext = status_texts[jqXHR.status];
+        } else if (textStatus=='timeout') {
+          errortext = 'Request timeout';
+        } else {
+          errortext = 'Unknown error';
+        }
+        document.getElementById('autosaved').innerHTML='Error: ' + errortext + '<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>';
       }
-      document.getElementById('autosaved').innerHTML='Error: ' + errortext + '<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>';
 		},
 	});
 }
@@ -85,13 +94,11 @@ var uploading = false;
 var uploading_span;
 var current_field;
 
-/* each file field has its own form
-html element ids use this pattern:
-input field: 							'id_' + fieldname
-form: 										fieldname + '_form'
-span for upload status: 	fieldname + '_uploaded'
-submit button: 						fieldname + '_submit'
-*/
+/* each file field has its own form. html element ids use this pattern:
+  input field: 							'id_' + fieldname
+  form: 										fieldname + '_form'
+  span for upload status: 	fieldname + '_uploaded'
+  submit button: 						fieldname + '_submit' */
 
 function clickFileInput(event, input_id) {
 	console.log(event);
@@ -163,8 +170,17 @@ function removeFile(field_name) {
 	});
 }
 
+if($.browser.mozilla) { //make file upload labels work in firefox
+	console.log('mozilla');
+  $(document).on('click', 'label', function(e) {
+    if(e.currentTarget === this && e.target.nodeName !== 'INPUT') {
+      $(this.control).click();
+    }
+  });
+}
+
+//user id & save override
 var user_id = '';
-var override = 0;
 
 function setUserID() {
   var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -181,39 +197,43 @@ function showOverrideWarning(){
     title: 'Warning: simultaneous editing',
     modal: true,
     buttons: [
-      {text:'Proceed anyway', click: function(){ console.log('override!'); $('#override_dialog').dialog("close"); }},
+      {text:'Proceed anyway',
+      click: function(){
+          console.log('override!');
+          $('#override_dialog').dialog("close");
+          autoSave(false, override=true);
+          autosave_timer = window.setInterval("autoSave()", 30000);
+      }},
       {text:'Cancel', click: function(){ location.href = '/apply/'; }}
     ],
     closeOnEscape: false,
     resizable: false,
-    position: {my: 'top', at: 'top', of: '#org_wrapper'}
+    position: {my: 'top+100%', at: 'top', of: '#org_wrapper'},
+    width:400,
   });
 }
 
+// doc ready
 $(document).ready(function() {
-	autosave_timer = window.setInterval("autoSave()", 30000);
+  // update char counters
 	$('.char_counter').each(function(index) {
 		var id = "id_" + this.id.replace("_counter","");
     var area = document.getElementById(id);
 		var limit = parseInt(this.innerHTML);
 		charLimitDisplay(area, limit);
 	});
+  //get iframe
 	iframe = document.getElementById("id_upload_frame");
-  //check whether it was edited recently -- show override confirmation
+  //set user id
   setUserID();
+  //check whether it was edited recently -- show override confirmation
   if ('{{flag}}'){
     showOverrideWarning();
+  } else { //if not warning, start autosave
+    autosave_timer = window.setInterval("autoSave()", 30000);
   }
 });
 
-if($.browser.mozilla) { //stackoverflow
-	console.log('mozilla');
-  $(document).on('click', 'label', function(e) {
-    if(e.currentTarget === this && e.target.nodeName !== 'INPUT') {
-      $(this.control).click();
-    }
-  });
-}
 </script>
 {%endblock%}
 

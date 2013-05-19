@@ -133,22 +133,6 @@ def OrgHome(request, organization):
     'applied':applied,
     'user_override':user_override})
 
-def check_simul(draft, user_id):
-  """ Determine whether simultaneous editing may be happening
-    @params
-      draft - DraftGrantApplication in question
-      user_id - javascript created random string
-
-    @returns
-      boolean """
-
-  last = draft.modified
-  mod_by = draft.modified_by
-  if last + datetime.timedelta(seconds=35) > timezone.now(): #edited recently
-    if mod_by and mod_by != user_id: #last save wasn't this userid
-      return True
-  return False
-
 @login_required(login_url=LOGIN_URL)
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
@@ -301,12 +285,21 @@ def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
 
   if request.method == 'POST':
     logging.info([request.GET.get('override')])
+    curr_user = request.POST.get('user_id')
+
+    #check for simultaneous editing
+    if request.GET.get('override') != 'true': #override skips this check
+      logging.info('Checking whether to autosave or require confirmation')
+      if draft.modified + datetime.timedelta(seconds=35) > timezone.now(): #edited recently
+        if draft.modified_by and draft.modified_by != curr_user: #last save wasn't this userid
+          logging.info('Requiring confirmation')
+          return HttpResponse("confirm override", status=409)
+
     #get or create saved json, update it
     logging.debug("Autosaving")
-    dict = json.dumps(request.POST)
-    draft.contents = dict
+    draft.contents = json.dumps(request.POST)
     draft.modified = timezone.now()
-    draft.modified_by = request.POST.get('user_id')
+    draft.modified_by = curr_user
     draft.save()
     return HttpResponse("success")
 
