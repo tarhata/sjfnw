@@ -47,20 +47,6 @@ def export_donors(modeladmin, request, queryset):
   count = 0
   for donor in queryset:
     fields = [donor.firstname, donor.lastname, donor.phone, donor.email, donor.membership.member, donor.membership.giving_project, donor.amount, donor.asked, donor.pledged, donor.gifted, donor.notes]
-    """ for i in fields:
-      pr = unicode(i)
-      if isinstance(i, str):
-        pr += ' str'
-      elif isinstance(i, unicode):
-        pr += ' uni'
-      else:
-        pr += ' ??'
-      logging.info([pr])
-      #logging.info(str(pr))
-      logging.info([pr.encode('utf-8')])
-      #logging.info([pr.decode('iso-8859-1').encode('utf8')])
-      #logging.info(pr.encode('ISO-8859-1'))
-      """
     writer.writerow(fields)
     count += 1
   logging.info(str(count) + ' donors exported')
