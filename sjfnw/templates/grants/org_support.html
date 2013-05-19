@@ -13,7 +13,7 @@
     }
     return true;
   }
-  
+
   function trackSupport(item) { //analytics events
 		if (item) {
 			_gaq.push(['_trackEvent', 'Grants support', item]);
@@ -24,51 +24,103 @@
 
 {% block content %}
 
-<div align="center"><h2>Support</h2></div>
+<div align="center"><h2>Online Grant Application Support</h2></div>
 
-<div id="FAQ">
-  <h3>Applying for a grant</h3><!-- Applying -->
-  <div class = "indent">
-    <a class ="FAQ" onclick="toggle('eligibility')">Eligibility</a>
-    <div class="indent hidden" id="eligibility">
-      Please review our <a href="http://socialjusticefund.org/apply-grant">eligibility criteria</a> before applying for a grant.
-    </div>
-    <a class ="FAQ" onclick="toggle('application_process')">Application process</a>
-    <div class="indent hidden" id="application_process">
-      1. Register for an account<br>All this requires is an email, password, and your organization's name.  Choose an email that you expect to have access to in future years.<br>
-      2. Fill out the online form<br>
-      <ul><li>Your home page has a links of Social Justice Fund grant cycles.  Click the link on an open cycle to begin filling out the form.</li>
-      <li>Progress on the application is automatically saved every 30 seconds.  You can close the window and find it later under "saved drafts" on your home page.</li>
-      <li>Upload documents at the end of the form: budget files, grant funding sources and diversity chart.</li></ul>
-    </div>
-    <!--
-    <a class ="FAQ" onclick="toggle('faq-6')">Saved drafts</a>
-    <div class="indent hidden" id="faq-6">
-      Applications are automatically saved as you work and can be
-    </div> -->
-    <!-- ADD
-    file types
-    profile autofill
-    -->
+<div id="FAQ" style="width:80%;margin-left:10%;">
+  <h3>Accounts</h3><!-- accounts -->
+
+  <a class ="FAQ" onclick="toggle('registration')">Registration</a>
+  <div class="indent hidden" id="registration">
+    Each organization may register a single account.  Registration requires is an email, password, and your organization's name.  <br><br>
+    The email you choose is for account purposes; you will have an opportunity to put a specific contact person on each grant application you submit.  Choose an email that you expect to have access to in future years and that could be used to log in by multiple staff members as needed.<br>
   </div>
-  <h3>Accounts</h3><!-- Accounts -->
-  <div class = "indent">
-    <a class ="FAQ" onclick="toggle('password')">Lost password</a>
-    <div class="indent hidden" id="password">
-      If you've forgotten your password, you can <a href="/apply/reset">reset it</a>.  You'll need to enter the email that was used to register your organization - a link to continue the reset process will be sent to that address.
-    </div>
-    <a class ="FAQ" onclick="toggle('forgot_login')">Forgotten email/login</a>
-    <div class="indent hidden" id="forgot_login">
-      If you forgot or no longer have access to the email used to register your organization, please contact us to have the email on your account updated.
-    </div>
+
+  <a class ="FAQ" onclick="toggle('password')">Lost password</a>
+  <div class="indent hidden" id="password">
+    If you've forgotten your password, you can <a href="/apply/reset">reset it</a>.  You'll need to enter the email that was used to register your organization - a link to continue the reset process will be sent to that address.
   </div>
+
+  <a class ="FAQ" onclick="toggle('forgot_login')">Forgotten email/login</a>
+  <div class="indent hidden" id="forgot_login">
+    If you forgot or no longer have access to the email used to register your organization, please contact us to have the email on your account updated.
+  </div>
+
+  <h3>Using the online grant application</h3><!-- using online grant app -->
+
+  <a class ="FAQ" onclick="toggle('overview')">Overview</a>
+  <div class="indent hidden" id="overview">
+    <ul>
+      <li>Your home page has a links of Social Justice Fund grant cycles - current, recently closed and upcoming.</li>
+      <li>Click the link on an open cycle to see more details about that cycle.  Hit continue to begin filling out the form.</li>
+      <li>Progress on applications is automatically saved every 30 seconds - see the "last saved" text at the top of the page.  You can close the window and find it later under "saved drafts" on your home page.</li>
+      <li>Upload documents at the end of the form: budget files, grant funding sources, fiscal letter (if applicable) and diversity chart.</li>
+      <li>Hit Submit at the bottom to submit your grant application.  You may be asked to fix missing or incomplete fields and submit again.  After a successful submission, you will be taken to a confirmation page and will also receive a confirmation email.</li>
+    </ul>
+    See the sections below for more details on any part of the application process.  If you have a question that is not answered, contact us.
+  </div>
+
+  <a class ="FAQ" onclick="toggle('autosave')">Draft autosave</a>
+  <div class="indent hidden" id="autosave">
+    Files are automatically saved to your draft when they are uploaded.  When the link appears next to the file field, that indicates that the file has been stored.  All other fields are saved every 30 seconds.  The "last saved" text at the top of the screen shows when the last autosave occurred or if there was an error.
+    <br><br>
+    You can access your saved drafts on your home page.
+  </div>
+
+  <a class ="FAQ" onclick="toggle('rollover')">Tools - Copy/rollover</a>
+  <div class="indent hidden" id="autosave">
+    This tool allows you to copy an existing draft or submitted application into another grant cycle.
+    <ul>
+      <li>The draft/application being copied is not affected</li>
+      <li>Everything is copied except for the additional cycle-specific narrative question, if applicable</li>
+      <li>The new copy will be created as a draft so you'll be free to change/delete it</li>
+      <li>You can not copy into a cycle that you already submitted to, or that you have a draft in progress for.  If you want to replace that draft, discard it and then do the rollover</li>
+    </ul>
+  </div>
+
+  <h3>Troubleshooting</h3><!-- troubleshooting -->
+
+  <a class ="FAQ" onclick="toggle('reporting_bugs')">Reporting a problem</a>
+  <div class="indent hidden" id="reporting_bugs">
+    If you are experiencing a problem with the online grant application, please let us know.
+    <ol><li>Make sure you have checked this page to see if it addresses your issue</li>
+    <li><b><a onclick="trackSupport('form');" href="{{support_form}}{{request.user.username}}" target="_blank">File a bug report</a></b>.  It is easy and quick.  Try to include as much detail as possible about the issue you are having; this will help us locate and resolve the problem more quickly.</li></ol>
+    Feel free to also use that form to make suggestions or give other feedback.
+  </div>
+
+  <a class ="FAQ" onclick="toggle('file_problems')">Unable to upload file(s)</a>
+  <div class="indent hidden" id="file_problems">
+    If you are using Internet Explorer 9:<br>
+    Unfortunately there is a <a href="http://support.microsoft.com/kb/2601307" target="_blank">known bug</a> in some versions of IE9 that prevent our file upload system from working.  Microsoft suggests a <a href="http://update.microsoft.com" target="_blank">security update</a>.  You can also try using <a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">Chrome</a> or <a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">Firefox</a>.
+    <br><br>
+    Other browsers:<br>
+    If you are experiencing a problem with file uploads please <a onclick="trackSupport('form');" href="{{support_form}}{{request.user.username}}" target="_blank">file a bug report</a>.  Follow the form instructions for including as much detail as you can.
+  </div>
+
+  <a class ="FAQ" onclick="toggle('simul_editing')">Warning: simultaneous editing</a>
+  <div class="indent hidden" id="simul_editing">
+    A grant application draft should only be edited by one person at a time.  Multiple users editing an application at the same time will result in changes being overwritten and lost.
+    <br><br>
+    To prevent this from happening accidentally, we implemented a confirmation window any time there is a risk of overwrite.
+    <br><br>
+    Seeing this warning does not necessarily mean someone else is using your login.  You may have left the page open in another tab, browser, or on another computer.
+  </div>
+
+  <a class ="FAQ" onclick="toggle('error_filetype')">Error message: file type not supported</a>
+  <div class="indent hidden" id="error_filetype">
+    The following file types are supported:
+    <div class="indent">doc/docx, xls/xlsx, ppt/pptx, pdf, txt, jpeg/jpg, png, gif, bmp</div>
+    If you saw this error despite using one of those types, or if you believe a file type should be added to that list, please contact us.
+  </div>
+
+  <a class ="FAQ" onclick="toggle('error_timeone')">Error message: request timeout</a>
+  <div class="indent hidden" id="error_timeone">
+    A timeout error generally means that the server is temporarily overloaded and could not handle the request.  If you see this message, wait a minute or two and try again.  If you continue to get this message, <a onclick="trackSupport('form');" href="{{support_form}}{{request.user.username}}" target="_blank">file a bug report</a>.
+  </div>
+
+  <h3 name="contact">Contact us</h3><!-- contact -->
+
+  <p>For technical support, use our <a onclick="trackSupport('form');" href="{{support_form}}{{request.user.username}}" target="_blank">online form</a> or send us an email at <a onclick="trackSupport('support_email');" href="mailto:{{support_email}}">{{support_email}}</a>.</p>
+
+  <p>For more information about Social Justice Fund in general, visit <a href="http://socialjusticefund.org" target="_blank">our website</a>.</p>
 </div> <!-- ends div id FAQ -->
-<h3 name="contact">Contact us</h3>
-
-<p>For questions related to Social Justice Fund's granting process, please see the information page for each grant cycle. You can find a link to this page on your <a href="/apply/">home page</a> for Social Justice Fund's online grant application.</p>
-
-<p>For technical support, use our <a onclick="trackSupport('form');" href="{{support_form}}{{request.user.username}}" target="_blank">online form</a> or send us an email at <a onclick="trackSupport('support_email');" href="mailto:{{support_email}}">{{support_email}}</a>.</p>
-
-<p>For more information about Social Justice Fund in general, visit <a href="http://socialjusticefund.org" target="_blank">our website</a>.</p>
-
 {% endblock %}
