@@ -1,0 +1,61 @@
+{% extends 'grants/reading.html' %}
+
+{% block scripts %}
+<script type="text/javascript">
+	var main_div;
+	var frame;
+	function showMain(){
+		console.log('displaying main content');
+		main_div.style.display = '';
+		frame.style.display = 'none';
+	}
+
+	function showAttachment(){
+		if (frame){
+			console.log('Displaying iframe');
+			frame.style.display = '';
+			main_div.style.display = 'none';
+		}
+	}
+
+	$(document).ready(function() {
+		console.log('doc is ready');
+		main_div = document.getElementById('main_content');
+		frame = document.getElementById('reading_frame');
+	})
+</script>
+{% endblock %}
+
+{% block sidebar %}
+<div class="reading_sidebar"><!-- sidebar -->
+	<div class="title">
+		<div class="heading_sm_margin">{{app.organization}}</div>
+		<div class="heading_sm_margin">{{app.grant_cycle}}</div>
+		{{app.submission_time|date:"F j, Y"}}
+	</div>
+	<div class="contents">
+		<a onclick="showMain()">Application form</a><br><br>
+		Uploaded files:
+		<ol class="contents">
+			{% if app.fiscal_letter and perm > 1 %}
+			<li><a href="{{file_urls.fiscal_letter}}" target="reading_frame">Fiscal letter</a></li>
+			{% endif %}
+			{% if app.budget %}
+			<li><a href="{{file_urls.budget}}" target="reading_frame">Budget</a></li>
+			{% else %}
+			<li><a href="{{file_urls.budget1}}" target="reading_frame">Annual statement</a></li>
+			<li><a href="{{file_urls.budget2}}" target="reading_frame">Annual operating budget</a></li>
+			{% if app.budget3 %}
+			<li><a href="{{file_urls.budget3}}" target="reading_frame">Balance sheet</a></li>
+			{% endif %}
+			{% if app.project_budget_file %}
+			<li><a href="{{file_urls.project_budget_file}}" target="reading_frame">Project budget</a></li>
+			{% endif %}
+			{% endif %}
+			<li><a href="{{file_urls.funding_sources}}" target="reading_frame">Funding sources</a></li>
+			<li><a href="{{file_urls.demographics}}" target="reading_frame">Diversity chart</a></li>
+		</ol>
+		<div style="margin-top:20px;font-size:.75em;">Shift+click to open attachments in a new tab for printing</div>
+	</div>
+</div>
+{% endblock %}

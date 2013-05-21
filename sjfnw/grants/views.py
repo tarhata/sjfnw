@@ -157,6 +157,9 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   draft, cr = models.DraftGrantApplication.objects.get_or_create(organization = organization, grant_cycle=cycle)
   profiled = False
 
+  #TEMP HACK
+  flag = False
+
   if request.method == 'POST': #POST
 
     #check if draft can be submitted
@@ -494,9 +497,13 @@ def ReadApplication(request, app_id):
   if perm == 0:
     return redirect(CannotView)
   form = models.GrantApplicationModelForm(app.grant_cycle)
+
+  form_only = request.GET.get('form')
+  if form_only:
+    return render(request, 'grants/reading.html', {'app':app, 'form':form, 'user':user, 'perm':perm})
   file_urls = GetFileURLs(app)
 
-  return render(request, 'grants/reading.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls, 'perm':perm})
+  return render(request, 'grants/reading_sidebar.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls, 'perm':perm})
 
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)

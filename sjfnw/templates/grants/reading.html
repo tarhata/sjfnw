@@ -9,15 +9,15 @@
 	<script type="text/javascript"><!--google analytics -->
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-28076150-2']);
-    
+
     //custom variable #1 user type, session level
-    _gaq.push(['_setCustomVar', 1, 'User type', {% if user.username == 'sjfnwads@gmail.com' %}'Aisa'{% elif user.is_staff %}'Staff'{% elif perm == 3 %}'Organization'{% elif perm == 1 %}'Member'{% else %}'Unknown'{% endif %}, 2]); 
-    
+    _gaq.push(['_setCustomVar', 1, 'User type', {% if user.username == 'sjfnwads@gmail.com' %}'Aisa'{% elif user.is_staff %}'Staff'{% elif perm == 3 %}'Organization'{% elif perm == 1 %}'Member'{% else %}'Unknown'{% endif %}, 2]);
+
 		{% if request.membership %}
 		//custom variable #2 giving project, page level
     _gaq.push(['_setCustomVar', 2, 'Giving project', '{{request.membership.giving_project}}', 3]);
 		{% endif %}
-		
+
     _gaq.push(['_trackPageview']);
 
     (function() {
@@ -26,63 +26,11 @@
       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
   </script>
-	<script type="text/javascript">
-	var main_div;
-	var frame;
-	function showMain(){
-		console.log('displaying main content');
-		main_div.style.display = '';
-		frame.style.display = 'none';
-	}
-	
-	function showAttachment(){
-		if (frame){
-			console.log('Displaying iframe');
-			frame.style.display = '';
-			main_div.style.display = 'none';
-		}
-	}
-	
-	$(document).ready(function() {
-		console.log('doc is ready');
-		main_div = document.getElementById('main_content');
-		frame = document.getElementById('reading_frame');
-	})
-	</script>
+  {% block scripts %}{% endblock %}
 </head>
 
 <body>
-<div class="reading_sidebar"><!-- sidebar -->
-	<div class="title">
-		<div class="heading_sm_margin">{{app.organization}}</div>
-		<div class="heading_sm_margin">{{app.grant_cycle}}</div>
-		{{app.submission_time|date:"F j, Y"}}
-	</div>
-	<div class="contents">
-		<a onclick="showMain()">Application form</a><br><br>
-		Uploaded files:
-		<ol class="contents">
-			{% if app.fiscal_letter and perm > 1 %}
-			<li><a href="{{file_urls.fiscal_letter}}" target="reading_frame">Fiscal letter</a></li>
-			{% endif %}
-			{% if app.budget %}
-			<li><a href="{{file_urls.budget}}" target="reading_frame">Budget</a></li>
-			{% else %}
-			<li><a href="{{file_urls.budget1}}" target="reading_frame">Annual statement</a></li>
-			<li><a href="{{file_urls.budget2}}" target="reading_frame">Annual operating budget</a></li>
-			{% if app.budget3 %}
-			<li><a href="{{file_urls.budget3}}" target="reading_frame">Balance sheet</a></li>
-			{% endif %}
-			{% if app.project_budget_file %}
-			<li><a href="{{file_urls.project_budget_file}}" target="reading_frame">Project budget</a></li>
-			{% endif %}
-			{% endif %}
-			<li><a href="{{file_urls.funding_sources}}" target="reading_frame">Funding sources</a></li>
-			<li><a href="{{file_urls.demographics}}" target="reading_frame">Diversity chart</a></li>			
-		</ol>
-		<div style="margin-top:20px;font-size:.75em;">Shift+click to open attachments in a new tab for printing</div>
-	</div>
-</div>
+{% block sidebar %}{% endblock %}<!--sidebar spot -->
 
 <div class="reading_pane">
 	<!-- main content -->
@@ -101,7 +49,7 @@
 			</tr><tr>
 				<td><b>{{form.contact_person.help_text}}</b></td>
 				<td>{{app.contact_person}}, {{app.contact_person_title}}</td>
-			</tr><tr>	
+			</tr><tr>
 				<td>{{form.status.label_tag}}{{app.status}}</td>
 				<td>{{form.founded.label_tag}}{{app.founded}}</td>
 			</tr><tr>
