@@ -145,6 +145,7 @@ div.formwrapper input[type="text"] {
 }
 
 /* jquery ui dialog */
+
 .ui-widget-overlay {
 	position: fixed;
 	top: 0;

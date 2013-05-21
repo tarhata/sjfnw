@@ -32,7 +32,8 @@
 <body>
 {% block sidebar %}{% endblock %}<!--sidebar spot -->
 
-<div class="reading_pane">
+
+{% block main %}
 	<!-- main content -->
 	<div id="main_content">
 	{% autoescape off %}{% load humanize %}
@@ -126,7 +127,6 @@
 		{% endif %}
 	{% endautoescape %}
 	</div>
-	<iframe id="reading_frame" name="reading_frame" src="" onload='showAttachment()' style="display:none;"><!-- file attachments -->
-</div>
+{% endblock %}
 
 </body>

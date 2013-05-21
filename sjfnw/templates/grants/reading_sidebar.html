@@ -59,3 +59,10 @@
 	</div>
 </div>
 {% endblock %}
+
+{% block main %}
+<div class="reading_pane">
+  {{ block.super }}
+  <iframe id="reading_frame" name="reading_frame" src="" onload='showAttachment()' style="display:none;"><!-- file attachments -->
+</div>
+{% endblock %}
