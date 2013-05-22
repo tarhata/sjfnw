@@ -342,6 +342,12 @@ div.contents{
   line-height:1.3em;
 }
 
+img.print {
+  vertical-align:middle;
+  padding-right:5px;
+  float:right;
+}
+
 ol.contents{
   margin-top:0;
 }

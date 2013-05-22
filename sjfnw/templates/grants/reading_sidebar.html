@@ -18,6 +18,13 @@
 		}
 	}
 
+  function printAll(){
+    window.open(location.href + '?form=1', '_blank');
+    {% for file, url in file_urls.items %}{% if url %}
+    setTimeout(function(){ window.open('{{url}}', '_blank'); }, {% widthratio forloop.counter 1 2000 %});
+    {% endif %}{% endfor %}
+  }
+
 	$(document).ready(function() {
 		console.log('doc is ready');
 		main_div = document.getElementById('main_content');
@@ -34,28 +41,27 @@
 		{{app.submission_time|date:"F j, Y"}}
 	</div>
 	<div class="contents">
-		<a onclick="showMain()">Application form</a><br><br>
+		<a onclick="showMain()">Application form</a><a href="?form=1" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a><br><br>
 		Uploaded files:
 		<ol class="contents">
 			{% if app.fiscal_letter and perm > 1 %}
-			<li><a href="{{file_urls.fiscal_letter}}" target="reading_frame">Fiscal letter</a></li>
+			<li><a href="{{file_urls.fiscal_letter}}" target="reading_frame">Fiscal letter</a><a href="{{file_urls.fiscal_letter}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a></li>
 			{% endif %}
 			{% if app.budget %}
-			<li><a href="{{file_urls.budget}}" target="reading_frame">Budget</a></li>
+			<li><a href="{{file_urls.budget}}" target="reading_frame">Budget</a><a href="{{file_urls.budget}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a></li>
 			{% else %}
-			<li><a href="{{file_urls.budget1}}" target="reading_frame">Annual statement</a></li>
-			<li><a href="{{file_urls.budget2}}" target="reading_frame">Annual operating budget</a></li>
+			<li><a href="{{file_urls.budget1}}" target="reading_frame">Annual statement</a><a href="{{file_urls.budget1}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a></li>
+			<li><a href="{{file_urls.budget2}}" target="reading_frame">Annual operating budget</a><a href="{{file_urls.budget2}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a></li>
 			{% if app.budget3 %}
-			<li><a href="{{file_urls.budget3}}" target="reading_frame">Balance sheet</a></li>
+			<li><a href="{{file_urls.budget3}}" target="reading_frame">Balance sheet</a><a href="{{file_urls.budget3}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a></li>
 			{% endif %}
 			{% if app.project_budget_file %}
-			<li><a href="{{file_urls.project_budget_file}}" target="reading_frame">Project budget</a></li>
+			<li><a href="{{file_urls.project_budget_file}}" target="reading_frame">Project budget</a><a href="{{file_urls.project_budget_file}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a></li>
 			{% endif %}
 			{% endif %}
-			<li><a href="{{file_urls.funding_sources}}" target="reading_frame">Funding sources</a></li>
-			<li><a href="{{file_urls.demographics}}" target="reading_frame">Diversity chart</a></li>
+			<li><a href="{{file_urls.funding_sources}}" target="reading_frame">Funding sources</a><a href="{{file_urls.funding_sources}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a></li>
+			<li><a href="{{file_urls.demographics}}" target="reading_frame">Diversity chart</a><a href="{{file_urls.demographics}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a></li>
 		</ol>
-		<div style="margin-top:20px;font-size:.75em;">Shift+click to open attachments in a new tab for printing</div>
 	</div>
 </div>
 {% endblock %}
