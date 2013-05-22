@@ -19,7 +19,6 @@ class StepCompleteTest(TestCase):
   fixtures = ['test_fund.json',]
 
   def setUp(self):
-    print(sys.path)
     logInTesty(self)
 
   def test_valid_asked(self):
