@@ -620,7 +620,6 @@ class DraftExtension(TestCase):
     self.assertTrue(new.editable)
     self.assertIn('/admin/grants/draftgrantapplication/', response.__getitem__('location'), )
 
-
   def test_org_drafts_list(self):
     pass
 
@@ -639,12 +638,17 @@ class Draft(TestCase):
     complete_draft = DraftGrantApplication.objects.get(pk=2)
     new_draft = DraftGrantApplication(organization = Organization.objects.get(pk=2), grant_cycle = GrantCycle.objects.get(pk=5))
     new_draft.save()
-    dict = json.loads(complete_draft.contents)
+    dic = json.loads(complete_draft.contents)
+    #fake a user id like the js would normally do
+    dic['user_id'] = 'asdFDHAF34qqhRHFEA'
+    self.maxDiff = None
 
-    response = self.client.post('/apply/5/autosave/', dict)
+    response = self.client.post('/apply/5/autosave/', dic)
     self.assertEqual(200, response.status_code)
     new_draft = DraftGrantApplication.objects.get(organization_id =2, grant_cycle_id=5)
-    self.assertEqual(json.loads(complete_draft.contents), json.loads(new_draft.contents))
+    new_c = json.loads(new_draft.contents)
+    del new_c['user_id']
+    self.assertEqual(json.loads(complete_draft.contents), new_c)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ViewGrantPermissions(TestCase):
