@@ -268,10 +268,8 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Save non-file fields to a draft """
 
-  #check user is logged in
   if not request.user.is_authenticated():
     return HttpResponse(LOGIN_URL, status=401)
-  #get username
   username = request.user.username
   #check for staff impersonating an org - override username
   if request.user.is_staff and request.GET.get('user'):
