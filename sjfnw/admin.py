@@ -173,6 +173,10 @@ def edit_application(obj): #GrantApplication fieldset
   return '<a href="/admin/grants/grantapplication/' + str(obj.pk) + '/" target="_blank">Edit</a>'
 edit_application.allow_tags = True
 
+def adv_viewdraft(obj): #Link from Draft inline on Org to Draft page
+  return '<a href="/admin-advanced/grants/draftgrantapplication/' + str(obj.pk) + '/" target="_blank">View</a>'
+adv_viewdraft.allow_tags = True
+
 # inlines
 class GrantApplicationCycleInline(admin.TabularInline): #Cycle
   model = GrantApplication
@@ -189,6 +193,14 @@ class GrantApplicationInline(admin.TabularInline): #Org
   can_delete = False
   readonly_fields = ('submission_time', 'grant_cycle', 'screening_status', edit_application, 'view_link')
   fields = ('submission_time', 'grant_cycle', 'screening_status', edit_application, 'view_link')
+
+class DraftInline(admin.TabularInline): #Adv only
+  model = DraftGrantApplication
+  extra = 0
+  max_num = 0
+  can_delete = False
+  readonly_fields = ('grant_cycle', 'modified', 'overdue', 'extended_deadline', adv_viewdraft)
+  fields = ('grant_cycle', 'modified', 'overdue', 'extended_deadline', adv_viewdraft)
 
 class GrantLogInlineRead(admin.TabularInline): #Org, Application
   model = GrantApplicationLog
@@ -278,6 +290,9 @@ class OrganizationA(admin.ModelAdmin):
   readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone', 'fiscal_address', 'fiscal_email', 'fiscal_letter')
   inlines = [GrantApplicationInline, GrantLogInlineRead, GrantLogInline]
 
+class OrganizationAdvA(OrganizationA):
+  inlines = [GrantApplicationInline, DraftInline, GrantLogInlineRead, GrantLogInline]
+
 class GrantApplicationA(admin.ModelAdmin):
   form = AppAdminForm
   fieldsets = (
@@ -346,6 +361,6 @@ advanced_admin.register(ProjectResource)
 advanced_admin.register(Resource)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
-advanced_admin.register(Organization, OrganizationA)
+advanced_admin.register(Organization, OrganizationAdvA)
 advanced_admin.register(GrantApplication, GrantApplicationA)
 advanced_admin.register(DraftGrantApplication, DraftAdv)
