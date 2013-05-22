@@ -304,6 +304,7 @@ def FundLogin(request):
       error_msg ="Your login and password didn't match."
   else:
     form = LoginForm()
+  logging.info(error_msg)
   return render(request, 'fund/login.html', {'form':form, 'error_msg':error_msg})
 
 def Register(request):
@@ -357,6 +358,7 @@ def Register(request):
   else: #GET
     register = RegistrationForm()
 
+  logging.info(error_msg)
   return render(request, 'fund/register.html', {'form':register, 'error_msg':error_msg})
 
 @login_required(login_url='/fund/login/')

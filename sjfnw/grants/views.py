@@ -44,6 +44,7 @@ def OrgLogin(request):
   else:
     form = LoginForm()
   register = RegisterForm()
+  logging.info(login_errors)
   return render(request, 'grants/org_login_register.html', {'form':form, 'register':register, 'login_errors':login_errors})
 
 def OrgRegister(request):
@@ -84,6 +85,7 @@ def OrgRegister(request):
   else: #GET
     register = RegisterForm()
   form = LoginForm()
+  logging.info(register_error)
   return render(request, 'grants/org_login_register.html', {'form':form, 'register':register, 'register_errors':register_error})
 
 def OrgSupport(request):
