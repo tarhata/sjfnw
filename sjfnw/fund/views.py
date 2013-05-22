@@ -63,8 +63,6 @@ def Home(request):
 
   #top content
   news, grants = get_block_content(membership, first=False)
-  logging.info(news)
-  logging.info(grants)
   header = membership.giving_project.title
 
   #donors
@@ -115,6 +113,7 @@ def Home(request):
       progress['header'] = '$%s raised' % intcomma(progress['pledged'] + progress['donated'])
   else:
     progress['contactsremaining'] = 0
+  logging.info(progress)
 
   notif = membership.notifications
   if notif and not settings.DEBUG: #on live, only show a notification once
@@ -187,9 +186,11 @@ def Home(request):
     else: #no donors - showing mass form
       donor_list, upcoming_steps = [], [] #FIX
       if est:
+        logging.info('No donors - showing add contacts form with estimates')
         ContactFormset = formset_factory(MassDonor, extra=5)
         mult_template = 'fund/add_mult.html'
       else:
+        logging.info('No donors - showing add contacts form without estimates')
         ContactFormset = formset_factory(MassDonorPre, extra=5)
         mult_template = 'fund/add_mult_pre.html'
       formset = ContactFormset()
