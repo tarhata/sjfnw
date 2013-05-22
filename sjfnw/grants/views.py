@@ -426,6 +426,7 @@ def CopyApp(request, organization):
 
     else: #INVALID FORM
       logging.warning('form invalid')
+      logging.info(form.errors)
       cycle_count = str(form['cycle']).count('<option value')
       apps_count = str(form['application']).count('<option value') + str(form['draft']).count('<option value')
 
