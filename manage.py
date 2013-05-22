@@ -8,7 +8,7 @@ if __name__ == "__main__":
   from django.core.management import execute_from_command_line
 
   #test setup - hacky?
-  sys.path.append(os.path.dirname(__file__) + '/sjfnw')
+  sys.path.append(os.path.dirname(__file__) + '/sjfnw') #for windows, use '\\sjfnw' instead
   sys.path.append('/home/aisa/Devel/google_appengine/lib/webob-1.2.3')
   #print("\n".join(sys.path))
 
