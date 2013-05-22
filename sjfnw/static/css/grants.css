@@ -249,6 +249,7 @@ span.file_wrapper {
 }
 
 span.upload_button {
+  cursor: pointer;
   padding: 0px 8px;
   appearance:button;
   -moz-appearance:button; /* Firefox */
