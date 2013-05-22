@@ -37,6 +37,10 @@
 	<!-- main content -->
 	<div id="main_content">
 	{% autoescape off %}{% load humanize %}
+  {% if not file_urls %}<!-- loaded in its own window -->
+    <div class="title"><h2>{{app.organization}} - {{app.grant_cycle}}</h2>
+		{{app.submission_time|date:"F j, Y"}}</div>
+  {% endif %}
 		<h2>Organization and Grant Request Profile</h2><!-- Profile -->
 		<table style="width:100%;">
 			<tr>
