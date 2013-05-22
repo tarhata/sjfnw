@@ -18,7 +18,7 @@ import unicodecsv as csv
 import fund.forms, fund.utils
 import logging, re
 
-## Fund 
+## Fund
 
 # display methods
 def step_membership(obj): #Step list_display
@@ -33,7 +33,7 @@ def approve(modeladmin, request, queryset): #Membership action
   logging.info('Approval button pressed; looking through queryset')
   for memship in queryset:
     if memship.approved == False:
-      fund.utils.NotifyApproval(memship)  
+      fund.utils.NotifyApproval(memship)
   queryset.update(approved=True)
   logging.info('Approval queryset updated')
 
@@ -42,38 +42,24 @@ def export_donors(modeladmin, request, queryset):
   response = HttpResponse(mimetype='text/csv')
   response['Content-Disposition'] = 'attachment; filename=prospects.csv'
   writer = csv.writer(response)
-  
+
   writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member', 'Giving Project', 'Amount to ask', 'Asked', 'Pledged', 'Gifted', 'Notes'])
   count = 0
   for donor in queryset:
     fields = [donor.firstname, donor.lastname, donor.phone, donor.email, donor.membership.member, donor.membership.giving_project, donor.amount, donor.asked, donor.pledged, donor.gifted, donor.notes]
-    """ for i in fields:
-      pr = unicode(i)
-      if isinstance(i, str):
-        pr += ' str'
-      elif isinstance(i, unicode):
-        pr += ' uni'
-      else:
-        pr += ' ??'
-      logging.info([pr])
-      #logging.info(str(pr))
-      logging.info([pr.encode('utf-8')])
-      #logging.info([pr.decode('iso-8859-1').encode('utf8')])
-      #logging.info(pr.encode('ISO-8859-1'))
-      """
     writer.writerow(fields)
     count += 1
   logging.info(str(count) + ' donors exported')
   return response
-  
+
 # Filters
 class PledgedBooleanFilter(SimpleListFilter): #donors & steps
   title = 'pledged'
   parameter_name = 'pledged_tf'
-  
+
   def lookups(self, request, model_admin):
       return (('True', 'Pledged'), ('False', 'Declined'), ('None', 'None entered'))
-      
+
   def queryset(self, request, queryset):
     if self.value() == 'True':
       return queryset.filter(pledged__gt=0)
@@ -85,10 +71,10 @@ class PledgedBooleanFilter(SimpleListFilter): #donors & steps
 class GiftedBooleanFilter(SimpleListFilter): #donors & steps
   title = 'gifted'
   parameter_name = 'gifted_tf'
-  
+
   def lookups(self, request, model_admin):
       return (('True', 'Gift received'), ('False', 'No gift received'))
-      
+
   def queryset(self, request, queryset):
     if self.value() == 'True':
       return queryset.filter(gifted__gt=0)
@@ -138,7 +124,7 @@ class GivingProjectA(admin.ModelAdmin):
    )
   inlines = [ProjectResourcesInline, MembershipInline]
   form = GivingProjectAdminForm
-  
+
 class MemberAdvanced(admin.ModelAdmin): #advanced only
   list_display = ('first_name', 'last_name', 'email')
   search_fields = ['first_name', 'last_name', 'email']
@@ -220,7 +206,7 @@ class GrantLogInline(admin.TabularInline): #Org, Application
   exclude = ('date',)
   can_delete = False
   verbose_name_plural = 'Add a log entry'
-  
+
   def queryset(self, request):
     return GrantApplicationLog.objects.none()
 
@@ -237,21 +223,21 @@ class GrantLogInline(admin.TabularInline): #Org, Application
 
 # forms
 class AppAdminForm(ModelForm):
-  
+
   def clean(self):
     cleaned_data = super(AppAdminForm, self).clean()
     status = cleaned_data.get("screening_status")
     if status >=100:
       logging.info('Require check details')
     return cleaned_data
-    
+
   class Meta:
     model = GrantApplication
 
 class DraftForm(ModelForm):
   class Meta:
     model = DraftGrantApplication
-  
+
   def clean(self):
     cleaned_data = super(DraftForm, self).clean()
     org = cleaned_data.get('organization')
@@ -300,29 +286,29 @@ class GrantApplicationA(admin.ModelAdmin):
     'Administration', {'fields': (('screening_status', 'giving_project'),('scoring_bonus_poc', 'scoring_bonus_geo'), (revert_grant, rollover))}
     )
   readonly_fields = (organization_link, 'grant_cycle', 'submission_time', 'view_link', revert_grant, rollover)
-  list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')  
+  list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')
   list_filter = ('grant_cycle', 'screening_status')
   inlines = [GrantLogInlineRead, GrantLogInline]
-  
+
   def has_add_permission(self, request):
     return False
-  
+
 class DraftGrantApplicationA(admin.ModelAdmin):
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
   list_filter = ('grant_cycle',) #extended
   fields = (('organization', 'grant_cycle', 'modified'), ('extended_deadline'))
   readonly_fields = ('modified',)
   form = DraftForm
-  
+
   def get_readonly_fields(self, request, obj=None):
     if obj is not None: #editing - lock org & cycle
-      return self.readonly_fields + ('organization', 'grant_cycle')   
+      return self.readonly_fields + ('organization', 'grant_cycle')
     return self.readonly_fields
 
 class DraftAdv(admin.ModelAdmin): #Advanced
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
   list_filter = ('grant_cycle',) #extended
-  fields = (('organization', 'grant_cycle', 'created', 'modified'), 'contents', 'budget', 'demographics', 'funding_sources', 'fiscal_letter', 'budget1', 'budget2', 'budget3', 'project_budget_file',)
+  fields = (('organization', 'grant_cycle', 'created', 'modified', 'modified_by'), 'contents', 'budget', 'demographics', 'funding_sources', 'fiscal_letter', 'budget1', 'budget2', 'budget3', 'project_budget_file',)
   readonly_fields = ('organization', 'grant_cycle', 'modified', 'budget', 'demographics', 'funding_sources', 'fiscal_letter', 'budget1', 'budget2', 'budget3', 'project_budget_file',)
 
 # Register - basic

@@ -10,13 +10,17 @@ import sys, datetime, re, json, unittest
 from sjfnw.constants import TEST_MIDDLEWARE
 from sjfnw.fund.models import Member, GivingProject
 
+""" NOTE: some tests depend on having these files in sjfnw/media
+  budget.docx      diversity.doc      funding_sources.docx
+  budget1.docx     budget2.txt         budget3.png  """
+
 def setCycleDates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
       open, open, closed, upcoming, open """
-      
+
   now = timezone.now()
   ten_days = datetime.timedelta(days=10)
-  
+
   cycle = GrantCycle.objects.get(pk=1)
   cycle.open = now - ten_days
   cycle.close = now + ten_days
@@ -88,100 +92,100 @@ def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class Register(TestCase):
 
-  fixtures = ['test_grants.json',] 
-  
+  fixtures = ['test_grants.json',]
+
   def setUp(self):
     pass
-  
+
   def valid_registration(self):
-    
+    print(sys.path)
     registration = {
       'email': 'uniquenewyork@gmail.com',
       'password': 'one',
       'passwordtwo': 'one',
       'organization': 'Unique, New York'
       }
-    
+
     self.assertEqual(0, Organization.objects.filter(name='Unique, New York').count())
     self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
-    
+
     response = self.client.post('/apply/register', registration, follow=True)
-    
+
     self.assertEqual(1, Organization.objects.filter(name='Unique, New York').count())
     self.assertEqual(1, User.objects.filter(email='uniquenewyork@gmail.com').count())
     self.assertTemplateUsed(response, 'grants/org_home.html')
-    
+
   def test_repeat_org_name(self):
-    
+
     registration = {
       'email': 'uniquenewyork@gmail.com',
       'password': 'one',
       'passwordtwo': 'one',
       'organization': 'officemax foundation'
       }
-    
+
     self.assertEqual(1, Organization.objects.filter(name='OfficeMax Foundation').count())
     self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
-    
+
     response = self.client.post('/apply/register', registration, follow=True)
-    
+
     self.assertEqual(1, Organization.objects.filter(name='OfficeMax Foundation').count())
     self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
     self.assertTemplateUsed(response, 'grants/org_login_register.html')
     self.assertEqual(response.context['register_errors'], 'That organization is already registered. Log in instead.')
-    
+
   def test_repeat_org_email(self):
-    
+
     registration = {
       'email': 'neworg@gmail.com',
       'password': 'one',
       'passwordtwo': 'one',
       'organization': 'Brand New'
     }
-    
+
     self.assertEqual(1, Organization.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
-    
+
     response = self.client.post('/apply/register', registration, follow=True)
-    
+
     self.assertEqual(1, Organization.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
     self.assertTemplateUsed(response, 'grants/org_login_register.html')
     self.assertEqual(response.context['register_errors'], 'That organization is already registered. Log in instead.')
-  
+
   def test_repeat_user_email(self):
-    
+
     user = User.objects.create_user('bababa@gmail.com', 'neworg@gmail.com', 'noob')
-    
+
     registration = {
       'email': 'bababa@gmail.com',
       'password': 'one',
       'passwordtwo': 'one',
       'organization': 'Brand New'
       }
-    
+
     self.assertEqual(1, User.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
-    
+
     response = self.client.post('/apply/register', registration, follow=True)
-    
+
     self.assertEqual(1, User.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
     self.assertTemplateUsed(response, 'grants/org_login_register.html')
     self.assertEqual(response.context['register_errors'], 'That email is registered with Project Central. Please register using a different email.')
-    
+
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplySuccessful(TestCase):
 
-  fixtures = ['test_grants.json',] 
-  
+  fixtures = ['test_grants.json',]
+
   def setUp(self):
     setCycleDates()
     logInTesty(self)
-  
+
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_post_valid_app(self):
-    """ 
+    """
       scenario: start with a complete draft, post to apply
                   general, no fiscal, all-in-one budget
 
@@ -193,11 +197,11 @@ class ApplySuccessful(TestCase):
 
     org = Organization.objects.get(pk = 2)
     self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
-    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())   
+    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
     self.assertEqual(org.mission, 'Some crap')
-    
+
     response = self.client.post('/apply/3/', follow=True)
-    
+
     #form = response.context['form']
     #print(form.errors)
     org = Organization.objects.get(pk = 2)
@@ -205,7 +209,7 @@ class ApplySuccessful(TestCase):
     self.assertEqual(org.mission, u'Our mission is to boldly go where no database has gone before.')
     self.assertEqual(1, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
-  
+
   def test_saved_timeline1(self):
 
     answers = [
@@ -214,15 +218,15 @@ class ApplySuccessful(TestCase):
       '', '', '',
       '', '', '',
       '', '', '',]
-    
+
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     alterDraftTimeline(draft, answers)
-    
+
     response = self.client.post('/apply/3/', follow=True)
     self.assertEqual(response.status_code, 200)
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     self.assertEqual(app.timeline, json.dumps(answers))
-   
+
   def test_saved_timeline5(self):
 
     answers = [
@@ -231,28 +235,28 @@ class ApplySuccessful(TestCase):
       'Mar', 'Planting daffodils', 'Sprouts',
       'July', 'Walking around Greenlake', '9 times',
       'August', 'Reading in the shade', 'No sunburns',]
-    
+
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     alterDraftTimeline(draft, answers)
-    
+
     response = self.client.post('/apply/3/', follow=True)
     self.assertEqual(response.status_code, 200)
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     self.assertEqual(app.timeline, json.dumps(answers))
-  
+
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_mult_budget(self):
     """ scenario: budget1, budget2
-              
+
         verify: successful submission
                 files match  """
-                
+
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    files = ['', 'funding_sources.docx', 'diversity.docx', 'budget1.doc', 'budget2.txt', '', '', '']
+    files = ['', 'funding_sources.docx', 'diversity.doc', 'budget1.docx', 'budget2.txt', '', '', '']
     alterDraftFiles(draft, files)
-    
+
     response = self.client.post('/apply/3/', follow=True)
-  
+
     org = Organization.objects.get(pk = 2)
     self.assertTemplateUsed(response, 'grants/submitted.html')
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
@@ -263,8 +267,8 @@ class ApplySuccessful(TestCase):
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyBlocked(TestCase):
- 
-  fixtures = ['test_grants.json',]   
+
+  fixtures = ['test_grants.json',]
   def setUp(self):
     setCycleDates()
     logInTesty(self)
@@ -272,19 +276,19 @@ class ApplyBlocked(TestCase):
   def test_closed_cycle(self):
     response = self.client.get('/apply/3/')
     self.assertTemplateUsed('grants/closed.html')
-  
+
   def test_already_submitted(self):
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
-    
+
     response = self.client.get('/apply/1/')
-    
+
     self.assertTemplateUsed('grants/already-applied.html')
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
-  
+
   def test_upcoming(self):
     response = self.client.get('/apply/4/')
     self.assertTemplateUsed('grants/closed.html')
-  
+
   def test_nonexistent(self):
     response = self.client.get('/apply/79/')
     self.assertEqual(404, response.status_code)
@@ -296,25 +300,25 @@ class ApplyValidation(TestCase):
       collab
       timeline
       files  """
-  
-  fixtures = ['test_grants.json',]   
+
+  fixtures = ['test_grants.json',]
   def setUp(self):
     setCycleDates()
     logInTesty(self)
-  
+
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_file_validation_budget(self):
     """ scenario: budget + some other budget files
                   no funding sources
-                  
+
         verify: no submission
                 error response  """
 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    files = ['budget.doc', 'diversity.docx', '', 'budget1.doc', 'budget2.txt', 'budget3.png', '', '']
+    files = ['budget.docx', 'diversity.doc', '', 'budget1.docx', 'budget2.txt', 'budget3.png', '', '']
     alterDraftFiles(draft, files)
     response = self.client.post('/apply/3/', follow=True)
-    
+
     self.assertTemplateUsed(response, 'grants/org_app.html')
     self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
@@ -326,15 +330,15 @@ class ApplyValidation(TestCase):
         verify: not submitted
                 no app created, draft still exists
                 form errors - project title, project budget, project budget file """
-                
+
     draft = DraftGrantApplication.objects.get(pk=2)
     contents_dict = json.loads(draft.contents)
     contents_dict['support_type'] = 'Project support'
     draft.contents = json.dumps(contents_dict)
     draft.save()
-    
+
     response = self.client.post('/apply/3/', follow=True)
-    
+
     self.assertTemplateUsed(response, 'grants/org_app.html')
     self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
@@ -342,7 +346,7 @@ class ApplyValidation(TestCase):
     self.assertFormError(response, 'form', 'project_budget', "This field is required when applying for project support.")
 
   def test_timeline_validation_incomplete(self):
-    
+
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     answers = [
       'Jan', 'Chillin', 'Not applicable',
@@ -351,12 +355,12 @@ class ApplyValidation(TestCase):
       'July', '', '',
       '', 'Reading in the shade', 'No sunburns',]
     alterDraftTimeline(draft, answers)
-    
+
     response = self.client.post('/apply/3/', follow=True)
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">All three columns are required for each quarter that you include in your timeline.</div>')
 
   def test_timeline_validation_empty(self):
-    
+
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     answers = [
       '', '', '',
@@ -365,14 +369,14 @@ class ApplyValidation(TestCase):
       '', '', '',
       '', '', '']
     alterDraftTimeline(draft, answers)
-    
+
     response = self.client.post('/apply/3/', follow=True)
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">This field is required.</div>')
 
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)    
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class StartApplication(TestCase): #MIGHT BE OUT OF DATE
-  
-  fixtures = ['test_grants.json',]  
+
+  fixtures = ['test_grants.json',]
   def setUp(self):
     setCycleDates()
 
@@ -384,9 +388,9 @@ class StartApplication(TestCase): #MIGHT BE OUT OF DATE
 
     logInNewbie(self)
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
-     
+
     response = self.client.get('/apply/1/')
-    
+
     self.assertEqual(response.status_code, 200)
     self.assertTemplateUsed('grants/org_app.html')
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
@@ -396,12 +400,12 @@ class StartApplication(TestCase): #MIGHT BE OUT OF DATE
         Page loads
         Form has stuff from profile
         Draft is created """
-        
+
     logInTesty(self)
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
-     
+
     response = self.client.get('/apply/5/')
-    
+
     self.assertEqual(response.status_code, 200)
     self.assertTemplateUsed('grants/org_app.html')
     org = Organization.objects.get(pk=2)
@@ -410,17 +414,17 @@ class StartApplication(TestCase): #MIGHT BE OUT OF DATE
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftWarning(TestCase):
-  
+
   fixtures = ['test_grants.json',]
   def setUp(self):
     logInAdmin(self)
     setCycleDates()
-  
+
   def test_long_alert(self):
     """ Cycle created 12 days ago with cycle closing in 7.5 days """
-    
+
     self.assertEqual(len(mail.outbox), 0)
-    
+
     now = timezone.now()
     draft = DraftGrantApplication.objects.get(pk=1)
     draft.created = now - datetime.timedelta(days=12)
@@ -428,15 +432,15 @@ class DraftWarning(TestCase):
     cycle = GrantCycle.objects.get(pk=2)
     cycle.close = now + datetime.timedelta(days=7, hours=12)
     cycle.save()
-    
+
     response = self.client.get('/mail/drafts/')
     self.assertEqual(len(mail.outbox), 1)
-  
+
   def test_long_alert_skip(self):
     """ Cycle created now with cycle closing in 7.5 days """
-    
+
     self.assertEqual(len(mail.outbox), 0)
-    
+
     now = timezone.now()
     draft = DraftGrantApplication.objects.get(pk=1)
     draft.created = now
@@ -444,15 +448,15 @@ class DraftWarning(TestCase):
     cycle = GrantCycle.objects.get(pk=2)
     cycle.close = now + datetime.timedelta(days=7, hours=12)
     cycle.save()
-    
+
     response = self.client.get('/mail/drafts/')
     self.assertEqual(len(mail.outbox), 0)
-    
+
   def test_short_alert(self):
     """ Cycle created now with cycle closing in 2.5 days """
-  
+
     self.assertEqual(len(mail.outbox), 0)
-    
+
     now = timezone.now()
     draft = DraftGrantApplication.objects.get(pk=1)
     draft.created = now
@@ -460,14 +464,14 @@ class DraftWarning(TestCase):
     cycle = GrantCycle.objects.get(pk=2)
     cycle.close = now + datetime.timedelta(days=2, hours=12)
     cycle.save()
-    
+
     response = self.client.get('/mail/drafts/')
-    self.assertEqual(len(mail.outbox), 1)  
-  
+    self.assertEqual(len(mail.outbox), 1)
+
   def test_short_alert_ignore(self):
     """ Cycle created 12 days ago with cycle closing in 2.5 days """
     self.assertEqual(len(mail.outbox), 0)
-    
+
     now = timezone.now()
     draft = DraftGrantApplication.objects.get(pk=1)
     draft.created = now - datetime.timedelta(days=12)
@@ -475,20 +479,20 @@ class DraftWarning(TestCase):
     cycle = GrantCycle.objects.get(pk=2)
     cycle.close = now + datetime.timedelta(days=2, hours=12)
     cycle.save()
-    
+
     response = self.client.get('/mail/drafts/')
     self.assertEqual(len(mail.outbox), 0)
-  
+
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class OrgRollover(TestCase):
   """ Basic success
   content,   timeline,   files,   not extra cycle q   """
-  
+
   fixtures = ['test_grants.json',]
   def setUp(self):
     setCycleDates()
     logInNewbie(self)
-  
+
   def test_draft_rollover(self):
     """ scenario: take complete draft, make it belong to new org, rollover to cycle 1
         verify:
@@ -496,14 +500,14 @@ class OrgRollover(TestCase):
           new draft created
           new draft contents = old draft contents (ignoring cycle q)
           new draft files = old draft files  """
-    
+
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     draft.organization = Organization.objects.get(pk=1)
     draft.save()
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
-    
+
     response = self.client.post('/apply/copy', {'cycle':'1', 'draft':'2', 'application':''}, follow=True)
-    
+
     self.assertEqual(response.status_code, 200)
     self.assertTemplateUsed(response, 'grants/org_app.html')
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
@@ -516,7 +520,7 @@ class OrgRollover(TestCase):
     self.assertNotEqual(cq, nq)
     for field in GrantApplication.file_fields():
       self.assertEqual(getattr(draft, field), getattr(new_draft, field))
-    
+
   def test_app_rollover(self):
     """ scenario: take a submitted app, make it belong to new org, rollover to cycle 1
         verify:
@@ -524,19 +528,19 @@ class OrgRollover(TestCase):
           new draft created
           draft contents = app contents (ignoring cycle q)
           draft files = app files  """
-    
+
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=2).count())
-    
+
     app = GrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
     app.organization = Organization.objects.get(pk=1)
     app.save()
 
     response = self.client.post('/apply/copy', {'cycle':'2', 'draft':'', 'application':'1'}, follow=True)
-    
+
     self.assertEqual(response.status_code, 200)
     self.assertTemplateUsed(response, 'grants/org_app.html')
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=2).count())
-    
+
     draft = DraftGrantApplication.objects.get(organization_id=1, grant_cycle_id=2)
     assertDraftAppMatch(self, draft, app, True)
 
@@ -546,7 +550,7 @@ class OrgRollover(TestCase):
     self.assertEqual(response.context['apps_count'], 2)
     self.assertEqual(response.context['cycle_count'], 4)
     self.assertNotContains(response, 'Select')
-    
+
     self.client.logout()
     logInTesty(self)
     response = self.client.get('/apply/copy')
@@ -554,170 +558,174 @@ class OrgRollover(TestCase):
     self.assertEqual(response.context['apps_count'], 5)
     self.assertEqual(response.context['cycle_count'], 2)
     self.assertContains(response, 'Select')
-      
+
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class AdminRevert(TestCase):
-  
+
   fixtures = ['test_grants.json',]
-  
+
   def setUp(self):
     setCycleDates()
     logInAdmin(self)
-  
+
   def test_load_revert(self):
-    
+
     response = self.client.get('/admin/grants/grantapplication/1/revert')
-    
+
     self.assertEqual(200, response.status_code)
     self.assertContains(response, 'Are you sure you want to revert this application into a draft?')
-    
+
   def test_revert_app(self):
     """ scenario: revert submitted app pk1
         verify:
           draft created
           app gone
           draft fields match app (incl cycle, timeline) """
-    
+
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=1).count())
     app = GrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
-    
+
     response = self.client.post('/admin/grants/grantapplication/1/revert')
-    
+
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=1).count())
     draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
     assertDraftAppMatch(self, draft, app, False)
 
-@unittest.skip('Incomplete')   
+@unittest.skip('Incomplete')
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class AdminRollover(TestCase):
   fixtures = ['test_grants.json',]
-  
+
   def setUp(self):
     setCycleDates()
     logInAdmin(self)
-  
+
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftExtension(TestCase):
   fixtures = ['test_grants.json',]
-  
+
   def setUp(self):
     setCycleDates()
     logInAdmin(self)
 
   def test_create_draft(self):
     """ Admin create a draft for Fresh New Org """
-    
+
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1).count())
-    
+
     response = self.client.post('/admin/grants/draftgrantapplication/add/', {'organization': '1', 'grant_cycle': '3', 'extended_deadline_0': '2013-04-07', 'extended_deadline_1': '11:19:46'})
-    
+
     self.assertEqual(response.status_code, 302)
     new = DraftGrantApplication.objects.get(organization_id=1) #in effect, asserts 1 draft
     self.assertTrue(new.editable)
     self.assertIn('/admin/grants/draftgrantapplication/', response.__getitem__('location'), )
-   
 
   def test_org_drafts_list(self):
     pass
-    
+
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class Draft(TestCase):
-  
+
   fixtures = ['test_grants.json',]
-  
+
   def setUp(self):
     setCycleDates()
     logInTesty(self)
-  
+
   def test_autosave1(self):
     """ scenario: steal contents of draft 2, turn it into a dict. submit that as request.POST for cycle 5
         verify: draft contents match  """
     complete_draft = DraftGrantApplication.objects.get(pk=2)
     new_draft = DraftGrantApplication(organization = Organization.objects.get(pk=2), grant_cycle = GrantCycle.objects.get(pk=5))
     new_draft.save()
-    dict = json.loads(complete_draft.contents)
-    
-    response = self.client.post('/apply/5/autosave/', dict)
+    dic = json.loads(complete_draft.contents)
+    #fake a user id like the js would normally do
+    dic['user_id'] = 'asdFDHAF34qqhRHFEA'
+    self.maxDiff = None
+
+    response = self.client.post('/apply/5/autosave/', dic)
     self.assertEqual(200, response.status_code)
     new_draft = DraftGrantApplication.objects.get(organization_id =2, grant_cycle_id=5)
-    self.assertEqual(json.loads(complete_draft.contents), json.loads(new_draft.contents))
+    new_c = json.loads(new_draft.contents)
+    del new_c['user_id']
+    self.assertEqual(json.loads(complete_draft.contents), new_c)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ViewGrantPermissions(TestCase):
 
   fixtures = ['test_grants.json', 'sjfnw/fund/fixtures/test_fund.json']
-  
+
   def setUp(self):
     app = GrantApplication.objects.get(pk=1)
     app.giving_project = GivingProject.objects.get(pk=2)
     app.save()
-  
+
   def test_author(self):
     logInTesty(self)
-    
+
     response = self.client.get('/grants/view/1')
-    
+
     self.assertTemplateUsed(response, 'grants/reading.html')
     self.assertEqual(3, response.context['perm'])
-  
+
   def test_other_org(self):
     logInNewbie(self)
-    
+
     response = self.client.get('/grants/view/1', follow=True)
-    
+
     self.assertTemplateUsed(response, 'grants/blocked.html')
-  
+
   def test_staff(self):
     logInAdmin(self)
-    
+
     response = self.client.get('/grants/view/1', follow=True)
-    
+
     self.assertTemplateUsed(response, 'grants/reading.html')
     self.assertEqual(2, response.context['perm'])
-  
+
   def test_valid_member(self):
     user = User.objects.create_user('newacct@gmail.com', 'newacct@gmail.com', 'noob')
     self.client.login(username = 'newacct@gmail.com', password = 'noob')
-    
+
     response = self.client.get('/grants/view/1', follow=True)
-    
+
     self.assertTemplateUsed(response, 'grants/reading.html')
     self.assertEqual(1, response.context['perm'])
-  
+
   def test_invalid_member(self):
     user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'noob')
     self.client.login(username = 'testacct@gmail.com', password = 'noob')
-    
+
     response = self.client.get('/grants/view/1', follow=True)
-    
+
     self.assertTemplateUsed(response, 'grants/blocked.html')
-    
+
 """ TO DO - files
   as of 4/4/13 this one throws error from deferred going off. i imagine blobstore api will cause a problem too.
   @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_add_file(self):
-    
-    draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=2)
-    self.assertEqual('', draft.budget)  
-    budget = open('sjfnw/grants/fixtures/test_grants_guide.txt')
-    form_data = {'budget': budget}
-    
-    response = self.client.post('/apply/2/add-file/', form_data)
-    budget.close()
 
-    self.assertEqual(200, response.status_code)  
-    
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
-  def test_add_file(self):
-    
+    draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=2)
+    self.assertEqual('', draft.budget)
     budget = open('sjfnw/grants/fixtures/test_grants_guide.txt')
     form_data = {'budget': budget}
-    
+
     response = self.client.post('/apply/2/add-file/', form_data)
     budget.close()
 
     self.assertEqual(200, response.status_code)
-    
+
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  def test_add_file(self):
+
+    budget = open('sjfnw/grants/fixtures/test_grants_guide.txt')
+    form_data = {'budget': budget}
+
+    response = self.client.post('/apply/2/add-file/', form_data)
+    budget.close()
+
+    self.assertEqual(200, response.status_code)
+
   def discard(self):
     pass
   """
@@ -725,11 +733,11 @@ class ViewGrantPermissions(TestCase):
 """ TO DO - HomePage
   @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
   class HomePage(TestCase):
-  
+
   # Viewing data on the home page
       #  submitted apps sorting
       #  display of submitted, drafts, past-due drafts
       #  display/sorting of cycles
   def load_home_page(self):
-    pass   
+    pass
   """
