@@ -37,7 +37,7 @@ class IntegerCommaField(forms.Field):
   (Mostly copied from IntegerField) """
 
   default_error_messages = {
-    'invalid': u'Enter a number.',
+    'invalid': u'Enter a number without a dollar sign. Format: 11009 or 11,009',
     'max_value': u'Must be less than or equal to %(limit_value)s.',
     'min_value': u'Must be greater than or equal to %(limit_value)s.',
   }
