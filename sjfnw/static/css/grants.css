@@ -1,4 +1,4 @@
-﻿/* base */
+﻿/* ----- base ----- */
 
 div#nav_menu  {
 	text-align:center;
@@ -26,7 +26,7 @@ table#org_footer {
 	font-size:1em;
 }
 
-/* home page */
+/* ----- home page ----- */
 
 div#org_wrapper li {
   margin-top:5px;
@@ -50,7 +50,7 @@ div.section h3 {
   background:white;
 }
 
-/* rollover page */
+/* ----- rollover page ----- */
 
 div#rollover_form {
   width:100%;
@@ -68,9 +68,9 @@ div#rollover_form input[type="submit"] {
   display:block;
 }
 
-/* application form */
+/* ----- application form ----- */
 
-/* -- general */
+/* general */
 
 div.formwrapper {
 	width:725px;
@@ -103,7 +103,7 @@ label {
 	margin-right:8px;
 }
 
-/* -- info/errors */
+/* info/errors */
 
 div#org_wrapper ul.errorlist, ul.errorlist li {
 	list-style-type: none;
@@ -130,7 +130,7 @@ div#autofilled {
   margin-right:15px;
 }
 
-/* -- specific field/input types */
+/* specific field/input types */
 
 textarea {
   font-family:Arial;
@@ -180,7 +180,7 @@ div.ui-dialog {
   display:none;
 }
 
-/* -- narratives */
+/* narratives */
 
 div.narrative_q {
   padding-top:2em;
@@ -225,20 +225,39 @@ table#timeline_form tr.heading th{
   padding-bottom:2px;
 }
 
-/* -- file uploads */
+/* file uploads */
 
-div.formwrapper input[type="file"] {
-  color: transparent;
-  width: 95px;
+.file_wrapper input{
+  cursor: pointer;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  filter: alpha(opacity=1);
+  -moz-opacity: 0.01;
+  opacity: 0.01;
+  font-size:50px;
+  width:84px;
 }
 
-.files_form label { /* make it look like a button */
-  padding: 1px 8px;
+span.file_wrapper {
+  cursor: pointer;
+  display: inline-block;
+  overflow: hidden;
+  position: relative;
+  margin:0 1em;
+}
+
+span.upload_button {
+  cursor: pointer;
+  padding: 0px 8px;
   appearance:button;
   -moz-appearance:button; /* Firefox */
   -webkit-appearance:button; /* Safari and Chrome */
   -o-appearance: button; /* Opera */
-  /* ie covered in sep css file */
+  color: buttontext; /* IE */
+  background-color: buttonface; /* IE */
+  border: 2px outset buttonface; /* IE */
 }
 
 form.files_form {
@@ -258,7 +277,7 @@ table#file_upload_table td{
   vertical-align:middle;
 }
 
-/* -- other specific fields */
+/* other specific fields */
 
 input#id_contact_person, input#id_previous_grants, input#id_fiscal_address {
 	width:300px;
@@ -273,7 +292,7 @@ div.vertical_cushion { /* mission & grant req labels */
   margin-bottom:5px;
 }
 
-/* -- submit button */
+/* submit button */
 
 input#grant_submit {
   margin-top:40px;
@@ -282,7 +301,7 @@ input#grant_submit {
 }
 
 
-/* cycle info pages */
+/* ----- cycle info pages ----- */
 
 iframe.info_frame {
   width:100%;
@@ -296,7 +315,7 @@ button#apply-now {
   font-weight:bold;
 }
 
-/* grant reading */
+/* ----- grant reading ----- */
 
 div.reading_sidebar{
   width:200px;
