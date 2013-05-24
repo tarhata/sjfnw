@@ -314,6 +314,7 @@ class DraftGrantApplicationA(admin.ModelAdmin):
   fields = (('organization', 'grant_cycle', 'modified'), ('extended_deadline'))
   readonly_fields = ('modified',)
   form = DraftForm
+  search_fields = ('organization__name',)
 
   def get_readonly_fields(self, request, obj=None):
     if obj is not None: #editing - lock org & cycle
