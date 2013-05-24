@@ -323,10 +323,10 @@ def AddFile(request, draft_id):
     if blob_file:
       logging.info(blob_file)
       if hasattr(draft, key):
-        # delete previous file
+        """ delete previous file
         old = getattr(draft, key)
         if old:
-          deferred.defer(utils.DeleteBlob, old)
+        deferred.defer(utils.DeleteBlob, old) """
         # set new file
         setattr(draft, key, blob_file)
         field_name = key
