@@ -289,6 +289,7 @@ class OrganizationA(admin.ModelAdmin):
   )
   readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone', 'fiscal_address', 'fiscal_email', 'fiscal_letter')
   inlines = [GrantApplicationInline, GrantLogInlineRead, GrantLogInline]
+  search_fields = ('name', 'email')
 
 class OrganizationAdvA(OrganizationA):
   inlines = [GrantApplicationInline, DraftInline, GrantLogInlineRead, GrantLogInline]
