@@ -159,6 +159,9 @@ class Organization(models.Model):
   def __unicode__(self):
     return self.name
 
+  class Meta:
+    ordering = ('name',)
+
 class OrgProfile(ModelForm):
   class Meta:
     model = Organization
