@@ -323,10 +323,10 @@ def AddFile(request, draft_id):
     if blob_file:
       logging.info(blob_file)
       if hasattr(draft, key):
-        # delete previous file
+        """ delete previous file
         old = getattr(draft, key)
         if old:
-          deferred.defer(utils.DeleteBlob, old)
+        deferred.defer(utils.DeleteBlob, old) """
         # set new file
         setattr(draft, key, blob_file)
         field_name = key
@@ -503,8 +503,9 @@ def ReadApplication(request, app_id):
   if form_only:
     return render(request, 'grants/reading.html', {'app':app, 'form':form, 'user':user, 'perm':perm})
   file_urls = GetFileURLs(app)
+  print_urls = GetFileURLs(app, printing=True)
 
-  return render(request, 'grants/reading_sidebar.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls, 'perm':perm})
+  return render(request, 'grants/reading_sidebar.html', {'app':app, 'form':form, 'user':user, 'file_urls':file_urls, 'print_urls':print_urls, 'perm':perm})
 
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
@@ -698,7 +699,7 @@ def DraftWarning(request):
   return HttpResponse("")
 
 # UTILS (caused import probs in utils.py)
-def GetFileURLs(app):
+def GetFileURLs(app, printing=False):
   """ Get viewing urls for the files in a given draft or app
 
     Args:
@@ -729,5 +730,8 @@ def GetFileURLs(app):
       ext = value.name.lower().split(".")[-1]
       file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + u'-' + field + u'.' + ext
       if not settings.DEBUG and ext in constants.VIEWER_FORMATS: #doc viewer
-        file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field] + '&embedded=true'
+        if not (printing and (ext == 'xls' or ext == 'xlsx')):
+          file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field]
+        if not printing:
+          file_urls[field] += '&embedded=true'
   return file_urls

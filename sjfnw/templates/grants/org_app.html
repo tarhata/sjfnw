@@ -193,6 +193,8 @@ function setUserID() {
 }
 
 function showOverrideWarning(ver){
+  window.scrollTo(0, 0);
+  console.log('scrolled, showing override');
   $('#override_dialog'+ver).dialog({
     title: 'Warning: simultaneous editing',
     modal: true,
@@ -208,7 +210,7 @@ function showOverrideWarning(ver){
     ],
     closeOnEscape: false,
     resizable: false,
-    position: {my: 'top+100%', at: 'top', of: '#org_wrapper'},
+    position: {my: 'top', at: 'top', of: '#org_wrapper'},
     width:400,
   });
 }

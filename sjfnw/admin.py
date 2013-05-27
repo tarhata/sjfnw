@@ -291,6 +291,7 @@ class OrganizationA(admin.ModelAdmin):
   readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone', 'fiscal_address', 'fiscal_email', 'fiscal_letter')
   search_fields = ('name', 'email')
   inlines = [GrantApplicationInline, GrantLogInlineRead, GrantLogInline]
+  search_fields = ('name', 'email')
 
 class OrganizationAdvA(OrganizationA):
   inlines = [GrantApplicationInline, DraftInline, GrantLogInlineRead, GrantLogInline]
@@ -305,6 +306,7 @@ class GrantApplicationA(admin.ModelAdmin):
   readonly_fields = (organization_link, 'grant_cycle', 'submission_time', 'view_link', revert_grant, rollover)
   list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')
   list_filter = ('grant_cycle', 'screening_status')
+  search_fields = ('organization__name',)
   inlines = [GrantLogInlineRead, GrantLogInline]
 
   def has_add_permission(self, request):
@@ -316,6 +318,7 @@ class DraftGrantApplicationA(admin.ModelAdmin):
   fields = (('organization', 'grant_cycle', 'modified'), ('extended_deadline'))
   readonly_fields = ('modified',)
   form = DraftForm
+  search_fields = ('organization__name',)
 
   def get_readonly_fields(self, request, obj=None):
     if obj is not None: #editing - lock org & cycle
