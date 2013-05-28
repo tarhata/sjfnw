@@ -18,18 +18,11 @@
 		}
 	}
 
-  function printAll(){
-    window.open(location.href + '?form=1', '_blank');
-    {% for file, url in file_urls.items %}{% if url %}
-    setTimeout(function(){ window.open('{{url}}', '_blank'); }, {% widthratio forloop.counter 1 2000 %});
-    {% endif %}{% endfor %}
-  }
-
 	$(document).ready(function() {
 		console.log('doc is ready');
 		main_div = document.getElementById('main_content');
 		frame = document.getElementById('reading_frame');
-	})
+	});
 </script>
 {% endblock %}
 
