@@ -135,6 +135,7 @@ class MembershipA(admin.ModelAdmin):
   readonly_list = ('estimated', 'pledged', 'has_overdue',)
   actions = [approve]
   list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
+  search_fields = ['member__first_name', 'member__last_name']
   inlines = [DonorInline]
 
 class DonorA(admin.ModelAdmin):
@@ -288,6 +289,7 @@ class OrganizationA(admin.ModelAdmin):
     })
   )
   readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone', 'fiscal_address', 'fiscal_email', 'fiscal_letter')
+  search_fields = ('name', 'email')
   inlines = [GrantApplicationInline, GrantLogInlineRead, GrantLogInline]
   search_fields = ('name', 'email')
 
