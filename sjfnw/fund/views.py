@@ -29,7 +29,7 @@ def get_block_content(membership, first=True):
   if first: #home page does its own thing
      contents.append(models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2])
   contents.append(models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date'))
-  contents.append(GrantApplication.objects.filter(giving_project=membership.giving_project, screening_status__gte=50))
+  contents.append(GrantApplication.objects.filter(giving_project=membership.giving_project, screening_status__gte=50).order_by('organization__name'))
   logging.info(contents)
   return contents
 
@@ -766,7 +766,7 @@ def DoneStep(request, donor_id, step_id):
       logging.info('Completing a step')
       step.save()
       #call story creator/updater
-      #deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
+      deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
       next = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
       if next!='' and next_date!=None:
