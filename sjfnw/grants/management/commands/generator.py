@@ -25,6 +25,52 @@ TZ = timezone.get_current_timezone()
 GP_PREFIXES = ['LGBTQ', 'Montana', 'General', 'Economic Justice', 'Environmental Justice', 'Criminal Justice']
 GPS = [] #gp objects, to save queries
 
+def generate_cycles(self): # 6
+  if models.GrantCycle.objects.count() > 3:
+    self.stdout.write('>=3 cycles exist, skipping.\n')
+    return
+  for name in GP_PREFIXES:
+    open = self.now - timedelta(weeks=randint(1, 260))
+    cycle = models.GrantCycle(title = name + ' Grant Cycle', open = open, close = open + timedelta(weeks=7), info_page = 'http://www.socialjusticefund.org/grant-app/lgbtq-grant-cycle')
+    cycle.save()
+  self.stdout.write('Cycles created\n')
+    
+def generate_organizations(self): # 17
+  if models.Organization.objects.filter(name__startswith='Indian'):
+    self.stdout.write('Auto-generated org found, skipping.\n')
+    return
+  a = ['Indian ', 'Gender ', 'API ', 'Equality ', 'Food ']
+  b = ['Justice ', 'Community ', 'Action ', 'Rights ', 'Policy ']
+  c = ['Foundation', 'Alliance', 'Network', 'Services', 'Center']
+  #shuffle(a)
+  #shuffle(b)
+  #shuffle(c)
+  for i in range(0, 4): #5
+    name = a[i] + b[i] + c[i]
+    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
+    org.save()
+  for i in range(0, 3): #12
+    name = a[i] + b[i] + c[i+1]
+    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
+    org.save()
+    name = a[i] + b[i+1] + c[i]
+    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
+    org.save()
+    name = a[i] + b[i+1] + c[i+1]
+    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
+    org.save()
+  self.stdout.write('Orgs created\n')
+
+def generate_giving_projects(self): # 6
+  if models.GrantCycle.objects.count() > 3:
+    self.stdout.write('>=3 gps found, skipping.\n')
+    return
+  for name in GP_PREFIXES:
+    gp = GivingProject(title = name + ' Giving Project', fundraising_deadline = self.now, fundraising_training = self.now)
+    gp.save()
+    GPS.append(gp)
+  self.stdout.write('Giving Projects created\n')
+
 def generate_applications(self):
   rl = models.GrantApplication.objects.filter()
   if not rl:
@@ -67,7 +113,7 @@ def generate_applications(self):
         app.narrative5 = random_words(100)
         app.narrative6 = random_words(100)
         #app.cycle_question
-        app.timeline = json.loads(["Jan", "Chillin", "Not applicable", "Feb", "Petting dogs", "5 dogs", "Mar", "Planting daffodils", "s", "July", "Walking around Greenlake", "9 times", "August", "Reading in the shade", "No sunburns"])
+        app.timeline = json.dumps(["Jan", "Chillin", "Not applicable", "Feb", "Petting dogs", "5 dogs", "Mar", "Planting daffodils", "s", "July", "Walking around Greenlake", "9 times", "August", "Reading in the shade", "No sunburns"])
 
         app.collab_ref1_name = random_words(25)
         app.collab_ref1_org = random_words(25)
@@ -102,43 +148,6 @@ def generate_applications(self):
         count += 1
     self.stdout.write(str(count) + ' applications created for ' + unicode(cycle) + '\n')
   self.stdout.write('Application creation complete')
-   
-def generate_cycles(self): #6
-  for name in GP_PREFIXES:
-    open = self.now - timedelta(weeks=randint(1, 260))
-    cycle = models.GrantCycle(title = name + ' Grant Cycle', open = open, close = open + timedelta(weeks=7), info_page = 'http://www.socialjusticefund.org/grant-app/lgbtq-grant-cycle')
-    cycle.save()
-  self.stdout.write('Cycles created\n')
-    
-def generate_organizations(self): #17
-  a = ['Indian ', 'Gender ', 'API ', 'Equality ', 'Food ']
-  b = ['Justice ', 'Community ', 'Action ', 'Rights ', 'Policy ']
-  c = ['Foundation', 'Alliance', 'Network', 'Services', 'Center']
-  #shuffle(a)
-  #shuffle(b)
-  #shuffle(c)
-  for i in range(0, 4): #5
-    name = a[i] + b[i] + c[i]
-    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
-    org.save()
-  for i in range(0, 3): #12
-    name = a[i] + b[i] + c[i+1]
-    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
-    org.save()
-    name = a[i] + b[i+1] + c[i]
-    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
-    org.save()
-    name = a[i] + b[i+1] + c[i+1]
-    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
-    org.save()
-  self.stdout.write('Orgs created\n')
-
-def generate_giving_projects(self): #6
-  for name in GP_PREFIXES:
-    gp = GivingProject(title = name + ' Giving Project', fundraising_deadline = self.now, fundraising_training = self.now)
-    gp.save()
-    GPS.append(gp)
-  self.stdout.write('Giving Projects created\n')
 
 def random_phone():
   ph = ''
