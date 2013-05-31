@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.html import strip_tags
 
 from google.appengine.ext import blobstore, deferred
+import unicodecsv
 
 from sjfnw import constants
 from sjfnw.fund.models import Member
@@ -368,7 +369,7 @@ def RefreshUploadUrl(request, draft_id):
 
   upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file' + user_override)
   return HttpResponse(upload_url)
-
+	
 # COPY / DELETE APPS
 @login_required(login_url=LOGIN_URL)
 @registered_org()
@@ -640,7 +641,7 @@ def SearchApps(request):
       elif options['format']=='csv':
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=%s.csv' % 'grantapplications'
-        writer = csv.writer(response)
+        writer = unicodecsv.writer(response)
         writer.writerow(fields)
         for row in results:
           writer.writerow(row)
