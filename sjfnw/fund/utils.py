@@ -22,6 +22,12 @@ def UpdateStory(membership_id, time):
   today_min = time.replace(hour=0, minute=0, second=0)
   today_max = time.replace(hour=23, minute=59, second=59)
 
+  #check for steps
+  logging.debug("Getting steps")
+  steps = models.Step.objects.filter(completed__range=(today_min, today_max), donor__membership = membership).select_related('donor')
+  if not steps:
+    return HttpResponse("no steps!!")
+
   #get or create newsitem object
   logging.debug('Checking for story with date between ' + str(today_min) + ' and ' + str(today_max))
   search = models.NewsItem.objects.filter(date__range=(today_min, today_max), membership=membership)
@@ -31,8 +37,6 @@ def UpdateStory(membership_id, time):
     story = models.NewsItem(date = time, membership=membership, summary = '')
 
   #tally today's steps
-  logging.debug("Getting steps:")
-  steps = models.Step.objects.filter(completed__range=(today_min, today_max), donor__membership = membership).select_related('donor')
   talked, asked, pledges, pledged = 0, 0, 0, 0
   talkedlist = [] #for talk counts, don't want to double up
   askedlist = []
