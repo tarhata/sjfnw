@@ -4,7 +4,7 @@ WSGI_APPLICATION = 'sjfnw.wsgi.application'
 
 SECRET_KEY = '*r-$b*8hglm+959&7x043hlm6-&6-3d3vfc4((7yd0dbrakhvi'
 
-if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
+if True: #(os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
   DATABASES = {
     'default': {
       'ENGINE': 'google.appengine.ext.django.backends.rdbms',
@@ -21,7 +21,7 @@ else:
       'USER': 'root',
       'PASSWORD': 'SJFdb',
       'HOST': 'localhost',
-      'NAME': 'sjf_devel',
+      'NAME': 'sjfdb',
     }
   }
   DEBUG = True
