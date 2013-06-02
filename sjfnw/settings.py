@@ -21,7 +21,7 @@ else:
       'USER': 'root',
       'PASSWORD': 'SJFdb',
       'HOST': 'localhost',
-      'NAME': 'sjfdb',
+      'NAME': 'sjf_devel',
     }
   }
   DEBUG = True
