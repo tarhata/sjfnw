@@ -34,7 +34,7 @@ if membership.giving_project.pk == 14: # hack for PDX to view NGGP
 	contents.append(GrantApplication.objects.filter(giving_project_id=12, screening_status__gte=50).order_by('organization__name'))
 else:
 		contents.append(GrantApplication.objects.filter(giving_project=membership.giving_project, screening_status__gte=50).order_by('organization__name'))
-  logging.info(contents)
+  #logging.info(contents)
   return contents
 
 @login_required(login_url='/fund/login/')
