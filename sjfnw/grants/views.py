@@ -483,6 +483,8 @@ def view_permission(user, application):
       for ship in member.membership_set.all():
         if ship.giving_project == application.giving_project:
           return 1
+				if ship.giving_project.pk==14 and application.giving_project.pk==12: #hack for PDX/NGGP
+					return 1
       return 0
     except Member.DoesNotExist:
       return 0
