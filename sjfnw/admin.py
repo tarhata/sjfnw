@@ -128,7 +128,6 @@ class GivingProjectA(admin.ModelAdmin):
 class MemberAdvanced(admin.ModelAdmin): #advanced only
   list_display = ('first_name', 'last_name', 'email')
   search_fields = ['first_name', 'last_name', 'email']
-  inlines = [MembershipInline]
 
 class MembershipA(admin.ModelAdmin):
   list_display = ('member', 'giving_project', 'estimated', 'pledged', 'has_overdue', 'last_activity', 'approved', 'leader')
