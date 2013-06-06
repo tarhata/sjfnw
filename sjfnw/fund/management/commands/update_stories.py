@@ -1,12 +1,13 @@
 ﻿from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
-from fund.models import Donor, Step
+from fund.models import Step
+from fund.utils import UpdateStory
 import datetime
 
 class Command(BaseCommand):
 
   help = 'Runs update story for missed days 5-21 to 5-28'
-  
+
   def handle(self, *args, **options):
     self.stdout.write('Beginning.\n')
     start = datetime.datetime.strptime('2013-05-21 03:04:01', '%Y-%m-%d %H:%M:%S')
@@ -15,7 +16,11 @@ class Command(BaseCommand):
     end = timezone.make_aware(end, timezone.get_current_timezone())
     #UpdateStory takes membership_id and timestamp, then searches all news/steps for that day
     #So we want all memberships who completed a step within this range
-    ships = Step.objects.filter(completed__range=(start, end)).values_list('membership', flat=True)
-    
+    ships = Step.objects.filter(completed__range=(start, end)).values_list('donor__membership', flat=True)
 
-    self.stdout.write('Script complete.')
+    for ship in ships:
+      self.stdout.write('creating stories for ' + unicode(ship) + '\n')
+      for i in range(0, 6):
+        UpdateStory(ship, start + datetime.timedelta(days=i))
+
+    self.stdout.write('Script complete.\n')

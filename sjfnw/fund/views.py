@@ -29,8 +29,12 @@ def get_block_content(membership, first=True):
   if first: #home page does its own thing
      contents.append(models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2])
   contents.append(models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date'))
-  contents.append(GrantApplication.objects.filter(giving_project=membership.giving_project, screening_status__gte=50).order_by('organization__name'))
-  logging.info(contents)
+
+  if membership.giving_project.pk == 14: # hack for PDX to view NGGP
+    contents.append(GrantApplication.objects.filter(giving_project_id=12, screening_status__gte=50).order_by('organization__name'))
+  else:
+    contents.append(GrantApplication.objects.filter(giving_project=membership.giving_project, screening_status__gte=50).order_by('organization__name'))
+  #logging.info(contents)
   return contents
 
 @login_required(login_url='/fund/login/')

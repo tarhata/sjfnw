@@ -369,7 +369,7 @@ def RefreshUploadUrl(request, draft_id):
 
   upload_url = blobstore.create_upload_url('/apply/' + draft_id + '/add-file' + user_override)
   return HttpResponse(upload_url)
-	
+
 # COPY / DELETE APPS
 @login_required(login_url=LOGIN_URL)
 @registered_org()
@@ -482,6 +482,8 @@ def view_permission(user, application):
       member = Member.objects.select_related().get(email=user.email)
       for ship in member.membership_set.all():
         if ship.giving_project == application.giving_project:
+          return 1
+        if ship.giving_project.pk==14 and application.giving_project.pk==12: #hack for PDX/NGGP
           return 1
       return 0
     except Member.DoesNotExist:
