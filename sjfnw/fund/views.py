@@ -806,7 +806,7 @@ def EmailOverdue(request):
   for ship in ships:
     user = ship.member
     if not ship.emailed or (ship.emailed <= limit):
-      num, st = ship.has_overdue(next=True)
+      num, st = ship.overdue_steps(next=True)
       if num>0 and st:
         logging.info(user.email + ' has overdue step(s), emailing.')
         to = user.email

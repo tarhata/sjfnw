@@ -82,7 +82,7 @@ class Membership(models.Model): #relationship b/n member and gp
       except Membership.DoesNotExist: pass
     super(Membership, self).save(*args, **kwargs)
 
-  def has_overdue(self, next=False): # 1 db query
+  def overdue_steps(self, next=False): # 1 db query
     cutoff = timezone.now().date() - datetime.timedelta(days=1)
     steps = Step.objects.filter(donor__membership = self, completed__isnull = True, date__lt = cutoff).order_by('-date')
     count = steps.count()
