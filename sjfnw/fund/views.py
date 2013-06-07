@@ -850,7 +850,7 @@ def GiftNotify(request):
   for ship, dlist in memberships.iteritems():
     gift_str = ''
     for d in dlist:
-      gift_str += 'Gift of $'+str(d.received)+' received from '+d.firstname
+      gift_str += '$'+str(d.received)+' gift or pledge received from '+d.firstname
       if d.lastname:
         gift_str += ' '+d.lastname
       gift_str += '!<br>'
@@ -859,7 +859,7 @@ def GiftNotify(request):
     logging.info('Gift notification set for ' + str(ship))
 
   login_url = settings.APP_BASE_URL + 'fund/'
-  subject, from_email = 'Gift received', constants.FUND_EMAIL
+  subject, from_email = 'Gift or pledge received', constants.FUND_EMAIL
   for ship in memberships:
     to = ship.member.email
     html_content = render_to_string('fund/email_gift.html', {'login_url':login_url})

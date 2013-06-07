@@ -530,7 +530,7 @@
       No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
     {% else %}
       <!-- line 2 summary of response -->
-      <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.received %}Received ${{dict.donor.received|intcomma}}.{% elif dict.donor.promised != None %}{% if dict.donor.promised > 0 %}Promised ${{dict.donor.promised|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
+      <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.received %}${{dict.donor.received|intcomma}} received by SJF.{% elif dict.donor.promised != None %}{% if dict.donor.promised > 0 %}Promised ${{dict.donor.promised|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
     {% endif %}
     </div>
   {% endif %}
@@ -538,7 +538,7 @@
   <div class="donor_details indent" id="details-{{dict.donor.pk}}" style="display:none;"><!-- donor details (hidden) -->
     <table>
       {% if dict.donor.received %}<!-- received, promised, asked, etc. -->
-        <tr><td>Received:</td><td>${{dict.donor.received|intcomma}}</td></tr>
+        <tr><td>Received by SJF:</td><td>${{dict.donor.received|intcomma}}</td></tr>
         <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
       {% elif dict.donor.promised != None%}
         {% if dict.donor.promised > 0 %}
