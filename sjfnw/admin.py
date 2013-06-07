@@ -28,6 +28,11 @@ def gp_year(obj): #GP list_display
   return obj.fundraising_deadline.year
 gp_year.short_description = 'Year'
 
+def ship_progress(obj):
+  return '<table><tr><td style="width:33%;">' + str(obj.estimated()) + '</td><td style="width:33%;">' + str(obj.promised()) + '</td><td style="width:33%;">' + str(obj.received()) + '</td></tr></table>'
+ship_progress.short_description = 'Estimated, promised, received'
+ship_progress.allow_tags = True
+  
 # actions
 def approve(modeladmin, request, queryset): #Membership action
   logging.info('Approval button pressed; looking through queryset')
@@ -130,8 +135,8 @@ class MemberAdvanced(admin.ModelAdmin): #advanced only
   search_fields = ['first_name', 'last_name', 'email']
 
 class MembershipA(admin.ModelAdmin):
-  list_display = ('member', 'giving_project', 'estimated', 'promised', 'has_overdue', 'last_activity', 'approved', 'leader')
-  readonly_list = ('estimated', 'promised', 'has_overdue',)
+  list_display = ('member', 'giving_project', ship_progress, 'overdue_steps', 'last_activity', 'approved', 'leader')
+  readonly_list = (ship_progress, 'overdue_steps',)
   actions = [approve]
   list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
   search_fields = ['member__first_name', 'member__last_name']
