@@ -96,19 +96,19 @@ class Membership(models.Model): #relationship b/n member and gp
   def asked(self): #remove
     return self.donor_set.filter(asked=True).count()
 
-  def pledged(self): #remove
+  def promised(self): #remove
     donors = self.donor_set.all()
     amt = 0
     for donor in donors:
-      if donor.pledged:
-        amt = amt + donor.pledged
+      if donor.promised:
+        amt = amt + donor.promised
     return amt
 
-  def gifted(self): #remove
+  def received(self): #remove
     donors = self.donor_set.all()
     amt = 0
     for donor in donors:
-      amt = amt + donor.gifted
+      amt = amt + donor.received
     return amt
 
   def estimated(self): #remove
@@ -126,19 +126,13 @@ class Donor(models.Model):
   firstname = models.CharField(max_length=100, verbose_name='*First name')
   lastname = models.CharField(max_length=100, null=True, blank=True, verbose_name='Last name')
 
-  PRIVACY_CHOICES = (
-    ('PR', 'Private - cannot be seen by staff'),
-    ('SH', 'Shared'),
-  )
-  privacy = models.CharField(max_length=2, choices=PRIVACY_CHOICES, default='SH') #not in use
-
   amount = models.PositiveIntegerField(verbose_name='*Amount to ask ($)', null=True, blank=True)
   likelihood = models.PositiveIntegerField(verbose_name='*Estimated likelihood (%)', validators=[MaxValueValidator(100)], null=True, blank=True)
 
   talked = models.BooleanField(default=False)
   asked = models.BooleanField(default=False)
-  pledged = models.PositiveIntegerField(blank=True, null=True)
-  gifted = models.PositiveIntegerField(default=0)
+  promised = models.PositiveIntegerField(blank=True, null=True)
+  received = models.PositiveIntegerField(default=0)
   gift_notified = models.BooleanField(default=False)
 
   phone = models.CharField(max_length=15, null=True, blank=True)
@@ -203,7 +197,7 @@ class Step(models.Model):
   donor = models.ForeignKey(Donor)
   completed = models.DateTimeField(null=True, blank=True)
   asked = models.BooleanField(default=False)
-  pledged = models.PositiveIntegerField(blank=True, null=True)
+  promised = models.PositiveIntegerField(blank=True, null=True)
 
   def __unicode__(self):
     return unicode(self.date.strftime('%m/%d/%y')) + u' -  ' + self.description
@@ -213,7 +207,7 @@ class StepForm(ModelForm): #for adding a step
 
   class Meta:
     model = Step
-    exclude = ('created', 'donor', 'completed', 'asked', 'pledged')
+    exclude = ('created', 'donor', 'completed', 'asked', 'promised')
 
 class NewsItem(models.Model):
   date = models.DateTimeField(default=timezone.now())

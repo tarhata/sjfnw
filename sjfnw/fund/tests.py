@@ -30,7 +30,7 @@ class StepCompleteTest(TestCase):
 
     form_data = {'asked': 'on',
         'response': 2,
-        'pledged_amount': '',
+        'promised_amount': '',
         'last_name': '',
         'notes': '',
         'next_step': '',
@@ -61,7 +61,7 @@ class StepCompleteTest(TestCase):
 
     form_data = {'asked': '',
         'response': 2,
-        'pledged_amount': '',
+        'promised_amount': '',
         'last_name': '',
         'notes': '',
         'next_step': 'A BRAND NEW STEP',
@@ -85,12 +85,12 @@ class StepCompleteTest(TestCase):
   def test_valid_followup1(self):
 
     """ last name + phone = valid
-        step.pledged updated
+        step.promised updated
         donor fields updated """
 
     form_data = {'asked': 'on',
       'response': 1,
-      'pledged_amount': 50,
+      'promised_amount': 50,
       'last_name': 'Sozzity',
       'phone': '',
       'email': 'blah@gmail.com',
@@ -105,7 +105,7 @@ class StepCompleteTest(TestCase):
     self.assertEqual(donor1.lastname, 'Sozzity')
     self.assertEqual(donor1.email, 'blah@gmail.com')
     step1 = models.Step.objects.get(pk=1)
-    self.assertEqual(step1.pledged, 50)
+    self.assertEqual(step1.promised, 50)
 
   def test_valid_followup2(self):
 
@@ -114,7 +114,7 @@ class StepCompleteTest(TestCase):
 
     form_data = {'asked': 'on',
       'response': 1,
-      'pledged_amount': 50,
+      'promised_amount': 50,
       'last_name': 'Sozzity',
       'phone': '206-555-5898',
       'email': '',
@@ -135,7 +135,7 @@ class StepCompleteTest(TestCase):
 
     form_data = {'asked': 'on',
       'response': 1,
-      'pledged_amount': '5,000',
+      'promised_amount': '5,000',
       'last_name': 'Sozzity',
       'phone': '206-555-5898',
       'email': '',
@@ -149,16 +149,16 @@ class StepCompleteTest(TestCase):
     donor1 = models.Donor.objects.get(pk=1)
     self.assertEqual(donor1.lastname, 'Sozzity')
     self.assertEqual(donor1.phone, '206-555-5898')
-    self.assertEqual(donor1.pledged, 5000)
+    self.assertEqual(donor1.promised, 5000)
 
   def test_valid_hiddendata1(self):
 
-    """ pledge amt + follow up + undecided
+    """ promise amt + follow up + undecided
       amt & follow up info should not be saved """
 
     form_data = {'asked': 'on',
       'response': 2,
-      'pledged_amount': 50,
+      'promised_amount': 50,
       'last_name': 'Sozzity',
       'phone': '206-555-5898',
       'email': '',
@@ -172,19 +172,19 @@ class StepCompleteTest(TestCase):
     donor1 = models.Donor.objects.get(pk=1)
     self.assertNotEqual(donor1.lastname, 'Sozzity')
     self.assertNotEqual(donor1.phone, '206-555-5898')
-    self.assertIsNone(donor1.pledged)
+    self.assertIsNone(donor1.promised)
     step1 = models.Step.objects.get(pk=1)
-    self.assertIsNone(step1.pledged)
+    self.assertIsNone(step1.promised)
 
   def test_valid_hiddendata2(self):
 
-    """ declined + pledge amt + follow up
+    """ declined + promise amt + follow up
       amt & follow up info should not be saved
-      step.pledged & donor.pledged = 0 """
+      step.promised & donor.promised = 0 """
 
     form_data = {'asked': 'on',
       'response': 3,
-      'pledged_amount': 50,
+      'promised_amount': 50,
       'last_name': 'Sozzity',
       'phone': '206-555-5898',
       'email': '',
@@ -198,19 +198,19 @@ class StepCompleteTest(TestCase):
     donor1 = models.Donor.objects.get(pk=1)
     self.assertNotEqual(donor1.lastname, 'Sozzity')
     self.assertNotEqual(donor1.phone, '206-555-5898')
-    self.assertEqual(donor1.pledged, 0)
+    self.assertEqual(donor1.promised, 0)
     step1 = models.Step.objects.get(pk=1)
-    self.assertEqual(step1.pledged, 0)
+    self.assertEqual(step1.promised, 0)
 
   def test_valid_hiddendata3(self):
 
-    """ pledge amt + follow up + undecided
+    """ promise amt + follow up + undecided
       allow without followup
-      don't save pledge on donor or step """
+      don't save promise on donor or step """
 
     form_data = {'asked': 'on',
       'response': 2,
-      'pledged_amount': 50,
+      'promised_amount': 50,
       'last_name': '',
       'phone': '',
       'email': '',
@@ -222,20 +222,20 @@ class StepCompleteTest(TestCase):
     self.assertEqual(response.content, "success")
 
     donor1 = models.Donor.objects.get(pk=1)
-    self.assertIsNone(donor1.pledged)
+    self.assertIsNone(donor1.promised)
     step1 = models.Step.objects.get(pk=1)
-    self.assertIsNone(step1.pledged)
+    self.assertIsNone(step1.promised)
 
   def test_invalid_asked(self):
 
-    """ pledge w/no amount, last name, phone or email gives errors
+    """ promise w/no amount, last name, phone or email gives errors
         step.completed stays null
         step.asked stays False
         donor.asked stays False """
 
     form_data = {'asked': 'on',
         'response': 1,
-        'pledged_amount': '',
+        'promised_amount': '',
         'last_name': '',
         'notes': '',
         'next_step': '',
@@ -251,7 +251,7 @@ class StepCompleteTest(TestCase):
     response = self.client.post('/fund/1/1/done', form_data)
 
     self.assertTemplateUsed(response, 'fund/done_step.html')
-    self.assertFormError(response, 'form', 'pledged_amount', "Enter an amount.")
+    self.assertFormError(response, 'form', 'promised_amount', "Enter an amount.")
     self.assertFormError(response, 'form', 'last_name', "Enter a last name.")
     self.assertFormError(response, 'form', 'phone', "Enter a phone number or email.")
 
@@ -269,7 +269,7 @@ class StepCompleteTest(TestCase):
 
     form_data = {'asked': '',
         'response': 2,
-        'pledged_amount': '',
+        'promised_amount': '',
         'last_name': '',
         'notes': '',
         'next_step': 'A step description!',
@@ -285,7 +285,7 @@ class StepCompleteTest(TestCase):
 
     form_data = {'asked': '',
         'response': 2,
-        'pledged_amount': '',
+        'promised_amount': '',
         'last_name': '',
         'notes': '',
         'next_step': '',

@@ -37,7 +37,7 @@ def UpdateStory(membership_id, time):
     story = models.NewsItem(date = time, membership=membership, summary = '')
 
   #tally today's steps
-  talked, asked, pledges, pledged = 0, 0, 0, 0
+  talked, asked, promises, promised = 0, 0, 0, 0
   talkedlist = [] #for talk counts, don't want to double up
   askedlist = []
   for step in steps:
@@ -51,14 +51,14 @@ def UpdateStory(membership_id, time):
     elif not step.donor in talkedlist and not step.donor in askedlist:
       talked += 1
       talkedlist.append(step.donor)
-    if step.pledged and step.pledged > 0:
-      pledges += 1
-      pledged += step.pledged
+    if step.promised and step.promised > 0:
+      promises += 1
+      promised += step.promised
   summary = membership.member.first_name
   if talked > 0:
     summary += u' talked to ' + unicode(talked) + (u' people' if talked>1 else u' person')
     if asked>0:
-      if pledged > 0:
+      if promised > 0:
         summary += u', asked ' + unicode(asked)
       else:
         summary += u' and asked ' + unicode(asked)
@@ -66,8 +66,8 @@ def UpdateStory(membership_id, time):
     summary += u' asked ' + unicode(asked) + (u' people' if asked>1 else u' person')
   else:
     logging.error('News update with 0 talked, 0 asked. Story pk: ' + str(story.pk))
-  if pledged > 0:
-    summary += u' and got $' + unicode(intcomma(pledged)) + u' in pledges'
+  if promised > 0:
+    summary += u' and got $' + unicode(intcomma(promised)) + u' in promises'
   summary += u'.'
   logging.info(summary)
   story.summary = summary
