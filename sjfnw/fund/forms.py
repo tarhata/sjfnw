@@ -67,8 +67,8 @@ class MassStep(forms.Form):
   
 class StepDoneForm(forms.Form):
   asked = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'onchange':'askedToggled(this)'}))
-  response = forms.ChoiceField(choices=((1, 'Pledged'), (2, 'Unsure'), (3, 'Declined')), initial=2, widget=forms.Select(attrs={'onchange':'responseSelected(this)'}))
-  pledged_amount = IntegerCommaField(required=False, min_value=0, error_messages={'min_value': 'Pledge amounts cannot be negative'}, widget=forms.TextInput(attrs = {'onchange':'pledgeEntered(this)', 'size':10}))
+  response = forms.ChoiceField(choices=((1, 'Promised'), (2, 'Unsure'), (3, 'Declined')), initial=2, widget=forms.Select(attrs={'onchange':'responseSelected(this)'}))
+  promised_amount = IntegerCommaField(required=False, min_value=0, error_messages={'min_value': 'Promise amounts cannot be negative'}, widget=forms.TextInput(attrs = {'onchange':'promiseEntered(this)', 'size':10}))
   
   last_name = forms.CharField(max_length=255, required=False)
   phone = forms.CharField(max_length=15,required=False)
@@ -82,22 +82,22 @@ class StepDoneForm(forms.Form):
   def clean(self):
     cleaned_data = super(StepDoneForm, self).clean()
     response = cleaned_data.get("response")
-    amt = cleaned_data.get("pledged_amount")
+    amt = cleaned_data.get("promised_amount")
     next_step = cleaned_data.get("next_step")
     next_step_date = cleaned_data.get("next_step_date")
     last_name = cleaned_data.get("last_name")
     phone = cleaned_data.get("phone")
     email = cleaned_data.get("email")
     
-    if response=='1': #response = pledge
+    if response=='1': #response = promise
       if not amt or amt==0: #no/zero amount entered
-        logging.debug('Pledged without amount')
-        self._errors["pledged_amount"] = self.error_class(["Enter an amount."])
+        logging.debug('Promised without amount')
+        self._errors["promised_amount"] = self.error_class(["Enter an amount."])
       if not last_name:
-        logging.debug('Pledged without last name')
+        logging.debug('Promised without last name')
         self._errors["last_name"] = self.error_class(["Enter a last name."])
       if not phone and not email:
-        logging.debug('Pledged without contact info')
+        logging.debug('Promised without contact info')
         self._errors["phone"] = self.error_class(["Enter a phone number or email."])
     if next_step and not next_step_date: #next step - date missing
       self._errors["next_step_date"] = self.error_class(["Enter a date in mm/dd/yyyy format."])

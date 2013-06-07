@@ -96,12 +96,12 @@ class Membership(models.Model): #relationship b/n member and gp
   def asked(self): #remove
     return self.donor_set.filter(asked=True).count()
 
-  def pledged(self): #remove
+  def promised(self): #remove
     donors = self.donor_set.all()
     amt = 0
     for donor in donors:
-      if donor.pledged:
-        amt = amt + donor.pledged
+      if donor.promised:
+        amt = amt + donor.promised
     return amt
 
   def gifted(self): #remove
@@ -137,7 +137,7 @@ class Donor(models.Model):
 
   talked = models.BooleanField(default=False)
   asked = models.BooleanField(default=False)
-  pledged = models.PositiveIntegerField(blank=True, null=True)
+  promised = models.PositiveIntegerField(blank=True, null=True)
   gifted = models.PositiveIntegerField(default=0)
   gift_notified = models.BooleanField(default=False)
 
@@ -203,7 +203,7 @@ class Step(models.Model):
   donor = models.ForeignKey(Donor)
   completed = models.DateTimeField(null=True, blank=True)
   asked = models.BooleanField(default=False)
-  pledged = models.PositiveIntegerField(blank=True, null=True)
+  promised = models.PositiveIntegerField(blank=True, null=True)
 
   def __unicode__(self):
     return unicode(self.date.strftime('%m/%d/%y')) + u' -  ' + self.description
@@ -213,7 +213,7 @@ class StepForm(ModelForm): #for adding a step
 
   class Meta:
     model = Step
-    exclude = ('created', 'donor', 'completed', 'asked', 'pledged')
+    exclude = ('created', 'donor', 'completed', 'asked', 'promised')
 
 class NewsItem(models.Model):
   date = models.DateTimeField(default=timezone.now())

@@ -43,7 +43,7 @@ if (Modernizr.inlinesvg) {
     data.addColumn('number', 'Amount');
     data.addRows([
       ["Remaining", {{project_progress.togo|default:'0'}}],
-      ["Pledged", {{project_progress.pledged}}],
+      ["Promised", {{project_progress.promised}}],
       ['Donated', {{project_progress.donated}}]
     ]);
     
@@ -68,7 +68,7 @@ $(document).ready(function() {
 		console.log('textProgress');
 		document.getElementById('chart_div').innerHTML = "<br><br>Haven't contacted: {{project_progress.contactsremaining}}<br>Talked to: {{project_progress.talked}}<br>Asked: {{project_progress.asked}}";
 		if ({{membership.giving_project.fund_goal}} > 0) {
-			document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{project_progress.togo|default:'0'}}<br>Pledged: ${{project_progress.pledged}}<br>Donated: ${{project_progress.donated}}";
+			document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{project_progress.togo|default:'0'}}<br>Promised: ${{project_progress.promised}}<br>Donated: ${{project_progress.donated}}";
 		}
 	}
 });
