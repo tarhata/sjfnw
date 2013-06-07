@@ -126,12 +126,6 @@ class Donor(models.Model):
   firstname = models.CharField(max_length=100, verbose_name='*First name')
   lastname = models.CharField(max_length=100, null=True, blank=True, verbose_name='Last name')
 
-  PRIVACY_CHOICES = (
-    ('PR', 'Private - cannot be seen by staff'),
-    ('SH', 'Shared'),
-  )
-  privacy = models.CharField(max_length=2, choices=PRIVACY_CHOICES, default='SH') #not in use
-
   amount = models.PositiveIntegerField(verbose_name='*Amount to ask ($)', null=True, blank=True)
   likelihood = models.PositiveIntegerField(verbose_name='*Estimated likelihood (%)', validators=[MaxValueValidator(100)], null=True, blank=True)
 
