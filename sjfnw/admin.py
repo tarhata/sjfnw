@@ -29,7 +29,7 @@ def gp_year(obj): #GP list_display
 gp_year.short_description = 'Year'
 
 def ship_progress(obj):
-  return '<table><tr><td style="width:33%;">' + str(obj.estimated()) + '</td><td style="width:33%;">' + str(obj.promised()) + '</td><td style="width:33%;">' + str(obj.received()) + '</td></tr></table>'
+  return '<table><tr><td style="width:33%;padding:1px;">$' + str(obj.estimated()) + '</td><td style="width:33%;padding:1px;">$' + str(obj.promised()) + '</td><td style="width:33%;padding:1px;">$' + str(obj.received()) + '</td></tr></table>'
 ship_progress.short_description = 'Estimated, promised, received'
 ship_progress.allow_tags = True
   
