@@ -50,7 +50,7 @@
       data.addRows([
         ['Remaining', {{progress.togo|default:'0'}}],
         ["Promised", {{progress.promised}}],
-        ['Donated', {{progress.donated}}]
+        ['Received', {{progress.received}}]
       ]);
 
       // Instantiate and draw our chart, passing in some options.
@@ -75,7 +75,7 @@
 		if (chart) {
 			chart.innerHTML = "<br><br>Haven't contacted: {{progress.contactsremaining}}<br>Talked to: {{progress.talked}}<br>Asked: {{progress.asked}}";
 			if ({{progress.estimated}} > 0) {
-				document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{progress.togo|default:'0'}}<br>Promised: ${{progress.promised}}<br>Donated: ${{progress.donated}}";
+				document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{progress.togo|default:'0'}}<br>Promised: ${{progress.promised}}<br>Received: ${{progress.received}}";
 			}
 		} else {
 			console.log('no chart div, not running textprogress');
@@ -525,20 +525,20 @@
     </div>
   {% else %}
     <div id="{{dict.donor.pk}}-addstep">
-    {% if dict.donor.promised == None and dict.donor.gifted == 0 %}
+    {% if dict.donor.promised == None and dict.donor.received == 0 %}
       <!-- line 2 add a step -->
       No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
     {% else %}
       <!-- line 2 summary of response -->
-      <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.gifted %}Donated ${{dict.donor.gifted|intcomma}}.{% elif dict.donor.promised != None %}{% if dict.donor.promised > 0 %}Promised ${{dict.donor.promised|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
+      <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.received %}Received ${{dict.donor.received|intcomma}}.{% elif dict.donor.promised != None %}{% if dict.donor.promised > 0 %}Promised ${{dict.donor.promised|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
     {% endif %}
     </div>
   {% endif %}
 
   <div class="donor_details indent" id="details-{{dict.donor.pk}}" style="display:none;"><!-- donor details (hidden) -->
     <table>
-      {% if dict.donor.gifted %}<!-- gifted, promised, asked, etc. -->
-        <tr><td>Donated:</td><td>${{dict.donor.gifted|intcomma}}</td></tr>
+      {% if dict.donor.received %}<!-- received, promised, asked, etc. -->
+        <tr><td>Received:</td><td>${{dict.donor.received|intcomma}}</td></tr>
         <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
       {% elif dict.donor.promised != None%}
         {% if dict.donor.promised > 0 %}

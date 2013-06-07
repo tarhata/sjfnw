@@ -104,11 +104,11 @@ class Membership(models.Model): #relationship b/n member and gp
         amt = amt + donor.promised
     return amt
 
-  def gifted(self): #remove
+  def received(self): #remove
     donors = self.donor_set.all()
     amt = 0
     for donor in donors:
-      amt = amt + donor.gifted
+      amt = amt + donor.received
     return amt
 
   def estimated(self): #remove
@@ -138,7 +138,7 @@ class Donor(models.Model):
   talked = models.BooleanField(default=False)
   asked = models.BooleanField(default=False)
   promised = models.PositiveIntegerField(blank=True, null=True)
-  gifted = models.PositiveIntegerField(default=0)
+  received = models.PositiveIntegerField(default=0)
   gift_notified = models.BooleanField(default=False)
 
   phone = models.CharField(max_length=15, null=True, blank=True)

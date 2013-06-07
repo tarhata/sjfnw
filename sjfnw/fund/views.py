@@ -71,7 +71,7 @@ def Home(request):
 
   #donors
   donors = list(membership.donor_set.all())
-  progress = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0, 'promised':0, 'donated':0}
+  progress = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0, 'promised':0, 'received':0}
   donor_data = {}
   empty_date = datetime.date(2500,1,1)
 
@@ -92,8 +92,8 @@ def Home(request):
       donor_data[donor.pk]['next_date'] = datetime.date(2600,1,1)
     elif donor.talked:
       progress['talked'] += 1
-    if donor.gifted:
-      progress['donated'] += donor.gifted
+    if donor.received:
+      progress['received'] += donor.received
       donor_data[donor.pk]['next_date'] = datetime.date(2800,1,1)
     elif donor.promised:
       progress['promised'] += donor.promised
@@ -110,11 +110,11 @@ def Home(request):
   if progress['contacts'] > 0:
     progress['bar'] = 100*progress['asked']/progress['contacts']
     progress['contactsremaining'] = progress['contacts'] - progress['talked'] -  progress['asked']
-    progress['togo'] = progress['estimated'] - progress['promised'] -  progress['donated']
+    progress['togo'] = progress['estimated'] - progress['promised'] -  progress['received']
     progress['header'] = '$%s fundraising goal' % intcomma(progress['estimated'])
     if progress['togo'] < 0:
       progress['togo'] = 0
-      progress['header'] = '$%s raised' % intcomma(progress['promised'] + progress['donated'])
+      progress['header'] = '$%s raised' % intcomma(progress['promised'] + progress['received'])
   else:
     progress['contactsremaining'] = 0
   logging.info(progress)
@@ -230,7 +230,7 @@ def ProjectPage(request):
   #blocks
   steps, news, grants = get_block_content(membership)
 
-  project_progress = {'contacts':0, 'talked':0, 'asked':0, 'promised':0, 'donated':0}
+  project_progress = {'contacts':0, 'talked':0, 'asked':0, 'promised':0, 'received':0}
   donors = list(models.Donor.objects.filter(membership__giving_project=project))
   project_progress['contacts'] = len(donors)
   for donor in donors:
@@ -239,13 +239,13 @@ def ProjectPage(request):
       project_progress['asked'] += 1
     elif donor.talked:
       project_progress['talked'] += 1
-    if donor.gifted:
-      project_progress['donated'] += donor.gifted
+    if donor.received:
+      project_progress['received'] += donor.received
     elif donor.promised:
       project_progress['promised'] += donor.promised
 
   project_progress['contactsremaining'] = project_progress['contacts'] - project_progress['talked'] -  project_progress['asked']
-  project_progress['togo'] =  project.fund_goal - project_progress['promised'] -  project_progress['donated']
+  project_progress['togo'] =  project.fund_goal - project_progress['promised'] -  project_progress['received']
   if project_progress['togo'] < 0:
     project_progress['togo'] = 0
 
@@ -646,7 +646,7 @@ def AddMultStep(request):
   suggested = membership.giving_project.suggested_steps.splitlines()
 
   for donor in membership.donor_set.order_by('-added'): #sort by added
-    if not (donor.next_step or (donor.promised is not None) or donor.gifted):
+    if not (donor.next_step or (donor.promised is not None) or donor.received):
       initiald.append({'donor': donor})
       dlist.append(donor)
       size = size +1
@@ -840,7 +840,7 @@ def GiftNotify(request):
     Mark donors as notified
     Put details in membership notif """
 
-  donors = models.Donor.objects.filter(gifted__gt=0, gift_notified=False).select_related('membership__member')
+  donors = models.Donor.objects.filter(received__gt=0, gift_notified=False).select_related('membership__member')
   memberships = {}
   for donor in donors: #group donors by membership
     if not donor.membership in memberships:
@@ -850,7 +850,7 @@ def GiftNotify(request):
   for ship, dlist in memberships.iteritems():
     gift_str = ''
     for d in dlist:
-      gift_str += 'Gift of $'+str(d.gifted)+' received from '+d.firstname
+      gift_str += 'Gift of $'+str(d.received)+' received from '+d.firstname
       if d.lastname:
         gift_str += ' '+d.lastname
       gift_str += '!<br>'

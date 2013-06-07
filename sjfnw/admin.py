@@ -43,10 +43,10 @@ def export_donors(modeladmin, request, queryset):
   response['Content-Disposition'] = 'attachment; filename=prospects.csv'
   writer = csv.writer(response)
 
-  writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member', 'Giving Project', 'Amount to ask', 'Asked', 'Promised', 'Gifted', 'Notes'])
+  writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member', 'Giving Project', 'Amount to ask', 'Asked', 'Promised', 'Received', 'Notes'])
   count = 0
   for donor in queryset:
-    fields = [donor.firstname, donor.lastname, donor.phone, donor.email, donor.membership.member, donor.membership.giving_project, donor.amount, donor.asked, donor.promised, donor.gifted, donor.notes]
+    fields = [donor.firstname, donor.lastname, donor.phone, donor.email, donor.membership.member, donor.membership.giving_project, donor.amount, donor.asked, donor.promised, donor.received, donor.notes]
     writer.writerow(fields)
     count += 1
   logging.info(str(count) + ' donors exported')
@@ -68,18 +68,18 @@ class PromisedBooleanFilter(SimpleListFilter): #donors & steps
     elif self.value() == 'None':
       return queryset.filter(promised__isnull=True)
 
-class GiftedBooleanFilter(SimpleListFilter): #donors & steps
-  title = 'gifted'
-  parameter_name = 'gifted_tf'
+class ReceivedBooleanFilter(SimpleListFilter): #donors & steps
+  title = 'received'
+  parameter_name = 'received_tf'
 
   def lookups(self, request, model_admin):
       return (('True', 'Gift received'), ('False', 'No gift received'))
 
   def queryset(self, request, queryset):
     if self.value() == 'True':
-      return queryset.filter(gifted__gt=0)
+      return queryset.filter(received__gt=0)
     if self.value() == 'False':
-      return queryset.filter(gifted=0)
+      return queryset.filter(received=0)
 
 # Inlines
 class MembershipInline(admin.TabularInline): #GP
@@ -138,9 +138,9 @@ class MembershipA(admin.ModelAdmin):
   inlines = [DonorInline]
 
 class DonorA(admin.ModelAdmin):
-  list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked', 'promised', 'gifted')
-  list_filter = ('membership__giving_project', 'asked', PromisedBooleanFilter, GiftedBooleanFilter)
-  list_editable = ('gifted',)
+  list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked', 'promised', 'received')
+  list_filter = ('membership__giving_project', 'asked', PromisedBooleanFilter, ReceivedBooleanFilter)
+  list_editable = ('received',)
   exclude = ('added',)
   search_fields = ['firstname', 'lastname', 'membership__member__first_name', 'membership__member__last_name']
   actions = [export_donors]
@@ -151,7 +151,7 @@ class NewsA(admin.ModelAdmin):
 
 class StepAdv(admin.ModelAdmin): #adv only
   list_display = ('description', 'donor', step_membership, 'date', 'completed', 'promised')
-  list_filter = ('donor__membership', PromisedBooleanFilter, GiftedBooleanFilter)
+  list_filter = ('donor__membership', PromisedBooleanFilter, ReceivedBooleanFilter)
 
 ## Grants
 
