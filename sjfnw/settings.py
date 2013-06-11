@@ -1,10 +1,11 @@
-﻿import os, sys,logging
+﻿import os
 
 WSGI_APPLICATION = 'sjfnw.wsgi.application'
 
 SECRET_KEY = '*r-$b*8hglm+959&7x043hlm6-&6-3d3vfc4((7yd0dbrakhvi'
 
-if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
+if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or
+    os.getenv('SETTINGS_MODE') == 'prod'):
   DATABASES = {
     'default': {
       'ENGINE': 'google.appengine.ext.django.backends.rdbms',
@@ -41,7 +42,8 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
-  'google.appengine.ext.appstats.recording.AppStatsDjangoMiddleware', #must be first
+  # appstats first
+  'google.appengine.ext.appstats.recording.AppStatsDjangoMiddleware',
   'django.middleware.common.CommonMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
   'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -52,7 +54,6 @@ MIDDLEWARE_CLASSES = (
 TEMPLATE_CONTEXT_PROCESSORS = (
   'django.contrib.auth.context_processors.auth',
   'django.core.context_processors.request', #only used in fund/base.html js
-  #'django.contrib.messages.context_processors.messages', messages var. not using yet
 )
 TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), 'templates'),)
 
@@ -77,3 +78,4 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024
 FILE_UPLOAD_HANDLERS = (
     'djangoappengine.storage.BlobstoreFileUploadHandler',
   )
+

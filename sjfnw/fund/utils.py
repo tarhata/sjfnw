@@ -10,12 +10,14 @@ import logging, models
 
 def UpdateStory(membership_id, time):
 
-  logging.info('UpdateStory running for membership ' + str(membership_id) + ' from ' + str(time))
+  logging.info('UpdateStory running for membership ' + str(membership_id) +
+               ' from ' + str(time))
 
   try: #get membership
     membership = models.Membership.objects.get(pk = membership_id)
   except models.Membership.DoesNotExist:
-    logging.error('Update story - membership ' + str(membership_id) + ' does not exist')
+    logging.error('Update story - membership ' + str(membership_id) +
+                  ' does not exist')
     return HttpResponse("failure")
 
   #today's range
@@ -29,15 +31,17 @@ def UpdateStory(membership_id, time):
     return HttpResponse("no steps!!")
 
   #get or create newsitem object
-  logging.debug('Checking for story with date between ' + str(today_min) + ' and ' + str(today_max))
-  search = models.NewsItem.objects.filter(date__range=(today_min, today_max), membership=membership)
+  logging.debug('Checking for story with date between ' + str(today_min) +
+                ' and ' + str(today_max))
+  search = models.NewsItem.objects.filter(date__range=(today_min, today_max),
+                                          membership=membership)
   if search:
     story = search[0]
   else:
     story = models.NewsItem(date = time, membership=membership, summary = '')
 
   #tally today's steps
-  talked, asked, promises, promised = 0, 0, 0, 0
+  talked, asked, promised = 0, 0, 0
   talkedlist = [] #for talk counts, don't want to double up
   askedlist = []
   for step in steps:
@@ -45,19 +49,18 @@ def UpdateStory(membership_id, time):
     if step.asked:
       asked += 1
       askedlist.append(step.donor)
-      if step.donor in talkedlist: #if they counted for talk from earlier step, remove
+      if step.donor in talkedlist: #if donor counted already, remove
         talked -= 1
         talkedlist.remove(step.donor)
     elif not step.donor in talkedlist and not step.donor in askedlist:
       talked += 1
       talkedlist.append(step.donor)
     if step.promised and step.promised > 0:
-      promises += 1
       promised += step.promised
   summary = membership.member.first_name
   if talked > 0:
     summary += u' talked to ' + unicode(talked) + (u' people' if talked>1 else u' person')
-    if asked>0:
+    if asked > 0:
       if promised > 0:
         summary += u', asked ' + unicode(asked)
       else:
@@ -79,9 +82,13 @@ def UpdateStory(membership_id, time):
 def NotifyApproval(membership):
   subject, from_email = 'Membership Approved', constants.FUND_EMAIL
   to = membership.member.email
-  html_content = render_to_string('fund/email_account_approved.html', {'login_url':settings.APP_BASE_URL + 'fund/login', 'project':membership.giving_project})
+  html_content = render_to_string('fund/email_account_approved.html',
+                                  {'login_url':settings.APP_BASE_URL + 'fund/login',
+                                   'project':membership.giving_project})
   text_content = strip_tags(html_content)
-  msg = EmailMultiAlternatives(subject, text_content, from_email, [to], ['sjfnwads@gmail.com']) #bcc for testing
+  msg = EmailMultiAlternatives(subject, text_content, from_email, [to],
+                               ['sjfnwads@gmail.com']) #bcc for testing
   msg.attach_alternative(html_content, "text/html")
   msg.send()
   logging.info('Approval email sent to ' + unicode(membership) + ' at ' + to)
+

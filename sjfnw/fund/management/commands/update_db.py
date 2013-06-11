@@ -1,10 +1,10 @@
-﻿from django.core.management.base import BaseCommand, CommandError
-from fund.models import Donor, Step
+﻿from django.core.management.base import BaseCommand
+from fund.models import Donor
 
 class Command(BaseCommand):
 
   help = 'Fixes next step associations'
-  
+
   def handle(self, *args, **options):
     self.stdout.write('Beginning.\n')
     for donor in Donor.objects.all():

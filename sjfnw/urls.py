@@ -134,3 +134,4 @@ urlpatterns += patterns('fund.views',
 
 #for dev_appserver
 urlpatterns += staticfiles_urlpatterns()
+
