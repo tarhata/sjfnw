@@ -1,5 +1,4 @@
-﻿from django import http, template, forms
-from django.conf import settings
+﻿from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -25,17 +24,28 @@ if not settings.DEBUG:
 # MAIN VIEWS
 
 def get_block_content(membership, first=True):
-  contents = []
+  """ Provide upper block content for the 3 main views """
+
+  c = []
   if first: #home page does its own thing
-     contents.append(models.Step.objects.select_related('donor').filter(donor__membership=membership, completed__isnull=True).order_by('date')[:2])
-  contents.append(models.NewsItem.objects.filter(membership__giving_project=membership.giving_project).order_by('-date'))
+    c.append(models.Step.objects.select_related('donor')
+                    .filter(donor__membership=membership,
+                    completed__isnull=True).order_by('date')[:2])
+  c.append(models.NewsItem.objects
+           .filter(membership__giving_project=membership.giving_project)
+           .order_by('-date'))
 
   if membership.giving_project.pk == 14: # hack for PDX to view NGGP
-    contents.append(GrantApplication.objects.filter(giving_project_id=12, screening_status__gte=50).order_by('organization__name'))
+    c.append(GrantApplication.objects
+             .filter(giving_project_id=12, screening_status__gte=50)
+             .order_by('organization__name'))
   else:
-    contents.append(GrantApplication.objects.filter(giving_project=membership.giving_project, screening_status__gte=50).order_by('organization__name'))
-  #logging.info(contents)
-  return contents
+    c.append(GrantApplication.objects
+             .filter(giving_project=membership.giving_project,
+                     screening_status__gte=50)
+             .order_by('organization__name'))
+  #logging.info(c)
+  return c
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
