@@ -881,8 +881,7 @@ def NewAccounts(request):
   """
   subject, from_email = 'Accounts pending approval', constants.FUND_EMAIL
   for gp in models.GivingProject.objects.all():
-    memberships = models.Membership.objects
-                  .filter(giving_project=gp, approved=False).count()
+    memberships = models.Membership.objects.filter(giving_project=gp, approved=False).count()
     leaders = models.Membership.objects.filter(giving_project=gp, leader=True)
     if memberships>0:
       for leader in leaders:

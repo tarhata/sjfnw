@@ -251,7 +251,7 @@ class DraftGrantApplication(models.Model):
     unique_together = ('organization', 'grant_cycle')
 
   def __unicode__(self):
-    return u'DRAFT - ' + self.organization.name + u' - ' + self.grant_cycle.title
+    return u'DRAFT: ' + self.organization.name + ' - ' + self.grant_cycle.title
 
   def overdue(self):
     return self.grant_cycle.close <= timezone.now()
@@ -358,44 +358,101 @@ class GrantApplication(models.Model):
   #narratives
   NARRATIVE_CHAR_LIMITS = [0, 300, 150, 450, 300, 300, 450, 300]
   NARRATIVE_TEXTS = ['Placeholder for 0',
-    'Describe your organization\'s mission, history and major accomplishments.', #1
-    'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ul><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ul>', #2
-    'Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ul><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues?</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ul>', #3
-    'Please describe your workplan, covering at least the next 12 months. (You will list the activities and objectives in the timeline form below the narrative.)<ul><li>What are your overall goals and strategies for the coming year?</li><li>How will you assess whether you have met your objectives and goals?</li></ul>', #4
-    'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organization\'s role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
-    'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. Tell us how your organization is working toward racial justice and how you are drawing connections to economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i> If you are a primarily white-led organization, also describe how you work as an ally to communities of color.', #6
-    ]
-  narrative1 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
-  narrative2 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[2])], verbose_name = NARRATIVE_TEXTS[2])
-  narrative3 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[3])], verbose_name = NARRATIVE_TEXTS[3])
-  narrative4 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[4])], verbose_name = NARRATIVE_TEXTS[4])
-  narrative5 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[5])], verbose_name = NARRATIVE_TEXTS[5])
-  narrative6 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
-  cycle_question = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[7])], blank=True)
+    ('Describe your organization\'s mission, history and major '
+     'accomplishments.'), #1
+    ('Social Justice Fund prioritizes groups that are led by the people most '
+     'impacted by the issues the group is working on, and continually build '
+     'leadership from within their own communities.<ul><li>Who are the '
+     'communities most directly impacted by the issues your organization '
+     'addresses?</li><li>How are those communities involved in the leadership '
+     'of your organization, and how does your organization remain accountable '
+     'to those communities?</li></ul>'), #2
+    ('Social Justice Fund prioritizes groups that understand and address the '
+    'underlying, or root causes of the issues, and that bring people together '
+    'to build collective power.<ul><li>What problems, needs or issues does '
+    'your work address?</li><li>What are the root causes of these issues?</li>'
+    '<li>How does your organization build collective power?</li><li>How will '
+    'your work change the root causes and underlying power dynamics of the '
+    'identified problems, needs or issues?</li></ul>'), #3
+    ('Please describe your workplan, covering at least the next 12 months. '
+     '(You will list the activities and objectives in the timeline form below '
+     'the narrative.)<ul><li>What are your overall goals and strategies for '
+     'the coming year?</li><li>How will you assess whether you have met your '
+     'objectives and goals?</li></ul>'), #4
+    ('Social Justice Fund prioritizes groups that see themselves as part of a '
+     'larger movement for social change, and work towards strengthening that '
+     'movement.<ul><li>Describe at least two coalitions, collaborations, '
+     'partnerships or networks that you participate in as an approach to '
+     'social change.</li><li>What are the purposes and impacts of these '
+     'collaborations?</li><li>What is your organization\'s role in these '
+     'collaborations?</li><li>If your collaborations cross issue or '
+     'constituency lines, how will this will help build a broad, unified, and '
+     'effective progressive movement?</li></ul>'), #5
+    ('Social Justice Fund prioritizes groups working on racial justice, '
+     'especially those making connections between racism, economic injustice, '
+     'homophobia, and other forms of oppression. Tell us how your organization '
+     'is working toward racial justice and how you are drawing connections to '
+     'economic injustice, homophobia, and other forms of oppression. <i>While '
+     'we believe people of color must lead the struggle for racial justice, '
+     'we also realize that the demographics of our region make the work of '
+     'white anti-racist allies critical to achieving racial justice.</i> If '
+     'you are a primarily white-led organization, also describe how you work '
+     'as an ally to communities of color.') #6
+  ]
+  narrative1 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[1])],
+                                verbose_name = NARRATIVE_TEXTS[1])
+  narrative2 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[2])],
+                                verbose_name = NARRATIVE_TEXTS[2])
+  narrative3 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[3])],
+                                verbose_name = NARRATIVE_TEXTS[3])
+  narrative4 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[4])],
+                                verbose_name = NARRATIVE_TEXTS[4])
+  narrative5 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[5])],
+                                verbose_name = NARRATIVE_TEXTS[5])
+  narrative6 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[6])],
+                                verbose_name = NARRATIVE_TEXTS[6])
+  cycle_question = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[7])],
+                                    blank=True)
 
   timeline = models.TextField()
 
   #collab references (after narrative 5)
-  collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.', verbose_name='Name', max_length = 150)
-  collab_ref1_org = models.CharField(verbose_name='Organization', max_length = 150)
-  collab_ref1_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
-  collab_ref1_email = models.EmailField(max_length=100, verbose_name='Email', blank=True)
+  collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people '
+                                      'who are familiar with your organization\'s role in these '
+                                      'collaborations so we can contact them for more information.',
+                                      verbose_name='Name', max_length=150)
+  collab_ref1_org = models.CharField(verbose_name='Organization',
+                                     max_length=150)
+  collab_ref1_phone = models.CharField(verbose_name='Phone number',
+                                       max_length=20, blank=True)
+  collab_ref1_email = models.EmailField(max_length=100, verbose_name='Email',
+                                        blank=True)
 
-  collab_ref2_name = models.CharField(verbose_name='Name', max_length = 150)
-  collab_ref2_org = models.CharField(verbose_name='Organization', max_length = 150)
-  collab_ref2_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
-  collab_ref2_email = models.EmailField(max_length=100, verbose_name='Email', blank=True)
+  collab_ref2_name = models.CharField(verbose_name='Name', max_length=150)
+  collab_ref2_org = models.CharField(verbose_name='Organization',
+                                     max_length=150)
+  collab_ref2_phone = models.CharField(verbose_name='Phone number',
+                                       max_length=20, blank=True)
+  collab_ref2_email = models.EmailField(max_length=100, verbose_name='Email',
+                                        blank=True)
 
   #racial justice references (after narrative 6)
-  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, please list at least one organization led by people of color that we can contact as a reference for your racial justice work.', verbose_name='Name', max_length = 150, blank=True)
-  racial_justice_ref1_org = models.CharField(verbose_name='Organization', max_length = 150, blank=True)
-  racial_justice_ref1_phone = models.CharField(verbose_name='Phone number', max_length = 20, blank=True)
-  racial_justice_ref1_email = models.EmailField(max_length=100, verbose_name='Email', blank=True)
+  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, please list at least one organization led by people of color that we can contact as a reference for your racial justice work.', verbose_name='Name', max_length=150, blank=True)
+  racial_justice_ref1_org = models.CharField(verbose_name='Organization',
+                                             max_length=150, blank=True)
+  racial_justice_ref1_phone = models.CharField(verbose_name='Phone number',
+                                               max_length=20, blank=True)
+  racial_justice_ref1_email = models.EmailField(verbose_name='Email',
+                                                max_length=100, blank=True)
 
-  racial_justice_ref2_name = models.CharField(verbose_name='Name', max_length = 150, blank=True)
-  racial_justice_ref2_org = models.CharField(verbose_name='Organization', max_length = 150, blank=True)
-  racial_justice_ref2_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
-  racial_justice_ref2_email = models.EmailField(max_length=100, verbose_name='Email', blank=True)
+  racial_justice_ref2_name = models.CharField(verbose_name='Name',
+                                              max_length = 150, blank=True)
+  racial_justice_ref2_org = models.CharField(verbose_name='Organization',
+                                             max_length = 150, blank=True)
+  racial_justice_ref2_phone = models.CharField(verbose_name='Phone number',
+                                               max_length = 20, blank=True)
+  racial_justice_ref2_email = models.EmailField(verbose_name='Email',
+                                                max_length=100, blank=True)
 
   #files
   budget = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)
@@ -460,7 +517,9 @@ class GrantApplication(models.Model):
 
 def custom_fields(f, **kwargs): #sets phonenumber and money fields
   money_fields = ['budget_last', 'budget_current', 'amount_requested', 'project_budget']
-  phone_fields = ['telephone_number', 'fax_number', 'fiscal_telephone', 'collab_ref1_phone', 'collab_ref2_phone', 'racial_justice_ref1_phone', 'racial_justice_ref2_phone']
+  phone_fields = ['telephone_number', 'fax_number', 'fiscal_telephone',
+                  'collab_ref1_phone', 'collab_ref2_phone',
+                  'racial_justice_ref1_phone', 'racial_justice_ref2_phone']
   kwargs['required'] = not f.blank
   if f.verbose_name:
     kwargs['label'] = capfirst(f.verbose_name)
