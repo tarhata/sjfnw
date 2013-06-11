@@ -26,26 +26,26 @@ if not settings.DEBUG:
 def get_block_content(membership, first=True):
   """ Provide upper block content for the 3 main views """
 
-  c = []
+  bks = []
   if first: #home page does its own thing
-    c.append(models.Step.objects.select_related('donor')
+    bks.append(models.Step.objects.select_related('donor')
                     .filter(donor__membership=membership,
                     completed__isnull=True).order_by('date')[:2])
-  c.append(models.NewsItem.objects
+  bks.append(models.NewsItem.objects
            .filter(membership__giving_project=membership.giving_project)
            .order_by('-date'))
 
   if membership.giving_project.pk == 14: # hack for PDX to view NGGP
-    c.append(GrantApplication.objects
+    bks.append(GrantApplication.objects
              .filter(giving_project_id=12, screening_status__gte=50)
              .order_by('organization__name'))
   else:
-    c.append(GrantApplication.objects
+    bks.append(GrantApplication.objects
              .filter(giving_project=membership.giving_project,
                      screening_status__gte=50)
              .order_by('organization__name'))
-  #logging.info(c)
-  return c
+  #logging.info(bks)
+  return bks
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -57,11 +57,11 @@ def Home(request):
   #querydict for pre-loading forms
   step = request.GET.get('step')
   donor = request.GET.get('donor')
-  type = request.GET.get('t')
+  form_type = request.GET.get('t')
   load_form = request.GET.get('load')
-  if step and donor and type:
+  if step and donor and form_type:
     load = '/fund/'+donor+'/'+step
-    if type=="complete":
+    if form_type == "complete":
       load += '/done'
     loadto = donor + '-nextstep'
   elif load_form == 'stepmult':
@@ -81,9 +81,10 @@ def Home(request):
 
   #donors
   donors = list(membership.donor_set.all())
-  progress = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0, 'promised':0, 'received':0}
+  prog = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0,
+              'promised':0, 'received':0}
   donor_data = {}
-  empty_date = datetime.date(2500,1,1)
+  empty_date = datetime.date(2500, 1, 1)
 
   #checking for direct links from emails & whether ests are req
   est = membership.giving_project.require_estimates()
@@ -95,19 +96,21 @@ def Home(request):
     need_est, initiale = [], []
 
   for donor in donors:
-    donor_data[donor.pk] = {'donor':donor, 'complete_steps':[], 'next_step':False, 'next_date':empty_date, 'overdue':False}
-    progress['estimated'] += donor.estimated()
+    donor_data[donor.pk] = {'donor':donor, 'complete_steps':[],
+                            'next_step':False, 'next_date':empty_date,
+                            'overdue':False}
+    prog['estimated'] += donor.estimated()
     if donor.asked:
-      progress['asked'] += 1
-      donor_data[donor.pk]['next_date'] = datetime.date(2600,1,1)
+      prog['asked'] += 1
+      donor_data[donor.pk]['next_date'] = datetime.date(2600, 1, 1)
     elif donor.talked:
-      progress['talked'] += 1
+      prog['talked'] += 1
     if donor.received:
-      progress['received'] += donor.received
-      donor_data[donor.pk]['next_date'] = datetime.date(2800,1,1)
+      prog['received'] += donor.received
+      donor_data[donor.pk]['next_date'] = datetime.date(2800, 1, 1)
     elif donor.promised:
-      progress['promised'] += donor.promised
-      donor_data[donor.pk]['next_date'] = datetime.date(2700,1,1)
+      prog['promised'] += donor.promised
+      donor_data[donor.pk]['next_date'] = datetime.date(2700, 1, 1)
     if add_est:
       if donor.amount is not None:
         amount_entered = True
@@ -117,32 +120,35 @@ def Home(request):
         need_est.append(donor)
 
   #progress charts
-  if progress['contacts'] > 0:
-    progress['bar'] = 100*progress['asked']/progress['contacts']
-    progress['contactsremaining'] = progress['contacts'] - progress['talked'] -  progress['asked']
-    progress['togo'] = progress['estimated'] - progress['promised'] -  progress['received']
-    progress['header'] = '$%s fundraising goal' % intcomma(progress['estimated'])
-    if progress['togo'] < 0:
-      progress['togo'] = 0
-      progress['header'] = '$%s raised' % intcomma(progress['promised'] + progress['received'])
+  if prog['contacts'] > 0:
+    prog['bar'] = 100*prog['asked']/prog['contacts']
+    prog['contactsremaining'] = (prog['contacts'] - prog['talked'] -
+                                prog['asked'])
+    prog['togo'] = (prog['estimated'] - prog['promised'] -
+                    prog['received'])
+    prog['header'] = '$' + intcomma(prog['estimated']) + ' fundraising goal'
+    if prog['togo'] < 0:
+      prog['togo'] = 0
+      prog['header'] = ('$' + intcomma(prog['promised'] + prog['received']) +
+                        ' raised')
   else:
-    progress['contactsremaining'] = 0
-  logging.info(progress)
+    prog['contactsremaining'] = 0
+  logging.info(prog)
 
   notif = membership.notifications
   if notif and not settings.DEBUG: #on live, only show a notification once
     logging.info('Displaying notification to ' + str(membership) + ': ' + notif)
-    membership.notifications=''
+    membership.notifications = ''
     membership.save(skip=True)
 
   #show estimates form
   if add_est and amount_missing:
     if amount_entered:
       #should not happen!
-      logging.warning(str(membership) + ' has some contacts with estimates and some without.')
-    EstFormset = formset_factory(DonorEstimates, extra=0)
+      logging.warning(str(membership) + ' has some with est & some without.')
+    est_formset = formset_factory(DonorEstimates, extra=0)
     if request.method=='POST':
-      formset = EstFormset(request.POST)
+      formset = est_formset(request.POST)
       logging.debug('Adding estimates - posted: ' + str(request.POST))
       if formset.is_valid():
         logging.debug('Adding estimates - is_valid passed, cycling through forms')
@@ -155,7 +161,7 @@ def Home(request):
             logging.debug('Amount & likelihood entered for ' + str(current))
         return HttpResponse("success")
     else:
-      formset = EstFormset(initial=initiale)
+      formset = est_formset(initial=initiale)
       logging.info('Adding estimates - loading initial formset: ' +str(need_est))
     fd = zip(formset, need_est)
 
@@ -164,7 +170,7 @@ def Home(request):
     return render(request, 'fund/page_personal.html',
       {'1active':'true',
       'header':header,
-      'progress':progress,
+      'progress':prog,
       'member':member,
       'news':news,
       'grants':grants,
@@ -531,11 +537,11 @@ def AddEstimates(request):
     if not donor.amount:
       initiald.append({'donor': donor})
       dlist.append(donor)
-  EstFormset = formset_factory(DonorEstimates, extra=0)
-  if request.method=='POST':
+  est_formset = formset_factory(DonorEstimates, extra=0)
+  if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save(skip=True)
-    formset = EstFormset(request.POST)
+    formset = est_formset(request.POST)
     logging.debug('Adding estimates - posted: ' + str(request.POST))
     if formset.is_valid():
       logging.debug('Adding estimates - is_valid passed, cycling through forms')
@@ -547,10 +553,12 @@ def AddEstimates(request):
           current.save()
       return HttpResponse("success")
   else:
-    formset = EstFormset(initial=initiald)
-    logging.info('Adding estimates - loading initial formset, size ' + str(size) + ': ' +str(dlist))
+    formset = est_formset(initial=initiald)
+    logging.info('Adding estimates - loading initial formset, size ' +
+                 str(size) + ': ' +str(dlist))
   fd = zip(formset, dlist)
-  return render(request, 'fund/add_estimates.html', {'formset':formset, 'fd':fd})
+  return render(request, 'fund/add_estimates.html',
+                {'formset':formset, 'fd':fd})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -559,11 +567,12 @@ def EditDonor(request, donor_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
-    logging.error('Tried to edit a nonexist donor. User: ' + str(request.membership) + ', id given: '
-     + str(donor_id))
+    logging.error('Tried to edit a nonexist donor. User: ' +
+                  str(request.membership) + ', id given: ' + str(donor_id))
     raise Http404
 
-  est = request.membership.giving_project.require_estimates() #showing estimates t/f
+  #check whether to require estimates
+  est = request.membership.giving_project.require_estimates()
 
   if request.method == 'POST':
     logging.info(request.body)
@@ -571,19 +580,25 @@ def EditDonor(request, donor_id):
     request.membership.last_activity = timezone.now()
     request.membership.save(skip=True)
     if est:
-      form = models.DonorForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
+      form = models.DonorForm(request.POST, instance=donor,
+                              auto_id = str(donor.pk) + '_id_%s')
     else:
-      form = models.DonorPreForm(request.POST, instance=donor, auto_id = str(donor.pk) + '_id_%s')
+      form = models.DonorPreForm(request.POST, instance=donor,
+                                 auto_id = str(donor.pk) + '_id_%s')
     if form.is_valid():
       logging.info('Edit donor success')
       form.save()
       return HttpResponse("success")
   else:
     if est:
-      form = models.DonorForm(instance=donor, auto_id = str(donor.pk) + '_id_%s')
+      form = models.DonorForm(instance=donor, auto_id = str(donor.pk) +
+                              '_id_%s')
     else:
-      form = models.DonorPreForm(instance=donor, auto_id = str(donor.pk) + '_id_%s')
-  return render(request, 'fund/edit_contact.html', { 'form': form, 'pk': donor.pk, 'action':'/fund/'+str(donor_id)+'/edit'})
+      form = models.DonorPreForm(instance=donor, auto_id = str(donor.pk) +
+                                 '_id_%s')
+  return render(request, 'fund/edit_contact.html',
+                {'form': form, 'pk': donor.pk,
+                 'action':'/fund/'+str(donor_id)+'/edit'})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -592,12 +607,13 @@ def DeleteDonor(request, donor_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
-    logging.warning(str(request.user) + 'tried to delete nonexistant donor: ' + str(donor_id))
+    logging.warning(str(request.user) + 'tried to delete nonexistent donor: ' +
+                    str(donor_id))
     raise Http404
 
-  action = '/fund/'+str(donor_id)+'/delete'
+  action = '/fund/' + str(donor_id) + '/delete'
 
-  if request.method=='POST':
+  if request.method == 'POST':
     request.membership.last_activity = timezone.now()
     request.membership.save(skip=True)
     donor.delete()
@@ -612,7 +628,8 @@ def AddStep(request, donor_id):
   membership = request.membership
   suggested = membership.giving_project.suggested_steps.splitlines()
 
-  logging.info('Single step - start of view.  User: ' + str(membership.member) + ', donor id: ' + str(donor_id))
+  logging.info('Single step - start of view. ' + str(membership.member) +
+               ', donor id: ' + str(donor_id))
 
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=membership)
@@ -620,8 +637,7 @@ def AddStep(request, donor_id):
     logging.error('Single step - tried to add step to nonexistent donor.')
     raise Http404
 
-  action='/fund/'+donor_id+'/step'
-  ajax = request.is_ajax()
+  action = '/fund/' + donor_id + '/step'
   formid = 'addstep-'+donor_id
   divid = donor_id+'-addstep'
 
@@ -644,7 +660,10 @@ def AddStep(request, donor_id):
   else:
     form = models.StepForm(auto_id = str(donor.pk) + '_id_%s')
 
-  return render(request, 'fund/add_step.html', {'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested, 'target': str(donor.pk) + '_id_description'})
+  return render(request, 'fund/add_step.html',
+                {'donor': donor, 'form': form, 'action':action, 'divid':divid,
+                 'formid':formid, 'suggested':suggested,
+                 'target': str(donor.pk) + '_id_description'})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -662,17 +681,18 @@ def AddMultStep(request):
       size = size +1
     if size > 9:
       break
-  StepFormSet = formset_factory(MassStep, extra=0)
-  if request.method=='POST':
+  step_formset = formset_factory(MassStep, extra=0)
+  if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save(skip=True)
-    formset = StepFormSet(request.POST)
+    formset = step_formset(request.POST)
     logging.debug('Multiple steps - posted: ' + str(request.POST))
     if formset.is_valid():
       logging.debug('Multiple steps - is_valid passed, cycling through forms')
       for form in formset.cleaned_data:
         if form:
-          step = models.Step(donor = form['donor'], date = form['date'], description = form['description'])
+          step = models.Step(donor = form['donor'], date = form['date'],
+                             description = form['description'])
           step.save()
           step.donor.next_step = step
           step.donor.save()
@@ -681,10 +701,13 @@ def AddMultStep(request):
     else:
       logging.info('Multiple steps invalid')
   else:
-    formset = StepFormSet(initial=initiald)
-    logging.info('Multiple steps - loading initial formset, size ' + str(size) + ': ' +str(dlist))
+    formset = step_formset(initial=initiald)
+    logging.info('Multiple steps - loading initial formset, size ' + str(size) +
+                 ': ' +str(dlist))
   fd = zip(formset, dlist)
-  return render(request, 'fund/add_mult_step.html', {'size':size, 'formset':formset, 'fd':fd, 'multi':True, 'suggested':suggested})
+  return render(request, 'fund/add_mult_step.html',
+                {'size':size, 'formset':formset, 'fd':fd, 'multi':True,
+                 'suggested':suggested})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -694,25 +717,29 @@ def EditStep(request, donor_id, step_id):
   logging.info(suggested)
 
   try:
-    donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
+    donor = models.Donor.objects.get(pk=donor_id,
+                                     membership=request.membership)
   except models.Donor.DoesNotExist:
-    logging.error(str(request.user) + 'edit step on nonexistent donor ' + str(donor_id))
+    logging.error(str(request.user) + 'edit step on nonexistent donor ' +
+                  str(donor_id))
     raise Http404
 
   try:
     step = models.Step.objects.get(id=step_id)
   except models.Step.DoesNotExist:
-    logging.error(str(request.user) + 'edit step on nonexistent step ' + str(step_id))
+    logging.error(str(request.user) + 'edit step on nonexistent step ' +
+                  str(step_id))
     raise Http404
 
-  action='/fund/'+str(donor_id)+'/'+str(step_id)
+  action = '/fund/'+str(donor_id)+'/'+str(step_id)
   formid = 'editstep-'+donor_id
   divid = donor_id+'-nextstep'
 
   if request.method == 'POST':
     request.membership.last_activity = timezone.now()
     request.membership.save(skip=True)
-    form = models.StepForm(request.POST, instance=step, auto_id = str(step.pk) + '_id_%s')
+    form = models.StepForm(request.POST, instance=step, auto_id = str(step.pk) +
+                           '_id_%s')
     if form.is_valid():
       logging.debug('Edit step success')
       form.save()
@@ -720,7 +747,10 @@ def EditStep(request, donor_id, step_id):
   else:
     form = models.StepForm(instance=step, auto_id = str(step.pk) + '_id_%s')
 
-  return render(request, 'fund/edit_step.html', { 'donor': donor, 'form': form, 'action':action, 'divid':divid, 'formid':formid, 'suggested':suggested, 'target': str(step.pk) + '_id_description'})
+  return render(request, 'fund/edit_step.html',
+                {'donor': donor, 'form': form, 'action':action, 'divid':divid,
+                'formid':formid, 'suggested':suggested,
+                'target': str(step.pk) + '_id_description'})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -732,16 +762,18 @@ def DoneStep(request, donor_id, step_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=membership)
   except models.Donor.DoesNotExist:
-    logging.error(str(request.user) + ' complete step on nonexistent donor ' + str(donor_id))
+    logging.error(str(request.user) + ' complete step on nonexistent donor ' +
+                  str(donor_id))
     raise Http404
 
   try:
     step = models.Step.objects.get(id=step_id, donor=donor)
   except models.Step.DoesNotExist:
-    logging.error(str(request.user) + ' complete step on nonexistent step ' + str(step_id))
+    logging.error(str(request.user) + ' complete step on nonexistent step ' +
+                  str(step_id))
     raise Http404
 
-  action='/fund/'+str(donor_id)+'/'+str(step_id)+'/done'
+  action = '/fund/' + str(donor_id) + '/' + str(step_id) + '/done'
 
   if request.method == 'POST':
     membership.last_activity = timezone.now()
@@ -755,18 +787,18 @@ def DoneStep(request, donor_id, step_id):
       asked = form.cleaned_data['asked']
       response = form.cleaned_data['response']
       promised = form.cleaned_data['promised_amount']
-      news = ' talked to a donor'
+      news = ' talked to a donor' #TODO is this unused?
       if asked:
         if not donor.asked: #asked this step
           logging.debug('Asked this step')
           step.asked = True
           donor.asked = True
           news = ' asked a donor'
-        if response=='3': #declined, doesn't matter whether new this step or not
+        if response == '3': #declined, doesn't matter this step or not
           donor.promised = 0
           step.promised = 0
           logging.debug('Declined')
-        if response=='1' and promised and not donor.promised: #promised this step
+        if response=='1' and promised and not donor.promised: #this step
           logging.debug('Promise entered')
           step.promised = promised
           donor.promised = promised
@@ -783,7 +815,7 @@ def DoneStep(request, donor_id, step_id):
       deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
       next = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
-      if next!='' and next_date!=None:
+      if next != '' and next_date != None:
         form2 = models.StepForm().save(commit=False)
         form2.date = next_date
         form2.description = next
@@ -797,18 +829,27 @@ def DoneStep(request, donor_id, step_id):
     response = 2
     amount = None
     if donor.promised:
-      if donor.promised==0:
+      if donor.promised == 0:
         response = 3
       else:
         response = 1
         amount = donor.promised
-    form = StepDoneForm(auto_id = str(step.pk) + '_id_%s', initial = {'asked':donor.asked, 'response':response, 'promised_amount':amount, 'notes':donor.notes, 'last_name':donor.lastname, 'phone':donor.phone, 'email':donor.email})
+    form = StepDoneForm(auto_id = str(step.pk) + '_id_%s',
+                        initial = {'asked':donor.asked, 'response':response,
+                                   'promised_amount':amount,
+                                   'notes':donor.notes,
+                                   'last_name':donor.lastname,
+                                   'phone':donor.phone, 'email':donor.email})
 
-  return render(request, 'fund/done_step.html', {'form':form, 'action':action, 'donor':donor, 'suggested':suggested, 'target': str(step.pk) + '_id_next_step', 'step_id':step_id, 'step':step})
+  return render(request, 'fund/done_step.html',
+                {'form':form, 'action':action, 'donor':donor,
+                 'suggested':suggested,
+                 'target': str(step.pk) + '_id_next_step', 'step_id':step_id,
+                 'step':step})
 
 #CRON EMAILS
 def EmailOverdue(request):
-  #TODO - in email content, show all member overdue steps (not just for that ship)
+  #TODO - in email content, show all overdue steps (not just for that ship)
   today = datetime.date.today()
   ships = models.Membership.objects.filter(giving_project__fundraising_deadline__gte=today)
   limit = today-datetime.timedelta(days=7)
@@ -817,12 +858,16 @@ def EmailOverdue(request):
     user = ship.member
     if not ship.emailed or (ship.emailed <= limit):
       num, st = ship.overdue_steps(next=True)
-      if num>0 and st:
+      if num > 0 and st:
         logging.info(user.email + ' has overdue step(s), emailing.')
         to = user.email
-        html_content = render_to_string('fund/email_overdue.html', {'login_url':settings.APP_BASE_URL+'fund/login', 'ship':ship, 'num':num, 'step':st, 'base_url':settings.APP_BASE_URL})
+        html_content = render_to_string('fund/email_overdue.html',
+                                        {'login_url':settings.APP_BASE_URL+'fund/login',
+                                        'ship':ship, 'num':num, 'step':st,
+                                        'base_url':settings.APP_BASE_URL})
         text_content = strip_tags(html_content)
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [constants.SUPPORT_EMAIL])
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to],
+                                     [constants.SUPPORT_EMAIL])
         msg.attach_alternative(html_content, "text/html")
         msg.send()
         ship.emailed = today
@@ -830,27 +875,38 @@ def EmailOverdue(request):
   return HttpResponse("")
 
 def NewAccounts(request):
-  #Sends GP leaders an email saying how many unapproved memberships there are.  Will continue emailing about the same membership until it's approved/deleted.
+  """
+  Sends GP leaders an email saying how many unapproved memberships exist
+  Will continue emailing about the same membership until it's approved/deleted.
+  """
   subject, from_email = 'Accounts pending approval', constants.FUND_EMAIL
   for gp in models.GivingProject.objects.all():
-    memberships = models.Membership.objects.filter(giving_project=gp, approved=False).count()
+    memberships = models.Membership.objects
+                  .filter(giving_project=gp, approved=False).count()
     leaders = models.Membership.objects.filter(giving_project=gp, leader=True)
     if memberships>0:
       for leader in leaders:
         to = leader.member.email
-        html_content = render_to_string('fund/email_new_accounts.html', {'admin_url':settings.APP_BASE_URL+'admin/fund/membership/', 'count':memberships, 'support_email':constants.SUPPORT_EMAIL})
+        html_content = render_to_string('fund/email_new_accounts.html',
+                                        {'admin_url':settings.APP_BASE_URL+'admin/fund/membership/',
+                                        'count':memberships,
+                                        'support_email':constants.SUPPORT_EMAIL})
         text_content = strip_tags(html_content)
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [constants.SUPPORT_EMAIL])
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to],
+                                     [constants.SUPPORT_EMAIL])
         msg.attach_alternative(html_content, "text/html")
         msg.send()
   return HttpResponse("")
 
 def GiftNotify(request):
-  """ Send an email to members letting them know gifts have been received
-    Mark donors as notified
-    Put details in membership notif """
+  """
+  Send an email to members letting them know gifts have been received
+  Mark donors as notified
+  Put details in membership notif
+  """
 
-  donors = models.Donor.objects.filter(received__gt=0, gift_notified=False).select_related('membership__member')
+  donors = models.Donor.objects.filter(received__gt=0, gift_notified=False)
+           .select_related('membership__member')
   memberships = {}
   for donor in donors: #group donors by membership
     if not donor.membership in memberships:
@@ -860,11 +916,15 @@ def GiftNotify(request):
   for ship, dlist in memberships.iteritems():
     gift_str = ''
     for d in dlist:
-      gift_str += '$'+str(d.received)+' gift or pledge received from '+d.firstname
+      gift_str += '$' + str(d.received) + ' gift or pledge received from ' +
+                  d.firstname
       if d.lastname:
         gift_str += ' '+d.lastname
       gift_str += '!<br>'
-    ship.notifications = '<table><tr><td>' + gift_str + '</td><td><img src="/static/images/odo2.png" height=86 width=176 alt="Odo flying"></td></tr></table>'
+    ship.notifications = '<table><tr><td>' + gift_str +
+                         '</td><td><img src="/static/images/odo2.png"' +
+                         'height=86 width=176 alt="Odo flying">' +
+                         '</td></tr></table>'
     ship.save(skip=True)
     logging.info('Gift notification set for ' + str(ship))
 
@@ -872,9 +932,11 @@ def GiftNotify(request):
   subject, from_email = 'Gift or pledge received', constants.FUND_EMAIL
   for ship in memberships:
     to = ship.member.email
-    html_content = render_to_string('fund/email_gift.html', {'login_url':login_url})
+    html_content = render_to_string('fund/email_gift.html',
+                                    {'login_url':login_url})
     text_content = strip_tags(html_content)
-    msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [constants.SUPPORT_EMAIL])
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to],
+                                 [constants.SUPPORT_EMAIL])
     msg.attach_alternative(html_content, "text/html")
     msg.send()
     logging.info('Emailed gift notification to ' + to)
@@ -882,13 +944,17 @@ def GiftNotify(request):
   return HttpResponse("")
 
 def FindDuplicates(request): #no url
-  donors = models.Donor.objects.select_related('membership').order_by('firstname', 'lastname', 'membership', '-next_step')
+  donors = models.Donor.objects.select_related('membership')
+           .order_by('firstname', 'lastname', 'membership', '-next_step')
   ships = []
   deleted = 0
   prior = None
   matching = False
   for donor in donors:
-    if prior and donor.membership == prior.membership and donor.firstname == prior.firstname and donor.lastname and donor.lastname == prior.lastname and not donor.talked: #matches prev, no completed steps
+    if (prior and donor.membership == prior.membership and
+        donor.firstname == prior.firstname and donor.lastname and
+        donor.lastname == prior.lastname and not donor.talked):
+      #matches prev, no completed steps
       matching = True
       donor.delete()
       deleted += 1

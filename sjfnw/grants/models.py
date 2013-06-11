@@ -40,17 +40,24 @@ class TimelineWidget(MultiWidget):
 
     if value:
       return json.loads(value)
-    return [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+    return [None, None, None, None, None, None, None, None, None, None, None,
+            None, None, None, None]
 
 
   def format_output(self, rendered_widgets):
-    """ format the widgets for display
-          args: list of rendered widgets
-          returns: a string of HTML for displaying the widgets """
+    """
+    format the widgets for display
+      args: list of rendered widgets
+      returns: a string of HTML for displaying the widgets
+    """
 
-    html = '<table id="timeline_form"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
+    html = ('<table id="timeline_form"><tr class="heading"><td></td>'
+            '<th>date range</th><th>activities</th>'
+            '<th>goals/objectives</th></tr>')
     for i in range(0, len(rendered_widgets), 3):
-      html += '<tr><th class="left">q' + str((i+3)/3) + '</th><td>' + rendered_widgets[i] + '</td><td>' + rendered_widgets[i+1] + '</td><td>' + rendered_widgets[i+2] +'</td></tr>'
+      html += ('<tr><th class="left">q' + str((i+3)/3) + '</th><td>' +
+              rendered_widgets[i] + '</td><td>' + rendered_widgets[i+1] +
+              '</td><td>' + rendered_widgets[i+2] +'</td></tr>')
     html += '</table>'
     return html
 
@@ -61,7 +68,8 @@ class TimelineWidget(MultiWidget):
 
     val_list = []
     for i, widget in enumerate(self.widgets):
-       val_list.append(widget.value_from_datadict(data, files, name + '_%s' % i))
+      val_list.append(widget.value_from_datadict(data, files, name +
+                                                  '_%s' % i))
     return json.dumps(val_list)
 
 #used by org & app
@@ -119,20 +127,25 @@ STATE_CHOICES = [
   ('WI', 'WI')]
 
 STATUS_CHOICES = [
-  ('Tribal government', 'Federally recognized American Indian tribal government'),
+  ('Tribal government',
+   'Federally recognized American Indian tribal government'),
   ('501c3', '501(c)3 organization as recognized by the IRS'),
   ('501c4', '501(c)4 organization as recognized by the IRS'),
-  ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),]
+  ('Sponsored',
+   'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government')
+  ]
 
 class Organization(models.Model):
   #registration fields
   name = models.CharField(max_length=255)
-  email = models.EmailField(max_length=100, verbose_name='Email(login)', unique=True) #= django username
+  email = models.EmailField(max_length=100, verbose_name='Email(login)',
+                            unique=True) #= django username
 
   #org contact info
   address = models.CharField(max_length=100, blank=True)
   city = models.CharField(max_length=50, blank=True)
-  state = models.CharField(max_length=2,choices=STATE_CHOICES, null=True, blank=True)
+  state = models.CharField(max_length=2, choices=STATE_CHOICES, null=True,
+                           blank=True)
   zip = models.CharField(max_length=50, blank=True)
   telephone_number = models.CharField(max_length=20, blank=True)
   fax_number = models.CharField(max_length=20, blank=True)
@@ -140,21 +153,32 @@ class Organization(models.Model):
   website = models.CharField(max_length=50, null=True, blank=True)
 
   #org info
-  status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True, blank=True)
-  ein = models.CharField(max_length=50, verbose_name="Organization's or Fiscal Sponsor Organization's EIN", blank=True)
-  founded = models.PositiveIntegerField(verbose_name='Year organization founded', null=True, blank=True)
+  status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True,
+                            blank=True)
+  ein = models.CharField(max_length=50,
+                         verbose_name="Organization's or Fiscal Sponsor Organization's EIN",
+                         blank=True)
+  founded = models.PositiveIntegerField(verbose_name='Year founded',
+                                        null=True, blank=True)
   mission = models.TextField(blank=True)
 
   #fiscal sponsor info (if applicable)
-  fiscal_org = models.CharField(verbose_name='Organization name', max_length=255, null=True, blank=True)
-  fiscal_person = models.CharField(verbose_name='Contact person', max_length=255, null=True, blank=True)
-  fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
-  fiscal_email = models.CharField(verbose_name='Email address', max_length=100, null=True, blank=True)
-  fiscal_address = models.CharField(verbose_name='Address', max_length=255, null=True, blank=True)
-  fiscal_city = models.CharField(verbose_name='City', max_length=50, blank=True)
-  fiscal_state = models.CharField(verbose_name='State', max_length=2, choices=STATE_CHOICES, blank=True)
+  fiscal_org = models.CharField(verbose_name='Organization name',
+                                max_length=255, null=True, blank=True)
+  fiscal_person = models.CharField(verbose_name='Contact person',
+                                   max_length=255, null=True, blank=True)
+  fiscal_telephone = models.CharField(verbose_name='Telephone',
+                                      max_length=25, null=True, blank=True)
+  fiscal_email = models.CharField(verbose_name='Email address',
+                                  max_length=100, null=True, blank=True)
+  fiscal_address = models.CharField(verbose_name='Address',
+                                    max_length=255, null=True, blank=True)
+  fiscal_city = models.CharField(verbose_name='City',
+                                 max_length=50, blank=True)
+  fiscal_state = models.CharField(verbose_name='State', max_length=2,
+                                  choices=STATE_CHOICES, blank=True)
   fiscal_zip = models.CharField(verbose_name='ZIP', max_length=50, blank=True)
-  fiscal_letter = models.FileField(upload_to='/', null=True,blank=True)
+  fiscal_letter = models.FileField(upload_to='/', null=True, blank=True)
 
   def __unicode__(self):
     return self.name
@@ -174,7 +198,10 @@ class GrantCycle(models.Model):
   extra_question = models.TextField(blank=True)
   info_page = models.URLField()
   email_signature = models.TextField(blank=True)
-  conflicts = models.TextField(blank=True, help_text="Track any conflicts of interest (automatic & personally declared) that occurred during this cycle.")
+  conflicts = models.TextField(blank=True,
+                               help_text='Track any conflicts of interest '
+                               '(automatic & personally declared) that occurred'
+                               ' during this cycle.')
 
   def __unicode__(self):
     return self.title
@@ -205,13 +232,20 @@ class DraftGrantApplication(models.Model):
   budget = models.FileField(upload_to='/', max_length=255)
   demographics = models.FileField(upload_to='/', max_length=255)
   funding_sources = models.FileField(upload_to='/', max_length=255)
-  budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement')
-  budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating')
-  budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet')
-  project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget')
+  budget1 = models.FileField(upload_to='/', max_length=255,
+                             verbose_name = 'Annual statement')
+  budget2 = models.FileField(upload_to='/', max_length=255,
+                             verbose_name = 'Annual operating')
+  budget3 = models.FileField(upload_to='/', max_length=255,
+                             verbose_name = 'Balance sheet')
+  project_budget_file = models.FileField(upload_to='/', max_length=255,
+                                         verbose_name = 'Project budget')
   fiscal_letter = models.FileField(upload_to='/', max_length=255)
 
-  extended_deadline = models.DateTimeField(help_text = 'Allows this draft to be edited/submitted past the grant cycle close.', blank=True, null=True)
+  extended_deadline = models.DateTimeField(help_text = ('Allows this draft to'
+                                           ' be edited/submitted past the grant'
+                                           ' cycle close.'),
+                                           blank=True, null=True)
 
   class Meta:
     unique_together = ('organization', 'grant_cycle')
@@ -225,20 +259,23 @@ class DraftGrantApplication(models.Model):
   def editable(self):
     deadline = self.grant_cycle.close
     now = timezone.now()
-    if deadline > now or (self.extended_deadline and self.extended_deadline > now):
+    if deadline > now or (self.extended_deadline and
+                          self.extended_deadline > now):
       return True
     else:
       return False
 
   @classmethod
   def file_fields(cls):
-    return [f.name for f in filter(lambda x: isinstance(x, models.FileField), cls._meta.fields)]
+    return [f.name for f in filter(lambda x: isinstance(x, models.FileField),
+                                   cls._meta.fields)]
 
 class WordLimitValidator(BaseValidator):
-    compare = lambda self, a, b: a > b
-    clean   = lambda self, x: len(re.findall(r'[^ \n\r]+', x))
-    message = u'Ensure this value has at most %(limit_value)d words (it has %(show_value)d).'
-    code = 'max_words'
+  compare = lambda self, a, b: a > b
+  clean   = lambda self, x: len(re.findall(r'[^ \n\r]+', x))
+  message = (u'Ensure this value has at most %(limit_value)d words '
+             '(it has %(show_value)d).')
+  code = 'max_words'
 
 def validate_file_extension(value):
   if not value.name.lower().split(".")[-1] in constants.ALLOWED_FILE_TYPES:
@@ -248,7 +285,8 @@ class GrantApplication(models.Model):
   """ Submitted grant application """
 
   #automated fields
-  submission_time = models.DateTimeField(blank=True, default=timezone.now(), verbose_name='Submitted')
+  submission_time = models.DateTimeField(blank=True, default=timezone.now(),
+                                         verbose_name='Submitted')
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
 
@@ -258,42 +296,63 @@ class GrantApplication(models.Model):
   state = models.CharField(max_length=2, choices=STATE_CHOICES)
   zip = models.CharField(max_length=50)
   telephone_number = models.CharField(max_length=20)
-  fax_number = models.CharField(max_length=20, blank=True, verbose_name = 'Fax number (optional)', error_messages={'invalid': u'Enter a 10-digit fax number (including area code).'})
+  fax_number = models.CharField(max_length=20, blank=True,
+                                verbose_name = 'Fax number (optional)',
+                                error_messages={'invalid': u'Enter a 10-digit fax number (including area code).'})
   email_address = models.EmailField(max_length=100)
-  website = models.CharField(max_length=50, blank=True, verbose_name = 'Website (optional)')
+  website = models.CharField(max_length=50, blank=True,
+                             verbose_name = 'Website (optional)')
 
   #org info
   status = models.CharField(max_length=50, choices=STATUS_CHOICES)
-  ein = models.CharField(max_length=50, verbose_name="Organization or Fiscal Sponsor EIN")
+  ein = models.CharField(max_length=50,
+                         verbose_name="Organization or Fiscal Sponsor EIN")
   founded = models.PositiveIntegerField(verbose_name='Year founded')
-  mission = models.TextField(verbose_name="Mission statement", validators=[WordLimitValidator(150)])
-  previous_grants = models.CharField(max_length=255, verbose_name="Previous SJF grants awarded (amounts and year)", blank=True)
+  mission = models.TextField(verbose_name="Mission statement",
+                             validators=[WordLimitValidator(150)])
+  previous_grants = models.CharField(max_length=255,
+                                     verbose_name=("Previous SJF grants awarded"
+                                                  " (amounts and year)"),
+                                     blank=True)
 
   #budget info
-  start_year = models.CharField(max_length=250,verbose_name='Start date of fiscal year')
+  start_year = models.CharField(max_length=250,
+                                verbose_name='Start date of fiscal year')
   budget_last = models.PositiveIntegerField(verbose_name='Org. budget last fiscal year')
   budget_current = models.PositiveIntegerField(verbose_name='Org. budget this fiscal year')
 
   #this grant info
-  grant_request = models.TextField(verbose_name="Briefly summarize the grant request", validators=[WordLimitValidator(100)])
-  contact_person = models.CharField(max_length=250, verbose_name= 'Name', help_text='Contact person for this grant application')
+  grant_request = models.TextField(verbose_name="Briefly summarize the grant request",
+                                   validators=[WordLimitValidator(100)])
+  contact_person = models.CharField(max_length=250, verbose_name= 'Name',
+                                    help_text='Contact person for this grant application')
   contact_person_title = models.CharField(max_length=100, verbose_name='Title')
-  grant_period = models.CharField(max_length=250, blank=True, verbose_name='Grant period (if different than fiscal year)')
+  grant_period = models.CharField(max_length=250, blank=True,
+                                  verbose_name='Grant period (if different than fiscal year)')
   amount_requested = models.PositiveIntegerField()
 
-  SUPPORT_CHOICES = [('General support', 'General support'), ('Project support', 'Project support'),]
+  SUPPORT_CHOICES = [('General support', 'General support'),
+                     ('Project support', 'Project support'),]
   support_type = models.CharField(max_length=50, choices=SUPPORT_CHOICES)
-  project_title = models.CharField(max_length=250,verbose_name='Project title (if applicable)', null=True, blank=True)
-  project_budget = models.PositiveIntegerField(verbose_name='Project budget (if applicable)', null=True, blank=True)
+  project_title = models.CharField(max_length=250, null=True, blank=True,
+                                   verbose_name='Project title (if applicable)')
+  project_budget = models.PositiveIntegerField(null=True, blank=True,
+                                               verbose_name='Project budget (if applicable)')
 
   #fiscal sponsor
-  fiscal_org = models.CharField(verbose_name='Fiscal org. name', max_length=255, blank=True)
-  fiscal_person = models.CharField(verbose_name='Contact person', max_length=255, blank=True)
-  fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, blank=True)
-  fiscal_email = models.CharField(verbose_name='Email address', max_length=70, blank=True)
-  fiscal_address = models.CharField(verbose_name='Address', max_length=255, blank=True)
+  fiscal_org = models.CharField(verbose_name='Fiscal org. name',
+                                max_length=255, blank=True)
+  fiscal_person = models.CharField(verbose_name='Contact person',
+                                   max_length=255, blank=True)
+  fiscal_telephone = models.CharField(verbose_name='Telephone',
+                                      max_length=25, blank=True)
+  fiscal_email = models.CharField(verbose_name='Email address',
+                                  max_length=70, blank=True)
+  fiscal_address = models.CharField(verbose_name='Address',
+                                    max_length=255, blank=True)
   fiscal_city = models.CharField(verbose_name='City', max_length=50, blank=True)
-  fiscal_state = models.CharField(verbose_name='State', max_length=2, choices=STATE_CHOICES, blank=True)
+  fiscal_state = models.CharField(verbose_name='State', max_length=2,
+                                  choices=STATE_CHOICES, blank=True)
   fiscal_zip = models.CharField(verbose_name='ZIP', max_length=50, blank=True)
 
   #narratives
