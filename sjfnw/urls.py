@@ -24,7 +24,6 @@ urlpatterns = patterns('',
   (r'^fund/logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/fund'}),
 
   # dev
-  (r'^dev/logs/?$', 'views.download_logs'),
   (r'^dev/jslog/?', 'views.log_javascript'),
   )
 

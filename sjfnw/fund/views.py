@@ -222,7 +222,7 @@ def Home(request):
       '1active':'true',
       'header':header,
       'donor_list': donor_list,
-      'progress':progress,
+      'progress':prog,
       'member':member,
       'news':news,
       'grants':grants,
@@ -904,8 +904,8 @@ def GiftNotify(request):
   Put details in membership notif
   """
 
-  donors = models.Donor.objects.filter(received__gt=0, gift_notified=False)
-           .select_related('membership__member')
+  donors = (models.Donor.objects.filter(received__gt=0, gift_notified=False)
+                                .select_related('membership__member'))
   memberships = {}
   for donor in donors: #group donors by membership
     if not donor.membership in memberships:
@@ -915,15 +915,15 @@ def GiftNotify(request):
   for ship, dlist in memberships.iteritems():
     gift_str = ''
     for d in dlist:
-      gift_str += '$' + str(d.received) + ' gift or pledge received from ' +
-                  d.firstname
+      gift_str += ('$' + str(d.received) + ' gift or pledge received from ' +
+                  d.firstname)
       if d.lastname:
         gift_str += ' '+d.lastname
       gift_str += '!<br>'
-    ship.notifications = '<table><tr><td>' + gift_str +
+    ship.notifications = ('<table><tr><td>' + gift_str +
                          '</td><td><img src="/static/images/odo2.png"' +
                          'height=86 width=176 alt="Odo flying">' +
-                         '</td></tr></table>'
+                         '</td></tr></table>')
     ship.save(skip=True)
     logging.info('Gift notification set for ' + str(ship))
 
@@ -943,8 +943,9 @@ def GiftNotify(request):
   return HttpResponse("")
 
 def FindDuplicates(request): #no url
-  donors = models.Donor.objects.select_related('membership')
-           .order_by('firstname', 'lastname', 'membership', '-next_step')
+  donors = (models.Donor.objects.select_related('membership')
+                                .order_by('firstname', 'lastname',
+                                          'membership', '-next_step'))
   ships = []
   deleted = 0
   prior = None

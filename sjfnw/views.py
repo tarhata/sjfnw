@@ -1,9 +1,9 @@
 ﻿from django import http
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.template import RequestContext, loader
 from google.appengine.api import logservice
 import utils
-import logging, datetime
+import logging
 
 #404
 def page_not_found(request):
@@ -21,11 +21,13 @@ def page_not_found(request):
     contact_url = False
   template_name = '404.html'
   t = loader.get_template(template_name)
-  return http.HttpResponseNotFound(t.render(RequestContext(request, {'title_addition': title_addition, 'contact_url':contact_url})))
+  return http.HttpResponseNotFound(t.render(RequestContext(request,
+                                   {'title_addition': title_addition,
+                                    'contact_url':contact_url})))
 
 #500
 def server_error(request):
-  """ Modified version of default handler - returns app-specific template. 
+  """ Modified version of default handler - returns app-specific template.
     Needs to give template: title_addition, contact_url """
   path = request.path
   if path.find('/fund') == 0:
@@ -39,7 +41,9 @@ def server_error(request):
     contact_url = False
   template_name = '500.html'
   t = loader.get_template(template_name)
-  return http.HttpResponseNotFound(t.render(RequestContext(request, {'title_addition': title_addition, 'contact_url':contact_url})))
+  return http.HttpResponseNotFound(t.render(RequestContext(request,
+                                  {'title_addition': title_addition,
+                                   'contact_url':contact_url})))
 
 #admin -> admin/
 def admin_redirect(request):

@@ -27,7 +27,7 @@ def ship_progress(obj):
   return ('<table><tr><td style="width:33%;padding:1px;">$' +
           str(obj.estimated()) + '</td><td style="width:33%;padding:1px;">$' +
           str(obj.promised()) + '</td><td style="width:33%;padding:1px;">$' +
-          str(obj.received()) + '</td></tr></table>'
+          str(obj.received()) + '</td></tr></table>')
 ship_progress.short_description = 'Estimated, promised, received'
 ship_progress.allow_tags = True
 
