@@ -66,7 +66,7 @@ class PromisedBooleanFilter(SimpleListFilter): #donors & steps
   parameter_name = 'promised_tf'
 
   def lookups(self, request, model_admin):
-      return (('True', 'Promised'), ('False', 'Declined'),
+    return (('True', 'Promised'), ('False', 'Declined'),
               ('None', 'None entered'))
 
   def queryset(self, request, queryset):
@@ -259,7 +259,7 @@ class AppAdminForm(ModelForm):
   def clean(self):
     cleaned_data = super(AppAdminForm, self).clean()
     status = cleaned_data.get("screening_status")
-    if status >=100:
+    if status >= 100:
       logging.info('Require check details')
     return cleaned_data
 
@@ -409,3 +409,4 @@ advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)
 advanced_admin.register(GrantApplication, GrantApplicationA)
 advanced_admin.register(DraftGrantApplication, DraftAdv)
+

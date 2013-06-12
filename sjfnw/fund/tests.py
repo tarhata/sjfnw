@@ -3,7 +3,6 @@ from django.test import TestCase
 from django.test.utils import override_settings
 import models
 from sjfnw.constants import TEST_MIDDLEWARE
-import sys
 
 def logInTesty(self):
   user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')
@@ -382,3 +381,4 @@ class MainPageContent(TestCase):
 """ TEST IDEAS
       gift notification & email
       update story (deferred) """
+

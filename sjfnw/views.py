@@ -1,8 +1,6 @@
 ﻿from django import http
 from django.shortcuts import redirect
 from django.template import RequestContext, loader
-from google.appengine.api import logservice
-import utils
 import logging
 
 #404

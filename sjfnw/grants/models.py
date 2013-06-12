@@ -267,8 +267,7 @@ class DraftGrantApplication(models.Model):
 
   @classmethod
   def file_fields(cls):
-    return [f.name for f in filter(lambda x: isinstance(x, models.FileField),
-                                   cls._meta.fields)]
+    return [f.name for f in cls._meta.fields if isinstance(f, models.FileField)]
 
 class WordLimitValidator(BaseValidator):
   compare = lambda self, a, b: a > b
@@ -509,11 +508,11 @@ class GrantApplication(models.Model):
 
   @classmethod
   def fiscal_fields(cls):
-    return [f for f in filter(lambda x: x.startswith('fiscal'), cls._meta.get_all_field_names())]
+    return [f for f in cls._meta.get_all_field_names() if f.startswith('fiscal')]
 
   @classmethod
   def file_fields(cls):
-    return [f.name for f in filter(lambda x: isinstance(x, models.FileField), cls._meta.fields)]
+    return [f.name for f in cls._meta.fields if isinstance(f, models.FileField)]
 
 def custom_fields(f, **kwargs): #sets phonenumber and money fields
   money_fields = ['budget_last', 'budget_current', 'amount_requested', 'project_budget']
@@ -577,7 +576,7 @@ class GrantApplicationModelForm(ModelForm):
       date = timeline[i]
       act = timeline[i+1]
       obj = timeline[i+2]
-      if i==0 and not (date or act or obj):
+      if i == 0 and not (date or act or obj):
         empty = True
       if (date or act or obj) and not (date and act and obj):
         incomplete = True
@@ -590,11 +589,11 @@ class GrantApplicationModelForm(ModelForm):
     phone = cleaned_data.get('collab_ref1_phone')
     email = cleaned_data.get('collab_ref1_email')
     if not phone and not email:
-       self._errors["collab_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
+      self._errors["collab_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
     phone = cleaned_data.get('collab_ref2_phone')
     email = cleaned_data.get('collab_ref2_email')
     if not phone and not email:
-       self._errors["collab_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
+      self._errors["collab_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
 
     #racial justice refs - require full set if any
     name = cleaned_data.get('racial_justice_ref1_name')
@@ -643,7 +642,7 @@ class GrantApplicationModelForm(ModelForm):
           self._errors["budget2"] = '<div class="form_error">This field is required.</div>'
       #require project budget if applicable and if not all-in-one
       if (support_type == 'Project support') and not cleaned_data.get('project_budget_file'):
-         self._errors["project_budget_file"] = '<div class="form_error">This field is required when applying for project support.</div>'
+        self._errors["project_budget_file"] = '<div class="form_error">This field is required when applying for project support.</div>'
     elif b1 or b2 or b3: #all-in-one included + other file(s)
       self._errors["budget"] = '<div class="form_error">Budget documents should be uploaded all in one file OR in the individual fields below.</div>'
 

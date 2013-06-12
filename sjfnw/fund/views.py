@@ -4,10 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.mail import EmailMultiAlternatives
-from django.db import connection
 from django.forms.formsets import formset_factory
 from django.http import HttpResponse, Http404
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -16,7 +15,7 @@ from forms import *
 from google.appengine.ext import deferred, ereporter
 from sjfnw import constants
 from sjfnw.grants.models import Organization, GrantApplication
-import pytz, utils, json, models, datetime, random, logging
+import utils, models, datetime, logging
 
 if not settings.DEBUG:
   ereporter.register_logger()
@@ -147,7 +146,7 @@ def Home(request):
       #should not happen!
       logging.warning(str(membership) + ' has some with est & some without.')
     est_formset = formset_factory(DonorEstimates, extra=0)
-    if request.method=='POST':
+    if request.method == 'POST':
       formset = est_formset(request.POST)
       logging.debug('Adding estimates - posted: ' + str(request.POST))
       if formset.is_valid():
@@ -216,7 +215,7 @@ def Home(request):
       formset = ContactFormset()
 
     suggested = membership.giving_project.suggested_steps.splitlines()
-    suggested = filter(None, suggested) #move this to the admin save
+    suggested = [sug for sug in suggested if sug] #filter out empty lines
 
     return render(request, 'fund/page_personal.html', {
       '1active':'true',
@@ -307,8 +306,8 @@ def GrantList(request):
 
 # LOGIN & REGISTRATION
 def FundLogin(request):
-  error_msg=''
-  if request.method=='POST':
+  error_msg = ''
+  if request.method == 'POST':
     form = LoginForm(request.POST)
     username = request.POST['email'].lower()
     password = request.POST['password']
@@ -318,10 +317,10 @@ def FundLogin(request):
         login(request, user)
         return redirect(Home)
       else:
-        error_msg='Your account is not active.  Contact an administrator.'
+        error_msg = 'Your account is not active.  Contact an administrator.'
         logging.warning("Inactive account tried to log in. Username: "+username)
     else:
-      error_msg ="Your login and password didn't match."
+      error_msg = "Your login and password didn't match."
   else:
     form = LoginForm()
   logging.info(error_msg)
@@ -383,9 +382,9 @@ def Register(request):
 
 @login_required(login_url='/fund/login/')
 def Registered(request):
-  if request.membership_status==0:
+  if request.membership_status == 0:
     return redirect(NotMember)
-  elif request.membership_status==1:
+  elif request.membership_status == 1:
     return redirect(Projects)
   else:
     member = models.Member.objects.get(email=request.user.username)
@@ -396,7 +395,7 @@ def Registered(request):
   except models.Membership.DoesNotExist: #only if they manually entered # or something went horribly wrong
     logging.warning('Membership does not exist right at /registered ' + request.user.username)
     return redirect(Home)
-  if ship.approved==True: #another precaution
+  if ship.approved == True: #another precaution
     logging.warning('Membership approved before check at /registered ' + request.user.username)
     return redirect(Home)
 
@@ -418,7 +417,7 @@ def Registered(request):
 @login_required(login_url='/fund/login/')
 def Projects(request):
 
-  if request.membership_status==0:
+  if request.membership_status == 0:
     return redirect(NotMember)
   else:
     member = models.Member.objects.get(email=request.user.username)
@@ -426,7 +425,7 @@ def Projects(request):
   ships = member.membership_set.all()
 
   printout = ''
-  if request.method=='POST':
+  if request.method == 'POST':
     form = AddProjectForm(request.POST)
     if form.is_valid():
       logging.debug('Valid add project')
@@ -450,7 +449,7 @@ def SetCurrent(request, ship_id):
   except models.Membership.DoesNotExist:
     return redirect(Projects)
 
-  member.current=shippy.pk
+  member.current = shippy.pk
   member.save()
 
   return redirect(Home)
@@ -470,7 +469,7 @@ def NotApproved(request):
     member = models.Member.objects.get(email=request.user.username)
   except models.Member.DoesNotExist:
     return redirect(NotMember)
-  memberships = member.membership_set.all()
+
   return render(request, 'fund/not_approved.html')
 
 def Blocked(request):
@@ -478,11 +477,12 @@ def Blocked(request):
 
 def Support(request):
   member = False
-  if request.membership_status>1:
+  if request.membership_status > 1:
     member = request.membership.member
-  elif request.membership_status==1:
+  elif request.membership_status == 1:
     member = models.Member.objects.get(email=request.user.username)
-  return render(request, 'fund/support.html', {'member':member, 'support_email': constants.SUPPORT_EMAIL, 'support_form':constants.FUND_SUPPORT_FORM})
+  return render(request, 'fund/support.html',
+                {'member':member, 'support_email': constants.SUPPORT_EMAIL, 'support_form':constants.FUND_SUPPORT_FORM})
 
 #FORMS
 @login_required(login_url='/fund/login/')
@@ -496,7 +496,8 @@ def AddMult(request):
   else:
     ContactFormset = formset_factory(MassDonorPre, extra=5)
   empty_error = ''
-  if request.method=='POST':
+
+  if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save()
     logging.info(request.POST)
@@ -504,14 +505,20 @@ def AddMult(request):
     if formset.is_valid():
       if formset.has_changed():
         logging.info('AddMult valid formset')
-        count = 0
+        #count = 0
         for form in formset.cleaned_data:
           if form:
-            count += 1
+            #count += 1
             if est:
-              contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], amount= form['amount'], likelihood= form['likelihood'], membership = membership)
+              contact = models.Donor(firstname = form['firstname'],
+                                     lastname= form['lastname'],
+                                     amount= form['amount'],
+                                     likelihood= form['likelihood'],
+                                     membership = membership)
             else:
-              contact = models.Donor(firstname = form['firstname'], lastname= form['lastname'], membership = membership)
+              contact = models.Donor(firstname = form['firstname'],
+                                     lastname= form['lastname'],
+                                     membership = membership)
             contact.save()
         return HttpResponse("success")
       else: #empty formset
@@ -522,9 +529,11 @@ def AddMult(request):
     formset = ContactFormset()
 
   if est:
-    return render(request, 'fund/add_mult.html', {'formset':formset, 'empty_error':empty_error})
+    return render(request, 'fund/add_mult.html',
+                  {'formset':formset, 'empty_error':empty_error})
   else:
-    return render(request, 'fund/add_mult_pre.html', {'formset':formset, 'empty_error':empty_error})
+    return render(request, 'fund/add_mult_pre.html',
+                  {'formset':formset, 'empty_error':empty_error})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -555,7 +564,7 @@ def AddEstimates(request):
   else:
     formset = est_formset(initial=initiald)
     logging.info('Adding estimates - loading initial formset, size ' +
-                 str(size) + ': ' +str(dlist))
+                 str(len(dlist)))
   fd = zip(formset, dlist)
   return render(request, 'fund/add_estimates.html',
                 {'formset':formset, 'fd':fd})
@@ -813,12 +822,12 @@ def DoneStep(request, donor_id, step_id):
       step.save()
       #call story creator/updater
       deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
-      next = form.cleaned_data['next_step']
+      next_step = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
-      if next != '' and next_date != None:
+      if next_step != '' and next_date != None:
         form2 = models.StepForm().save(commit=False)
         form2.date = next_date
-        form2.description = next
+        form2.description = next_step
         form2.donor = donor
         ns = form2.save()
         logging.info(form2)
@@ -883,7 +892,7 @@ def NewAccounts(request):
   for gp in models.GivingProject.objects.all():
     memberships = models.Membership.objects.filter(giving_project=gp, approved=False).count()
     leaders = models.Membership.objects.filter(giving_project=gp, leader=True)
-    if memberships>0:
+    if memberships > 0:
       for leader in leaders:
         to = leader.member.email
         html_content = render_to_string('fund/email_new_accounts.html',
@@ -965,3 +974,4 @@ def FindDuplicates(request): #no url
         matching = False
       prior = donor
   return render(request, 'fund/test.html', {'deleted':deleted, 'ships':ships})
+

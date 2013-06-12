@@ -1,11 +1,10 @@
-﻿from django.conf import settings
-from django.conf.urls import patterns, include
+﻿from django.conf.urls import patterns, include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic.simple import direct_to_template
 from admin import advanced_admin
 from sjfnw import constants
-import grants, fund, views
+import views
 
 handler404 = 'views.page_not_found'
 handler500 = 'views.server_error'
@@ -52,7 +51,7 @@ urlpatterns += patterns('grants.views',
   (r'^org/?$', 'RedirToApply'),
 
   #login, logout, registration
-  (r'^apply/login/?$', 'OrgLogin'),
+  (r'^apply/login/?$', 'org_login'),
   (r'^apply/register/?$', 'OrgRegister'),
 
   #home page

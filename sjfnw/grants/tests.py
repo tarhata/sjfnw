@@ -3,12 +3,10 @@ from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
-from django.utils.html import strip_tags
-from google.appengine.ext import testbed
 from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
-import sys, datetime, re, json, unittest
+import sys, datetime, json, unittest
 from sjfnw.constants import TEST_MIDDLEWARE
-from sjfnw.fund.models import Member, GivingProject
+from sjfnw.fund.models import GivingProject
 
 """ NOTE: some tests depend on having these files in sjfnw/media
   budget.docx      diversity.doc      funding_sources.docx
@@ -183,7 +181,9 @@ class ApplySuccessful(TestCase):
     setCycleDates()
     logInTesty(self)
 
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage',
+                     MEDIA_ROOT = 'media/',
+                     FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_post_valid_app(self):
     """
       scenario: start with a complete draft, post to apply
@@ -244,7 +244,9 @@ class ApplySuccessful(TestCase):
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     self.assertEqual(app.timeline, json.dumps(answers))
 
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage',
+                     MEDIA_ROOT = 'media/',
+                     FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_mult_budget(self):
     """ scenario: budget1, budget2
 
@@ -257,7 +259,7 @@ class ApplySuccessful(TestCase):
 
     response = self.client.post('/apply/3/', follow=True)
 
-    org = Organization.objects.get(pk = 2)
+    org = Organization.objects.get(pk=2)
     self.assertTemplateUsed(response, 'grants/submitted.html')
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
@@ -306,7 +308,9 @@ class ApplyValidation(TestCase):
     setCycleDates()
     logInTesty(self)
 
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage',
+                     MEDIA_ROOT = 'media/',
+                     FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_file_validation_budget(self):
     """ scenario: budget + some other budget files
                   no funding sources
@@ -613,7 +617,10 @@ class DraftExtension(TestCase):
 
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1).count())
 
-    response = self.client.post('/admin/grants/draftgrantapplication/add/', {'organization': '1', 'grant_cycle': '3', 'extended_deadline_0': '2013-04-07', 'extended_deadline_1': '11:19:46'})
+    response = self.client.post('/admin/grants/draftgrantapplication/add/',
+                                {'organization': '1', 'grant_cycle': '3',
+                                 'extended_deadline_0': '2013-04-07',
+                                 'extended_deadline_1': '11:19:46'})
 
     self.assertEqual(response.status_code, 302)
     new = DraftGrantApplication.objects.get(organization_id=1) #in effect, asserts 1 draft
@@ -645,7 +652,7 @@ class Draft(TestCase):
 
     response = self.client.post('/apply/5/autosave/', dic)
     self.assertEqual(200, response.status_code)
-    new_draft = DraftGrantApplication.objects.get(organization_id =2, grant_cycle_id=5)
+    new_draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=5)
     new_c = json.loads(new_draft.contents)
     del new_c['user_id']
     self.assertEqual(json.loads(complete_draft.contents), new_c)
@@ -700,44 +707,3 @@ class ViewGrantPermissions(TestCase):
 
     self.assertTemplateUsed(response, 'grants/blocked.html')
 
-""" TO DO - files
-  as of 4/4/13 this one throws error from deferred going off. i imagine blobstore api will cause a problem too.
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
-  def test_add_file(self):
-
-    draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=2)
-    self.assertEqual('', draft.budget)
-    budget = open('sjfnw/grants/fixtures/test_grants_guide.txt')
-    form_data = {'budget': budget}
-
-    response = self.client.post('/apply/2/add-file/', form_data)
-    budget.close()
-
-    self.assertEqual(200, response.status_code)
-
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage', MEDIA_ROOT = 'media/', FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
-  def test_add_file(self):
-
-    budget = open('sjfnw/grants/fixtures/test_grants_guide.txt')
-    form_data = {'budget': budget}
-
-    response = self.client.post('/apply/2/add-file/', form_data)
-    budget.close()
-
-    self.assertEqual(200, response.status_code)
-
-  def discard(self):
-    pass
-  """
-
-""" TO DO - HomePage
-  @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-  class HomePage(TestCase):
-
-  # Viewing data on the home page
-      #  submitted apps sorting
-      #  display of submitted, drafts, past-due drafts
-      #  display/sorting of cycles
-  def load_home_page(self):
-    pass
-  """
