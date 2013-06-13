@@ -24,3 +24,4 @@ def registered_org(function=None):
     return _wrapped_view
 
   return decorator
+

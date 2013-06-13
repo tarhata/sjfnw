@@ -36,7 +36,7 @@ def org_login(request):
       if user:
         if user.is_active:
           login(request, user)
-          return redirect(OrgHome)
+          return redirect(org_home)
         else:
           login_errors = 'Your account is inactive. Please contact an administrator.'
           logging.warning('Inactive org account tried to log in, username: ' + email)
@@ -48,7 +48,7 @@ def org_login(request):
   logging.info(login_errors)
   return render(request, 'grants/org_login_register.html', {'form':form, 'register':register, 'login_errors':login_errors})
 
-def OrgRegister(request):
+def org_register(request):
   register_error = ''
   if request.method == 'POST':
     register = RegisterForm(request.POST)
@@ -76,7 +76,7 @@ def OrgRegister(request):
         if user:
           if user.is_active:
             login(request, user)
-            return redirect(OrgHome)
+            return redirect(org_home)
           else:
             register_error = 'Your account is not active. Please contact an administrator.'
             logging.error('Inactive right after registration, account: ' + username_email)
@@ -89,12 +89,12 @@ def OrgRegister(request):
   logging.info(register_error)
   return render(request, 'grants/org_login_register.html', {'form':form, 'register':register, 'register_errors':register_error})
 
-def OrgSupport(request):
+def org_support(request):
   return render(request, 'grants/org_support.html', {
   'support_email':constants.SUPPORT_EMAIL,
   'support_form':constants.GRANT_SUPPORT_FORM})
 
-def PreApply(request, cycle_id):
+def cycle_info(request, cycle_id):
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
   if not cycle.info_page:
     raise Http404
@@ -104,7 +104,7 @@ def PreApply(request, cycle_id):
 # REGISTERED ORG VIEWS
 @login_required(login_url=LOGIN_URL)
 @registered_org()
-def OrgHome(request, organization):
+def org_home(request, organization):
 
   saved = models.DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
   submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time')
@@ -472,7 +472,7 @@ def DiscardDraft(request, organization, draft_id):
     else: #trying to delete another person's draft!?
       logging.warning('Failed attempt to discard draft ' + str(draft_id) +
                       ' by ' + str(organization))
-    return redirect(OrgHome)
+    return redirect(org_home)
   except models.DraftGrantApplication.DoesNotExist:
     logging.error(str(request.user) + ' discard nonexistent draft')
     raise Http404

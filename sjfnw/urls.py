@@ -52,17 +52,17 @@ urlpatterns += patterns('grants.views',
 
   #login, logout, registration
   (r'^apply/login/?$', 'org_login'),
-  (r'^apply/register/?$', 'OrgRegister'),
+  (r'^apply/register/?$', 'org_register'),
 
   #home page
-  (r'^apply/?$','OrgHome'),
+  (r'^apply/?$','org_home'),
   (r'^apply/(?P<draft_id>\d+)/DELETE/?$', 'DiscardDraft'),
   (r'^apply/copy/?$', 'CopyApp'),
-  (r'^apply/support/?', 'OrgSupport'),
+  (r'^apply/support/?', 'org_support'),
 
   #application
   (r'^apply/(?P<cycle_id>\d+)/?$','Apply'),
-  (r'^apply/info/(?P<cycle_id>\d+)/?$','PreApply'),
+  (r'^apply/info/(?P<cycle_id>\d+)/?$','cycle_info'),
 
   #application ajax
   (r'^apply/(?P<draft_id>\d+)/add-file/?$', 'AddFile'),
