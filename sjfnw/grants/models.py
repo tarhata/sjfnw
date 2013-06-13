@@ -468,6 +468,7 @@ class GrantApplication(models.Model):
     (20, 'Incomplete'),
     (30, 'Complete'),
     (40, 'Pre-screened out'),
+    (45, 'Screened out by sub-committee'),
     (50, 'Pre-screened in'), #readable, scorable
     (60, 'Screened out'),
     (70, 'Site visit awarded'), #site visit reports
