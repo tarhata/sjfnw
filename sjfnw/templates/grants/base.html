@@ -38,12 +38,12 @@
     {% block content %} {% endblock %}  
     <br><br><br>
     <table id="org_footer"><tr>
-      <td style="width:25%;"><a href="{% url grants.views.OrgSupport %}">support</a></td>
+      <td style="width:25%;"><a href="{% url grants.views.org_support %}">support</a></td>
       <td style="width:25%;"><a href="http://socialjusticefund.org">socialjusticefund.org</a></td>
       <td style="width:45%;text-align:right;">
       {% if user.is_authenticated %}
         {{user.email}} | <a href="/logout">log out</a>
-      {% elif not register %}<a href="{% url grants.views.OrgLogin %}">log in</a>{% endif %}</td>
+      {% elif not register %}<a href="{% url grants.views.org_login %}">log in</a>{% endif %}</td>
     </tr></table>
   </div>
 </body>

@@ -1,8 +1,10 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import timezone
 import models
 from sjfnw.constants import TEST_MIDDLEWARE
+from datetime import timedelta
 
 def logInTesty(self):
   user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')
@@ -12,12 +14,24 @@ def logInNewbie(self):
   user = User.objects.create_user('newacct@gmail.com', 'newacct@gmail.com', 'noob')
   self.client.login(username = 'newacct@gmail.com', password = 'noob')
 
+def setDates():
+  today = timezone.now()
+  gp = models.GivingProject.objects.get(pk=1) #post
+  gp.fundraising_training = today - timedelta(days=10)
+  gp.fundraising_deadline = today + timedelta(days=80)
+  gp.save()
+  gp = models.GivingProject.objects.get(pk=2) #pre
+  gp.fundraising_training = today + timedelta(days=10)
+  gp.fundraising_deadline = today + timedelta(days=30)
+  gp.save()
+
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class StepCompleteTest(TestCase):
 
   fixtures = ['test_fund.json',]
 
   def setUp(self):
+    setDates()
     logInTesty(self)
 
   def test_valid_asked(self):
@@ -303,6 +317,7 @@ class MainPageContent(TestCase):
   fixtures = ['test_fund.json',]
 
   def setUp(self):
+    setDates()
     logInNewbie(self)
 
   def test_new(self):
