@@ -821,7 +821,7 @@ def DoneStep(request, donor_id, step_id):
       logging.info('Completing a step')
       step.save()
       #call story creator/updater
-      #deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
+      deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
       next_step = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
       if next_step != '' and next_date != None:
