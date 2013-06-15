@@ -16,10 +16,10 @@ from google.appengine.ext import deferred, ereporter
 from sjfnw import constants
 from sjfnw.grants.models import Organization, GrantApplication
 
-from decorators import approved_membership
-from forms import *
+from .decorators import approved_membership
+import forms, models, utils
 
-import utils, models, datetime, logging
+import datetime, logging
 import os
 
 if not settings.DEBUG:
@@ -151,7 +151,7 @@ def Home(request):
     if amount_entered:
       #should not happen!
       logging.warning(str(membership) + ' has some with est & some without.')
-    est_formset = formset_factory(DonorEstimates, extra=0)
+    est_formset = formset_factory(forms.DonorEstimates, extra=0)
     if request.method == 'POST':
       formset = est_formset(request.POST)
       logging.debug('Adding estimates - posted: ' + str(request.POST))
@@ -212,11 +212,11 @@ def Home(request):
       donor_list, upcoming_steps = [], [] #FIX
       if est:
         logging.info('No donors - showing add contacts form with estimates')
-        ContactFormset = formset_factory(MassDonor, extra=5)
+        ContactFormset = formset_factory(forms.MassDonor, extra=5)
         mult_template = 'fund/add_mult.html'
       else:
         logging.info('No donors - showing add contacts form without estimates')
-        ContactFormset = formset_factory(MassDonorPre, extra=5)
+        ContactFormset = formset_factory(forms.MassDonorPre, extra=5)
         mult_template = 'fund/add_mult_pre.html'
       formset = ContactFormset()
 
@@ -314,7 +314,7 @@ def GrantList(request):
 def FundLogin(request):
   error_msg = ''
   if request.method == 'POST':
-    form = LoginForm(request.POST)
+    form = forms.LoginForm(request.POST)
     username = request.POST['email'].lower()
     password = request.POST['password']
     user = authenticate(username=username, password=password)
@@ -328,14 +328,14 @@ def FundLogin(request):
     else:
       error_msg = "Your login and password didn't match."
   else:
-    form = LoginForm()
+    form = forms.LoginForm()
   logging.info(error_msg)
   return render(request, 'fund/login.html', {'form':form, 'error_msg':error_msg})
 
 def Register(request):
   error_msg = ''
   if request.method=='POST':
-    register = RegistrationForm(request.POST)
+    register = forms.RegistrationForm(request.POST)
     if register.is_valid():
       username_email = request.POST['email'].lower()
       password = request.POST['password']
@@ -381,7 +381,7 @@ def Register(request):
           error_msg = 'There was a problem with your registration.  Please <a href="/fund/support#contact">contact a site admin</a> for assistance.'
           logging.error("Password didn't match right after registering. Email: " + username_email)
   else: #GET
-    register = RegistrationForm()
+    register = forms.RegistrationForm()
 
   logging.info(error_msg)
   return render(request, 'fund/register.html', {'form':register, 'error_msg':error_msg})
@@ -432,7 +432,7 @@ def Projects(request):
 
   printout = ''
   if request.method == 'POST':
-    form = AddProjectForm(request.POST)
+    form = forms.AddProjectForm(request.POST)
     if form.is_valid():
       logging.debug('Valid add project')
       gp = request.POST['giving_project']
@@ -443,7 +443,7 @@ def Projects(request):
       else:
         printout = 'You are already registered with that giving project.'
   else:
-    form = AddProjectForm()
+    form = forms.AddProjectForm()
   return render(request, 'fund/projects.html', {'member':member, 'form':form, 'printout':printout, 'ships':ships})
 
 @login_required(login_url='/fund/login/')
@@ -498,9 +498,9 @@ def AddMult(request):
   membership = request.membership
   est = membership.giving_project.require_estimates() #showing estimates t/f
   if est:
-    ContactFormset = formset_factory(MassDonor, extra=5)
+    ContactFormset = formset_factory(forms.MassDonor, extra=5)
   else:
-    ContactFormset = formset_factory(MassDonorPre, extra=5)
+    ContactFormset = formset_factory(forms.MassDonorPre, extra=5)
   empty_error = ''
 
   if request.method == 'POST':
@@ -552,7 +552,7 @@ def AddEstimates(request):
     if not donor.amount:
       initiald.append({'donor': donor})
       dlist.append(donor)
-  est_formset = formset_factory(DonorEstimates, extra=0)
+  est_formset = formset_factory(forms.DonorEstimates, extra=0)
   if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save(skip=True)
@@ -696,7 +696,7 @@ def AddMultStep(request):
       size = size +1
     if size > 9:
       break
-  step_formset = formset_factory(MassStep, extra=0)
+  step_formset = formset_factory(forms.MassStep, extra=0)
   if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save(skip=True)
@@ -793,7 +793,7 @@ def DoneStep(request, donor_id, step_id):
   if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save(skip=True)
-    form = StepDoneForm(request.POST, auto_id = str(step.pk) + '_id_%s')
+    form = forms.StepDoneForm(request.POST, auto_id = str(step.pk) + '_id_%s')
     if form.is_valid():
       step.completed = timezone.now()
       donor.talked = True
@@ -851,7 +851,7 @@ def DoneStep(request, donor_id, step_id):
       else:
         response = 1
         amount = donor.promised
-    form = StepDoneForm(auto_id = str(step.pk) + '_id_%s',
+    form = forms.StepDoneForm(auto_id = str(step.pk) + '_id_%s',
                         initial = {'asked':donor.asked, 'response':response,
                                    'promised_amount':amount,
                                    'notes':donor.notes,
