@@ -10,12 +10,17 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
-from decorators import approved_membership
-from forms import *
+
 from google.appengine.ext import deferred, ereporter
+
 from sjfnw import constants
 from sjfnw.grants.models import Organization, GrantApplication
+
+from decorators import approved_membership
+from forms import *
+
 import utils, models, datetime, logging
+import os
 
 if not settings.DEBUG:
   ereporter.register_logger()
@@ -49,6 +54,7 @@ def get_block_content(membership, first=True):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def Home(request):
+
   #hacks
   mult_template = 'fund/add_mult.html'
   formset = ''
@@ -821,7 +827,9 @@ def DoneStep(request, donor_id, step_id):
       logging.info('Completing a step')
       step.save()
       #call story creator/updater
-      deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
+      if os.getenv('SETTINGS_MODE') is not None:
+        deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
+        logging.info('calling update story')
       next_step = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
       if next_step != '' and next_date != None:
