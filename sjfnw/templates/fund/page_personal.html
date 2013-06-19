@@ -49,8 +49,8 @@
       data.addColumn('number', 'Amount');
       data.addRows([
         ['Remaining', {{progress.togo|default:'0'}}],
-        ["Pledged", {{progress.pledged}}],
-        ['Donated', {{progress.donated}}]
+        ["Promised", {{progress.promised}}],
+        ['Received', {{progress.received}}]
       ]);
 
       // Instantiate and draw our chart, passing in some options.
@@ -75,7 +75,7 @@
 		if (chart) {
 			chart.innerHTML = "<br><br>Haven't contacted: {{progress.contactsremaining}}<br>Talked to: {{progress.talked}}<br>Asked: {{progress.asked}}";
 			if ({{progress.estimated}} > 0) {
-				document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{progress.togo|default:'0'}}<br>Pledged: ${{progress.pledged}}<br>Donated: ${{progress.donated}}";
+				document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{progress.togo|default:'0'}}<br>Promised: ${{progress.promised}}<br>Received: ${{progress.received}}";
 			}
 		} else {
 			console.log('no chart div, not running textprogress');
@@ -148,7 +148,7 @@
     }
   }
 
-  function loadView(get_url, div_id, dasked, dpledged) {
+  function loadView(get_url, div_id, dasked, dpromised) {
     if (request_processing) {
       console.log('Request processing; load view denied');
       return false;
@@ -167,7 +167,7 @@
           var a = document.getElementById('donor-' + pks[0]);
           a.style.borderColor="#555";
           if (dasked) {
-            completeLoaded(pks[1], dasked, dpledged);
+            completeLoaded(pks[1], dasked, dpromised);
           }
         } else if (div_id == 'addmult') {
           document.getElementById(div_id).style.borderColor="#555";
@@ -192,7 +192,7 @@
     });
   }
 
-  function Submit(sub_url, form_id, div_id, date, dasked, dpledged){
+  function Submit(sub_url, form_id, div_id, date, dasked, dpromised){
     if (request_processing) {
       console.log('Request processing; submit denied');
       return false;
@@ -215,7 +215,7 @@
           if (sub_url.match('done')) {
             var pks = sub_url.match(/\d+/g);
             if (pks && pks[1]) {
-              completeLoaded(pks[1], dasked, dpledged, 'True');
+              completeLoaded(pks[1], dasked, dpromised, 'True');
             }
           }
         }
@@ -367,27 +367,27 @@
   }
 
   //complete step form
-  function completeLoaded(pk, dasked, dpledged, submitted) { //loaded
+  function completeLoaded(pk, dasked, dpromised, submitted) { //loaded
     //hide fields based on what is already in the database for the contact
     //console.log('completeloaded called, submitted is ' +submitted);
     var asked_span = document.getElementById(pk+'_asked');
     var response_span = document.getElementById(pk+'_response');
-    var pledged_span = document.getElementById(pk+'_pledge');
+    var promised_span = document.getElementById(pk+'_promise');
     if (dasked != 'False') {  //have asked
       asked_span.style.display = "none";
-      if (dpledged != 'None') { // pledge complete, hide 2&3
+      if (dpromised != 'None') { // promise complete, hide 2&3
         response_span.style.display = "none";
-        pledged_span.style.display = "none";
-        //console.log('in completeloaded pledge in db, hiding')
+        promised_span.style.display = "none";
+        //console.log('in completeloaded promise in db, hiding')
       } else { // check response
         var response = document.getElementById(pk+'_id_response');
         responseSelected(response);
       }
     } else { //haven't asked yet, hide 2&3
       response_span.style.display = "none";
-      pledged_span.style.display = "none";
+      promised_span.style.display = "none";
       if (submitted) {
-        //console.log('in completeloaded pledge in db, calling askedtoggled')
+        //console.log('in completeloaded promise in db, calling askedtoggled')
         var asked = document.getElementById(pk+'_id_asked');
         askedToggled(asked);
       }
@@ -407,36 +407,36 @@
     } else { //hide all following
       //console.log('askedtoggled un checked');
       response_span.style.display="none";
-      var hide_span = document.getElementById(num+'_pledge');
+      var hide_span = document.getElementById(num+'_promise');
       hide_span.style.display="none";
-      pledgeEntered(hide_span, true);
+      promiseEntered(hide_span, true);
     }
   }
 
   function responseSelected(response) { //step complete form - response input changed
-    //show or hide the pledged field
+    //show or hide the promised field
     var num = response.id.match(/\d+/);
-    var pledged_span = document.getElementById(num+'_pledge');
-    if (response.value == 1) { //1 = pledged, 2 = unsure, 3 = dec
-      pledged_span.style.display="";
-      var pledge = document.getElementById(num+'_id_pledged_amount');
-      //console.log('in respselected, calling pledge entered')
-      pledgeEntered(pledge);
+    var promised_span = document.getElementById(num+'_promise');
+    if (response.value == 1) { //1 = promised, 2 = unsure, 3 = dec
+      promised_span.style.display="";
+      var promise = document.getElementById(num+'_id_promised_amount');
+      //console.log('in respselected, calling promise entered')
+      promiseEntered(promise);
     } else {
-      pledged_span.style.display="none";
-      //console.log('in respselected, calling pledge entered hide')
-      pledgeEntered(pledged_span, true);
+      promised_span.style.display="none";
+      //console.log('in respselected, calling promise entered hide')
+      promiseEntered(promised_span, true);
     }
   }
 
-  function pledgeEntered(pledge, hide) { //step complete form - pledge input changed
+  function promiseEntered(promise, hide) { //step complete form - promise input changed
     //show or hide the last name & contact info fields
-    pledge_amt = parseFloat(pledge.value) || 0;
-    var num = pledge.id.match(/\d+/);
-    //console.log('in pledgeentered, amt = ' + pledge_amt +', num = ' +num)
-    var follows = $('.' + num + '_pledge_follow').get();
+    promise_amt = parseFloat(promise.value) || 0;
+    var num = promise.id.match(/\d+/);
+    //console.log('in promiseentered, amt = ' + promise_amt +', num = ' +num)
+    var follows = $('.' + num + '_promise_follow').get();
     for (var i = 0; i < follows.length; i++) {
-      if (pledge_amt > 0 && hide != true) {
+      if (promise_amt > 0 && hide != true) {
         follows[i].style.display="table-row";
       } else {
         follows[i].style.display="none";
@@ -516,33 +516,33 @@
 {% for dict in donor_list %} <!-- donors -->
 <div class="donor indent" id="donor-{{dict.donor.pk}}">
   <!-- line 1 name click to toggle -->
-  <a class="{%if dict.donor.pledged != None%}pledged{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{dict.donor.lastname}}</b></a><br>
+  <a class="{%if dict.donor.promised != None%}promised{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{dict.donor.lastname}}</b></a><br>
   {% if dict.next_step %}
     <!-- line 2 next step summary -->
     <div id="{{dict.donor.pk}}-nextstep">{%if dict.overdue%}<span title="This step's goal date has passed! Edit or complete it" style="display:inline;"><span class="overdue_step">! </span>{{dict.next_step}}</span>{% else %}{{dict.next_step}}{%endif%}
     <!-- edit/complete links -->
-    <div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}', '{{dict.donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}/done', '{{dict.donor.pk}}-nextstep', '{{dict.donor.asked}}', '{{dict.donor.pledged}}');">complete</a>]</div>
+    <div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}', '{{dict.donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}/done', '{{dict.donor.pk}}-nextstep', '{{dict.donor.asked}}', '{{dict.donor.promised}}');">complete</a>]</div>
     </div>
   {% else %}
     <div id="{{dict.donor.pk}}-addstep">
-    {% if dict.donor.pledged == None and dict.donor.gifted == 0 %}
+    {% if dict.donor.promised == None and dict.donor.received == 0 %}
       <!-- line 2 add a step -->
       No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
     {% else %}
       <!-- line 2 summary of response -->
-      <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.gifted %}Donated ${{dict.donor.gifted|intcomma}}.{% elif dict.donor.pledged != None %}{% if dict.donor.pledged > 0 %}Pledged ${{dict.donor.pledged|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
+      <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.received %}${{dict.donor.received|intcomma}} received by SJF.{% elif dict.donor.promised != None %}{% if dict.donor.promised > 0 %}Promised ${{dict.donor.promised|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
     {% endif %}
     </div>
   {% endif %}
 
   <div class="donor_details indent" id="details-{{dict.donor.pk}}" style="display:none;"><!-- donor details (hidden) -->
     <table>
-      {% if dict.donor.gifted %}<!-- gifted, pledged, asked, etc. -->
-        <tr><td>Donated:</td><td>${{dict.donor.gifted|intcomma}}</td></tr>
+      {% if dict.donor.received %}<!-- received, promised, asked, etc. -->
+        <tr><td>Received by SJF:</td><td>${{dict.donor.received|intcomma}}</td></tr>
         <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
-      {% elif dict.donor.pledged != None%}
-        {% if dict.donor.pledged > 0 %}
-          <tr><td>Pledged:</td><td>${{dict.donor.pledged|intcomma}}</td></tr>
+      {% elif dict.donor.promised != None%}
+        {% if dict.donor.promised > 0 %}
+          <tr><td>Promised:</td><td>${{dict.donor.promised|intcomma}}</td></tr>
         {% else %}
           <tr><td colspan="2">Declined to donate.</td></tr>
         {% endif %}
@@ -566,7 +566,7 @@
       </tr>
       {% if dict.complete_steps %}<!-- list of complete steps -->
         <tr>
-          <td>Completed steps:{% if dict.donor.pledged != None and not dict.next_step %}<br>[<a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">add step</a>]{% endif %}</td>
+          <td>Completed steps:{% if dict.donor.promised != None and not dict.next_step %}<br>[<a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">add step</a>]{% endif %}</td>
           <td>{% for step in dict.complete_steps %}{{step.date|date:"n/d/y"}}: {{step.description}}<br>{% endfor %}</td>
         </tr>
       {% endif %}

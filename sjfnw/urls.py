@@ -1,11 +1,10 @@
-﻿from django.conf import settings
-from django.conf.urls import patterns, include
+﻿from django.conf.urls import patterns, include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic.simple import direct_to_template
 from admin import advanced_admin
 from sjfnw import constants
-import grants, fund, views
+import views
 
 handler404 = 'views.page_not_found'
 handler500 = 'views.server_error'
@@ -24,7 +23,6 @@ urlpatterns = patterns('',
   (r'^fund/logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/fund'}),
 
   # dev
-  (r'^dev/logs/?$', 'views.download_logs'),
   (r'^dev/jslog/?', 'views.log_javascript'),
   )
 
@@ -53,18 +51,18 @@ urlpatterns += patterns('grants.views',
   (r'^org/?$', 'RedirToApply'),
 
   #login, logout, registration
-  (r'^apply/login/?$', 'OrgLogin'),
-  (r'^apply/register/?$', 'OrgRegister'),
+  (r'^apply/login/?$', 'org_login'),
+  (r'^apply/register/?$', 'org_register'),
 
   #home page
-  (r'^apply/?$','OrgHome'),
+  (r'^apply/?$','org_home'),
   (r'^apply/(?P<draft_id>\d+)/DELETE/?$', 'DiscardDraft'),
   (r'^apply/copy/?$', 'CopyApp'),
-  (r'^apply/support/?', 'OrgSupport'),
+  (r'^apply/support/?', 'org_support'),
 
   #application
   (r'^apply/(?P<cycle_id>\d+)/?$','Apply'),
-  (r'^apply/info/(?P<cycle_id>\d+)/?$','PreApply'),
+  (r'^apply/info/(?P<cycle_id>\d+)/?$','cycle_info'),
 
   #application ajax
   (r'^apply/(?P<draft_id>\d+)/add-file/?$', 'AddFile'),
@@ -135,3 +133,4 @@ urlpatterns += patterns('fund.views',
 
 #for dev_appserver
 urlpatterns += staticfiles_urlpatterns()
+

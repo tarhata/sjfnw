@@ -1,6 +1,5 @@
 ﻿from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Sum
 from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.utils import timezone
@@ -16,7 +15,10 @@ def custom_integer_field(f, **kwargs):
 
 class GivingProject(models.Model):
   title = models.CharField(max_length=255)
-  public = models.BooleanField(default=True, help_text='Whether this project should show in the dropdown menu for members registering or adding a project to their account.')
+  public = models.BooleanField(default=True,
+                               help_text=('Whether this project should show in'
+                               ' the dropdown menu for members registering or '
+                               'adding a project to their account.'))
 
   #fundraising
   fundraising_training = models.DateTimeField(help_text='Date & time of fundraising training.  At this point the app will require members to enter an ask amount & estimated likelihood for each contact.')
@@ -25,8 +27,11 @@ class GivingProject(models.Model):
   pre_approved = models.TextField(null=True, blank=True, help_text='List of member emails, separated by commas.  Anyone who registers using an email on this list will have their account automatically approved.  IMPORTANT: Any syntax error can make this feature stop working; in that case memberships will default to requiring manual approval by an administrator.') #remove null from all char
   suggested_steps = models.TextField(default='Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank', help_text='Displayed to users when they add a step.  Put each step on a new line')
 
-  calendar = models.CharField(max_length=255, null=True, blank=True, help_text= 'Calendar ID of a google calendar - format: ____@group.calendar.google.com')
-  resources = models.ManyToManyField('Resource', through = 'ProjectResource', null=True, blank=True)
+  calendar = models.CharField(max_length=255, null=True, blank=True,
+                              help_text= ('Calendar ID of a google calendar - '
+                              'format: ____@group.calendar.google.com'))
+  resources = models.ManyToManyField('Resource', through = 'ProjectResource',
+                                     null=True, blank=True)
 
   def __unicode__(self):
     return self.title+u' '+unicode(self.fundraising_deadline.year)
@@ -38,7 +43,7 @@ class GivingProject(models.Model):
 
   def require_estimates(self):
     return self.fundraising_training <= timezone.now()
-  
+
   def estimated(self):
     donors = Donor.objects.filter(membership__giving_project=self)
     estimated = 0
@@ -63,8 +68,12 @@ class Membership(models.Model): #relationship b/n member and gp
   approved = models.BooleanField(default=False)
   leader = models.BooleanField(default=False)
 
-  emailed = models.DateField(blank=True, null=True, help_text='Last time this member was sent an overdue steps reminder')
-  last_activity = models.DateField(blank=True, null=True, help_text='Last activity by this user on this membership.')
+  emailed = models.DateField(blank=True, null=True,
+                             help_text=('Last time this member was sent an '
+                                       'overdue steps reminder'))
+  last_activity = models.DateField(blank=True, null=True,
+                                   help_text=('Last activity by this user on '
+                                              'this membership.'))
 
   notifications = models.TextField(default='', blank=True)
 
@@ -75,20 +84,22 @@ class Membership(models.Model): #relationship b/n member and gp
     if not skip:
       try:
         previous = Membership.objects.get(id=self.id)
-        logging.debug('Previously: ' + str(previous.approved) + ', now: ' + str(self.approved))
+        logging.debug('Previously: ' + str(previous.approved) + ', now: ' +
+                      str(self.approved))
         if self.approved and not previous.approved: #newly approved!
           logging.debug('Detected approval on save for ' + unicode(self))
           NotifyApproval(self)
-      except Membership.DoesNotExist: pass
+      except Membership.DoesNotExist:
+        pass
     super(Membership, self).save(*args, **kwargs)
 
-  def has_overdue(self, next=False): # 1 db query
+  def overdue_steps(self, next=False): # 1 db query
     cutoff = timezone.now().date() - datetime.timedelta(days=1)
     steps = Step.objects.filter(donor__membership = self, completed__isnull = True, date__lt = cutoff).order_by('-date')
     count = steps.count()
     if not next:
       return count
-    elif count==0:
+    elif count == 0:
       return count, False
     else:
       return count, steps[0]
@@ -96,19 +107,19 @@ class Membership(models.Model): #relationship b/n member and gp
   def asked(self): #remove
     return self.donor_set.filter(asked=True).count()
 
-  def pledged(self): #remove
+  def promised(self): #remove
     donors = self.donor_set.all()
     amt = 0
     for donor in donors:
-      if donor.pledged:
-        amt = amt + donor.pledged
+      if donor.promised:
+        amt = amt + donor.promised
     return amt
 
-  def gifted(self): #remove
+  def received(self): #remove
     donors = self.donor_set.all()
     amt = 0
     for donor in donors:
-      amt = amt + donor.gifted
+      amt = amt + donor.received
     return amt
 
   def estimated(self): #remove
@@ -124,28 +135,27 @@ class Donor(models.Model):
   membership = models.ForeignKey(Membership)
 
   firstname = models.CharField(max_length=100, verbose_name='*First name')
-  lastname = models.CharField(max_length=100, null=True, blank=True, verbose_name='Last name')
+  lastname = models.CharField(max_length=100, null=True, blank=True,
+                              verbose_name='Last name')
 
-  PRIVACY_CHOICES = (
-    ('PR', 'Private - cannot be seen by staff'),
-    ('SH', 'Shared'),
-  )
-  privacy = models.CharField(max_length=2, choices=PRIVACY_CHOICES, default='SH') #not in use
-
-  amount = models.PositiveIntegerField(verbose_name='*Amount to ask ($)', null=True, blank=True)
-  likelihood = models.PositiveIntegerField(verbose_name='*Estimated likelihood (%)', validators=[MaxValueValidator(100)], null=True, blank=True)
+  amount = models.PositiveIntegerField(verbose_name='*Amount to ask ($)',
+                                       null=True, blank=True)
+  likelihood = models.PositiveIntegerField(verbose_name='*Estimated likelihood (%)',
+                                           validators=[MaxValueValidator(100)],
+                                           null=True, blank=True)
 
   talked = models.BooleanField(default=False)
   asked = models.BooleanField(default=False)
-  pledged = models.PositiveIntegerField(blank=True, null=True)
-  gifted = models.PositiveIntegerField(default=0)
+  promised = models.PositiveIntegerField(blank=True, null=True)
+  received = models.PositiveIntegerField(default=0)
   gift_notified = models.BooleanField(default=False)
 
   phone = models.CharField(max_length=15, null=True, blank=True)
   email = models.EmailField(max_length=100, null=True, blank=True)
   notes = models.TextField(blank=True)
 
-  next_step = models.ForeignKey('Step', related_name = '+', null=True, blank=True) #don't need to go backwards
+  next_step = models.ForeignKey('Step', null=True, blank=True,
+                                related_name = '+') #don't need to go backwards
 
   def __unicode__(self):
     if self.lastname:
@@ -170,12 +180,16 @@ class Donor(models.Model):
     return False
 
 def make_custom_datefield(f):
-  """date selector implementation from http://strattonbrazil.blogspot.com/2011/03/using-jquery-uis-date-picker-on-all.html """
+  """
+  date selector implementation from
+  http://strattonbrazil.blogspot.com/2011/03/using-jquery-uis-date-picker-on-all.html
+  """
   formfield = f.formfield()
   if isinstance(f, models.DateField):
     formfield.error_messages['invalid'] = 'Please enter a date in mm/dd/yyyy format.'
     formfield.widget.format = '%m/%d/%Y'
-    formfield.widget.input_formats = ['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y', '%n-%j-%Y']
+    formfield.widget.input_formats = ['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y',
+                                      '%n-%j-%Y']
     formfield.widget.attrs.update({'class':'datePicker'})
   return formfield
 
@@ -183,18 +197,15 @@ class DonorForm(ModelForm): #used to edit, creation uses custom form
   formfield_callback = custom_integer_field
   class Meta:
     model = Donor
-    fields = ('firstname', 'lastname', 'amount', 'likelihood', 'phone', 'email', 'notes')
-    widgets = {
-      'notes': Textarea(attrs={'cols': 25, 'rows': 4}),
-    }
+    fields = ('firstname', 'lastname', 'amount', 'likelihood', 'phone',
+              'email', 'notes')
+    widgets = {'notes': Textarea(attrs={'cols': 25, 'rows': 4})}
 
 class DonorPreForm(ModelForm): #for editing prior to fund training
   class Meta:
     model = Donor
     fields = ('firstname', 'lastname', 'phone', 'email', 'notes')
-    widgets = {
-      'notes': Textarea(attrs={'cols': 25, 'rows': 4}),
-    }
+    widgets = {'notes': Textarea(attrs={'cols': 25, 'rows': 4})}
 
 class Step(models.Model):
   created = models.DateTimeField(default=timezone.now())
@@ -203,7 +214,7 @@ class Step(models.Model):
   donor = models.ForeignKey(Donor)
   completed = models.DateTimeField(null=True, blank=True)
   asked = models.BooleanField(default=False)
-  pledged = models.PositiveIntegerField(blank=True, null=True)
+  promised = models.PositiveIntegerField(blank=True, null=True)
 
   def __unicode__(self):
     return unicode(self.date.strftime('%m/%d/%y')) + u' -  ' + self.description
@@ -213,7 +224,7 @@ class StepForm(ModelForm): #for adding a step
 
   class Meta:
     model = Step
-    exclude = ('created', 'donor', 'completed', 'asked', 'pledged')
+    exclude = ('created', 'donor', 'completed', 'asked', 'promised')
 
 class NewsItem(models.Model):
   date = models.DateTimeField(default=timezone.now())
@@ -239,4 +250,5 @@ class ProjectResource(models.Model): #ties resource to project
   session = models.CharField(max_length=255)
 
   def __unicode__(self):
-    return "%s - %s - %s" %(self.giving_project, self.session, self.resource)
+    return "%s - %s - %s" % (self.giving_project, self.session, self.resource)
+

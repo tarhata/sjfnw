@@ -8,8 +8,8 @@ GIVING PROJECT
   
 MEMBER
   
-  1 testacct@gmail.com - current 2
-  2 newacct@gmail.com - current 1
+  1 testacct@gmail.com - current 1
+  2 newacct@gmail.com - current 2
   
 MEMBERSHIPS
     DONORS
@@ -31,3 +31,4 @@ MEMBERSHIPS
 USER
 
   created in test code because of passwords
+

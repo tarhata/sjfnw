@@ -1,16 +1,11 @@
-﻿from django.conf import settings
-from django.contrib import admin
+﻿from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from django.core.mail import EmailMultiAlternatives
-from django.forms.widgets import HiddenInput
 from django.http import HttpResponse
 from django.forms import ValidationError
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from fund.models import *
 from grants.models import *
 from forms import IntegerCommaField
@@ -28,6 +23,14 @@ def gp_year(obj): #GP list_display
   return obj.fundraising_deadline.year
 gp_year.short_description = 'Year'
 
+def ship_progress(obj):
+  return ('<table><tr><td style="width:33%;padding:1px;">$' +
+          str(obj.estimated()) + '</td><td style="width:33%;padding:1px;">$' +
+          str(obj.promised()) + '</td><td style="width:33%;padding:1px;">$' +
+          str(obj.received()) + '</td></tr></table>')
+ship_progress.short_description = 'Estimated, promised, received'
+ship_progress.allow_tags = True
+
 # actions
 def approve(modeladmin, request, queryset): #Membership action
   logging.info('Approval button pressed; looking through queryset')
@@ -43,43 +46,49 @@ def export_donors(modeladmin, request, queryset):
   response['Content-Disposition'] = 'attachment; filename=prospects.csv'
   writer = csv.writer(response)
 
-  writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member', 'Giving Project', 'Amount to ask', 'Asked', 'Pledged', 'Gifted', 'Notes'])
+  writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member',
+                   'Giving Project', 'Amount to ask', 'Asked', 'Promised',
+                   'Received', 'Notes'])
   count = 0
   for donor in queryset:
-    fields = [donor.firstname, donor.lastname, donor.phone, donor.email, donor.membership.member, donor.membership.giving_project, donor.amount, donor.asked, donor.pledged, donor.gifted, donor.notes]
+    fields = [donor.firstname, donor.lastname, donor.phone, donor.email,
+              donor.membership.member, donor.membership.giving_project,
+              donor.amount, donor.asked, donor.promised, donor.received,
+              donor.notes]
     writer.writerow(fields)
     count += 1
   logging.info(str(count) + ' donors exported')
   return response
 
 # Filters
-class PledgedBooleanFilter(SimpleListFilter): #donors & steps
-  title = 'pledged'
-  parameter_name = 'pledged_tf'
+class PromisedBooleanFilter(SimpleListFilter): #donors & steps
+  title = 'promised'
+  parameter_name = 'promised_tf'
 
   def lookups(self, request, model_admin):
-      return (('True', 'Pledged'), ('False', 'Declined'), ('None', 'None entered'))
+    return (('True', 'Promised'), ('False', 'Declined'),
+              ('None', 'None entered'))
 
   def queryset(self, request, queryset):
     if self.value() == 'True':
-      return queryset.filter(pledged__gt=0)
+      return queryset.filter(promised__gt=0)
     if self.value() == 'False':
-      return queryset.filter(pledged=0)
+      return queryset.filter(promised=0)
     elif self.value() == 'None':
-      return queryset.filter(pledged__isnull=True)
+      return queryset.filter(promised__isnull=True)
 
-class GiftedBooleanFilter(SimpleListFilter): #donors & steps
-  title = 'gifted'
-  parameter_name = 'gifted_tf'
+class ReceivedBooleanFilter(SimpleListFilter): #donors & steps
+  title = 'received'
+  parameter_name = 'received_tf'
 
   def lookups(self, request, model_admin):
-      return (('True', 'Gift received'), ('False', 'No gift received'))
+    return (('True', 'Gift received'), ('False', 'No gift received'))
 
   def queryset(self, request, queryset):
     if self.value() == 'True':
-      return queryset.filter(gifted__gt=0)
+      return queryset.filter(received__gt=0)
     if self.value() == 'False':
-      return queryset.filter(gifted=0)
+      return queryset.filter(received=0)
 
 # Inlines
 class MembershipInline(admin.TabularInline): #GP
@@ -100,12 +109,17 @@ class DonorInline(admin.TabularInline): #membership
   extra = 0
   max_num = 0
   can_delete = False
-  readonly_fields = ('firstname', 'lastname', 'amount', 'talked', 'asked', 'pledged')
-  fields = ('firstname', 'lastname', 'amount', 'talked', 'asked', 'pledged')
+  readonly_fields = ('firstname', 'lastname', 'amount', 'talked', 'asked',
+                     'promised')
+  fields = ('firstname', 'lastname', 'amount', 'talked', 'asked', 'promised')
 
 # Forms
 class GivingProjectAdminForm(ModelForm):
-  fund_goal = IntegerCommaField(label='Fundraising goal', initial=0, help_text='Fundraising goal agreed upon by the group. If 0, it will not be displayed to members and they won\'t see a group progress chart for money raised.')
+  fund_goal = IntegerCommaField(label='Fundraising goal', initial=0,
+                                help_text=('Fundraising goal agreed upon by '
+                                'the group. If 0, it will not be displayed to '
+                                'members and they won\'t see a group progress '
+                                'chart for money raised.'))
 
   class Meta:
     model = GivingProject
@@ -128,22 +142,25 @@ class GivingProjectA(admin.ModelAdmin):
 class MemberAdvanced(admin.ModelAdmin): #advanced only
   list_display = ('first_name', 'last_name', 'email')
   search_fields = ['first_name', 'last_name', 'email']
-  inlines = [MembershipInline]
 
 class MembershipA(admin.ModelAdmin):
-  list_display = ('member', 'giving_project', 'estimated', 'pledged', 'has_overdue', 'last_activity', 'approved', 'leader')
-  readonly_list = ('estimated', 'pledged', 'has_overdue',)
+  list_display = ('member', 'giving_project', ship_progress, 'overdue_steps',
+                  'last_activity', 'approved', 'leader')
+  readonly_list = (ship_progress, 'overdue_steps',)
   actions = [approve]
   list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
   search_fields = ['member__first_name', 'member__last_name']
   inlines = [DonorInline]
 
 class DonorA(admin.ModelAdmin):
-  list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked', 'pledged', 'gifted')
-  list_filter = ('membership__giving_project', 'asked', PledgedBooleanFilter, GiftedBooleanFilter)
-  list_editable = ('gifted',)
+  list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked',
+                  'promised', 'received')
+  list_filter = ('membership__giving_project', 'asked', PromisedBooleanFilter,
+                 ReceivedBooleanFilter)
+  list_editable = ('received',)
   exclude = ('added',)
-  search_fields = ['firstname', 'lastname', 'membership__member__first_name', 'membership__member__last_name']
+  search_fields = ['firstname', 'lastname', 'membership__member__first_name',
+                   'membership__member__last_name']
   actions = [export_donors]
 
 class NewsA(admin.ModelAdmin):
@@ -151,8 +168,10 @@ class NewsA(admin.ModelAdmin):
   list_filter = ('membership__giving_project',)
 
 class StepAdv(admin.ModelAdmin): #adv only
-  list_display = ('description', 'donor', step_membership, 'date', 'completed', 'pledged')
-  list_filter = ('donor__membership', PledgedBooleanFilter, GiftedBooleanFilter)
+  list_display = ('description', 'donor', step_membership, 'date', 'completed',
+                  'promised')
+  list_filter = ('donor__membership', PromisedBooleanFilter,
+                 ReceivedBooleanFilter)
 
 ## Grants
 
@@ -240,7 +259,7 @@ class AppAdminForm(ModelForm):
   def clean(self):
     cleaned_data = super(AppAdminForm, self).clean()
     status = cleaned_data.get("screening_status")
-    if status >=100:
+    if status >= 100:
       logging.info('Require check details')
     return cleaned_data
 
@@ -257,7 +276,8 @@ class DraftForm(ModelForm):
     cycle = cleaned_data.get('grant_cycle')
     if org and cycle:
       if GrantApplication.objects.filter(organization=org, grant_cycle=cycle):
-        raise ValidationError('This organization has already submitted an application to this grant cycle.')
+        raise ValidationError('This organization has already submitted an '
+                              'application to this grant cycle.')
     return cleaned_data
 
 # modeladmin
@@ -278,33 +298,46 @@ class OrganizationA(admin.ModelAdmin):
       'fields':(('name', 'email'),)
     }),
     ('', {
-      'fields':(('address', 'city', 'state', 'zip'), ('telephone_number', 'fax_number', 'email_address', 'website'))
+      'fields':(('address', 'city', 'state', 'zip'),
+                ('telephone_number', 'fax_number', 'email_address', 'website'))
     }),
     ('', {
       'fields':(('status', 'ein'), ('founded', 'mission'))
     }),
     ('Fiscal sponsor info', {
       'classes':('collapse',),
-      'fields':(('fiscal_org', 'fiscal_person'), ('fiscal_telephone', 'fiscal_address', 'fiscal_email'),'fiscal_letter')
+      'fields':(('fiscal_org', 'fiscal_person'),
+                ('fiscal_telephone', 'fiscal_address', 'fiscal_email'),
+                'fiscal_letter')
     })
   )
-  readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone', 'fiscal_address', 'fiscal_email', 'fiscal_letter')
+  readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone',
+                     'fiscal_address', 'fiscal_email', 'fiscal_letter')
   search_fields = ('name', 'email')
   inlines = [GrantApplicationInline, GrantLogInlineRead, GrantLogInline]
   search_fields = ('name', 'email')
 
 class OrganizationAdvA(OrganizationA):
-  inlines = [GrantApplicationInline, DraftInline, GrantLogInlineRead, GrantLogInline]
+  inlines = [GrantApplicationInline, DraftInline, GrantLogInlineRead,
+             GrantLogInline]
 
 class GrantApplicationA(admin.ModelAdmin):
   form = AppAdminForm
   fieldsets = (
-    'Application', {'fields': ((organization_link, 'grant_cycle', 'submission_time', 'view_link'),)}
-    ),(
-    'Administration', {'fields': (('screening_status', 'giving_project'),('scoring_bonus_poc', 'scoring_bonus_geo'), (revert_grant, rollover))}
-    )
-  readonly_fields = (organization_link, 'grant_cycle', 'submission_time', 'view_link', revert_grant, rollover)
-  list_display = ('organization', 'grant_cycle', 'submission_time', 'screening_status', 'view_link')
+    ('Application', {
+        'fields': ((organization_link, 'grant_cycle', 'submission_time',
+                   'view_link'),)
+    }),
+    ('Administration', {
+        'fields': (('screening_status', 'giving_project'),
+                   ('scoring_bonus_poc', 'scoring_bonus_geo'),
+                   (revert_grant, rollover))
+    })
+  )
+  readonly_fields = (organization_link, 'grant_cycle', 'submission_time',
+                     'view_link', revert_grant, rollover)
+  list_display = ('organization', 'grant_cycle', 'submission_time',
+                  'screening_status', 'view_link')
   list_filter = ('grant_cycle', 'screening_status')
   search_fields = ('organization__name',)
   inlines = [GrantLogInlineRead, GrantLogInline]
@@ -313,7 +346,8 @@ class GrantApplicationA(admin.ModelAdmin):
     return False
 
 class DraftGrantApplicationA(admin.ModelAdmin):
-  list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
+  list_display = ('organization', 'grant_cycle', 'modified', 'overdue',
+                  'extended_deadline')
   list_filter = ('grant_cycle',) #extended
   fields = (('organization', 'grant_cycle', 'modified'), ('extended_deadline'))
   readonly_fields = ('modified',)
@@ -326,10 +360,16 @@ class DraftGrantApplicationA(admin.ModelAdmin):
     return self.readonly_fields
 
 class DraftAdv(admin.ModelAdmin): #Advanced
-  list_display = ('organization', 'grant_cycle', 'modified', 'overdue', 'extended_deadline')
+  list_display = ('organization', 'grant_cycle', 'modified', 'overdue',
+                  'extended_deadline')
   list_filter = ('grant_cycle',) #extended
-  fields = (('organization', 'grant_cycle', 'created', 'modified', 'modified_by'), 'contents', 'budget', 'demographics', 'funding_sources', 'fiscal_letter', 'budget1', 'budget2', 'budget3', 'project_budget_file',)
-  readonly_fields = ('organization', 'grant_cycle', 'modified', 'budget', 'demographics', 'funding_sources', 'fiscal_letter', 'budget1', 'budget2', 'budget3', 'project_budget_file',)
+  fields = (
+    ('organization', 'grant_cycle', 'created', 'modified', 'modified_by'),
+    'contents', 'budget', 'demographics', 'funding_sources', 'fiscal_letter',
+    'budget1', 'budget2', 'budget3', 'project_budget_file',)
+  readonly_fields = ('organization', 'grant_cycle', 'modified', 'budget',
+                     'demographics', 'funding_sources', 'fiscal_letter',
+                     'budget1', 'budget2', 'budget3', 'project_budget_file')
 
 # Register - basic
 
@@ -369,3 +409,4 @@ advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)
 advanced_admin.register(GrantApplication, GrantApplicationA)
 advanced_admin.register(DraftGrantApplication, DraftAdv)
+

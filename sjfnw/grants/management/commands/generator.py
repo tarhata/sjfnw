@@ -1,7 +1,6 @@
-﻿from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+﻿from django.core.management.base import BaseCommand
 from django.utils import timezone
-from random import randint, shuffle
+from random import randint
 from datetime import timedelta
 import string, json
 from sjfnw.grants import models
@@ -10,9 +9,9 @@ from sjfnw.fund.models import GivingProject
 #updated 4/28/13
 
 class Command(BaseCommand):
-  
+
   help = 'Generates fake grant applications.'
-  
+
   def handle(self, *args, **options):#wrapper for sub-functions
     self.stdout.write('Starting process for generating fake apps\n')
     self.now = timezone.now()
@@ -20,9 +19,10 @@ class Command(BaseCommand):
     generate_organizations(self)
     generate_giving_projects(self)
     generate_applications(self)
-    
+
 TZ = timezone.get_current_timezone()
-GP_PREFIXES = ['LGBTQ', 'Montana', 'General', 'Economic Justice', 'Environmental Justice', 'Criminal Justice']
+GP_PREFIXES = ['LGBTQ', 'Montana', 'General', 'Economic Justice',
+               'Environmental Justice', 'Criminal Justice']
 GPS = [] #gp objects, to save queries
 
 def generate_cycles(self): # 6
@@ -31,10 +31,12 @@ def generate_cycles(self): # 6
     return
   for name in GP_PREFIXES:
     open = self.now - timedelta(weeks=randint(1, 260))
-    cycle = models.GrantCycle(title = name + ' Grant Cycle', open = open, close = open + timedelta(weeks=7), info_page = 'http://www.socialjusticefund.org/grant-app/lgbtq-grant-cycle')
+    cycle = models.GrantCycle(title = name + ' Grant Cycle', open = open,
+                              close = open + timedelta(weeks=7),
+                              info_page = 'http://www.socialjusticefund.org/grant-app/lgbtq-grant-cycle')
     cycle.save()
   self.stdout.write('Cycles created\n')
-    
+
 def generate_organizations(self): # 17
   if models.Organization.objects.filter(name__startswith='Indian'):
     self.stdout.write('Auto-generated org found, skipping.\n')
@@ -47,17 +49,17 @@ def generate_organizations(self): # 17
   #shuffle(c)
   for i in range(0, 4): #5
     name = a[i] + b[i] + c[i]
-    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
+    org = models.Organization(name=name, email=name.lower().replace(' ', '_') + '@gmail.com')
     org.save()
   for i in range(0, 3): #12
     name = a[i] + b[i] + c[i+1]
-    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
+    org = models.Organization(name=name, email=name.lower().replace(' ', '_') + '@gmail.com')
     org.save()
     name = a[i] + b[i+1] + c[i]
-    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
+    org = models.Organization(name=name, email=name.lower().replace(' ', '_') + '@gmail.com')
     org.save()
     name = a[i] + b[i+1] + c[i+1]
-    org = models.Organization(name = name, email = name.lower().replace(' ', '_') + '@gmail.com')
+    org = models.Organization(name=name, email=name.lower().replace(' ', '_') + '@gmail.com')
     org.save()
   self.stdout.write('Orgs created\n')
 
@@ -66,7 +68,9 @@ def generate_giving_projects(self): # 6
     self.stdout.write('>=3 gps found, skipping.\n')
     return
   for name in GP_PREFIXES:
-    gp = GivingProject(title = name + ' Giving Project', fundraising_deadline = self.now, fundraising_training = self.now)
+    gp = GivingProject(title = name + ' Giving Project',
+                       fundraising_deadline = self.now,
+                       fundraising_training = self.now)
     gp.save()
     GPS.append(gp)
   self.stdout.write('Giving Projects created\n')
@@ -74,7 +78,8 @@ def generate_giving_projects(self): # 6
 def generate_applications(self):
   rl = models.GrantApplication.objects.filter()
   if not rl:
-    self.stderr.write('Need at least one grant application in the database, to steal file fields from\n')
+    self.stderr.write('Need at least one grant application in the database, '
+                      'to steal file fields from\n')
     return
   rl = rl[0]
   for cycle in models.GrantCycle.objects.all():
@@ -105,7 +110,7 @@ def generate_applications(self):
         #app.grant_period
         app.amount_requested = 10000
         app.support_type = 'General'
-        
+
         app.narrative1 = random_words(100)
         app.narrative2 = random_words(100)
         app.narrative3 = random_words(100)
@@ -125,7 +130,7 @@ def generate_applications(self):
         app.collab_ref2_email = random_email()
 
         #skipping rj refs
-        
+
         app.budget = rl.budget
         app.demographics = rl.demographics
         app.funding_sources = rl.funding_sources
@@ -143,10 +148,11 @@ def generate_applications(self):
           app.scoring_bonus_geo = True
         else:
           app.scoring_bonus_geo = False
-        
+
         app.save()
         count += 1
-    self.stdout.write(str(count) + ' applications created for ' + unicode(cycle) + '\n')
+    self.stdout.write(str(count) + ' applications created for '+
+                      unicode(cycle) + '\n')
   self.stdout.write('Application creation complete')
 
 def random_phone():
@@ -168,7 +174,7 @@ def random_letters(length):
 
 def random_words(length, case='sentence'):
   return random_string(length, True)
-  
+
 def random_string(length, spaces):
   chars = string.ascii_lowercase
   if spaces:
@@ -178,3 +184,4 @@ def random_string(length, spaces):
   for i in range(0, length):
     str += chars[randint(0, le-1)]
   return str
+

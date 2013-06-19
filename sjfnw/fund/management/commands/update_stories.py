@@ -1,4 +1,4 @@
-﻿from django.core.management.base import BaseCommand, CommandError
+﻿from django.core.management.base import BaseCommand
 from django.utils import timezone
 from fund.models import Step
 from fund.utils import UpdateStory
@@ -6,17 +6,20 @@ import datetime
 
 class Command(BaseCommand):
 
-  help = 'Runs update story for missed days 5-21 to 5-28'
+  help = 'Runs update story for missed days 6-13 to 6-14'
 
   def handle(self, *args, **options):
     self.stdout.write('Beginning.\n')
-    start = datetime.datetime.strptime('2013-05-21 03:04:01', '%Y-%m-%d %H:%M:%S')
+    start = datetime.datetime.strptime('2013-06-13 03:04:01',
+                                       '%Y-%m-%d %H:%M:%S')
     start = timezone.make_aware(start, timezone.get_current_timezone())
-    end = datetime.datetime.strptime('2013-05-28 05:06:01', '%Y-%m-%d %H:%M:%S')
+    end = datetime.datetime.strptime('2013-06-14 05:06:01',
+                                     '%Y-%m-%d %H:%M:%S')
     end = timezone.make_aware(end, timezone.get_current_timezone())
-    #UpdateStory takes membership_id and timestamp, then searches all news/steps for that day
-    #So we want all memberships who completed a step within this range
-    ships = Step.objects.filter(completed__range=(start, end)).values_list('donor__membership', flat=True)
+    # Get all memberships who completed a step within this range
+    ships = (Step.objects.filter(completed__range=(start, end))
+                        .values_list('donor__membership', flat=True)
+                        .distinct())
 
     for ship in ships:
       self.stdout.write('creating stories for ' + unicode(ship) + '\n')
@@ -24,3 +27,4 @@ class Command(BaseCommand):
         UpdateStory(ship, start + datetime.timedelta(days=i))
 
     self.stdout.write('Script complete.\n')
+

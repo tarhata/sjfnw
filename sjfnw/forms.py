@@ -13,8 +13,8 @@ class PhoneNumberField(forms.Field):
 
   def to_python(self, value):
     """
-    Validates that int() can be called on the input. Returns the ---
-    . Returns '' for empty values.
+    Validates that int() can be called on the input.
+    Returns '' for empty values.
     """
     value = super(PhoneNumberField, self).to_python(value)
     if value in validators.EMPTY_VALUES:

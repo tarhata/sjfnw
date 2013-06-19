@@ -40,17 +40,24 @@ class TimelineWidget(MultiWidget):
 
     if value:
       return json.loads(value)
-    return [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+    return [None, None, None, None, None, None, None, None, None, None, None,
+            None, None, None, None]
 
 
   def format_output(self, rendered_widgets):
-    """ format the widgets for display
-          args: list of rendered widgets
-          returns: a string of HTML for displaying the widgets """
+    """
+    format the widgets for display
+      args: list of rendered widgets
+      returns: a string of HTML for displaying the widgets
+    """
 
-    html = '<table id="timeline_form"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
+    html = ('<table id="timeline_form"><tr class="heading"><td></td>'
+            '<th>date range</th><th>activities</th>'
+            '<th>goals/objectives</th></tr>')
     for i in range(0, len(rendered_widgets), 3):
-      html += '<tr><th class="left">q' + str((i+3)/3) + '</th><td>' + rendered_widgets[i] + '</td><td>' + rendered_widgets[i+1] + '</td><td>' + rendered_widgets[i+2] +'</td></tr>'
+      html += ('<tr><th class="left">q' + str((i+3)/3) + '</th><td>' +
+              rendered_widgets[i] + '</td><td>' + rendered_widgets[i+1] +
+              '</td><td>' + rendered_widgets[i+2] +'</td></tr>')
     html += '</table>'
     return html
 
@@ -61,7 +68,8 @@ class TimelineWidget(MultiWidget):
 
     val_list = []
     for i, widget in enumerate(self.widgets):
-       val_list.append(widget.value_from_datadict(data, files, name + '_%s' % i))
+      val_list.append(widget.value_from_datadict(data, files, name +
+                                                  '_%s' % i))
     return json.dumps(val_list)
 
 #used by org & app
@@ -119,20 +127,25 @@ STATE_CHOICES = [
   ('WI', 'WI')]
 
 STATUS_CHOICES = [
-  ('Tribal government', 'Federally recognized American Indian tribal government'),
+  ('Tribal government',
+   'Federally recognized American Indian tribal government'),
   ('501c3', '501(c)3 organization as recognized by the IRS'),
   ('501c4', '501(c)4 organization as recognized by the IRS'),
-  ('Sponsored', 'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government'),]
+  ('Sponsored',
+   'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government')
+  ]
 
 class Organization(models.Model):
   #registration fields
   name = models.CharField(max_length=255)
-  email = models.EmailField(max_length=100, verbose_name='Email(login)', unique=True) #= django username
+  email = models.EmailField(max_length=100, verbose_name='Email(login)',
+                            unique=True) #= django username
 
   #org contact info
   address = models.CharField(max_length=100, blank=True)
   city = models.CharField(max_length=50, blank=True)
-  state = models.CharField(max_length=2,choices=STATE_CHOICES, null=True, blank=True)
+  state = models.CharField(max_length=2, choices=STATE_CHOICES, null=True,
+                           blank=True)
   zip = models.CharField(max_length=50, blank=True)
   telephone_number = models.CharField(max_length=20, blank=True)
   fax_number = models.CharField(max_length=20, blank=True)
@@ -140,21 +153,32 @@ class Organization(models.Model):
   website = models.CharField(max_length=50, null=True, blank=True)
 
   #org info
-  status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True, blank=True)
-  ein = models.CharField(max_length=50, verbose_name="Organization's or Fiscal Sponsor Organization's EIN", blank=True)
-  founded = models.PositiveIntegerField(verbose_name='Year organization founded', null=True, blank=True)
+  status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True,
+                            blank=True)
+  ein = models.CharField(max_length=50,
+                         verbose_name="Organization's or Fiscal Sponsor Organization's EIN",
+                         blank=True)
+  founded = models.PositiveIntegerField(verbose_name='Year founded',
+                                        null=True, blank=True)
   mission = models.TextField(blank=True)
 
   #fiscal sponsor info (if applicable)
-  fiscal_org = models.CharField(verbose_name='Organization name', max_length=255, null=True, blank=True)
-  fiscal_person = models.CharField(verbose_name='Contact person', max_length=255, null=True, blank=True)
-  fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, null=True, blank=True)
-  fiscal_email = models.CharField(verbose_name='Email address', max_length=100, null=True, blank=True)
-  fiscal_address = models.CharField(verbose_name='Address', max_length=255, null=True, blank=True)
-  fiscal_city = models.CharField(verbose_name='City', max_length=50, blank=True)
-  fiscal_state = models.CharField(verbose_name='State', max_length=2, choices=STATE_CHOICES, blank=True)
+  fiscal_org = models.CharField(verbose_name='Organization name',
+                                max_length=255, null=True, blank=True)
+  fiscal_person = models.CharField(verbose_name='Contact person',
+                                   max_length=255, null=True, blank=True)
+  fiscal_telephone = models.CharField(verbose_name='Telephone',
+                                      max_length=25, null=True, blank=True)
+  fiscal_email = models.CharField(verbose_name='Email address',
+                                  max_length=100, null=True, blank=True)
+  fiscal_address = models.CharField(verbose_name='Address',
+                                    max_length=255, null=True, blank=True)
+  fiscal_city = models.CharField(verbose_name='City',
+                                 max_length=50, blank=True)
+  fiscal_state = models.CharField(verbose_name='State', max_length=2,
+                                  choices=STATE_CHOICES, blank=True)
   fiscal_zip = models.CharField(verbose_name='ZIP', max_length=50, blank=True)
-  fiscal_letter = models.FileField(upload_to='/', null=True,blank=True)
+  fiscal_letter = models.FileField(upload_to='/', null=True, blank=True)
 
   def __unicode__(self):
     return self.name
@@ -174,7 +198,10 @@ class GrantCycle(models.Model):
   extra_question = models.TextField(blank=True)
   info_page = models.URLField()
   email_signature = models.TextField(blank=True)
-  conflicts = models.TextField(blank=True, help_text="Track any conflicts of interest (automatic & personally declared) that occurred during this cycle.")
+  conflicts = models.TextField(blank=True,
+                               help_text='Track any conflicts of interest '
+                               '(automatic & personally declared) that occurred'
+                               ' during this cycle.')
 
   def __unicode__(self):
     return self.title
@@ -205,19 +232,26 @@ class DraftGrantApplication(models.Model):
   budget = models.FileField(upload_to='/', max_length=255)
   demographics = models.FileField(upload_to='/', max_length=255)
   funding_sources = models.FileField(upload_to='/', max_length=255)
-  budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement')
-  budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating')
-  budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet')
-  project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget')
+  budget1 = models.FileField(upload_to='/', max_length=255,
+                             verbose_name = 'Annual statement')
+  budget2 = models.FileField(upload_to='/', max_length=255,
+                             verbose_name = 'Annual operating')
+  budget3 = models.FileField(upload_to='/', max_length=255,
+                             verbose_name = 'Balance sheet')
+  project_budget_file = models.FileField(upload_to='/', max_length=255,
+                                         verbose_name = 'Project budget')
   fiscal_letter = models.FileField(upload_to='/', max_length=255)
 
-  extended_deadline = models.DateTimeField(help_text = 'Allows this draft to be edited/submitted past the grant cycle close.', blank=True, null=True)
+  extended_deadline = models.DateTimeField(help_text = ('Allows this draft to'
+                                           ' be edited/submitted past the grant'
+                                           ' cycle close.'),
+                                           blank=True, null=True)
 
   class Meta:
     unique_together = ('organization', 'grant_cycle')
 
   def __unicode__(self):
-    return u'DRAFT - ' + self.organization.name + u' - ' + self.grant_cycle.title
+    return u'DRAFT: ' + self.organization.name + ' - ' + self.grant_cycle.title
 
   def overdue(self):
     return self.grant_cycle.close <= timezone.now()
@@ -225,20 +259,22 @@ class DraftGrantApplication(models.Model):
   def editable(self):
     deadline = self.grant_cycle.close
     now = timezone.now()
-    if deadline > now or (self.extended_deadline and self.extended_deadline > now):
+    if deadline > now or (self.extended_deadline and
+                          self.extended_deadline > now):
       return True
     else:
       return False
 
   @classmethod
   def file_fields(cls):
-    return [f.name for f in filter(lambda x: isinstance(x, models.FileField), cls._meta.fields)]
+    return [f.name for f in cls._meta.fields if isinstance(f, models.FileField)]
 
 class WordLimitValidator(BaseValidator):
-    compare = lambda self, a, b: a > b
-    clean   = lambda self, x: len(re.findall(r'[^ \n\r]+', x))
-    message = u'Ensure this value has at most %(limit_value)d words (it has %(show_value)d).'
-    code = 'max_words'
+  compare = lambda self, a, b: a > b
+  clean   = lambda self, x: len(re.findall(r'[^ \n\r]+', x))
+  message = (u'Ensure this value has at most %(limit_value)d words '
+             '(it has %(show_value)d).')
+  code = 'max_words'
 
 def validate_file_extension(value):
   if not value.name.lower().split(".")[-1] in constants.ALLOWED_FILE_TYPES:
@@ -248,7 +284,8 @@ class GrantApplication(models.Model):
   """ Submitted grant application """
 
   #automated fields
-  submission_time = models.DateTimeField(blank=True, default=timezone.now(), verbose_name='Submitted')
+  submission_time = models.DateTimeField(blank=True, default=timezone.now(),
+                                         verbose_name='Submitted')
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
 
@@ -258,85 +295,163 @@ class GrantApplication(models.Model):
   state = models.CharField(max_length=2, choices=STATE_CHOICES)
   zip = models.CharField(max_length=50)
   telephone_number = models.CharField(max_length=20)
-  fax_number = models.CharField(max_length=20, blank=True, verbose_name = 'Fax number (optional)', error_messages={'invalid': u'Enter a 10-digit fax number (including area code).'})
+  fax_number = models.CharField(max_length=20, blank=True,
+                                verbose_name = 'Fax number (optional)',
+                                error_messages={'invalid': u'Enter a 10-digit fax number (including area code).'})
   email_address = models.EmailField(max_length=100)
-  website = models.CharField(max_length=50, blank=True, verbose_name = 'Website (optional)')
+  website = models.CharField(max_length=50, blank=True,
+                             verbose_name = 'Website (optional)')
 
   #org info
   status = models.CharField(max_length=50, choices=STATUS_CHOICES)
-  ein = models.CharField(max_length=50, verbose_name="Organization or Fiscal Sponsor EIN")
+  ein = models.CharField(max_length=50,
+                         verbose_name="Organization or Fiscal Sponsor EIN")
   founded = models.PositiveIntegerField(verbose_name='Year founded')
-  mission = models.TextField(verbose_name="Mission statement", validators=[WordLimitValidator(150)])
-  previous_grants = models.CharField(max_length=255, verbose_name="Previous SJF grants awarded (amounts and year)", blank=True)
+  mission = models.TextField(verbose_name="Mission statement",
+                             validators=[WordLimitValidator(150)])
+  previous_grants = models.CharField(max_length=255,
+                                     verbose_name=("Previous SJF grants awarded"
+                                                  " (amounts and year)"),
+                                     blank=True)
 
   #budget info
-  start_year = models.CharField(max_length=250,verbose_name='Start date of fiscal year')
+  start_year = models.CharField(max_length=250,
+                                verbose_name='Start date of fiscal year')
   budget_last = models.PositiveIntegerField(verbose_name='Org. budget last fiscal year')
   budget_current = models.PositiveIntegerField(verbose_name='Org. budget this fiscal year')
 
   #this grant info
-  grant_request = models.TextField(verbose_name="Briefly summarize the grant request", validators=[WordLimitValidator(100)])
-  contact_person = models.CharField(max_length=250, verbose_name= 'Name', help_text='Contact person for this grant application')
+  grant_request = models.TextField(verbose_name="Briefly summarize the grant request",
+                                   validators=[WordLimitValidator(100)])
+  contact_person = models.CharField(max_length=250, verbose_name= 'Name',
+                                    help_text='Contact person for this grant application')
   contact_person_title = models.CharField(max_length=100, verbose_name='Title')
-  grant_period = models.CharField(max_length=250, blank=True, verbose_name='Grant period (if different than fiscal year)')
+  grant_period = models.CharField(max_length=250, blank=True,
+                                  verbose_name='Grant period (if different than fiscal year)')
   amount_requested = models.PositiveIntegerField()
 
-  SUPPORT_CHOICES = [('General support', 'General support'), ('Project support', 'Project support'),]
+  SUPPORT_CHOICES = [('General support', 'General support'),
+                     ('Project support', 'Project support'),]
   support_type = models.CharField(max_length=50, choices=SUPPORT_CHOICES)
-  project_title = models.CharField(max_length=250,verbose_name='Project title (if applicable)', null=True, blank=True)
-  project_budget = models.PositiveIntegerField(verbose_name='Project budget (if applicable)', null=True, blank=True)
+  project_title = models.CharField(max_length=250, null=True, blank=True,
+                                   verbose_name='Project title (if applicable)')
+  project_budget = models.PositiveIntegerField(null=True, blank=True,
+                                               verbose_name='Project budget (if applicable)')
 
   #fiscal sponsor
-  fiscal_org = models.CharField(verbose_name='Fiscal org. name', max_length=255, blank=True)
-  fiscal_person = models.CharField(verbose_name='Contact person', max_length=255, blank=True)
-  fiscal_telephone = models.CharField(verbose_name='Telephone', max_length=25, blank=True)
-  fiscal_email = models.CharField(verbose_name='Email address', max_length=70, blank=True)
-  fiscal_address = models.CharField(verbose_name='Address', max_length=255, blank=True)
+  fiscal_org = models.CharField(verbose_name='Fiscal org. name',
+                                max_length=255, blank=True)
+  fiscal_person = models.CharField(verbose_name='Contact person',
+                                   max_length=255, blank=True)
+  fiscal_telephone = models.CharField(verbose_name='Telephone',
+                                      max_length=25, blank=True)
+  fiscal_email = models.CharField(verbose_name='Email address',
+                                  max_length=70, blank=True)
+  fiscal_address = models.CharField(verbose_name='Address',
+                                    max_length=255, blank=True)
   fiscal_city = models.CharField(verbose_name='City', max_length=50, blank=True)
-  fiscal_state = models.CharField(verbose_name='State', max_length=2, choices=STATE_CHOICES, blank=True)
+  fiscal_state = models.CharField(verbose_name='State', max_length=2,
+                                  choices=STATE_CHOICES, blank=True)
   fiscal_zip = models.CharField(verbose_name='ZIP', max_length=50, blank=True)
 
   #narratives
   NARRATIVE_CHAR_LIMITS = [0, 300, 150, 450, 300, 300, 450, 300]
   NARRATIVE_TEXTS = ['Placeholder for 0',
-    'Describe your organization\'s mission, history and major accomplishments.', #1
-    'Social Justice Fund prioritizes groups that are led by the people most impacted by the issues the group is working on, and continually build leadership from within their own communities.<ul><li>Who are the communities most directly impacted by the issues your organization addresses?</li><li>How are those communities involved in the leadership of your organization, and how does your organization remain accountable to those communities?</li></ul>', #2
-    'Social Justice Fund prioritizes groups that understand and address the underlying, or root causes of the issues, and that bring people together to build collective power.<ul><li>What problems, needs or issues does your work address?</li><li>What are the root causes of these issues?</li><li>How does your organization build collective power?</li><li>How will your work change the root causes and underlying power dynamics of the identified problems, needs or issues?</li></ul>', #3
-    'Please describe your workplan, covering at least the next 12 months. (You will list the activities and objectives in the timeline form below the narrative.)<ul><li>What are your overall goals and strategies for the coming year?</li><li>How will you assess whether you have met your objectives and goals?</li></ul>', #4
-    'Social Justice Fund prioritizes groups that see themselves as part of a larger movement for social change, and work towards strengthening that movement.<ul><li>Describe at least two coalitions, collaborations, partnerships or networks that you participate in as an approach to social change.</li><li>What are the purposes and impacts of these collaborations?</li><li>What is your organization\'s role in these collaborations?</li><li>If your collaborations cross issue or constituency lines, how will this will help build a broad, unified, and effective progressive movement?</li></ul>', #5
-    'Social Justice Fund prioritizes groups working on racial justice, especially those making connections between racism, economic injustice, homophobia, and other forms of oppression. Tell us how your organization is working toward racial justice and how you are drawing connections to economic injustice, homophobia, and other forms of oppression. <i>While we believe people of color must lead the struggle for racial justice, we also realize that the demographics of our region make the work of white anti-racist allies critical to achieving racial justice.</i> If you are a primarily white-led organization, also describe how you work as an ally to communities of color.', #6
-    ]
-  narrative1 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[1])], verbose_name = NARRATIVE_TEXTS[1])
-  narrative2 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[2])], verbose_name = NARRATIVE_TEXTS[2])
-  narrative3 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[3])], verbose_name = NARRATIVE_TEXTS[3])
-  narrative4 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[4])], verbose_name = NARRATIVE_TEXTS[4])
-  narrative5 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[5])], verbose_name = NARRATIVE_TEXTS[5])
-  narrative6 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[6])], verbose_name = NARRATIVE_TEXTS[6])
-  cycle_question = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[7])], blank=True)
+    ('Describe your organization\'s mission, history and major '
+     'accomplishments.'), #1
+    ('Social Justice Fund prioritizes groups that are led by the people most '
+     'impacted by the issues the group is working on, and continually build '
+     'leadership from within their own communities.<ul><li>Who are the '
+     'communities most directly impacted by the issues your organization '
+     'addresses?</li><li>How are those communities involved in the leadership '
+     'of your organization, and how does your organization remain accountable '
+     'to those communities?</li></ul>'), #2
+    ('Social Justice Fund prioritizes groups that understand and address the '
+    'underlying, or root causes of the issues, and that bring people together '
+    'to build collective power.<ul><li>What problems, needs or issues does '
+    'your work address?</li><li>What are the root causes of these issues?</li>'
+    '<li>How does your organization build collective power?</li><li>How will '
+    'your work change the root causes and underlying power dynamics of the '
+    'identified problems, needs or issues?</li></ul>'), #3
+    ('Please describe your workplan, covering at least the next 12 months. '
+     '(You will list the activities and objectives in the timeline form below '
+     'the narrative.)<ul><li>What are your overall goals and strategies for '
+     'the coming year?</li><li>How will you assess whether you have met your '
+     'objectives and goals?</li></ul>'), #4
+    ('Social Justice Fund prioritizes groups that see themselves as part of a '
+     'larger movement for social change, and work towards strengthening that '
+     'movement.<ul><li>Describe at least two coalitions, collaborations, '
+     'partnerships or networks that you participate in as an approach to '
+     'social change.</li><li>What are the purposes and impacts of these '
+     'collaborations?</li><li>What is your organization\'s role in these '
+     'collaborations?</li><li>If your collaborations cross issue or '
+     'constituency lines, how will this will help build a broad, unified, and '
+     'effective progressive movement?</li></ul>'), #5
+    ('Social Justice Fund prioritizes groups working on racial justice, '
+     'especially those making connections between racism, economic injustice, '
+     'homophobia, and other forms of oppression. Tell us how your organization '
+     'is working toward racial justice and how you are drawing connections to '
+     'economic injustice, homophobia, and other forms of oppression. <i>While '
+     'we believe people of color must lead the struggle for racial justice, '
+     'we also realize that the demographics of our region make the work of '
+     'white anti-racist allies critical to achieving racial justice.</i> If '
+     'you are a primarily white-led organization, also describe how you work '
+     'as an ally to communities of color.') #6
+  ]
+  narrative1 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[1])],
+                                verbose_name = NARRATIVE_TEXTS[1])
+  narrative2 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[2])],
+                                verbose_name = NARRATIVE_TEXTS[2])
+  narrative3 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[3])],
+                                verbose_name = NARRATIVE_TEXTS[3])
+  narrative4 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[4])],
+                                verbose_name = NARRATIVE_TEXTS[4])
+  narrative5 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[5])],
+                                verbose_name = NARRATIVE_TEXTS[5])
+  narrative6 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[6])],
+                                verbose_name = NARRATIVE_TEXTS[6])
+  cycle_question = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[7])],
+                                    blank=True)
 
   timeline = models.TextField()
 
   #collab references (after narrative 5)
-  collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people who are familiar with your organization\'s role in these collaborations so we can contact them for more information.', verbose_name='Name', max_length = 150)
-  collab_ref1_org = models.CharField(verbose_name='Organization', max_length = 150)
-  collab_ref1_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
-  collab_ref1_email = models.EmailField(max_length=100, verbose_name='Email', blank=True)
+  collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people '
+                                      'who are familiar with your organization\'s role in these '
+                                      'collaborations so we can contact them for more information.',
+                                      verbose_name='Name', max_length=150)
+  collab_ref1_org = models.CharField(verbose_name='Organization',
+                                     max_length=150)
+  collab_ref1_phone = models.CharField(verbose_name='Phone number',
+                                       max_length=20, blank=True)
+  collab_ref1_email = models.EmailField(max_length=100, verbose_name='Email',
+                                        blank=True)
 
-  collab_ref2_name = models.CharField(verbose_name='Name', max_length = 150)
-  collab_ref2_org = models.CharField(verbose_name='Organization', max_length = 150)
-  collab_ref2_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
-  collab_ref2_email = models.EmailField(max_length=100, verbose_name='Email', blank=True)
+  collab_ref2_name = models.CharField(verbose_name='Name', max_length=150)
+  collab_ref2_org = models.CharField(verbose_name='Organization',
+                                     max_length=150)
+  collab_ref2_phone = models.CharField(verbose_name='Phone number',
+                                       max_length=20, blank=True)
+  collab_ref2_email = models.EmailField(max_length=100, verbose_name='Email',
+                                        blank=True)
 
   #racial justice references (after narrative 6)
-  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, please list at least one organization led by people of color that we can contact as a reference for your racial justice work.', verbose_name='Name', max_length = 150, blank=True)
-  racial_justice_ref1_org = models.CharField(verbose_name='Organization', max_length = 150, blank=True)
-  racial_justice_ref1_phone = models.CharField(verbose_name='Phone number', max_length = 20, blank=True)
-  racial_justice_ref1_email = models.EmailField(max_length=100, verbose_name='Email', blank=True)
+  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, please list at least one organization led by people of color that we can contact as a reference for your racial justice work.', verbose_name='Name', max_length=150, blank=True)
+  racial_justice_ref1_org = models.CharField(verbose_name='Organization',
+                                             max_length=150, blank=True)
+  racial_justice_ref1_phone = models.CharField(verbose_name='Phone number',
+                                               max_length=20, blank=True)
+  racial_justice_ref1_email = models.EmailField(verbose_name='Email',
+                                                max_length=100, blank=True)
 
-  racial_justice_ref2_name = models.CharField(verbose_name='Name', max_length = 150, blank=True)
-  racial_justice_ref2_org = models.CharField(verbose_name='Organization', max_length = 150, blank=True)
-  racial_justice_ref2_phone = models.CharField(verbose_name='Phone number',  max_length = 20, blank=True)
-  racial_justice_ref2_email = models.EmailField(max_length=100, verbose_name='Email', blank=True)
+  racial_justice_ref2_name = models.CharField(verbose_name='Name',
+                                              max_length = 150, blank=True)
+  racial_justice_ref2_org = models.CharField(verbose_name='Organization',
+                                             max_length = 150, blank=True)
+  racial_justice_ref2_phone = models.CharField(verbose_name='Phone number',
+                                               max_length = 20, blank=True)
+  racial_justice_ref2_email = models.EmailField(verbose_name='Email',
+                                                max_length=100, blank=True)
 
   #files
   budget = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)
@@ -353,6 +468,7 @@ class GrantApplication(models.Model):
     (20, 'Incomplete'),
     (30, 'Complete'),
     (40, 'Pre-screened out'),
+    (45, 'Screened out by sub-committee'),
     (50, 'Pre-screened in'), #readable, scorable
     (60, 'Screened out'),
     (70, 'Site visit awarded'), #site visit reports
@@ -393,15 +509,17 @@ class GrantApplication(models.Model):
 
   @classmethod
   def fiscal_fields(cls):
-    return [f for f in filter(lambda x: x.startswith('fiscal'), cls._meta.get_all_field_names())]
+    return [f for f in cls._meta.get_all_field_names() if f.startswith('fiscal')]
 
   @classmethod
   def file_fields(cls):
-    return [f.name for f in filter(lambda x: isinstance(x, models.FileField), cls._meta.fields)]
+    return [f.name for f in cls._meta.fields if isinstance(f, models.FileField)]
 
 def custom_fields(f, **kwargs): #sets phonenumber and money fields
   money_fields = ['budget_last', 'budget_current', 'amount_requested', 'project_budget']
-  phone_fields = ['telephone_number', 'fax_number', 'fiscal_telephone', 'collab_ref1_phone', 'collab_ref2_phone', 'racial_justice_ref1_phone', 'racial_justice_ref2_phone']
+  phone_fields = ['telephone_number', 'fax_number', 'fiscal_telephone',
+                  'collab_ref1_phone', 'collab_ref2_phone',
+                  'racial_justice_ref1_phone', 'racial_justice_ref2_phone']
   kwargs['required'] = not f.blank
   if f.verbose_name:
     kwargs['label'] = capfirst(f.verbose_name)
@@ -459,7 +577,7 @@ class GrantApplicationModelForm(ModelForm):
       date = timeline[i]
       act = timeline[i+1]
       obj = timeline[i+2]
-      if i==0 and not (date or act or obj):
+      if i == 0 and not (date or act or obj):
         empty = True
       if (date or act or obj) and not (date and act and obj):
         incomplete = True
@@ -472,11 +590,11 @@ class GrantApplicationModelForm(ModelForm):
     phone = cleaned_data.get('collab_ref1_phone')
     email = cleaned_data.get('collab_ref1_email')
     if not phone and not email:
-       self._errors["collab_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
+      self._errors["collab_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
     phone = cleaned_data.get('collab_ref2_phone')
     email = cleaned_data.get('collab_ref2_email')
     if not phone and not email:
-       self._errors["collab_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
+      self._errors["collab_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
 
     #racial justice refs - require full set if any
     name = cleaned_data.get('racial_justice_ref1_name')
@@ -525,7 +643,7 @@ class GrantApplicationModelForm(ModelForm):
           self._errors["budget2"] = '<div class="form_error">This field is required.</div>'
       #require project budget if applicable and if not all-in-one
       if (support_type == 'Project support') and not cleaned_data.get('project_budget_file'):
-         self._errors["project_budget_file"] = '<div class="form_error">This field is required when applying for project support.</div>'
+        self._errors["project_budget_file"] = '<div class="form_error">This field is required when applying for project support.</div>'
     elif b1 or b2 or b3: #all-in-one included + other file(s)
       self._errors["budget"] = '<div class="form_error">Budget documents should be uploaded all in one file OR in the individual fields below.</div>'
 
