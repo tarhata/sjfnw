@@ -371,6 +371,11 @@ class DraftAdv(admin.ModelAdmin): #Advanced
                      'demographics', 'funding_sources', 'fiscal_letter',
                      'budget1', 'budget2', 'budget3', 'project_budget_file')
 
+class GrantAwardA(admin.ModelAdmin):
+  list_display = ('application', 'amount', 'check_mailed')
+  list_filter = ('application__organization', 'application__giving_project')
+  exclude = ('created',)
+
 # Register - basic
 
 #admin.site.unregister(User)
@@ -386,6 +391,7 @@ admin.site.register(GrantCycle, GrantCycleA)
 admin.site.register(Organization, OrganizationA)
 admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
+admin.site.register(GrantAward, GrantAwardA)
 
 # Register - Advanced
 
@@ -409,4 +415,5 @@ advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)
 advanced_admin.register(GrantApplication, GrantApplicationA)
 advanced_admin.register(DraftGrantApplication, DraftAdv)
+advanced_admin.register(GrantAward, GrantAwardA)
 
