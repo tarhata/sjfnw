@@ -701,12 +701,6 @@ class GrantAward(models.Model):
   agreement_returned = models.DateField(null=True, blank=True)
   approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
 
-  def year(self):
-    if self.check_mailed:
-      return self.check_mailed.year
-    else:
-      return None
-
   def agreement_due(self):
     if self.agreement_mailed:
       return self.agreement_mailed + timedelta(days=30)
