@@ -45,8 +45,7 @@ urlpatterns = patterns('',
 
   # dev
   (r'^dev/jslog/?', 'views.log_javascript'),
-  )
-
+)
 
 #for dev_appserver
 urlpatterns += staticfiles_urlpatterns()
