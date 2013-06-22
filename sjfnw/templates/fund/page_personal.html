@@ -96,8 +96,6 @@
   };
 
   var submitted_messages = { //maps sub_url to a success message to display after reload
-
-
   };
 
   //general display
@@ -184,7 +182,7 @@
         } else if (textStatus=='timeout') {
           errortext = 'Request timeout'
         } else {
-          errortext = 'Unknown error'
+          errortext = (jqXHR.status || '') + ' Unknown error';
         }
 				console.log('Error loading ' + get_url + ': ' + errortext)
         document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + get_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
@@ -230,9 +228,9 @@
         } else if (textStatus=='timeout') {
           errortext = 'Request timeout'
         } else {
-          errortext = 'Unknown error'
+          errortext = (jqXHR.status || '') + ' Unknown error';
         }
-        document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: ' + sub_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
+        document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: POST ' + sub_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
         console.log('Error submitting to ' + sub_url + ': ' + errortext);
 				if (date) {
           datepicker();
@@ -272,7 +270,7 @@
         } else if (textStatus=='timeout') {
           errortext = 'Request timeout';
         } else {
-          errortext = 'Unknown error';
+          errortext = (jqXHR.status || '') + ' Unknown error';
         }
         document.getElementById('addmult').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: /fund/addmult<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
 				console.log('Error submitting add mult: ' + errortext);
