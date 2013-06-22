@@ -2,7 +2,7 @@
 from django.core import validators
 from django.utils import timezone
 from sjfnw.forms import IntegerCommaField
-import models
+from . import models
 import logging
 
 class LoginForm(forms.Form):

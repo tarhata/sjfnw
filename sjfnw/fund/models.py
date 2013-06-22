@@ -4,7 +4,7 @@ from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.utils import timezone
 from sjfnw.forms import IntegerCommaField
-from utils import NotifyApproval
+from .utils import NotifyApproval
 import datetime, logging
 
 def custom_integer_field(f, **kwargs):

@@ -5,14 +5,16 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
-from django.forms import ValidationError
-from sjfnw.fund.models import *
+from django.forms import ValidationError, ModelForm
+
+from sjfnw.fund.models import GivingProject, Member, Membership, Donor, Step, NewsItem, Resource, ProjectResource
 from sjfnw.fund.forms import MembershipInlineFormset
 from sjfnw.fund.utils import NotifyApproval
-from sjfnw.grants.models import *
+from sjfnw.grants.models import Organization, GrantCycle, DraftGrantApplication, GrantApplication, GrantApplicationLog
 from sjfnw.forms import IntegerCommaField
+
 import unicodecsv as csv
-import logging, re
+import logging
 
 ## Fund
 

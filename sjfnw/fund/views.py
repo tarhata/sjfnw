@@ -334,7 +334,7 @@ def FundLogin(request):
 
 def Register(request):
   error_msg = ''
-  if request.method=='POST':
+  if request.method == 'POST':
     register = forms.RegistrationForm(request.POST)
     if register.is_valid():
       username_email = request.POST['email'].lower()
@@ -813,7 +813,7 @@ def DoneStep(request, donor_id, step_id):
           donor.promised = 0
           step.promised = 0
           logging.debug('Declined')
-        if response=='1' and promised and not donor.promised: #this step
+        if response == '1' and promised and not donor.promised: #this step
           logging.debug('Promise entered')
           step.promised = promised
           donor.promised = promised

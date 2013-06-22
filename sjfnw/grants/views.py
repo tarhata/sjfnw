@@ -15,9 +15,9 @@ import unicodecsv
 
 from sjfnw import constants
 from sjfnw.fund.models import Member
-from forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm, LoginAsOrgForm
-from decorators import registered_org
-import models, utils
+from .forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm, LoginAsOrgForm
+from .decorators import registered_org
+from . import models, utils
 
 import datetime, logging, json
 
