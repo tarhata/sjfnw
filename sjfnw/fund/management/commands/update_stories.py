@@ -1,7 +1,7 @@
 ﻿from django.core.management.base import BaseCommand
 from django.utils import timezone
-from fund.models import Step
-from fund.utils import UpdateStory
+from sjfnw.fund.models import Step
+from sjfnw.fund.utils import UpdateStory
 import datetime
 
 class Command(BaseCommand):

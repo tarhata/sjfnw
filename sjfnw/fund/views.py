@@ -17,7 +17,7 @@ from sjfnw import constants
 from sjfnw.grants.models import Organization, GrantApplication
 
 from .decorators import approved_membership
-import forms, models, utils
+from . import forms, models, utils
 
 import datetime, logging
 import os

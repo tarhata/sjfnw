@@ -6,11 +6,12 @@ from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.forms import ValidationError
-from fund.models import *
-from grants.models import *
-from forms import IntegerCommaField
+from sjfnw.fund.models import *
+from sjfnw.fund.forms import MembershipInlineFormset
+from sjfnw.fund.utils import NotifyApproval
+from sjfnw.grants.models import *
+from sjfnw.forms import IntegerCommaField
 import unicodecsv as csv
-import fund.forms, fund.utils
 import logging, re
 
 ## Fund
@@ -36,7 +37,7 @@ def approve(modeladmin, request, queryset): #Membership action
   logging.info('Approval button pressed; looking through queryset')
   for memship in queryset:
     if memship.approved == False:
-      fund.utils.NotifyApproval(memship)
+      NotifyApproval(memship)
   queryset.update(approved=True)
   logging.info('Approval queryset updated')
 
@@ -93,7 +94,7 @@ class ReceivedBooleanFilter(SimpleListFilter): #donors & steps
 # Inlines
 class MembershipInline(admin.TabularInline): #GP
   model = Membership
-  formset = fund.forms.MembershipInlineFormset
+  formset = MembershipInlineFormset
   extra = 0
   can_delete = False
   fields = ('member', 'giving_project', 'approved', 'leader',)

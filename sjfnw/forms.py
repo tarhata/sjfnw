@@ -1,7 +1,7 @@
 ﻿from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
-import logging, re
+import re
 
 class PhoneNumberField(forms.Field):
   default_error_messages = {
@@ -70,7 +70,7 @@ class IntegerCommaField(forms.Field):
       Removes commas and cents """
     if isinstance(value, (str, unicode)):
       value = value.replace(",", "")
-      amount = re.match('(\d+)(\.\d{2})?$', value)
+      amount = re.match(r'(\d+)(\.\d{2})?$', value)
       if amount:
         value = amount.group(1)
     return super(IntegerCommaField, self).clean(value)
