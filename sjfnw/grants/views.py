@@ -272,7 +272,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   return render(request, 'grants/org_app.html',
     {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled, 'org':organization, 'user_override':user_override, 'flag':flag})
 
-def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
+def autosave_app(request, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Save non-file fields to a draft """
 
   if not request.user.is_authenticated():

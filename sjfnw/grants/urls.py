@@ -26,7 +26,7 @@ apply_urls += patterns('grants.views',
   #application ajax
   (r'^(?P<draft_id>\d+)/add-file/?$', 'AddFile'),
   (r'^(?P<draft_id>\d+)/remove/(?P<file_field>.*)/?$', 'RemoveFile'),
-  (r'^(?P<cycle_id>\d+)/autosave/?$','AutoSaveApp'),
+  (r'^(?P<cycle_id>\d+)/autosave/?$','autosave_app'),
 )
 
 apply_urls += patterns('',
