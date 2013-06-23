@@ -24,19 +24,18 @@ class BlobstoreStorage(Storage):
     return BlobstoreFile(name, mode, self)
 
   def _save(self, name, content):
+    logging.info('storage _save on ' + str([name]))
 
     name = name.replace('\\', '/')
-    logging.info('storage _save on ' + str([name]))
     if hasattr(content, 'file') and hasattr(content.file, 'blobstore_info'):
       data = content.file.blobstore_info
-      #logging.debug('1st')
     elif hasattr(content, 'blobstore_info'):
       data = content.blobstore_info
-      #logging.debug('2nd')
     elif isinstance(content, File):
-      #logging.debug('3rd, is file')
       guessed_type = mimetypes.guess_type(name)[0]
-      file_name = files.blobstore.create(mime_type=guessed_type or 'application/octet-stream', _blobinfo_uploaded_filename=name)
+      file_name = files.blobstore.create(mime_type=guessed_type or
+                                         'application/octet-stream',
+                                         _blobinfo_uploaded_filename=name)
 
       with files.open(file_name, 'a') as f:
         for chunk in content.chunks():
@@ -51,7 +50,6 @@ class BlobstoreStorage(Storage):
                        "BlobstoreFile instances or File instances.")
 
     if isinstance(data, (BlobInfo, BlobKey)):
-      # We change the file name to the BlobKey's str() value.
       if isinstance(data, BlobInfo):
         logging.info('data is blobinfo, storing its key')
         data = data.key()
@@ -61,12 +59,13 @@ class BlobstoreStorage(Storage):
         name = name.split(".")[0][:60].rstrip() + u'.' + name.split(".")[1]
         logging.info(name)
         logging.info('Returning ' + str(data) + name )
-        return '%s/%s' % (data, name)
-      else:
-        raise ValueError("The App Engine Blobstore only supports "
-                         "BlobInfo values. Data can't be uploaded "
-                         "directly. You have to use the file upload "
-                         "handler.")
+      return '%s/%s' % (data, name)
+
+    else:
+      raise ValueError("The App Engine Blobstore only supports BlobInfo "
+                       "values. Data can't be uploaded directly. You have to "
+                       "use the file upload handler.")
+
   def delete(self, name):
     delete(self._get_key(name))
 

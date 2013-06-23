@@ -64,7 +64,7 @@ APPEND_SLASH = False
 LOGGING = {'version': 1,}
 
 EMAIL_BACKEND = 'sjfnw.mail.EmailBackend'
-EMAIL_QUEUE_NAME = 'email'
+EMAIL_QUEUE_NAME = 'default'
 
 USE_TZ = True
 TIME_ZONE = 'America/Los_Angeles'

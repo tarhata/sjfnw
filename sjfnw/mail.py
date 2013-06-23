@@ -23,8 +23,6 @@ def _send_deferred(message, fail_silently=False):
 class EmailBackend(BaseEmailBackend):
   """ Asynchronous email backend """
 
-  can_defer = True
-
   def send_messages(self, email_messages):
     """ Call _send for each message & return count of messages """
 
