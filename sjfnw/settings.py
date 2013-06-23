@@ -38,7 +38,6 @@ INSTALLED_APPS = (
   'sjfnw.grants',
   'sjfnw.fund',
   'pytz',
-  'djangoappengine', # last so it can override a few manage.py commands
 )
 
 MIDDLEWARE_CLASSES = (
@@ -64,18 +63,13 @@ APPEND_SLASH = False
 
 LOGGING = {'version': 1,}
 
-#djangoappengine email settings
-EMAIL_BACKEND = 'djangoappengine.mail.AsyncEmailBackend'
-EMAIL_QUEUE_NAME = 'default'
+EMAIL_BACKEND = 'sjfnw.mail.EmailBackend'
+EMAIL_QUEUE_NAME = 'email'
 
 USE_TZ = True
 TIME_ZONE = 'America/Los_Angeles'
 
-DEFAULT_FILE_STORAGE = 'djangoappengine.storage.BlobstoreStorage'
-SERVE_FILE_BACKEND = 'djangoappengine.storage.serve_file'
+DEFAULT_FILE_STORAGE = 'sjfnw.grants.storage.BlobstoreStorage'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024
-
-FILE_UPLOAD_HANDLERS = (
-    'djangoappengine.storage.BlobstoreFileUploadHandler',
-  )
+FILE_UPLOAD_HANDLERS = ('sjfnw.grants.storage.BlobstoreFileUploadHandler',)
 
