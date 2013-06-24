@@ -33,6 +33,7 @@ class GrantLogInline(admin.TabularInline): #Org, Application
     return GrantApplicationLog.objects.none()
 
   def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    """ give initial values for staff and/or org """
     if db_field.name == 'staff':
       kwargs['initial'] = request.user.id
       return db_field.formfield(**kwargs)
@@ -65,11 +66,14 @@ class GrantApplicationInline(admin.TabularInline): #Org
   extra = 0
   max_num = 0
   can_delete = False
-  readonly_fields = ('submission_time', 'grant_cycle', 'screening_status', 'edit_application', 'view_link')
-  fields = ('submission_time', 'grant_cycle', 'screening_status', 'edit_application', 'view_link')
+  readonly_fields = ('submission_time', 'grant_cycle', 'screening_status',
+                     'edit_application', 'view_link')
+  fields = ('submission_time', 'grant_cycle', 'screening_status',
+            'edit_application', 'view_link')
 
   def edit_application(self, obj): #GrantApplication fieldset
-    return '<a href="/admin/grants/grantapplication/' + str(obj.pk) + '/" target="_blank">Edit</a>'
+    return ('<a href="/admin/grants/grantapplication/' + str(obj.pk) +
+            '/" target="_blank">Edit</a>')
   edit_application.allow_tags = True
 
 # Forms
