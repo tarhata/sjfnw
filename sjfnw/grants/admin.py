@@ -10,8 +10,42 @@ from .models import *
 import unicodecsv as csv
 import logging, re
 
-# Inlines
+# Forms
+class AwardForm(ModelForm):
+  def clean(self):
+    """ validate that app screening status is appropriate before saving award """
+    cleaned_data = super(AwardForm, self).clean()
+    app = cleaned_data.get('application')
+    if app.screening_status < 90:
+      raise ValidationError('Please update the application\'s screening status')
+    return cleaned_data
 
+class AppAdminForm(ModelForm):
+  def clean(self):
+    cleaned_data = super(AppAdminForm, self).clean()
+    status = cleaned_data.get("screening_status")
+    if status >= 100:
+      logging.info('Require check details')
+    return cleaned_data
+
+  class Meta:
+    model = GrantApplication
+
+class DraftForm(ModelForm):
+  class Meta:
+    model = DraftGrantApplication
+
+  def clean(self):
+    cleaned_data = super(DraftForm, self).clean()
+    org = cleaned_data.get('organization')
+    cycle = cleaned_data.get('grant_cycle')
+    if org and cycle:
+      if GrantApplication.objects.filter(organization=org, grant_cycle=cycle):
+        raise ValidationError('This organization has already submitted an '
+                              'application to this grant cycle.')
+    return cleaned_data
+
+# Inlines
 class GrantLogInlineRead(admin.TabularInline): #Org, Application
   model = GrantApplicationLog
   extra = 0
@@ -44,14 +78,24 @@ class GrantLogInline(admin.TabularInline): #Org, Application
       return db_field.formfield(**kwargs)
     return super(GrantLogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-class AwardInline(admin.TabularInline): #TODO
+class AwardInline(admin.TabularInline):
   model = GrantAward
+  form = AwardForm
   extra = 0
-  fields = ('amount', 'check_mailed', 'approved')
-
+  readonly_fields = ('edit_award',)
+  fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
+  """
   def get_readonly_fields(self, request, obj=None):
+    ro = ('edit_award',)
     if obj is not None:
-      return self.fields
+      return ro + self.fields
+    return ro
+  """
+
+  def edit_award(self, obj):
+    return ('<a href="/admin/grants/grantaward/' + str(obj.pk) +
+            '/" target="_blank">Edit</a>')
+  edit_award.allow_tags = True
 
 class AppCycleInline(admin.TabularInline): #Cycle
   model = GrantApplication
@@ -75,32 +119,6 @@ class GrantApplicationInline(admin.TabularInline): #Org
     return ('<a href="/admin/grants/grantapplication/' + str(obj.pk) +
             '/" target="_blank">Edit</a>')
   edit_application.allow_tags = True
-
-# Forms
-class AppAdminForm(ModelForm):
-  def clean(self):
-    cleaned_data = super(AppAdminForm, self).clean()
-    status = cleaned_data.get("screening_status")
-    if status >= 100:
-      logging.info('Require check details')
-    return cleaned_data
-
-  class Meta:
-    model = GrantApplication
-
-class DraftForm(ModelForm):
-  class Meta:
-    model = DraftGrantApplication
-
-  def clean(self):
-    cleaned_data = super(DraftForm, self).clean()
-    org = cleaned_data.get('organization')
-    cycle = cleaned_data.get('grant_cycle')
-    if org and cycle:
-      if GrantApplication.objects.filter(organization=org, grant_cycle=cycle):
-        raise ValidationError('This organization has already submitted an '
-                              'application to this grant cycle.')
-    return cleaned_data
 
 # ModelAdmin
 class GrantCycleA(admin.ModelAdmin):
