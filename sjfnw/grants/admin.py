@@ -194,7 +194,7 @@ class GrantApplicationA(admin.ModelAdmin):
                   'screening_status', 'view_link')
   list_filter = ('grant_cycle', 'screening_status')
   search_fields = ('organization__name',)
-  inlines = [AwardInline, GrantLogInlineRead, GrantLogInline]
+  inlines = [GrantLogInlineRead, GrantLogInline] # AwardInline
 
   def has_add_permission(self, request):
     return False
@@ -250,7 +250,7 @@ admin.site.register(GrantCycle, GrantCycleA)
 admin.site.register(Organization, OrganizationA)
 admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
-admin.site.register(GrantAward, GrantAwardA)
+# admin.site.register(GrantAward, GrantAwardA)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)
