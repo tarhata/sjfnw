@@ -11,7 +11,7 @@ import unicodecsv as csv
 import logging, re
 
 # Forms
-class AwardForm(ModelForm):
+class AwardForm(ModelForm): #AwardInline
   def clean(self):
     """ validate that app screening status is appropriate before saving award """
     cleaned_data = super(AwardForm, self).clean()
@@ -80,17 +80,19 @@ class GrantLogInline(admin.TabularInline): #Org, Application
 
 class AwardInline(admin.TabularInline):
   model = GrantAward
-  form = AwardForm
+  # form = AwardForm
   extra = 0
   readonly_fields = ('edit_award',)
   fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
-  """
-  def get_readonly_fields(self, request, obj=None):
-    ro = ('edit_award',)
-    if obj is not None:
-      return ro + self.fields
-    return ro
-  """
+
+  def get_form(self, request, obj=None, **kwargs):
+    logging.info("GET FORM =====================================")
+    logging.info(kwargs)
+    if obj: # editing
+      kwargs['readonly_fields'] = self.fields
+    else: # creating
+      kwargs['fields'] -= 'edit_award'
+    return super(AwardInline, self).get_form(request, obj, **kwargs)
 
   def edit_award(self, obj):
     return ('<a href="/admin/grants/grantaward/' + str(obj.pk) +
