@@ -76,6 +76,9 @@ class GrantLogInline(admin.TabularInline): #Org, Application
       app = GrantApplication.objects.get(pk=id)
       kwargs['initial'] = app.organization.pk
       return db_field.formfield(**kwargs)
+    if db_field.name=='application':
+      org_pk = int(request.path.split('/')[-2])
+      kwargs['queryset'] = GrantApplication.objects.filter(organization_id=org_pk)
     return super(GrantLogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class AwardInline(admin.TabularInline):
