@@ -124,6 +124,7 @@ class GivingProjectA(admin.ModelAdmin):
     ('title', 'public'),
     ('fundraising_training', 'fundraising_deadline'),
     'fund_goal',
+    'site_visits',
     'calendar',
     'suggested_steps',
     'pre_approved',
