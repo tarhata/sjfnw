@@ -1,5 +1,5 @@
 application: sjf-nw
-version: 1
+version: devel
 runtime: python27
 api_version: 1
 threadsafe: yes
@@ -32,7 +32,7 @@ handlers:
 - url: /dev
   script: sjfnw.wsgi.application
   login: admin
-  
+
 - url: /static/admin
   static_dir: sjfnw/static/django_admin
   expiration: '0'
@@ -46,4 +46,3 @@ handlers:
 
 - url: /.*
   script: sjfnw.wsgi.application
-  secure: always
