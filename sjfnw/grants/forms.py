@@ -22,7 +22,7 @@ class RegisterForm(forms.Form):
       self._errors["password"] = self.error_class(["Passwords did not match."])
       del cleaned_data["password"]
       del cleaned_data["passwordtwo"]
-    return cleaned_data 
+    return cleaned_data
 
 class RolloverForm(forms.Form): #used by org
   """Fields created on init:
@@ -69,7 +69,6 @@ class RolloverForm(forms.Form): #used by org
     return cleaned_data
 
 class AdminRolloverForm(forms.Form):
-
   def __init__(self, organization, *args, **kwargs):
     super(AdminRolloverForm, self).__init__(*args, **kwargs)
 
@@ -86,11 +85,11 @@ class AdminRolloverForm(forms.Form):
     self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, unicode(c)) for c in cycles])
 
 class AppSearchForm(forms.Form):
+
   #filters
   year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
   year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
   screening_status = forms.MultipleChoiceField(choices = models.GrantApplication.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
-
   organization = forms.CharField(max_length=255, required=False)
   city = forms.CharField(max_length=255, required=False)
   state = forms.MultipleChoiceField(choices = models.STATE_CHOICES[:5], widget = forms.CheckboxSelectMultiple, required = False)
@@ -99,6 +98,7 @@ class AppSearchForm(forms.Form):
   has_fiscal_sponsor = forms.BooleanField(required=False)
   poc_bonus = forms.BooleanField(required=False)
   geo_bonus = forms.BooleanField(required=False)
+  #awarded = forms.BooleanField(required=False)
 
   #fields
   #always: organization, grant cycle, submission time

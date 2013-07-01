@@ -272,7 +272,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   return render(request, 'grants/org_app.html',
     {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled, 'org':organization, 'user_override':user_override, 'flag':flag})
 
-def AutoSaveApp(request, cycle_id):  # /apply/[cycle_id]/autosave/
+def autosave_app(request, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Save non-file fields to a draft """
 
   if not request.user.is_authenticated():
@@ -631,7 +631,7 @@ def SearchApps(request):
       max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S')
       max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
       apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
-      logging.info('After year, count is ' + str(apps.count()))
+      #logging.info('After year, count is ' + str(apps.count()))
       if options.get('organization'):
         apps = apps.filter(organization__contains=options['organization'])
       if options.get('city'):
@@ -640,14 +640,17 @@ def SearchApps(request):
         apps = apps.filter(state__in=options['state'])
       if options.get('screening_status'):
         apps = apps.filter(screening_status__in=options.get('screening_status'))
-      logging.info('After screening status, count is ' + str(apps.count()))
+      #if options.get('awarded'):
+      #  awards = models.GrantAward.objects.values_list('id')
+      #  apps = apps.filter(id__in=awards)
+      #logging.info('After screening status, count is ' + str(apps.count()))
       if options.get('poc_bonus'):
         apps = apps.filter(scoring_bonus_poc=True)
       if options.get('geo_bonus'):
         apps = apps.filter(scoring_bonus_geo=True)
       if options.get('giving_project'):
         apps = apps.filter(giving_project__title__in=options.get('giving_project'))
-      logging.info('After gp, count is ' + str(apps.count()))
+      #logging.info('After gp, count is ' + str(apps.count()))
       if options.get('grant_cycle'):
         apps = apps.filter(grant_cycle__title__in=options.get('grant_cycle'))
       if options.get('has_fiscal_sponsor'):

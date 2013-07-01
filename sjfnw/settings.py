@@ -1,4 +1,4 @@
-﻿import os
+﻿import os, sys,logging
 
 WSGI_APPLICATION = 'sjfnw.wsgi.application'
 
@@ -41,8 +41,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
-  # appstats first
-  'google.appengine.ext.appstats.recording.AppStatsDjangoMiddleware',
+  'google.appengine.ext.appstats.recording.AppStatsDjangoMiddleware', #must be first
   'django.middleware.common.CommonMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
   'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -53,6 +52,7 @@ MIDDLEWARE_CLASSES = (
 TEMPLATE_CONTEXT_PROCESSORS = (
   'django.contrib.auth.context_processors.auth',
   'django.core.context_processors.request', #only used in fund/base.html js
+  #'django.contrib.messages.context_processors.messages', messages var. not using yet
 )
 TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), 'templates'),)
 

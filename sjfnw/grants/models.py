@@ -10,6 +10,7 @@ from sjfnw.fund.models import GivingProject
 from sjfnw.forms import IntegerCommaField, PhoneNumberField
 import logging, json, re
 from sjfnw import constants
+from datetime import timedelta
 
 class TimelineWidget(MultiWidget):
   def __init__(self, attrs=None):
@@ -686,3 +687,30 @@ class GrantApplicationLog(models.Model):
   staff = models.ForeignKey(User)
   contacted = models.CharField(max_length=255, help_text = 'Person from the organization that you talked to, if applicable.', blank=True)
   notes = models.TextField()
+
+class GrantAward(models.Model):
+  created = models.DateTimeField(default=timezone.now())
+
+  application = models.ForeignKey(GrantApplication)
+
+  amount = models.DecimalField(max_digits=8, decimal_places=2)
+  check_number = models.PositiveIntegerField(null=True, blank=True)
+  check_mailed = models.DateField(null=True, blank=True)
+
+  agreement_mailed = models.DateField(null=True, blank=True)
+  agreement_returned = models.DateField(null=True, blank=True)
+  approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
+
+  def agreement_due(self):
+    if self.agreement_mailed:
+      return self.agreement_mailed + timedelta(days=30)
+    else:
+      return None
+
+  def yearend_due(self):
+    with self.agreement_mailed as mailed:
+      if mailed:
+        return (mailed + timedelta(days=30)).replace(year = mailed.year+1)
+      else:
+        return None
+
