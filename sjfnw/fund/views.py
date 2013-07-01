@@ -42,7 +42,7 @@ def get_block_content(membership, first=True):
             .order_by('-date'))
   # grants
   status_cutoff = 50
-  if membership.giving_project.site_visits:
+  if membership.giving_project.site_visits == 1:
     status_cutoff = 70
   if membership.giving_project.pk == 14: # hack for PDX to view NGGP
     bks.append(GrantApplication.objects
