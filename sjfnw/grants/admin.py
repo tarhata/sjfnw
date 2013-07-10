@@ -187,7 +187,7 @@ class GrantApplicationA(admin.ModelAdmin):
     }),
     ('Administration', {
         'fields': (('screening_status', 'giving_project'),
-                   ('scoring_bonus_poc', 'scoring_bonus_geo'),
+                   ('scoring_bonus_poc', 'scoring_bonus_geo', 'site_visit_report'),
                    ('revert_grant', 'rollover'))
     })
   )
@@ -202,15 +202,15 @@ class GrantApplicationA(admin.ModelAdmin):
   def has_add_permission(self, request):
     return False
 
-  def revert_grant(obj):
+  def revert_grant(self, obj):
     return '<a href="revert">Revert to draft</a>'
   revert_grant.allow_tags = True
 
-  def rollover(obj):
+  def rollover(self, obj):
     return '<a href="rollover">Copy to another grant cycle</a>'
   rollover.allow_tags = True
 
-  def organization_link(obj):
+  def organization_link(self, obj):
     return (u'<a href="/admin/grants/organization/' + str(obj.organization.pk)
             + '/" target="_blank">' + unicode(obj.organization) + '</a>')
   organization_link.allow_tags = True

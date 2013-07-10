@@ -484,6 +484,7 @@ class GrantApplication(models.Model):
   giving_project = models.ForeignKey(GivingProject, null=True, blank=True)
   scoring_bonus_poc = models.BooleanField(default=False, verbose_name='Scoring bonus for POC-led')
   scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity')
+  site_visit_report = models.URLField(blank=True, help_text='Link to the google doc containing the site visit report. This will be visible to all project members, but not the organization.')
 
   class Meta:
     unique_together = ('organization', 'grant_cycle')
