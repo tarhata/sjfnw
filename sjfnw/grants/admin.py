@@ -12,6 +12,7 @@ import logging, re
 
 # Forms
 class AwardForm(ModelForm): #AwardInline
+  
   def clean(self):
     """ validate that app screening status is appropriate before saving award """
     cleaned_data = super(AwardForm, self).clean()
@@ -76,23 +77,18 @@ class GrantLogInline(admin.TabularInline): #Org, Application
       app = GrantApplication.objects.get(pk=id)
       kwargs['initial'] = app.organization.pk
       return db_field.formfield(**kwargs)
+    if db_field.name=='application':
+      org_pk = int(request.path.split('/')[-2])
+      kwargs['queryset'] = GrantApplication.objects.filter(organization_id=org_pk)
     return super(GrantLogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class AwardInline(admin.TabularInline):
   model = GrantAward
   # form = AwardForm
+  template = 'admin/grants/grantaward/tabular_inline.html'
   extra = 0
   readonly_fields = ('edit_award',)
   fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
-
-  def get_form(self, request, obj=None, **kwargs):
-    logging.info("GET FORM =====================================")
-    logging.info(kwargs)
-    if obj: # editing
-      kwargs['readonly_fields'] = self.fields
-    else: # creating
-      kwargs['fields'] -= 'edit_award'
-    return super(AwardInline, self).get_form(request, obj, **kwargs)
 
   def edit_award(self, obj):
     return ('<a href="/admin/grants/grantaward/' + str(obj.pk) +
@@ -184,7 +180,7 @@ class GrantApplicationA(admin.ModelAdmin):
     }),
     ('Administration', {
         'fields': (('screening_status', 'giving_project'),
-                   ('scoring_bonus_poc', 'scoring_bonus_geo'),
+                   ('scoring_bonus_poc', 'scoring_bonus_geo', 'site_visit_report'),
                    ('revert_grant', 'rollover'))
     })
   )
@@ -194,20 +190,20 @@ class GrantApplicationA(admin.ModelAdmin):
                   'screening_status', 'view_link')
   list_filter = ('grant_cycle', 'screening_status')
   search_fields = ('organization__name',)
-  inlines = [GrantLogInlineRead, GrantLogInline] # AwardInline
+  inlines = [GrantLogInlineRead, GrantLogInline, AwardInline] # AwardInline
 
   def has_add_permission(self, request):
     return False
 
-  def revert_grant(obj):
+  def revert_grant(self, obj):
     return '<a href="revert">Revert to draft</a>'
   revert_grant.allow_tags = True
 
-  def rollover(obj):
+  def rollover(self, obj):
     return '<a href="rollover">Copy to another grant cycle</a>'
   rollover.allow_tags = True
 
-  def organization_link(obj):
+  def organization_link(self, obj):
     return (u'<a href="/admin/grants/organization/' + str(obj.organization.pk)
             + '/" target="_blank">' + unicode(obj.organization) + '</a>')
   organization_link.allow_tags = True
@@ -250,7 +246,7 @@ admin.site.register(GrantCycle, GrantCycleA)
 admin.site.register(Organization, OrganizationA)
 admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
-# admin.site.register(GrantAward, GrantAwardA)
+admin.site.register(GrantAward, GrantAwardA)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)

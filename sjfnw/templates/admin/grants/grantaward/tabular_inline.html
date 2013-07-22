@@ -18,8 +18,10 @@
      </tr></thead>
 
      <tbody>
-       {% for inline_admin_form in inline_admin_formset %} <!-- per form in formset -->
-       {% if inline_admin_form.form.non_field_errors %} <!-- non-field errors -->
+       {% for inline_admin_form in inline_admin_formset %}
+       <!-- per form in formset -->
+        {% if inline_admin_form.form.non_field_errors %}
+        <!-- non-field errors -->
         <tr><td colspan="{{ inline_admin_form|cell_count }}">{{ inline_admin_form.form.non_field_errors }}</td></tr>
         {% endif %}
         <tr class="form-row {% cycle "row1" "row2" %} {% if inline_admin_form.original or inline_admin_form.show_url %}has_original{% endif %}{% if forloop.last %} empty-form{% endif %}"
@@ -42,10 +44,15 @@
         {% for fieldset in inline_admin_form %}
           {% for line in fieldset %}
           {% for field in line %}
-              <!-- display readonly contents or field errors -->
+              <!-- display readonly contents or field & errors -->
               <td{% if field.field.name %} class="field-{{ field.field.name }}"{% endif %}>
-              {% if field.is_readonly %}
-                  <p>{{ field.contents|linebreaksbr }}</p>
+              {% if inline_admin_form.original %} <!-- field.is_readonly %} -->
+                  {{ field.field.errors.as_ul }}
+              {% if field.field.value %}
+                  {{ field.field.value }}
+              {% else %}
+                {{ field.contents|linebreaksbr }}
+              {% endif %}
               {% else %}
                   {{ field.field.errors.as_ul }}
                   {{ field.field }}
@@ -97,6 +104,7 @@
             }
         }
         var initPrepopulatedFields = function(row) {
+            console.log('initPrepopulatedFields');
             row.find('.prepopulated_field').each(function() {
                 var field = $(this);
                 var input = field.find('input, select, textarea');

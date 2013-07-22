@@ -6,6 +6,7 @@ from django.forms import ValidationError
 from sjfnw.admin import advanced_admin
 from .models import *
 import forms, utils
+import unicodecsv
 
 # display methods
 def step_membership(obj): #Step list_display
@@ -36,7 +37,7 @@ def export_donors(modeladmin, request, queryset):
   logging.info('Export donors called by ' + request.user.email)
   response = HttpResponse(mimetype='text/csv')
   response['Content-Disposition'] = 'attachment; filename=prospects.csv'
-  writer = csv.writer(response)
+  writer = unicodecsv.writer(response)
 
   writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member',
                    'Giving Project', 'Amount to ask', 'Asked', 'Promised',
@@ -124,6 +125,7 @@ class GivingProjectA(admin.ModelAdmin):
     ('title', 'public'),
     ('fundraising_training', 'fundraising_deadline'),
     'fund_goal',
+    'site_visits',
     'calendar',
     'suggested_steps',
     'pre_approved',

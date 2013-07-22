@@ -31,23 +31,28 @@ def get_block_content(membership, first=True):
   """ Provide upper block content for the 3 main views """
 
   bks = []
+  # upcoming steps
   if first: #home page does its own thing
     bks.append(models.Step.objects.select_related('donor')
-                    .filter(donor__membership=membership,
-                    completed__isnull=True).order_by('date')[:2])
+                     .filter(donor__membership=membership,
+                     completed__isnull=True).order_by('date')[:2])
+  # project news
   bks.append(models.NewsItem.objects
-           .filter(membership__giving_project=membership.giving_project)
-           .order_by('-date'))
-
+            .filter(membership__giving_project=membership.giving_project)
+            .order_by('-date'))
+  # grants
+  status_cutoff = 50
+  if membership.giving_project.site_visits == 1:
+    status_cutoff = 70
   if membership.giving_project.pk == 14: # hack for PDX to view NGGP
     bks.append(GrantApplication.objects
-             .filter(giving_project_id=12, screening_status__gte=50)
-             .order_by('organization__name'))
+              .filter(giving_project_id=12, screening_status__gte=status_cutoff)
+              .order_by('organization__name'))
   else:
     bks.append(GrantApplication.objects
-             .filter(giving_project=membership.giving_project,
-                     screening_status__gte=50)
-             .order_by('organization__name'))
+              .filter(giving_project=membership.giving_project,
+                      screening_status__gte=status_cutoff)
+              .order_by('organization__name'))
   #logging.info(bks)
   return bks
 
