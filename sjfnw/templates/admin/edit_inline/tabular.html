@@ -6,7 +6,7 @@
    <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
    {{ inline_admin_formset.formset.non_form_errors }}
    <table>
-     <thead><tr>
+     <thead><tr><!-- field headers -->
      {% for field in inline_admin_formset.fields %}
        {% if not field.widget.is_hidden %}
          <th{% if forloop.first %} colspan="2"{% endif %}{% if field.required %} class="required"{% endif %}>{{ field.label|capfirst }}
@@ -18,24 +18,22 @@
      </tr></thead>
 
      <tbody>
-     {% for inline_admin_form in inline_admin_formset %}
-        {% if inline_admin_form.form.non_field_errors %}
+       {% for inline_admin_form in inline_admin_formset %} <!-- per form in formset -->
+       {% if inline_admin_form.form.non_field_errors %} <!-- non-field errors -->
         <tr><td colspan="{{ inline_admin_form|cell_count }}">{{ inline_admin_form.form.non_field_errors }}</td></tr>
         {% endif %}
         <tr class="form-row {% cycle "row1" "row2" %} {% if inline_admin_form.original or inline_admin_form.show_url %}has_original{% endif %}{% if forloop.last %} empty-form{% endif %}"
              id="{{ inline_admin_formset.formset.prefix }}-{% if not forloop.last %}{{ forloop.counter0 }}{% else %}empty{% endif %}">
         <td class="original">
-          <!--{% if inline_admin_form.original or inline_admin_form.show_url %}<p>
-          {% if inline_admin_form.original %} {{ inline_admin_form.original }}{% endif %}
-          {% if inline_admin_form.show_url %}<a href="../../../r/{{ inline_admin_form.original_content_type_id }}/{{ inline_admin_form.original.id }}/">{% trans "View on site" %}</a>{% endif %}
-            </p>{% endif %}-->
+          <!-- removed default "view on site" link -->
           {% if inline_admin_form.has_auto_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
           {{ inline_admin_form.fk_field.field }}
           {% spaceless %}
           {% for fieldset in inline_admin_form %}
             {% for line in fieldset %}
-              {% for field in line %}
-                {% if field.is_hidden %} {{ field.field }} {% endif %}
+            {% for field in line %}
+              <!-- hidden fields -->
+              {% if field.is_hidden %} {{ field.field }} {% endif %}
               {% endfor %}
             {% endfor %}
           {% endfor %}
@@ -43,7 +41,8 @@
         </td>
         {% for fieldset in inline_admin_form %}
           {% for line in fieldset %}
-            {% for field in line %}
+          {% for field in line %}
+              <!-- display readonly contents or field errors -->
               <td{% if field.field.name %} class="field-{{ field.field.name }}"{% endif %}>
               {% if field.is_readonly %}
                   <p>{{ field.contents|linebreaksbr }}</p>
@@ -54,7 +53,8 @@
               </td>
             {% endfor %}
           {% endfor %}
-        {% endfor %}
+          {% endfor %}
+        <!-- delete button -->
         {% if inline_admin_formset.formset.can_delete %}
           <td class="delete">{% if inline_admin_form.original %}{{ inline_admin_form.deletion_field.field }}{% endif %}</td>
         {% endif %}
