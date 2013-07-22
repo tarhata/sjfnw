@@ -48,11 +48,11 @@
               <td{% if field.field.name %} class="field-{{ field.field.name }}"{% endif %}>
               {% if inline_admin_form.original %} <!-- field.is_readonly %} -->
                   {{ field.field.errors.as_ul }}
-              {% if field.field.value %}
+              <!--{% if field.field.value %}
                   {{ field.field.value }}
-              {% else %}
+                  {% else %}-->
                 {{ field.contents|linebreaksbr }}
-              {% endif %}
+                <!--{% endif %}-->
               {% else %}
                   {{ field.field.errors.as_ul }}
                   {{ field.field }}

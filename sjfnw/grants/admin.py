@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
+from django.contrib.admin.helpers import InlineAdminFormSet
 from django.http import HttpResponse
 from django.forms import ValidationError
+from django.forms.models import BaseInlineFormSet
 
 from sjfnw.admin import advanced_admin
 from sjfnw.forms import IntegerCommaField
@@ -13,6 +15,21 @@ import logging, re
 # Forms
 class AwardForm(ModelForm): #AwardInline
   
+  def __init__(self, *args, **kwargs):
+    logging.info("AwardForm init")
+    logging.info(kwargs)
+    super(AwardForm, self).__init__(*args, **kwargs)
+    if 'instance' in kwargs:
+      logging.info('instance, setting ro')
+      for field in self:
+        field.field.widget.attrs['readonly'] = True
+        field.is_readonly = True
+        field.contents = field.value
+        #logging.info(dir(field))
+        #logging.info(dir(field.field))
+        #logging.info(field.field.widget_attrs)
+
+
   def clean(self):
     """ validate that app screening status is appropriate before saving award """
     cleaned_data = super(AwardForm, self).clean()
@@ -20,6 +37,29 @@ class AwardForm(ModelForm): #AwardInline
     if app.screening_status < 90:
       raise ValidationError('Please update the application\'s screening status')
     return cleaned_data
+
+class AwardFormset(BaseInlineFormSet):
+  
+  def __init__(self, *args, **kwargs): #is getting called
+    logging.info('AwardFormset init')
+    logging.info(args)
+    logging.info(kwargs)
+    super(AwardFormset, self).__init__(*args, **kwargs)
+
+  def __iter__(self): #not getting called
+    for form, original in zip(self.formset.initial_forms, self.formset.get_queryset()):
+      logging.info(self.fields)
+      logging.info(self.readonly_fields)
+      yield InlineAdminForm(self.formset, form, self.fieldsets,
+          self.prepopulated_fields, original, self.readonly_fields,
+          model_admin=self.opts)
+    for form in self.formset.extra_forms:
+      yield InlineAdminForm(self.formset, form, self.fieldsets,
+          self.prepopulated_fields, None, self.readonly_fields,
+          model_admin=self.opts)
+    yield InlineAdminForm(self.formset, self.formset.empty_form,
+          self.fieldsets, self.prepopulated_fields, None,
+          self.readonly_fields, model_admin=self.opts)
 
 class AppAdminForm(ModelForm):
   def clean(self):
@@ -84,16 +124,33 @@ class GrantLogInline(admin.TabularInline): #Org, Application
 
 class AwardInline(admin.TabularInline):
   model = GrantAward
-  # form = AwardForm
-  template = 'admin/grants/grantaward/tabular_inline.html'
+  #formset = AwardFormset
+  #form = AwardForm
+  #template = 'admin/grants/grantaward/tabular_inline.html'
   extra = 0
   readonly_fields = ('edit_award',)
   fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
+  
+  def __init__(self, *args, **kwargs):
+    logging.info("AwardInline init")
+    logging.info(args)
+    logging.info(kwargs)
+    super(AwardInline, self).__init__(*args, **kwargs)
 
   def edit_award(self, obj):
     return ('<a href="/admin/grants/grantaward/' + str(obj.pk) +
             '/" target="_blank">Edit</a>')
   edit_award.allow_tags = True
+  
+  """
+  def get_formset(self, request, obj=None, **kwargs):
+    logging.info('AwardInline get_form')
+    logging.info(obj)
+    logging.info(self.readonly_fields)
+    self.readonly_fields = self.fields
+    return AwardFormset(self, request, obj, **kwargs)
+    #return super(AwardInline, self).get_formset(request, obj, **kwargs)
+  """
 
 class AppCycleInline(admin.TabularInline): #Cycle
   model = GrantApplication
