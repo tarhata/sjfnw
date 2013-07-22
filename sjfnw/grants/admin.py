@@ -12,6 +12,7 @@ import logging, re
 
 # Forms
 class AwardForm(ModelForm): #AwardInline
+  
   def clean(self):
     """ validate that app screening status is appropriate before saving award """
     cleaned_data = super(AwardForm, self).clean()
@@ -84,18 +85,10 @@ class GrantLogInline(admin.TabularInline): #Org, Application
 class AwardInline(admin.TabularInline):
   model = GrantAward
   # form = AwardForm
+  template = 'admin/grants/grantaward/tabular_inline.html'
   extra = 0
   readonly_fields = ('edit_award',)
   fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
-
-  def get_form(self, request, obj=None, **kwargs):
-    logging.info("GET FORM =====================================")
-    logging.info(kwargs)
-    if obj: # editing
-      kwargs['readonly_fields'] = self.fields
-    else: # creating
-      kwargs['fields'] -= 'edit_award'
-    return super(AwardInline, self).get_form(request, obj, **kwargs)
 
   def edit_award(self, obj):
     return ('<a href="/admin/grants/grantaward/' + str(obj.pk) +
@@ -197,7 +190,7 @@ class GrantApplicationA(admin.ModelAdmin):
                   'screening_status', 'view_link')
   list_filter = ('grant_cycle', 'screening_status')
   search_fields = ('organization__name',)
-  inlines = [GrantLogInlineRead, GrantLogInline] # AwardInline
+  inlines = [GrantLogInlineRead, GrantLogInline, AwardInline] # AwardInline
 
   def has_add_permission(self, request):
     return False
@@ -253,7 +246,7 @@ admin.site.register(GrantCycle, GrantCycleA)
 admin.site.register(Organization, OrganizationA)
 admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
-# admin.site.register(GrantAward, GrantAwardA)
+admin.site.register(GrantAward, GrantAwardA)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)
