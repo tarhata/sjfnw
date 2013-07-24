@@ -22,7 +22,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 		{% if save.editable %}
 		<td><li>{{save.grant_cycle}}</li></td>
 		<td>{% if save.grant_cycle.info_page %}<a href="/apply/info/{{save.grant_cycle.pk}}{{user_override|default:''}}" target="_blank">Cycle info</a>{% endif %}</td>
-		<td><a href="{% url grants.views.Apply save.grant_cycle.pk %}{{user_override|default:''}}"><b>Edit draft</b></a></td>
+    <td><a href="/apply/{{save.grant_cycle.pk}}{{user_override|default:''}}"><b>Edit draft</b></a></td>
 		<td>Modified {{save.modified|date:"n/j g:iA"|lower}}</td>
 		<td>Due {% if save.extended_deadline %}{{save.extended_deadline|date:"n/j g:iA"|lower}}{% else %}{{save.grant_cycle.close|date:"n/j g:iA"|lower}}{% endif %}</td>
 		{% else %}
@@ -42,7 +42,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
 	<table class="list">
 	{%for sub in submitted%}
 		<tr><td><li>{{sub.grant_cycle}}</li></td>
-		<td><a href="{% url grants.views.ReadApplication sub.pk %}">View submitted application</a></td>
+      <td><a href="/grants/view/{{sub.pk}}">View submitted application</a></td>
 		<td>Submitted {{sub.submission_time|date:"n/j/y"}}</td>
 		</tr>
 	{%endfor%}
