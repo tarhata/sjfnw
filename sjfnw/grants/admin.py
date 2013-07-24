@@ -77,14 +77,11 @@ class GrantLogInline(admin.TabularInline): #Org, Application
 class AwardInline(admin.TabularInline):
   model = GrantAward
   extra = 0
-  readonly_fields = ('edit_award',)
+  max_num = 0
   fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
-  
-  def __init__(self, *args, **kwargs):
-    logging.info("AwardInline init")
-    logging.info(args)
-    logging.info(kwargs)
-    super(AwardInline, self).__init__(*args, **kwargs)
+  readonly_fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
+  can_delete = False
+  template = 'admin/grants/grantaward/tabular_inline.html'
 
   def edit_award(self, obj):
     if obj.pk:
