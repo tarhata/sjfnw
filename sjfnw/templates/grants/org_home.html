@@ -67,7 +67,7 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
   {% for ope in open %}
 		<tr><td><li>{{ope}}</li></td>
 		<td>{% if ope.info_page %}<a href="/apply/info/{{ope.pk}}{{user_override|default:''}}" target="_blank">Cycle info</a>{% endif %}</td>
-		<td><b><a href="{% url grants.views.Apply ope.pk %}{{user_override|default:''}}">Apply</a></b></td>
+    <td><b><a href="/apply/{{ope.pk}}{{user_override|default:''}}">Apply</a></b></td>
 		<td>Closes {{ope.close|date:"n/j/y"}}</a></td>
 		</tr>
   {% endfor %}
