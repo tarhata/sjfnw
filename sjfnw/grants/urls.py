@@ -42,6 +42,5 @@ grants_urls = patterns('grants.views',
   (r'^view/(?P<app_id>\d+)/?$', 'ReadApplication'),
   (r'^view-file/(?P<app_id>\d+)-(?P<file_type>.*)\.', 'ViewFile'),
   (r'^draft-file/(?P<draft_id>\d+)-(?P<file_type>.*)\.', 'ViewDraftFile'),
-  (r'^blocked', 'CannotView'),
 )
 

@@ -487,7 +487,7 @@ def view_permission(user, application):
         application: GrantApplication
 
       Returns:
-        0 - does not have permission to view
+        0 - anon viewer
         1 - member with perm
         2 - staff
         3 - app creator
@@ -509,29 +509,26 @@ def view_permission(user, application):
     except Member.DoesNotExist:
       return 0
 
-def CannotView(request):
-  return render(request, 'grants/blocked.html',
-                {'contact_url':'/support#contact'})
-
-@login_required(login_url=LOGIN_URL)
 def ReadApplication(request, app_id):
-  user = request.user
   app = get_object_or_404(models.GrantApplication, pk=app_id)
-  perm = view_permission(user, app)
+  
+  if not request.user.is_authenticated():
+    perm = 0
+  else:
+    perm = view_permission(request.user, app)
   logging.info('perm is ' + str(perm))
-  if perm == 0:
-    return redirect(CannotView)
+  
   form = models.GrantApplicationModelForm(app.grant_cycle)
 
   form_only = request.GET.get('form')
   if form_only:
     return render(request, 'grants/reading.html',
-                  {'app':app, 'form':form, 'user':user, 'perm':perm})
+                  {'app':app, 'form':form, 'perm':perm})
   file_urls = GetFileURLs(app)
   print_urls = GetFileURLs(app, printing=True)
 
   return render(request, 'grants/reading_sidebar.html',
-                {'app':app, 'form':form, 'user':user, 'file_urls':file_urls, 'print_urls':print_urls, 'perm':perm})
+                {'app':app, 'form':form, 'file_urls':file_urls, 'print_urls':print_urls, 'perm':perm})
 
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
