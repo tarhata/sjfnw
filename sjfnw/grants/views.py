@@ -640,10 +640,10 @@ def SearchApps(request):
         apps = apps.filter(state__in=options['state'])
       if options.get('screening_status'):
         apps = apps.filter(screening_status__in=options.get('screening_status'))
-      #if options.get('awarded'):
-      #  awards = models.GrantAward.objects.values_list('id')
-      #  apps = apps.filter(id__in=awards)
-      #logging.info('After screening status, count is ' + str(apps.count()))
+      """ filters on awarded (redundant with screening status)
+      if options.get('awarded'):
+        awards = models.GrantAward.objects.values_list('id')
+        apps = apps.filter(id__in=awards) """
       if options.get('poc_bonus'):
         apps = apps.filter(scoring_bonus_poc=True)
       if options.get('geo_bonus'):
@@ -671,6 +671,8 @@ def SearchApps(request):
       if options['report_bonuses']:
         fields.append('scoring_bonus_poc')
         fields.append('scoring_bonus_geo')
+      if options['report_award']:
+        awards = #TODO
 
       #get results
       results = get_results(fields, apps)
@@ -713,7 +715,6 @@ def get_results(fields, apps):
       else:
         row.append(getattr(app, field))
     results.append(row)
-  logging.info(results)
 
   return results
 
@@ -730,7 +731,8 @@ def DraftWarning(request):
   for draft in drafts:
     time_left = draft.grant_cycle.close - timezone.now()
     created_offset = draft.grant_cycle.close - draft.created
-    if (created_offset > eight and eight > time_left > datetime.timedelta(days=7)) or (created_offset < eight and datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3)):
+    if (created_offset > eight and eight > time_left > datetime.timedelta(days=7)) or
+       (created_offset < eight and datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3)):
       subject, from_email = 'Grant cycle closing soon', constants.GRANT_EMAIL
       to = draft.organization.email
       html_content = render_to_string('grants/email_draft_warning.html',
