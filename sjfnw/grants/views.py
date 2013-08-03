@@ -612,6 +612,10 @@ def Impersonate(request):
   return render(request, 'admin/grants/impersonate.html', {'form':form})
 
 def SearchApps(request):
+  """ View that handles grant application reporting
+    Creates the queryset, but uses get_results to execute it
+  """
+
   form = AppSearchForm()
 
   if request.method == 'POST':
@@ -672,10 +676,13 @@ def SearchApps(request):
         fields.append('scoring_bonus_poc')
         fields.append('scoring_bonus_geo')
       if options['report_award']:
-        awards = #TODO
+        awards = models.GrantAward.objects.all()
+      else:
+        awards = False
 
       #get results
-      results = get_results(fields, apps)
+      results = get_results(fields, apps, awards)
+
       fields = [f.capitalize().replace('_', ' ') for f in fields] #for display
 
       #format results
@@ -694,19 +701,27 @@ def SearchApps(request):
       logging.info('Invalid form!')
   return render(request, 'grants/search_applications.html', {'form':form})
 
-def get_results(fields, apps):
+def get_results(fields, apps, awards):
   """ Return a list of apps
       Each app is in list form, containing selected values
 
     Arguments:
       fields - list of fields to include
-      apps - queryset of applications """
+      apps - queryset of applications
+      awards - grant award queryset or False """
+  
+  awards_dict = {}
+  if awards:
+    for award in awards:
+      awards_dict[award.application_id] = award
+  logging.info(awards_dict)
 
   results = []
   for app in apps:
     row = []
     for field in fields:
       if field == 'screening_status':
+        # convert screening status to human-readable version
         val = getattr(app, field)
         if val:
           convert = dict(models.GrantApplication.SCREENING_CHOICES)
@@ -731,8 +746,7 @@ def DraftWarning(request):
   for draft in drafts:
     time_left = draft.grant_cycle.close - timezone.now()
     created_offset = draft.grant_cycle.close - draft.created
-    if (created_offset > eight and eight > time_left > datetime.timedelta(days=7)) or
-       (created_offset < eight and datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3)):
+    if (created_offset > eight and eight > time_left > datetime.timedelta(days=7)) or (created_offset < eight and datetime.timedelta(days=2) < time_left <= datetime.timedelta(days=3)):
       subject, from_email = 'Grant cycle closing soon', constants.GRANT_EMAIL
       to = draft.organization.email
       html_content = render_to_string('grants/email_draft_warning.html',
