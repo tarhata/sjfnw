@@ -711,12 +711,11 @@ def get_results(fields, apps, awards):
       fields - list of fields to include
       apps - queryset of applications
       awards - grant award queryset or False """
-  
+
   awards_dict = {}
   if awards:
     for award in awards:
       awards_dict[award.application_id] = award
-  logging.info(awards_dict)
 
   results = []
   for app in apps:
@@ -733,20 +732,22 @@ def get_results(fields, apps, awards):
       else:
         row.append(getattr(app, field))
     # get award, if applicable
-    if awards and app.id in awards_dict:
-      award = awards_dict[app.id]
-      row.append(award.amount) #TODO don't hardcode these
-      row.append(award.check_number)
-      row.append(award.check_mailed)
-      row.append(award.agreement_mailed)
-      row.append(award.agreement_returned)
-      row.append(award.approved)
+    if awards != False:
+      if app.id in awards_dict:
+        award = awards_dict[app.id]
+        row.append(award.amount) #TODO don't hardcode these
+        row.append(award.check_number)
+        row.append(award.check_mailed)
+        row.append(award.agreement_mailed)
+        row.append(award.agreement_returned)
+        row.append(award.approved)
+      else:
+        row = row + ['', '', '', '', '', '']
     results.append(row)
 
   return results
 
 # CRON
-
 def DraftWarning(request):
   """ Warn orgs of impending draft freezes
   Do not change cron sched -- it depends on running only once/day

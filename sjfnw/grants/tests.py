@@ -680,7 +680,8 @@ class ViewGrantPermissions(TestCase):
 
     response = self.client.get('/grants/view/1', follow=True)
 
-    self.assertTemplateUsed(response, 'grants/blocked.html')
+    self.assertTemplateUsed(response, 'grants/reading.html')
+    self.assertEqual(0, response.context['perm'])
 
   def test_staff(self):
     logInAdmin(self)
@@ -705,5 +706,6 @@ class ViewGrantPermissions(TestCase):
 
     response = self.client.get('/grants/view/1', follow=True)
 
-    self.assertTemplateUsed(response, 'grants/blocked.html')
+    self.assertTemplateUsed(response, 'grants/reading.html')
+    self.assertEqual(0, response.context['perm'])
 
