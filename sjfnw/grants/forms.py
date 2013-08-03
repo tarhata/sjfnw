@@ -85,7 +85,6 @@ class AdminRolloverForm(forms.Form):
     self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, unicode(c)) for c in cycles])
 
 class AppSearchForm(forms.Form):
-
   #filters
   year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
   year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
@@ -133,11 +132,11 @@ class AppSearchForm(forms.Form):
     ('start_year', 'Start of fiscal year'),
     ('budget_last', 'Budget last year'),
     ('budget_current', 'Budget current year')])
-
   report_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
   report_collab = forms.BooleanField(label='Collaboration references', required=False)
   report_racial_ref = forms.BooleanField(label='Racial justice references', required=False)
   report_bonuses = forms.BooleanField(label='POC-led and geographic diversity', required=False)
+  report_award = forms.BooleanField(label='Grant awards')
 
   #format (browse, csv, tsv)
   format = forms.ChoiceField(choices = [('csv', 'CSV'), ('browse', 'Don\'t export, just browse')])

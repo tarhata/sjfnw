@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
+from django.contrib.admin.helpers import InlineAdminFormSet
 from django.http import HttpResponse
 from django.forms import ValidationError
+from django.forms.models import BaseInlineFormSet
 
 from sjfnw.admin import advanced_admin
 from sjfnw.forms import IntegerCommaField
@@ -11,15 +13,6 @@ import unicodecsv as csv
 import logging, re
 
 # Forms
-class AwardForm(ModelForm): #AwardInline
-  def clean(self):
-    """ validate that app screening status is appropriate before saving award """
-    cleaned_data = super(AwardForm, self).clean()
-    app = cleaned_data.get('application')
-    if app.screening_status < 90:
-      raise ValidationError('Please update the application\'s screening status')
-    return cleaned_data
-
 class AppAdminForm(ModelForm):
   def clean(self):
     cleaned_data = super(AppAdminForm, self).clean()
@@ -83,25 +76,21 @@ class GrantLogInline(admin.TabularInline): #Org, Application
 
 class AwardInline(admin.TabularInline):
   model = GrantAward
-  # form = AwardForm
   extra = 0
-  readonly_fields = ('edit_award',)
+  max_num = 0
   fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
-
-  def get_form(self, request, obj=None, **kwargs):
-    logging.info("GET FORM =====================================")
-    logging.info(kwargs)
-    if obj: # editing
-      kwargs['readonly_fields'] = self.fields
-    else: # creating
-      kwargs['fields'] -= 'edit_award'
-    return super(AwardInline, self).get_form(request, obj, **kwargs)
+  readonly_fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
+  can_delete = False
+  template = 'admin/grants/grantaward/tabular_inline.html'
 
   def edit_award(self, obj):
-    return ('<a href="/admin/grants/grantaward/' + str(obj.pk) +
+    if obj.pk:
+      return ('<a href="/admin/grants/grantaward/' + str(obj.pk) +
             '/" target="_blank">Edit</a>')
+    else:
+      return ''
   edit_award.allow_tags = True
-
+  
 class AppCycleInline(admin.TabularInline): #Cycle
   model = GrantApplication
   extra = 0
@@ -197,7 +186,7 @@ class GrantApplicationA(admin.ModelAdmin):
                   'screening_status', 'view_link')
   list_filter = ('grant_cycle', 'screening_status')
   search_fields = ('organization__name',)
-  inlines = [GrantLogInlineRead, GrantLogInline] # AwardInline
+  inlines = [GrantLogInlineRead, GrantLogInline, AwardInline] # AwardInline
 
   def has_add_permission(self, request):
     return False
@@ -246,6 +235,12 @@ class GrantAwardA(admin.ModelAdmin):
   list_display = ('application', 'amount', 'check_mailed')
   list_filter = ('application__organization', 'application__giving_project')
   exclude = ('created',)
+  fields = (
+      ('application', 'amount'),
+      ('check_number', 'check_mailed'),
+      ('agreement_mailed', 'agreement_returned'),
+      'approved',
+    )
 
 # Register
 
@@ -253,7 +248,7 @@ admin.site.register(GrantCycle, GrantCycleA)
 admin.site.register(Organization, OrganizationA)
 admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
-# admin.site.register(GrantAward, GrantAwardA)
+admin.site.register(GrantAward, GrantAwardA)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)

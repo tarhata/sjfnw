@@ -609,6 +609,10 @@ def Impersonate(request):
   return render(request, 'admin/grants/impersonate.html', {'form':form})
 
 def SearchApps(request):
+  """ View that handles grant application reporting
+    Creates the queryset, but uses get_results to execute it
+  """
+
   form = AppSearchForm()
 
   if request.method == 'POST':
@@ -637,10 +641,10 @@ def SearchApps(request):
         apps = apps.filter(state__in=options['state'])
       if options.get('screening_status'):
         apps = apps.filter(screening_status__in=options.get('screening_status'))
-      #if options.get('awarded'):
-      #  awards = models.GrantAward.objects.values_list('id')
-      #  apps = apps.filter(id__in=awards)
-      #logging.info('After screening status, count is ' + str(apps.count()))
+      """ filters on awarded (redundant with screening status)
+      if options.get('awarded'):
+        awards = models.GrantAward.objects.values_list('id')
+        apps = apps.filter(id__in=awards) """
       if options.get('poc_bonus'):
         apps = apps.filter(scoring_bonus_poc=True)
       if options.get('geo_bonus'):
@@ -669,19 +673,29 @@ def SearchApps(request):
         fields.append('scoring_bonus_poc')
         fields.append('scoring_bonus_geo')
 
-      #get results
-      results = get_results(fields, apps)
-      fields = [f.capitalize().replace('_', ' ') for f in fields] #for display
+      # format headers
+      field_names = [f.capitalize().replace('_', ' ') for f in fields] #for display
+ 
+      # grant awards
+      if options['report_award']:
+        awards = models.GrantAward.objects.all()
+        field_names += ['Amount', 'Check number', 'Check mailed', 'Agreement mailed',
+                   'Agreement returned', 'Approved'] #TODO don't hardcode these
+      else:
+        awards = False
 
+      #get results
+      results = get_results(fields, apps, awards)
+ 
       #format results
       if options['format'] == 'browse':
         return render_to_response('grants/report_results.html',
-                                  {'results':results, 'fields':fields})
+                                  {'results':results, 'field_names':field_names})
       elif options['format'] == 'csv':
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=%s.csv' % 'grantapplications'
         writer = unicodecsv.writer(response)
-        writer.writerow(fields)
+        writer.writerow(field_names)
         for row in results:
           writer.writerow(row)
         return response
@@ -689,19 +703,28 @@ def SearchApps(request):
       logging.info('Invalid form!')
   return render(request, 'grants/search_applications.html', {'form':form})
 
-def get_results(fields, apps):
+def get_results(fields, apps, awards):
   """ Return a list of apps
       Each app is in list form, containing selected values
 
     Arguments:
       fields - list of fields to include
-      apps - queryset of applications """
+      apps - queryset of applications
+      awards - grant award queryset or False """
+  
+  awards_dict = {}
+  if awards:
+    for award in awards:
+      awards_dict[award.application_id] = award
+  logging.info(awards_dict)
 
   results = []
   for app in apps:
     row = []
+    # get field values
     for field in fields:
       if field == 'screening_status':
+        # convert screening status to human-readable version
         val = getattr(app, field)
         if val:
           convert = dict(models.GrantApplication.SCREENING_CHOICES)
@@ -709,8 +732,16 @@ def get_results(fields, apps):
         row.append(val)
       else:
         row.append(getattr(app, field))
+    # get award, if applicable
+    if awards and app.id in awards_dict:
+      award = awards_dict[app.id]
+      row.append(award.amount) #TODO don't hardcode these
+      row.append(award.check_number)
+      row.append(award.check_mailed)
+      row.append(award.agreement_mailed)
+      row.append(award.agreement_returned)
+      row.append(award.approved)
     results.append(row)
-  logging.info(results)
 
   return results
 
