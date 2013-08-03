@@ -675,25 +675,30 @@ def SearchApps(request):
       if options['report_bonuses']:
         fields.append('scoring_bonus_poc')
         fields.append('scoring_bonus_geo')
+
+      # format headers
+      field_names = [f.capitalize().replace('_', ' ') for f in fields] #for display
+ 
+      # grant awards
       if options['report_award']:
         awards = models.GrantAward.objects.all()
+        field_names += ['Amount', 'Check number', 'Check mailed', 'Agreement mailed',
+                   'Agreement returned', 'Approved'] #TODO don't hardcode these
       else:
         awards = False
 
       #get results
       results = get_results(fields, apps, awards)
-
-      fields = [f.capitalize().replace('_', ' ') for f in fields] #for display
-
+ 
       #format results
       if options['format'] == 'browse':
         return render_to_response('grants/report_results.html',
-                                  {'results':results, 'fields':fields})
+                                  {'results':results, 'field_names':field_names})
       elif options['format'] == 'csv':
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = 'attachment; filename=%s.csv' % 'grantapplications'
         writer = unicodecsv.writer(response)
-        writer.writerow(fields)
+        writer.writerow(field_names)
         for row in results:
           writer.writerow(row)
         return response
@@ -719,6 +724,7 @@ def get_results(fields, apps, awards):
   results = []
   for app in apps:
     row = []
+    # get field values
     for field in fields:
       if field == 'screening_status':
         # convert screening status to human-readable version
@@ -729,6 +735,15 @@ def get_results(fields, apps, awards):
         row.append(val)
       else:
         row.append(getattr(app, field))
+    # get award, if applicable
+    if awards and app.id in awards_dict:
+      award = awards_dict[app.id]
+      row.append(award.amount) #TODO don't hardcode these
+      row.append(award.check_number)
+      row.append(award.check_mailed)
+      row.append(award.agreement_mailed)
+      row.append(award.agreement_returned)
+      row.append(award.approved)
     results.append(row)
 
   return results
