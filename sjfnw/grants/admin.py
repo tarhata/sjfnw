@@ -233,7 +233,7 @@ class DraftAdv(admin.ModelAdmin): #Advanced
 
 class GrantAwardA(admin.ModelAdmin):
   list_display = ('application', 'amount', 'check_mailed')
-  list_filter = ('application__organization', 'application__giving_project')
+  list_filter = ('application__organization',)
   exclude = ('created',)
   fields = (
       ('application', 'amount'),
