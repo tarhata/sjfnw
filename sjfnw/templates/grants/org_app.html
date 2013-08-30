@@ -40,7 +40,7 @@
     console.log("autosaving");
     if (!window.onblur){ //set pause & resume when window loses/gains focus
       console.log("no onblur func, setting");
-      $(window).blur(function(){
+      window.onblur = function(){
         console.log("Pausing autosave");
         // pause auto save
         window.clearInterval(autosave_timer);
@@ -49,7 +49,7 @@
           console.log("Resuming autosave");
           autosave_timer = window.setInterval("autoSave()", 30000);
         }
-      });
+      }
     }
     $.ajax({
       url:"/apply/{{cycle.pk}}/autosave/{{user_override|default:'?'}}&override=" + override,
