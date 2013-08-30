@@ -136,7 +136,7 @@ class AppSearchForm(forms.Form):
   report_collab = forms.BooleanField(label='Collaboration references', required=False)
   report_racial_ref = forms.BooleanField(label='Racial justice references', required=False)
   report_bonuses = forms.BooleanField(label='POC-led and geographic diversity', required=False)
-  report_award = forms.BooleanField(label='Grant awards')
+  report_award = forms.BooleanField(label='Grant awards', required=False)
 
   #format (browse, csv, tsv)
   format = forms.ChoiceField(choices = [('csv', 'CSV'), ('browse', 'Don\'t export, just browse')])
