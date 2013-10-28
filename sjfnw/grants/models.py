@@ -145,13 +145,12 @@ class Organization(models.Model):
   #org contact info
   address = models.CharField(max_length=100, blank=True)
   city = models.CharField(max_length=50, blank=True)
-  state = models.CharField(max_length=2, choices=STATE_CHOICES, null=True,
-                           blank=True)
+  state = models.CharField(max_length=2, choices=STATE_CHOICES, blank=True)
   zip = models.CharField(max_length=50, blank=True)
   telephone_number = models.CharField(max_length=20, blank=True)
   fax_number = models.CharField(max_length=20, blank=True)
   email_address = models.EmailField(max_length=100, blank=True)
-  website = models.CharField(max_length=50, null=True, blank=True)
+  website = models.CharField(max_length=50, blank=True)
 
   #org info
   status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True,
@@ -165,15 +164,15 @@ class Organization(models.Model):
 
   #fiscal sponsor info (if applicable)
   fiscal_org = models.CharField(verbose_name='Organization name',
-                                max_length=255, null=True, blank=True)
+                                max_length=255, blank=True)
   fiscal_person = models.CharField(verbose_name='Contact person',
-                                   max_length=255, null=True, blank=True)
+                                   max_length=255, blank=True)
   fiscal_telephone = models.CharField(verbose_name='Telephone',
-                                      max_length=25, null=True, blank=True)
+                                      max_length=25, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address',
-                                  max_length=100, null=True, blank=True)
+                                  max_length=100, blank=True)
   fiscal_address = models.CharField(verbose_name='Address',
-                                    max_length=255, null=True, blank=True)
+                                    max_length=255, blank=True)
   fiscal_city = models.CharField(verbose_name='City',
                                  max_length=50, blank=True)
   fiscal_state = models.CharField(verbose_name='State', max_length=2,
@@ -334,7 +333,7 @@ class GrantApplication(models.Model):
   SUPPORT_CHOICES = [('General support', 'General support'),
                      ('Project support', 'Project support'),]
   support_type = models.CharField(max_length=50, choices=SUPPORT_CHOICES)
-  project_title = models.CharField(max_length=250, null=True, blank=True,
+  project_title = models.CharField(max_length=250, blank=True,
                                    verbose_name='Project title (if applicable)')
   project_budget = models.PositiveIntegerField(null=True, blank=True,
                                                verbose_name='Project budget (if applicable)')
