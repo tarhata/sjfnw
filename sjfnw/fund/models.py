@@ -20,7 +20,7 @@ class GivingProject(models.Model):
                                ' the dropdown menu for members registering or '
                                'adding a project to their account.'))
 
-  pre_approved = models.TextField(null=True, blank=True, help_text='List of member emails, separated by commas.  Anyone who registers using an email on this list will have their account automatically approved.  IMPORTANT: Any syntax error can make this feature stop working; in that case memberships will default to requiring manual approval by an administrator.') #remove null from all char
+  pre_approved = models.TextField(blank=True, help_text='List of member emails, separated by commas.  Anyone who registers using an email on this list will have their account automatically approved.  IMPORTANT: Any syntax error can make this feature stop working; in that case memberships will default to requiring manual approval by an administrator.')
 
   #fundraising
   fundraising_training = models.DateTimeField(help_text='Date & time of fundraising training.  At this point the app will require members to enter an ask amount & estimated likelihood for each contact.')
@@ -29,7 +29,7 @@ class GivingProject(models.Model):
   suggested_steps = models.TextField(default='Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank', help_text='Displayed to users when they add a step.  Put each step on a new line')
 
   site_visits = models.BooleanField(default=False, help_text='If checked, members will only see grants with a screening status of at least "site visit awarded"')
-  calendar = models.CharField(max_length=255, null=True, blank=True,
+  calendar = models.CharField(max_length=255, blank=True,
                               help_text= ('Calendar ID of a google calendar - '
                               'format: ____@group.calendar.google.com'))
   resources = models.ManyToManyField('Resource', through = 'ProjectResource',
@@ -137,8 +137,7 @@ class Donor(models.Model):
   membership = models.ForeignKey(Membership)
 
   firstname = models.CharField(max_length=100, verbose_name='*First name')
-  lastname = models.CharField(max_length=100, null=True, blank=True,
-                              verbose_name='Last name')
+  lastname = models.CharField(max_length=100, blank=True, verbose_name='Last name')
 
   amount = models.PositiveIntegerField(verbose_name='*Amount to ask ($)',
                                        null=True, blank=True)
@@ -152,8 +151,8 @@ class Donor(models.Model):
   received = models.PositiveIntegerField(default=0)
   gift_notified = models.BooleanField(default=False)
 
-  phone = models.CharField(max_length=15, null=True, blank=True)
-  email = models.EmailField(max_length=100, null=True, blank=True)
+  phone = models.CharField(max_length=15, blank=True)
+  email = models.EmailField(max_length=100, blank=True)
   notes = models.TextField(blank=True)
 
   next_step = models.ForeignKey('Step', null=True, blank=True,
