@@ -235,15 +235,20 @@ class DraftAdv(admin.ModelAdmin): #Advanced
                      'budget1', 'budget2', 'budget3', 'project_budget_file')
 
 class GrantAwardA(admin.ModelAdmin):
-  list_display = ('application', 'amount', 'check_mailed')
-  list_filter = ('application__organization',)
+  list_display = ('application', 'amount', 'check_mailed', 'year_end_report_due')
+  list_filter = ('agreement_mailed',)
   exclude = ('created',)
   fields = (
       ('application', 'amount'),
       ('check_number', 'check_mailed'),
       ('agreement_mailed', 'agreement_returned'),
       'approved',
+      'year_end_report_due',
     )
+  readonly_fields = ('year_end_report_due',)
+
+  def year_end_report_due(self, obj):
+    return obj.yearend_due()
 
 # Register
 
