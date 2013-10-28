@@ -153,8 +153,7 @@ class Organization(models.Model):
   website = models.CharField(max_length=50, blank=True)
 
   #org info
-  status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True,
-                            blank=True)
+  status = models.CharField(max_length=50, choices=STATUS_CHOICES, blank=True)
   ein = models.CharField(max_length=50,
                          verbose_name="Organization's or Fiscal Sponsor Organization's EIN",
                          blank=True)
