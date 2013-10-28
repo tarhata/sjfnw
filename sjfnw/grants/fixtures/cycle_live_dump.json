@@ -1,0 +1,106 @@
+[
+{
+  "pk": 9, 
+  "model": "grants.grantcycle", 
+  "fields": {
+    "email_signature": "Karen Toering \r\nProject Manager - Environmental Justice Giving Project\r\nkaren@socialjusticefund.org\r\n(206) 624-4081", 
+    "title": "Environmental Justice Grant Cycle", 
+    "info_page": "http://www.socialjusticefund.org/grant-app/environmental-justice-grant-cycle#overlay-context=grant-app/environmental-justice-grant-cycle", 
+    "conflicts": "", 
+    "close": "2013-05-07T00:00:00Z", 
+    "extra_question": "Please explain why you see the work described in this proposal as \"environmental justice\" work.", 
+    "open": "2013-04-08T19:09:06Z"
+  }
+},
+{
+  "pk": 10, 
+  "model": "grants.grantcycle", 
+  "fields": {
+    "email_signature": "Mijo Lee\r\nProgram Director/Project Manager - LGBTQ Grant Cycle\r\nmijo@socialjusticefund.org\r\n(206) 624-4081", 
+    "title": "LGBTQ Grant Cycle", 
+    "info_page": "http://www.socialjusticefund.org/grant-app/lgbtq-grant-cycle#overlay-context=grant-app/lgbtq-grant-cycle", 
+    "conflicts": "AUTOMATIC:\r\nGender Justice League -- Ragnar Thorisson: member/grantwriter\r\nPERSONALLY ACKNOWLEDGED:\r\nAPI Pride -- Dianne: knows tons of people, go to events, support as ally, emotionally invested in their success. \r\nCIO -- Dianne: professional relationship, has been consultant. \r\nPSKS -- Alexis Laird: \"It may not be useful for me to be in the room when deciding on this agency.  I have ideological and professional differences with how this agency has worked in the past, and I feel I'm unable to reconcile this and decide more \"objectively\".**  Lastly, question their soundness, in the fall they had some very scary financial issues.  Not sure how it looks now.\"\r\nNOT CONFLICT:\r\nAPANO -- Dianne & Nancy are members; Nancy is active volunteer and works w/ them thru WSC. \r\nAPI Chaya -- Anthony Ricardi: \"API Chaya collaborates with the NW Network and I have very close ties to the Network (my best friend/former partner is Kristin Tucker who runs programs there, also I've worked as a consultant with them on their training for health care workers).  Not sure that connection would affect our funding, but want to put it out there.\"; Mijo is a friend of program coordinator Lil Snoopy Fujikawa. \r\n\r\n\r\n", 
+    "close": "2013-05-07T00:00:00Z", 
+    "extra_question": "", 
+    "open": "2013-04-08T19:00:00Z"
+  }
+},
+{
+  "pk": 11, 
+  "model": "grants.grantcycle", 
+  "fields": {
+    "email_signature": "Kylie Gursky \r\nProject Manager - Montana Giving Project\r\nkylie@socialjusticefund.org\r\n(206) 624-4081", 
+    "title": "Montana Grant Cycle", 
+    "info_page": "http://www.socialjusticefund.org/grant-app/montana-giving-project", 
+    "conflicts": "", 
+    "close": "2013-05-24T00:00:00Z", 
+    "extra_question": "", 
+    "open": "2013-04-08T19:12:13Z"
+  }
+},
+{
+  "pk": 12, 
+  "model": "grants.grantcycle", 
+  "fields": {
+    "email_signature": "Mijo Lee\r\nProgram Director/Project Manager - Criminal Justice Giving Project\r\nmijo@socialjusticefund.org\r\n(206) 624-4081\r\n", 
+    "title": "Criminal Justice Grant Cycle", 
+    "info_page": "http://www.socialjusticefund.org/grant-app/criminal-justice-grant-cycle#overlay-context=grant-app/criminal-justice-grant-cycle", 
+    "conflicts": "AUTOMATIC CONFLICTS: Win/Win - David; YWCA - Kizha. \r\nPERSONALLY ACKNOWLEDGED CONFLICTS: AFSC - Mijo; C2C - Jay; SYPP - Mijo, Bean, Anastacia; UBB - Amber; Win/Win - David, Aaron. \r\n\r\nDavid Reyes: Staff of Win/Win (auto. conflict) // Aaron Robertson: I don\u2019t have any automatic conflicts, but I will disclose that I have granted to a number of these organizations in my role at TSF. AFSC, CNC, SYPP, Win/Win, and YWCA. I\u2019m also friends with a staff member at Win/Win.  a SYPP board member was a part of my youth grantmaking program. /// Anastacia Tolbert: In 2009 I was an adult teacher at the SYPP.  ///  Bean Yogi: SYPP? Co-director Yecelica is housemate.  /// Jay Doran: \"SYPP - recently started volunteering with them, including a tutor training, baking goods for Fam Bam, etc...don't have much of a history with them, so don't know how much of a conflict this is. C2C - a good friend of mine Malora Christensen worked for C2C for her MSW practicum, and she's been doing some part time work with them sense them...also don't know if it's a huge conflict, but definitely a little biased because of my relationship with Malora. /// Jude Watson: SYPP, AFSC maybe ? /// Laurie Carlsson: IMAP /// Mijo: declared conflict w/ AFSC, SYPP.  /// Amber Jimenez: close friendship w/ a UBB teacher. /// Kizha Davidson: staff at YWCA (auto conflict). /// Jessica Tracey: volunteered w/ AFSC, C2C, but not currently. ", 
+    "close": "2013-05-24T00:00:00Z", 
+    "extra_question": "Please explain why you see the work described in this proposal as connected to issues of the criminal justice system and/or the criminalization of people's lives based on their race, poverty, gender, or disability.", 
+    "open": "2013-04-08T19:11:52Z"
+  }
+},
+{
+  "pk": 13, 
+  "model": "grants.grantcycle", 
+  "fields": {
+    "email_signature": "Kylie Gursky \r\nProject Manager - Montana Giving Project\r\nkylie@socialjusticefund.org\r\n(206) 624-4081", 
+    "title": "General Grant Cycle", 
+    "info_page": "http://socialjusticefund.org/grant-app/general-grant-cycle-2013", 
+    "conflicts": "", 
+    "close": "2013-05-24T00:00:00Z", 
+    "extra_question": "", 
+    "open": "2013-04-08T19:12:03Z"
+  }
+},
+{
+  "pk": 14, 
+  "model": "grants.grantcycle", 
+  "fields": {
+    "email_signature": "Elsa Batres-Boni\r\nProject Manager - Economic Justice Giving Project\r\nElsa@socialjusticefund.org\r\n(206) 624-4081\r\n", 
+    "title": "Economic Justice Grant Cycle", 
+    "info_page": "http://socialjusticefund.org/grant-app/economic-justice-grant-cycle", 
+    "conflicts": "", 
+    "close": "2013-05-07T00:00:00Z", 
+    "extra_question": "Please explain why you see the work described in this proposal as \"economic justice?\"", 
+    "open": "2013-04-08T19:00:00Z"
+  }
+},
+{
+  "pk": 15, 
+  "model": "grants.grantcycle", 
+  "fields": {
+    "email_signature": "Mijo Lee\r\nProgram Director\r\nSocial Justice Fund NW \r\n(206) 624-4081 x102", 
+    "title": "Immigration Reform (Summer)", 
+    "info_page": "http://www.socialjusticefund.org/grant-app/immigration-reform-grant-summer-2013", 
+    "conflicts": "Entre Hermanos - Joaquin\r\nOneAmerica - Joaquin\r\n21 PROGRESS - Joaquin ", 
+    "close": "2013-08-31T00:00:00Z", 
+    "extra_question": "Social Justice Fund NW is interested in funding ongoing community organizing for immigrant rights and strong immigrant communities. We believe that because of the possibility of Comprehensive Immigration Reform that could lead to a path to citizenship, this year offers a historic opportunity for immigrant organizations and movements to build up their leadership and capacity for powerful community organizing. And we believe strong community organizing will lead to greater systemic change, including immigration reform as defined and prioritized by the communities themselves. Therefore, we are open to funding organizations that are taking a variety of positions for and against the CIR bill(s), or no position at all. Our priority is to help organizations use this historic moment to build stronger community organizing. \r\n\r\nHas your organization taken a position on the immigration reform bill(s) currently being considered in Congress? Are you... \r\na) endorsing it, \r\nb) opposing it, \r\nc) in the process of developing a position, \r\nd) taking no position, or\r\ne) other? \r\nPlease explain.\r\n\r\nHow are you using the current momentum around immigration reform to build up your own organization and movement? ", 
+    "open": "2013-07-22T17:18:34Z"
+  }
+},
+{
+  "pk": 16, 
+  "model": "grants.grantcycle", 
+  "fields": {
+    "email_signature": "Kylie Gursky \r\nProject Manager\r\nkylie@socialjusticefund.org\r\n(206) 624-4081", 
+    "title": "General Grant (PDX)", 
+    "info_page": "http://socialjusticefund.org/grant-app/general-grant-cycle-2013", 
+    "conflicts": "", 
+    "close": "2013-05-23T18:06:25Z", 
+    "extra_question": "", 
+    "open": "2013-04-08T18:06:23Z"
+  }
+}
+]
