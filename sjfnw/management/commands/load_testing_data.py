@@ -32,6 +32,9 @@ class Command(BaseCommand):
     self.stdout.write('Loading applications..')
     call_command('loaddata', 'sjfnw/grants/fixtures/app_live_dump.json')
 
+    self.stdout.write('Loading awards..')
+    call_command('loaddata', 'sjfnw/grants/fixtures/live_award_dump.json')
+
     self.stdout.write('Loading drafts..')
     call_command('loaddata', 'sjfnw/grants/fixtures/draft_live_dump.json')
 
