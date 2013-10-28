@@ -708,9 +708,8 @@ class GrantAward(models.Model):
       return None
 
   def yearend_due(self):
-    with self.agreement_mailed as mailed:
-      if mailed:
-        return (mailed + timedelta(days=30)).replace(year = mailed.year+1)
-      else:
-        return None
+    if self.agreement_mailed:
+      return (self.agreement_mailed + timedelta(days=30)).replace(year = self.agreement_mailed.year + 1)
+    else:
+      return None
 
