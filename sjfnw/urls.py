@@ -1,6 +1,7 @@
 ﻿from django.conf.urls import patterns, include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.views.generic.base import TemplateView
 from sjfnw.admin import advanced_admin
 import views
 from grants.urls import apply_urls, grants_urls
@@ -11,7 +12,7 @@ handler500 = 'views.server_error'
 admin.autodiscover() # load admin.py from all apps
 
 urlpatterns = patterns('',
-  (r'^/?$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
+  (r'^/?$', TemplateView.as_view(template_name='home.html')),
 
   # project central
   (r'^fund/?', include('sjfnw.fund.urls')),

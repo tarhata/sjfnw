@@ -1,10 +1,10 @@
 from django.conf.urls import patterns, include
-from django.views.generic.simple import direct_to_template
+from django.views.generic.base import TemplateView
 from sjfnw import constants
 
 apply_urls = patterns('',
-  (r'^nr', direct_to_template, {'template': 'grants/not_grantee.html'}),
-  (r'^submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
+  (r'^nr', TemplateView.as_view(template_name ='grants/not_grantee.html')),
+  (r'^submitted/?', TemplateView.as_view(template_name='grants/submitted.html')),
 )
 
 apply_urls += patterns('grants.views',
