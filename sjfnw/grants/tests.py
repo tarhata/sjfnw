@@ -1,12 +1,20 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
-from models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
-import sys, datetime, json, unittest
+
+from google.appengine.ext import testbed
+
 from sjfnw.constants import TEST_MIDDLEWARE
 from sjfnw.fund.models import GivingProject
+
+from .models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
+
+import sys, datetime, json, unittest
+
+
 
 """ NOTE: some tests depend on having these files in sjfnw/media
   budget.docx      diversity.doc      funding_sources.docx
@@ -41,17 +49,35 @@ def setCycleDates():
   cycle.close = now + ten_days
   cycle.save()
 
-def logInTesty(self): # 2 OfficeMax Foundation
-  self.user = User.objects.create_user('testorg@gmail.com', 'testorg@gmail.com', 'testy')
-  self.client.login(username = 'testorg@gmail.com', password = 'testy')
+class BaseGrantTestCase(TestCase):
+  """ Base for grants tests. Provides fixture and basic setUp
+      as well as several helper functions """
+  
+  fixtures = ['sjfnw/grants/fixtures/test_grants.json']
+  
+  def logInTesty(self): # 2 OfficeMax Foundation
+    self.user = User.objects.create_user('testorg@gmail.com', 'testorg@gmail.com', 'testy')
+    self.client.login(username = 'testorg@gmail.com', password = 'testy')
 
-def logInNewbie(self): # 1 Fresh New Org
-  user = User.objects.create_user('neworg@gmail.com', 'neworg@gmail.com', 'noob')
-  self.client.login(username = 'neworg@gmail.com', password = 'noob')
+  def logInNewbie(self): # 1 Fresh New Org
+    user = User.objects.create_user('neworg@gmail.com', 'neworg@gmail.com', 'noob')
+    self.client.login(username = 'neworg@gmail.com', password = 'noob')
 
-def logInAdmin(self): #just a django superuser
-  superuser = User.objects.create_superuser('admin@gmail.com', 'admin@gmail.com', 'admin')
-  self.client.login(username = 'admin@gmail.com', password = 'admin')
+  def logInAdmin(self): #just a django superuser
+    superuser = User.objects.create_superuser('admin@gmail.com', 'admin@gmail.com', 'admin')
+    self.client.login(username = 'admin@gmail.com', password = 'admin')
+
+  def setUp(self, login):
+    setCycleDates()
+    if login == 'testy':
+      self.logInTesty()
+    elif login == 'newbie':
+      self.logInNewbie()
+    elif login == 'admin':
+      self.logInAdmin()
+
+  class Meta:
+    abstract = True
 
 def alterDraftTimeline(draft, values):
   """ values: list of timeline widget values (0-14) """
@@ -86,13 +112,23 @@ def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in
   if exclude_cycle:
     self.assertNotIn('cycle_question', draft_contents)
 
+class BaseGrantFilesTestCase(BaseGrantTestCase):
+  """ Can handle file uploads too """
+
+  def setUp(self, login):
+    super(BaseGrantFilesTestCase, self).setUp(login)
+    self.testbed = testbed.Testbed()
+    self.testbed.activate()        
+    self.testbed.init_datastore_v3_stub()
+
+  class Meta:
+    abstract = True
+
 #@unittest.skip('Not right now')
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class Register(TestCase):
+class Register(BaseGrantTestCase):
 
-  fixtures = ['test_grants.json',]
-
-  def setUp(self):
+  def setUp(self, *args):
     pass
 
   def valid_registration(self):
@@ -173,20 +209,13 @@ class Register(TestCase):
     self.assertEqual(response.context['register_errors'], 'That email is registered with Project Central. Please register using a different email.')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplySuccessful(TestCase):
+class ApplySuccessful(BaseGrantFilesTestCase):
 
-  fixtures = ['test_grants.json',]
+  def setUp(self, *args):
+    super(ApplySuccessful, self).setUp('testy')
 
-  def setUp(self):
-    setCycleDates()
-    logInTesty(self)
-
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage',
-                     MEDIA_ROOT = 'media/',
-                     FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
   def test_post_valid_app(self):
-    """
-      scenario: start with a complete draft, post to apply
+    """ scenario: start with a complete draft, post to apply
                   general, no fiscal, all-in-one budget
 
       verify: response is success page
@@ -212,12 +241,11 @@ class ApplySuccessful(TestCase):
 
   def test_saved_timeline1(self):
 
-    answers = [
-      'Jan', 'Chillin', 'Not applicable',
-      '', '', '',
-      '', '', '',
-      '', '', '',
-      '', '', '',]
+    answers = [ 'Jan', 'Chillin', 'Not applicable',
+                '', '', '',
+                '', '', '',
+                '', '', '',
+                '', '', '']
 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     alterDraftTimeline(draft, answers)
@@ -244,9 +272,7 @@ class ApplySuccessful(TestCase):
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     self.assertEqual(app.timeline, json.dumps(answers))
 
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage',
-                     MEDIA_ROOT = 'media/',
-                     FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  @override_settings(MEDIA_ROOT = 'media/')
   def test_mult_budget(self):
     """ scenario: budget1, budget2
 
@@ -268,12 +294,10 @@ class ApplySuccessful(TestCase):
     self.assertEqual(app.budget, '')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplyBlocked(TestCase):
+class ApplyBlocked(BaseGrantTestCase):
 
-  fixtures = ['test_grants.json',]
-  def setUp(self):
-    setCycleDates()
-    logInTesty(self)
+  def setUp(self, *args):
+    super(ApplyBlocked, self).setUp('testy')
 
   def test_closed_cycle(self):
     response = self.client.get('/apply/3/')
@@ -296,21 +320,17 @@ class ApplyBlocked(TestCase):
     self.assertEqual(404, response.status_code)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ApplyValidation(TestCase):
+class ApplyValidation(BaseGrantFilesTestCase):
   """TO DO
       fiscal
       collab
       timeline
       files  """
 
-  fixtures = ['test_grants.json',]
-  def setUp(self):
-    setCycleDates()
-    logInTesty(self)
+  def setUp(self, *args):
+    super(ApplyValidation, self).setUp('testy')
 
-  @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage',
-                     MEDIA_ROOT = 'media/',
-                     FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',))
+  @override_settings(MEDIA_ROOT = 'media/')
   def test_file_validation_budget(self):
     """ scenario: budget + some other budget files
                   no funding sources
@@ -378,10 +398,9 @@ class ApplyValidation(TestCase):
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">This field is required.</div>')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class StartApplication(TestCase): #MIGHT BE OUT OF DATE
+class StartApplication(BaseGrantTestCase): #MIGHT BE OUT OF DATE
 
-  fixtures = ['test_grants.json',]
-  def setUp(self):
+  def setUp(self, *args):
     setCycleDates()
 
   def test_load_first_app(self):
@@ -390,7 +409,7 @@ class StartApplication(TestCase): #MIGHT BE OUT OF DATE
         Form is blank
         Draft is created """
 
-    logInNewbie(self)
+    self.logInNewbie()
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
 
     response = self.client.get('/apply/1/')
@@ -405,7 +424,7 @@ class StartApplication(TestCase): #MIGHT BE OUT OF DATE
         Form has stuff from profile
         Draft is created """
 
-    logInTesty(self)
+    self.logInTesty()
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
 
     response = self.client.get('/apply/5/')
@@ -417,12 +436,10 @@ class StartApplication(TestCase): #MIGHT BE OUT OF DATE
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class DraftWarning(TestCase):
+class DraftWarning(BaseGrantTestCase):
 
-  fixtures = ['test_grants.json',]
-  def setUp(self):
-    logInAdmin(self)
-    setCycleDates()
+  def setUp(self, *args):
+    super(DraftWarning, self).setUp('admin')
 
   def test_long_alert(self):
     """ Cycle created 12 days ago with cycle closing in 7.5 days """
@@ -488,14 +505,12 @@ class DraftWarning(TestCase):
     self.assertEqual(len(mail.outbox), 0)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class OrgRollover(TestCase):
+class OrgRollover(BaseGrantTestCase):
   """ Basic success
   content,   timeline,   files,   not extra cycle q   """
 
-  fixtures = ['test_grants.json',]
-  def setUp(self):
-    setCycleDates()
-    logInNewbie(self)
+  def setUp(self, *args):
+    super(OrgRollover, self).setUp('newbie')
 
   def test_draft_rollover(self):
     """ scenario: take complete draft, make it belong to new org, rollover to cycle 1
@@ -516,7 +531,7 @@ class OrgRollover(TestCase):
     self.assertTemplateUsed(response, 'grants/org_app.html')
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
     new_draft = DraftGrantApplication.objects.get(organization_id = 1, grant_cycle_id = 1)
-    old_contents = json.loads(draft.contents)
+    old_contents = json.loads(draft.contents) # TODO could this use the compare function defined in base?
     cq = old_contents.pop('cycle_question', None)
     new_contents = json.loads(new_draft.contents)
     nq = new_contents.pop('cycle_question', '')
@@ -556,7 +571,7 @@ class OrgRollover(TestCase):
     self.assertNotContains(response, 'Select')
 
     self.client.logout()
-    logInTesty(self)
+    self.logInTesty()
     response = self.client.get('/apply/copy')
     self.assertTemplateUsed(response, 'grants/org_app_copy.html')
     self.assertEqual(response.context['apps_count'], 5)
@@ -564,13 +579,10 @@ class OrgRollover(TestCase):
     self.assertContains(response, 'Select')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class AdminRevert(TestCase):
+class AdminRevert(BaseGrantTestCase):
 
-  fixtures = ['test_grants.json',]
-
-  def setUp(self):
-    setCycleDates()
-    logInAdmin(self)
+  def setUp(self, *args):
+    super(AdminRevert, self).setUp('admin')
 
   def test_load_revert(self):
 
@@ -597,20 +609,16 @@ class AdminRevert(TestCase):
 
 @unittest.skip('Incomplete')
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class AdminRollover(TestCase):
-  fixtures = ['test_grants.json',]
+class AdminRollover(BaseGrantTestCase):
 
-  def setUp(self):
-    setCycleDates()
-    logInAdmin(self)
+  def setUp(self, *args):
+    super(AdminRevert, self).setUp('admin')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class DraftExtension(TestCase):
-  fixtures = ['test_grants.json',]
+class DraftExtension(BaseGrantTestCase):
 
-  def setUp(self):
-    setCycleDates()
-    logInAdmin(self)
+  def setUp(self, *args):
+    super(AdminRevert, self).setUp('admin')
 
   def test_create_draft(self):
     """ Admin create a draft for Fresh New Org """
@@ -626,18 +634,16 @@ class DraftExtension(TestCase):
     new = DraftGrantApplication.objects.get(organization_id=1) #in effect, asserts 1 draft
     self.assertTrue(new.editable)
     self.assertIn('/admin/grants/draftgrantapplication/', response.__getitem__('location'), )
-
+  
+  @unittest.skip('Incomplete')
   def test_org_drafts_list(self):
     pass
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class Draft(TestCase):
+class Draft(BaseGrantTestCase):
 
-  fixtures = ['test_grants.json',]
-
-  def setUp(self):
-    setCycleDates()
-    logInTesty(self)
+  def setUp(self, *args):
+    super(Draft, self).setUp('testy')
 
   def test_autosave1(self):
     """ scenario: steal contents of draft 2, turn it into a dict. submit that as request.POST for cycle 5
@@ -658,17 +664,17 @@ class Draft(TestCase):
     self.assertEqual(json.loads(complete_draft.contents), new_c)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class ViewGrantPermissions(TestCase):
+class ViewGrantPermissions(BaseGrantTestCase):
 
-  fixtures = ['test_grants.json', 'sjfnw/fund/fixtures/test_fund.json']
+  fixtures = ['sjfnw/grants/fixtures/test_grants.json', 'sjfnw/fund/fixtures/test_fund.json']
 
-  def setUp(self):
+  def setUp(self, *args):
     app = GrantApplication.objects.get(pk=1)
     app.giving_project = GivingProject.objects.get(pk=2)
     app.save()
 
   def test_author(self):
-    logInTesty(self)
+    self.logInTesty()
 
     response = self.client.get('/grants/view/1')
 
@@ -676,7 +682,7 @@ class ViewGrantPermissions(TestCase):
     self.assertEqual(3, response.context['perm'])
 
   def test_other_org(self):
-    logInNewbie(self)
+    self.logInNewbie()
 
     response = self.client.get('/grants/view/1', follow=True)
 
@@ -684,7 +690,7 @@ class ViewGrantPermissions(TestCase):
     self.assertEqual(0, response.context['perm'])
 
   def test_staff(self):
-    logInAdmin(self)
+    self.logInAdmin()
 
     response = self.client.get('/grants/view/1', follow=True)
 
