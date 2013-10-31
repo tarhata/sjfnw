@@ -2,6 +2,8 @@ from django.conf.urls import patterns, include
 from django.views.generic.base import TemplateView
 from sjfnw import constants
 
+# apply urls will all be prefixed with 'apply/' in mail url file
+
 apply_urls = patterns('',
   (r'^nr', TemplateView.as_view(template_name ='grants/not_grantee.html')),
   (r'^submitted/?', TemplateView.as_view(template_name='grants/submitted.html')),
@@ -36,6 +38,8 @@ apply_urls += patterns('',
   (r'^reset/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/?$', 'django.contrib.auth.views.password_reset_confirm', {'template_name':'grants/password_reset_confirm.html', 'post_reset_redirect': '/apply/reset-complete'}, 'org-reset'),
   (r'^reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'grants/password_reset_complete.html'}),
 )
+
+# grants urls will all be prefixed with 'grants/' in mail url file
 
 grants_urls = patterns('grants.views',
   #reading
