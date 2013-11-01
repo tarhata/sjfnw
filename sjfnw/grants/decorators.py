@@ -3,6 +3,7 @@ from django.utils.decorators import available_attrs
 from functools import wraps
 from grants.models import Organization
 import logging
+logger = logging.getLogger('sjfnw')
 
 def registered_org(function=None):
   def decorator(view_func):
@@ -12,11 +13,11 @@ def registered_org(function=None):
       username = request.user.username
       if request.user.is_staff and request.GET.get('user'): #staff override
         username = request.GET.get('user')
-        logging.info('Staff override - ' + request.user.username +
+        logger.info('Staff override - ' + request.user.username +
                      ' logging in as ' + username)
       try:
         organization = Organization.objects.get(email=username)
-        logging.info(organization)
+        logger.info(organization)
         return view_func(request, organization, *args, **kwargs)
       except Organization.DoesNotExist:
         return redirect('/apply/nr')

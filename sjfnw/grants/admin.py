@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.helpers import InlineAdminFormSet
 from django.http import HttpResponse
-from django.forms import ValidationError
+from django.forms import ValidationError, ModelForm
 from django.forms.models import BaseInlineFormSet
 
 from sjfnw.admin import advanced_admin
@@ -11,6 +11,7 @@ from sjfnw.forms import IntegerCommaField
 from .models import *
 import unicodecsv as csv
 import logging, re
+logger = logging.getLogger('sjfnw')
 
 # Forms
 class AppAdminForm(ModelForm):
@@ -18,7 +19,7 @@ class AppAdminForm(ModelForm):
     cleaned_data = super(AppAdminForm, self).clean()
     status = cleaned_data.get("screening_status")
     if status >= 100:
-      logging.info('Require check details')
+      logger.info('Require check details')
     return cleaned_data
 
   class Meta:

@@ -58,7 +58,7 @@ class RolloverForm(forms.Form): #used by org
       try:
         cycle_obj = models.GrantCycle.objects.get(pk = int(cycle))
       except models.GrantCycle.DoesNotExist:
-        logging.error("RolloverForm submitted cycle does not exist")
+        logger.error("RolloverForm submitted cycle does not exist")
         self._errors["cycle"] = self.error_class(["Internal error, please try again."])
       if not cycle_obj.is_open:
         self._errors["cycle"] = self.error_class(["That cycle has closed.  Select a different one."])

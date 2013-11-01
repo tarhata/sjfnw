@@ -8,9 +8,12 @@ from django.utils import timezone
 from django.utils.text import capfirst
 from sjfnw.fund.models import GivingProject
 from sjfnw.forms import IntegerCommaField, PhoneNumberField
-import logging, json, re
 from sjfnw import constants
 from datetime import timedelta
+
+import logging, json, re
+logger = logging.getLogger('sjfnw')
+
 
 class TimelineWidget(MultiWidget):
   def __init__(self, attrs=None):
@@ -498,7 +501,7 @@ class GrantApplication(models.Model):
   view_link.allow_tags = True
 
   def timeline_display(self):
-    logging.info(type(self.timeline))
+    logger.info(type(self.timeline))
     timeline = json.loads(self.timeline)
     html = '<table id="timeline_display"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
     for i in range(0, 15, 3):
@@ -563,7 +566,7 @@ class GrantApplicationModelForm(ModelForm):
     super(GrantApplicationModelForm, self).__init__(*args, **kwargs)
     if cycle and cycle.extra_question:
       self.fields['cycle_question'].required = True
-      logging.info('Requiring the cycle question')
+      logger.info('Requiring the cycle question')
 
   def clean(self):
     cleaned_data = super(GrantApplicationModelForm, self).clean()
