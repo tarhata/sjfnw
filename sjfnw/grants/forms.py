@@ -1,7 +1,10 @@
 ﻿from django import forms
 from django.utils import timezone
-from fund.models import GivingProject
-import models, datetime, logging
+
+from sjfnw.fund.models import GivingProject
+from sjfnw.grants import models
+
+import datetime, logging
 
 class LoginForm(forms.Form):
   email = forms.EmailField(max_length=255)

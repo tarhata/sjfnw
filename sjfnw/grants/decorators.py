@@ -1,7 +1,9 @@
-﻿from django.shortcuts import redirect
-from django.utils.decorators import available_attrs
+﻿from django.utils.decorators import available_attrs
+from django.shortcuts import redirect
+
+from sjfnw.grants.models import Organization
+
 from functools import wraps
-from grants.models import Organization
 import logging
 logger = logging.getLogger('sjfnw')
 

@@ -16,8 +16,9 @@ from google.appengine.ext import deferred, ereporter
 from sjfnw import constants
 from sjfnw.grants.models import Organization, GrantApplication
 
-from .decorators import approved_membership
-from . import forms, models, utils
+from sjfnw.fund.decorators import approved_membership
+from sjfnw.fund import forms
+from sjfnw.fund import models, utils
 
 import datetime, logging
 import os

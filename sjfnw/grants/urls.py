@@ -9,7 +9,7 @@ apply_urls = patterns('',
   (r'^submitted/?', TemplateView.as_view(template_name='grants/submitted.html')),
 )
 
-apply_urls += patterns('grants.views',
+apply_urls += patterns('sjfnw.grants.views',
 
   #login, logout, registration
   (r'^login/?$', 'org_login'),
@@ -41,7 +41,7 @@ apply_urls += patterns('',
 
 # grants urls will all be prefixed with 'grants/' in mail url file
 
-grants_urls = patterns('grants.views',
+grants_urls = patterns('sjfnw.grants.views',
   #reading
   (r'^view/(?P<app_id>\d+)/?$', 'ReadApplication'),
   (r'^view-file/(?P<app_id>\d+)-(?P<file_type>.*)\.', 'ViewFile'),

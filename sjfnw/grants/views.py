@@ -15,9 +15,9 @@ import unicodecsv
 
 from sjfnw import constants
 from sjfnw.fund.models import Member
-from .forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm, LoginAsOrgForm
-from .decorators import registered_org
-from . import models, utils
+from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm, LoginAsOrgForm
+from sjfnw.grants.decorators import registered_org
+from sjfnw.grants import models, utils
 
 import datetime, logging, json
 logger = logging.getLogger('sjfnw')
@@ -144,7 +144,7 @@ def org_home(request, organization):
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   """ Get or submit the whole application form """
-
+  
   #staff override
   user_override = request.GET.get('user')
   if user_override:
@@ -165,7 +165,6 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   flag = False
 
   if request.method == 'POST': #POST
-
     #check if draft can be submitted
     if not draft.editable:
       render(request, 'grants/submitted_closed.html', {'cycle':cycle})
@@ -174,7 +173,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     draft_data = json.loads(draft.contents)
     #logger.debug('draft data: ' + str(draft_data))
     files_data = model_to_dict(draft, fields = draft.file_fields())
-    logging.debug('Files data from draft: ' + str(files_data))
+    #logger.debug('Files data from draft: ' + str(files_data))
 
     #add automated fields
     draft_data['organization'] = organization.pk
@@ -322,14 +321,12 @@ def AddFile(request, draft_id):
       Called by javascript in application page """
 
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
-  logger.info(unicode(draft.organization) + u' adding a file')
+  logger.debug(unicode(draft.organization) + u' adding a file')
+  logger.debug([request.body]) #don't remove this without fixing storage to not access body blob_file = False
   blob_file = False
   for key in request.FILES:
     blob_file = request.FILES[key]
-    print(blob_file)
     if blob_file:
-      logger.info(blob_file)
-      print('blob_file exists')
       if hasattr(draft, key):
         """ delete previous file
         old = getattr(draft, key)
@@ -337,7 +334,6 @@ def AddFile(request, draft_id):
         deferred.defer(utils.DeleteBlob, old) """
         # set new file
         setattr(draft, key, blob_file)
-        print('blob_file set to attr on draft. key is ' + str(key))
         field_name = key
         break
       else:

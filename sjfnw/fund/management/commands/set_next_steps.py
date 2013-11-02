@@ -1,5 +1,5 @@
 ﻿from django.core.management.base import BaseCommand
-from fund.models import Donor
+from sjfnw.fund.models import Donor
 
 class Command(BaseCommand):
 
