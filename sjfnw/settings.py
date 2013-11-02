@@ -2,6 +2,8 @@
 
 WSGI_APPLICATION = 'sjfnw.wsgi.application'
 
+ALLOWED_HOSTS  = ['*.appspot.com']
+
 SECRET_KEY = '*r-$b*8hglm+959&7x043hlm6-&6-3d3vfc4((7yd0dbrakhvi'
 
 if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
@@ -77,7 +79,7 @@ LOGGING = { #slightly modified version of the default
     'formatters': {
       'verbose': {
         'datefmt': '%Y-%m-%d %H:%M:%S',
-        'format': '%(levelname)-8s %(asctime)s     %(filename)s:%(lineno)d] %(funcName)s: %(message)s'
+        'format': '%(levelname)-8s %(asctime)s %(filename)s:%(lineno)d %(funcName)s]: %(message)s'
         },
     },
     'filters': {
