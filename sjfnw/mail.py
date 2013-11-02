@@ -12,6 +12,8 @@ from google.appengine.runtime import apiproxy_errors
 # MODIFIED VERSION OF DJANGOAPPENGINE'S MAIL.PY FILE
 # SEE LICENSE AT BOTTOM
 
+logger = logging.getLogger('sjfnw')
+
 def _send_deferred(message, fail_silently=False):
   try:
     message.send()
@@ -71,7 +73,7 @@ class EmailBackend(BaseEmailBackend):
     try:
       message = self._copy_message(message)
     except (ValueError, gaemail.InvalidEmailError), err:
-      logging.error(err)
+      logger.error(err)
       if not self.fail_silently:
         raise
       return False

@@ -2,8 +2,11 @@
 from django.core import validators
 from django.utils import timezone
 from sjfnw.forms import IntegerCommaField
-from . import models
+from sjfnw.fund import models
 import logging
+
+logger = logging.getLogger('sjfnw')
+
 
 class LoginForm(forms.Form):
   email = forms.EmailField(max_length=100)
@@ -116,13 +119,13 @@ class StepDoneForm(forms.Form):
 
     if response == '1': #response = promise
       if not amt or amt == 0: #no/zero amount entered
-        logging.debug('Promised without amount')
+        logger.debug('Promised without amount')
         self._errors["promised_amount"] = self.error_class(["Enter an amount."])
       if not last_name:
-        logging.debug('Promised without last name')
+        logger.debug('Promised without last name')
         self._errors["last_name"] = self.error_class(["Enter a last name."])
       if not phone and not email:
-        logging.debug('Promised without contact info')
+        logger.debug('Promised without contact info')
         self._errors["phone"] = self.error_class(["Enter a phone number or email."])
     if next_step and not next_step_date: #next step - date missing
       self._errors["next_step_date"] = self.error_class(["Enter a date in mm/dd/yyyy format."])

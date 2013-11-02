@@ -128,8 +128,7 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
   def new_file(self, *args, **kwargs):
     """field_name, file_name, content_type, content_length, charset=None"""
 
-    print('BlobstoreFileUploadHandler.new_file')
-    logger.info('BlobstoreFileUploadHandler.new_file')
+    logger.debug('BlobstoreFileUploadHandler.new_file')
     super(BlobstoreFileUploadHandler, self).new_file(*args, **kwargs)
 
     blobkey = FindBlobKey(self.request.body)

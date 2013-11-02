@@ -4,9 +4,11 @@ from django.http import HttpResponse
 from django.forms import ValidationError
 
 from sjfnw.admin import advanced_admin
-from .models import *
-import forms, utils
-import unicodecsv
+from sjfnw.fund.models import *
+from sjfnw.fund import forms, utils
+import unicodecsv, logging
+
+logger = logging.getLogger('sjfnw')
 
 # display methods
 def step_membership(obj): #Step list_display
@@ -26,15 +28,15 @@ ship_progress.allow_tags = True
 
 # actions
 def approve(modeladmin, request, queryset): #Membership action
-  logging.info('Approval button pressed; looking through queryset')
+  logger.info('Approval button pressed; looking through queryset')
   for memship in queryset:
     if memship.approved == False:
       utils.NotifyApproval(memship)
   queryset.update(approved=True)
-  logging.info('Approval queryset updated')
+  logger.info('Approval queryset updated')
 
 def export_donors(modeladmin, request, queryset):
-  logging.info('Export donors called by ' + request.user.email)
+  logger.info('Export donors called by ' + request.user.email)
   response = HttpResponse(mimetype='text/csv')
   response['Content-Disposition'] = 'attachment; filename=prospects.csv'
   writer = unicodecsv.writer(response)
@@ -50,7 +52,7 @@ def export_donors(modeladmin, request, queryset):
               donor.notes]
     writer.writerow(fields)
     count += 1
-  logging.info(str(count) + ' donors exported')
+  logger.info(str(count) + ' donors exported')
   return response
 
 # Filters
