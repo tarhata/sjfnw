@@ -148,7 +148,6 @@ class Membership(models.Model): #relationship b/n member and gp
     steps = models.Step.objects.filter(
         completed__range=(today_min, today_max),
         donor__membership = self).select_related('donor')
-    )
     if not steps:
       return HttpResponse("no steps!!")
 
