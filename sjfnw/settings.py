@@ -2,7 +2,7 @@
 
 WSGI_APPLICATION = 'sjfnw.wsgi.application'
 
-ALLOWED_HOSTS  = ['*.appspot.com']
+ALLOWED_HOSTS  = ['.appspot.com']
 
 SECRET_KEY = '*r-$b*8hglm+959&7x043hlm6-&6-3d3vfc4((7yd0dbrakhvi'
 
@@ -11,7 +11,7 @@ if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.geten
     'default': {
       'ENGINE': 'google.appengine.ext.django.backends.rdbms',
       'INSTANCE': 'sjf-northwest:sjf',
-      'NAME': 'sjfdb',
+      'NAME': 'sjf_devel',
     }
   }
   DEBUG = False
