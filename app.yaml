@@ -44,4 +44,3 @@ handlers:
 
 - url: /.*
   script: sjfnw.wsgi.application
-  secure: always
