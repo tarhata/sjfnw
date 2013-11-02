@@ -836,7 +836,7 @@ def DoneStep(request, donor_id, step_id):
       step.save()
       #call story creator/updater
       if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
-        deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
+        deferred.defer(membership.update_story(timezone.now()))
         logger.info('calling update story')
       next_step = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']

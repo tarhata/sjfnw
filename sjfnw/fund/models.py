@@ -3,8 +3,9 @@ from django.db import models
 from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.utils import timezone
+
 from sjfnw.forms import IntegerCommaField
-from .utils import NotifyApproval
+
 import datetime, logging
 
 def custom_integer_field(f, **kwargs):
@@ -63,6 +64,7 @@ class Member(models.Model):
 
   def __unicode__(self):
     return unicode(self.first_name +u' '+self.last_name)
+
 
 class Membership(models.Model): #relationship b/n member and gp
   giving_project = models.ForeignKey(GivingProject)
@@ -131,6 +133,73 @@ class Membership(models.Model): #relationship b/n member and gp
       if donor.amount and donor.likelihood:
         estimated = estimated + donor.amount*donor.likelihood/100
     return estimated
+
+  def update_story(self, timestamp):
+
+    logger.info('update_story running for membership ' + str(self.pk) +
+                 ' from ' + str(timestamp))
+
+    #today's range
+    today_min = timestamp.replace(hour=0, minute=0, second=0)
+    today_max = timestamp.replace(hour=23, minute=59, second=59)
+
+    #check for steps
+    logger.debug("Getting steps")
+    steps = models.Step.objects.filter(
+        completed__range=(today_min, today_max),
+        donor__membership = self).select_related('donor')
+    )
+    if not steps:
+      return HttpResponse("no steps!!")
+
+    #get or create newsitem object
+    logger.debug('Checking for story with date between ' + str(today_min) +
+                  ' and ' + str(today_max))
+    search = self.newsitem_set.filter(date__range=(today_min, today_max))
+    if search:
+      story = search[0]
+    else:
+      story = models.NewsItem(date = timestamp, membership=self, summary = '')
+
+    #tally today's steps
+    talked, asked, promised = 0, 0, 0
+    talkedlist = [] #for talk counts, don't want to double up
+    askedlist = []
+    for step in steps:
+      logger.debug(unicode(step))
+      if step.asked:
+        asked += 1
+        askedlist.append(step.donor)
+        if step.donor in talkedlist: #if donor counted already, remove
+          talked -= 1
+          talkedlist.remove(step.donor)
+      elif not step.donor in talkedlist and not step.donor in askedlist:
+        talked += 1
+        talkedlist.append(step.donor)
+      if step.promised and step.promised > 0:
+        promised += step.promised
+    summary = self.member.first_name
+    if talked > 0:
+      summary += u' talked to ' + unicode(talked) + (u' people' if talked>1 else u' person')
+      if asked > 0:
+        if promised > 0:
+          summary += u', asked ' + unicode(asked)
+        else:
+          summary += u' and asked ' + unicode(asked)
+    elif asked > 0:
+      summary += u' asked ' + unicode(asked) + (u' people' if asked>1 else u' person')
+    else:
+      logger.error('News update with 0 talked, 0 asked. Story pk: ' + str(story.pk))
+    if promised > 0:
+      summary += u' and got $' + unicode(intcomma(promised)) + u' in promises'
+    summary += u'.'
+    logger.info(summary)
+    story.summary = summary
+    story.updated = timezone.now()
+    story.save()
+    logger.info('Story saved')
+    return HttpResponse("success")
+
 
 class Donor(models.Model):
   added = models.DateTimeField(default=timezone.now())
