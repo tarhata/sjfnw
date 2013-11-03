@@ -8,6 +8,8 @@ from sjfnw.forms import IntegerCommaField
 
 import datetime, logging
 
+logger = logging.getLogger('sjfnw')
+
 def custom_integer_field(f, **kwargs):
   if f.verbose_name == '*Amount to ask ($)':
     return IntegerCommaField(**kwargs)
@@ -40,7 +42,7 @@ class GivingProject(models.Model):
     return self.title+u' '+unicode(self.fundraising_deadline.year)
 
   def save(self, *args, **kwargs):
-    logging.debug(self.suggested_steps.count('\r'))
+    logger.debug(self.suggested_steps.count('\r'))
     self.suggested_steps = self.suggested_steps.replace('\r', '')
     super(GivingProject, self).save(*args, **kwargs)
 
@@ -88,10 +90,10 @@ class Membership(models.Model): #relationship b/n member and gp
     if not skip:
       try:
         previous = Membership.objects.get(id=self.id)
-        logging.debug('Previously: ' + str(previous.approved) + ', now: ' +
+        logger.debug('Previously: ' + str(previous.approved) + ', now: ' +
                       str(self.approved))
         if self.approved and not previous.approved: #newly approved!
-          logging.debug('Detected approval on save for ' + unicode(self))
+          logger.debug('Detected approval on save for ' + unicode(self))
           NotifyApproval(self)
       except Membership.DoesNotExist:
         pass

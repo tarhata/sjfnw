@@ -11,7 +11,7 @@ if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.geten
     'default': {
       'ENGINE': 'google.appengine.ext.django.backends.rdbms',
       'INSTANCE': 'sjf-northwest:sjf',
-      'NAME': 'sjf_devel',
+      'NAME': 'sjfdb',
     }
   }
   DEBUG = False
@@ -74,8 +74,9 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024
 FILE_UPLOAD_HANDLERS = ('sjfnw.grants.storage.BlobstoreFileUploadHandler',)
 
 LOGGING = { #slightly modified version of the default
-    'version': 1,
-    'disable_existing_loggers': True,
+  'version': 1,
+}
+"""'disable_existing_loggers': True,
     'formatters': {
       'verbose': {
         'datefmt': '%Y-%m-%d %H:%M:%S',
@@ -116,4 +117,4 @@ LOGGING = { #slightly modified version of the default
         },
     }
 }
-
+"""
