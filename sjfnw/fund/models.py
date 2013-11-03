@@ -1,10 +1,12 @@
-﻿from django.core.validators import MaxValueValidator
+﻿from django.contrib.humanize.templatetags.humanize import intcomma
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.utils import timezone
 
 from sjfnw.forms import IntegerCommaField
+from sjfnw.fund.utils import NotifyApproval
 
 import datetime, logging
 
@@ -99,11 +101,11 @@ class Membership(models.Model): #relationship b/n member and gp
         pass
     super(Membership, self).save(*args, **kwargs)
 
-  def overdue_steps(self, next=False): # 1 db query
+  def overdue_steps(self, get_next=False): # 1 db query
     cutoff = timezone.now().date() - datetime.timedelta(days=1)
     steps = Step.objects.filter(donor__membership = self, completed__isnull = True, date__lt = cutoff).order_by('-date')
     count = steps.count()
-    if not next:
+    if not get_next:
       return count
     elif count == 0:
       return count, False
@@ -147,11 +149,12 @@ class Membership(models.Model): #relationship b/n member and gp
 
     #check for steps
     logger.debug("Getting steps")
-    steps = models.Step.objects.filter(
+    steps = Step.objects.filter(
         completed__range=(today_min, today_max),
         donor__membership = self).select_related('donor')
     if not steps:
-      return HttpResponse("no steps!!")
+      logger.warning('update story called on ' + str(self.pk) + 'but there are no steps')
+      return
 
     #get or create newsitem object
     logger.debug('Checking for story with date between ' + str(today_min) +
@@ -160,7 +163,7 @@ class Membership(models.Model): #relationship b/n member and gp
     if search:
       story = search[0]
     else:
-      story = models.NewsItem(date = timestamp, membership=self, summary = '')
+      story = NewsItem(date = timestamp, membership=self, summary = '')
 
     #tally today's steps
     talked, asked, promised = 0, 0, 0
@@ -199,7 +202,6 @@ class Membership(models.Model): #relationship b/n member and gp
     story.updated = timezone.now()
     story.save()
     logger.info('Story saved')
-    return HttpResponse("success")
 
 
 class Donor(models.Model):
