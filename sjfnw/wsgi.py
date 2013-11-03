@@ -4,10 +4,11 @@ import logging
 import os, sys
 
 # set formatting for logging
+datefmt = '%Y-%m-%d %H:%M:%S'
 if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
-  fr = logging.Formatter(fmt='[%(filename)s:%(lineno)d %(funcName)s]: %(message)s')
+  fr = logging.Formatter(fmt='[%(filename)s:%(lineno)d %(funcName)s]: %(message)s', datefmt=datefmt)
 else:
-  fr = logging.Formatter(fmt='%(levelname)-8s %(asctime)s %(filename)s:%(lineno)d %(funcName)s]: %(message)s')
+  fr = logging.Formatter(fmt='%(levelname)-8s %(asctime)s %(filename)s:%(lineno)d %(funcName)s]: %(message)s', datefmt=datefmt)
 logging.getLogger().handlers[0].setFormatter(fr)
 
 # path & env vars
