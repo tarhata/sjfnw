@@ -1,4 +1,5 @@
 ﻿from django.contrib.humanize.templatetags.humanize import intcomma
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.forms import ModelForm
@@ -251,6 +252,13 @@ class Donor(models.Model):
         return timezone.now().date()-step.date
     return False
 
+  def get_next_step(self):
+    steps = self.step_set.filter(completed__isnull=True)
+    if steps:
+      return steps[0]
+    else:
+      return None
+
 def make_custom_datefield(f):
   """
   date selector implementation from
@@ -290,6 +298,11 @@ class Step(models.Model):
 
   def __unicode__(self):
     return unicode(self.date.strftime('%m/%d/%y')) + u' -  ' + self.description
+
+  def clean(self):
+    if self.completed is None and Step.objects.filter(completed__isnull=True):
+      logger.error('Attempt to add 2nd incomplete step to donor ' + str(self.donor_id))
+      raise ValidationError('You can only have one incomplete step per contact.')
 
 class StepForm(ModelForm): #for adding a step
   formfield_callback = make_custom_datefield #date input
