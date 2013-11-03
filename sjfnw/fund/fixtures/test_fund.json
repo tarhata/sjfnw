@@ -91,7 +91,6 @@
     "model":"fund.donor",
     "fields":{
       "gift_notified":false,
-      "next_step":1,
       "talked":true,
       "firstname":"Lauren",
       "lastname":"O'Laughlin",
@@ -111,7 +110,6 @@
     "model":"fund.donor",
     "fields":{
       "gift_notified":false,
-      "next_step":2,
       "talked":true,
       "firstname":"Aniseto",
       "lastname":"",
@@ -131,7 +129,6 @@
     "model":"fund.donor",
     "fields":{
       "gift_notified":false,
-      "next_step":null,
       "talked":true,
       "firstname":"Lynne",
       "lastname":"Asked",
@@ -151,7 +148,6 @@
     "model":"fund.donor",
     "fields":{
       "gift_notified":false,
-      "next_step":null,
       "talked":true,
       "firstname":"Elsa",
       "lastname":"Declined",
