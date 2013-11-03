@@ -35,7 +35,7 @@ def get_block_content(membership, first=True):
 
   bks = []
   # upcoming steps
-  if first: #home page does its own thing
+  if first:
     bks.append(models.Step.objects.select_related('donor')
                      .filter(donor__membership=membership,
                      completed__isnull=True).order_by('date')[:2])
@@ -63,7 +63,7 @@ def get_block_content(membership, first=True):
 @approved_membership()
 def Home(request):
 
-  #hacks
+  #hacks FIXME
   mult_template = 'fund/add_mult.html'
   formset = ''
 
@@ -95,19 +95,20 @@ def Home(request):
   #donors
   donors = list(membership.donor_set.all())
   prog = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0,
-              'promised':0, 'received':0}
+          'promised':0, 'received':0}
   donor_data = {}
   empty_date = datetime.date(2500, 1, 1)
 
-  #checking for direct links from emails & whether ests are req
-  est = membership.giving_project.require_estimates()
-  add_est = est
+  #checking for direct links from emails & whether estmates are required
+  est_req = membership.giving_project.require_estimates()
+  add_est = est_req # we'll need original est value later
   if load != '':
     add_est = False #override, don't check if following link from email
   else:
     amount_entered, amount_missing = False, False
     need_est, initiale = [], []
 
+  # go through contacts, tally progress & see which need estimates
   for donor in donors:
     donor_data[donor.pk] = {'donor':donor, 'complete_steps':[],
                             'next_step':False, 'next_date':empty_date,
@@ -154,7 +155,7 @@ def Home(request):
     membership.notifications = ''
     membership.save(skip=True)
 
-  #show estimates form
+  #show/handle estimates form TODO move the POST to its own view
   if add_est and amount_missing:
     if amount_entered:
       #should not happen!
@@ -181,29 +182,20 @@ def Home(request):
     #basic version for blocks
     step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
     return render(request, 'fund/page_personal.html',
-      {'1active':'true',
-      'header':header,
-      'progress':prog,
-      'member':member,
-      'news':news,
-      'grants':grants,
-      'steps':step_list,
-      'membership':membership,
-      'notif':notif,
-      'formset':formset,
-      'fd': fd,
-      'load':load,
-      'loadto':loadto})
+      {'1active':'true', 'header':header, 'progress':prog, 'member':member,
+      'news':news, 'grants':grants, 'steps':step_list, 'membership':membership,
+      'notif':notif, 'formset':formset, 'fd': fd, 'load':load, 'loadto':loadto})
 
-  #show regular contacts view
+  # show regular contacts view (don't need to show estimates form)
   else:
     if donors:
-      #steps
+      # get all steps
       step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
+      #split into complete/not, attach to donors
       upcoming_steps = []
       ctz = timezone.get_current_timezone()
       today = ctz.normalize(timezone.now()).date()
-      for step in step_list: #split into complete/not, attach to donors
+      for step in step_list:
         if step.completed:
           donor_data[step.donor_id]['complete_steps'].append(step)
         else:
@@ -218,7 +210,7 @@ def Home(request):
 
     else: #no donors - showing mass form
       donor_list, upcoming_steps = [], [] #FIX
-      if est:
+      if est_req:
         logger.info('No donors - showing add contacts form with estimates')
         ContactFormset = formset_factory(forms.MassDonor, extra=5)
         mult_template = 'fund/add_mult.html'
@@ -232,20 +224,10 @@ def Home(request):
     suggested = [sug for sug in suggested if sug] #filter out empty lines
 
     return render(request, 'fund/page_personal.html', {
-      '1active':'true',
-      'header':header,
-      'donor_list': donor_list,
-      'progress':prog,
-      'member':member,
-      'news':news,
-      'grants':grants,
-      'steps':upcoming_steps,
-      'membership':membership,
-      'notif':notif,
-      'suggested':suggested,
-      'formset':formset,
-      'load':load,
-      'loadto':loadto,
+      '1active':'true', 'header':header, 'donor_list': donor_list, 'progress':prog,
+      'member':member, 'news':news, 'grants':grants, 'steps':upcoming_steps,
+      'membership':membership, 'notif':notif, 'suggested':suggested,
+      'formset':formset, 'load':load, 'loadto':loadto,
       'mult_template':mult_template})
 
 @login_required(login_url='/fund/login/')
@@ -667,17 +649,12 @@ def AddStep(request, donor_id):
     membership.last_activity = timezone.now()
     membership.save(skip=True)
     form = models.StepForm(request.POST, auto_id = str(donor.pk) + '_id_%s')
-    has_step = donor.next_step
     logger.info('Single step - POST: ' + str(request.POST))
-    if has_step:
-      logger.error('Donor already has an incomplete step: ' + str(has_step))
-    elif form.is_valid():
+    if form.is_valid():
       step = form.save(commit = False)
       step.donor = donor
       step.save()
       logger.info('Single step - form valid, step saved')
-      donor.next_step = step
-      donor.save()
       return HttpResponse("success")
   else:
     form = models.StepForm(auto_id = str(donor.pk) + '_id_%s')
@@ -697,7 +674,7 @@ def AddMultStep(request):
   suggested = membership.giving_project.suggested_steps.splitlines()
 
   for donor in membership.donor_set.order_by('-added'): #sort by added
-    if not (donor.next_step or (donor.promised is not None) or donor.received):
+    if (donor.received == 0 and donor.promised is None and donor.get_next_step() is None):
       initiald.append({'donor': donor})
       dlist.append(donor)
       size = size +1
@@ -716,8 +693,6 @@ def AddMultStep(request):
           step = models.Step(donor = form['donor'], date = form['date'],
                              description = form['description'])
           step.save()
-          step.donor.next_step = step
-          step.donor.save()
           logger.info('Multiple steps - step created')
       return HttpResponse("success")
     else:
@@ -805,7 +780,6 @@ def DoneStep(request, donor_id, step_id):
       step.completed = timezone.now()
       donor.talked = True
       donor.notes = form.cleaned_data['notes']
-      donor.next_step = None
       asked = form.cleaned_data['asked']
       response = form.cleaned_data['response']
       promised = form.cleaned_data['promised_amount']
@@ -846,7 +820,6 @@ def DoneStep(request, donor_id, step_id):
         form2.donor = donor
         ns = form2.save()
         logger.info(form2)
-        donor.next_step = ns
       donor.save()
       return HttpResponse("success")
   else: #GET - fill form with initial data
