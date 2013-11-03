@@ -44,7 +44,6 @@ class GivingProject(models.Model):
     return self.title+u' '+unicode(self.fundraising_deadline.year)
 
   def save(self, *args, **kwargs):
-    logger.debug(self.suggested_steps.count('\r'))
     self.suggested_steps = self.suggested_steps.replace('\r', '')
     super(GivingProject, self).save(*args, **kwargs)
 

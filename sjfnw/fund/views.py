@@ -146,7 +146,7 @@ def Home(request):
                         ' raised')
   else:
     prog['contactsremaining'] = 0
-  logger.info(prog)
+  logger.debug(prog)
 
   notif = membership.notifications
   if notif and not settings.DEBUG: #on live, only show a notification once
@@ -350,7 +350,7 @@ def Register(request):
       #check Member already
       if models.Member.objects.filter(email = username_email):
         error_msg = 'That email is already registered.  <a href="/fund/login/">Login</a> instead.'
-        logger.info(username_email + ' tried to re-register')
+        logger.warning(username_email + ' tried to re-register')
       #check User already but not Member
       elif User.objects.filter(username=username_email):
         error_msg = 'That email is already registered through Social Justice Fund\'s online grant application.  Please use a different email address.'
@@ -514,7 +514,7 @@ def AddMult(request):
   if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save()
-    logger.info(request.POST)
+    logger.debug(request.POST)
     formset = ContactFormset(request.POST)
     if formset.is_valid():
       if formset.has_changed():
@@ -598,8 +598,7 @@ def EditDonor(request, donor_id):
   est = request.membership.giving_project.require_estimates()
 
   if request.method == 'POST':
-    logger.info(request.body)
-    logger.info(request.POST)
+    logger.debug(request.POST)
     request.membership.last_activity = timezone.now()
     request.membership.save(skip=True)
     if est:
