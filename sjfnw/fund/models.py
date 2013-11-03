@@ -227,9 +227,6 @@ class Donor(models.Model):
   email = models.EmailField(max_length=100, blank=True)
   notes = models.TextField(blank=True)
 
-  next_step = models.ForeignKey('Step', null=True, blank=True,
-                                related_name = '+') #don't need to go backwards
-
   def __unicode__(self):
     if self.lastname:
       return self.firstname + u' ' + self.lastname
