@@ -534,7 +534,9 @@ def custom_fields(f, **kwargs): #sets phonenumber and money fields
     return f.formfield(**kwargs)
 
 class GrantApplicationModelForm(ModelForm):
+
   formfield_callback = custom_fields
+
   class Meta:
     model = GrantApplication
     exclude = ['screening_status', 'submission_time'] #auto fields with defaults
