@@ -1,4 +1,5 @@
 ﻿from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -50,45 +51,36 @@ def org_login(request):
   return render(request, 'grants/org_login_register.html', {'form':form, 'register':register, 'login_errors':login_errors})
 
 def org_register(request):
-  register_error = ''
   if request.method == 'POST':
     register = RegisterForm(request.POST)
     if register.is_valid():
       username_email = request.POST['email'].lower()
       password = request.POST['password']
       org = request.POST['organization']
-      #check org already registered
-      if models.Organization.objects.filter(name=org) or models.Organization.objects.filter(email=username_email):
-        register_error = 'That organization is already registered. Log in instead.'
-        logger.warning(org + 'tried to re-register under ' + username_email)
-      #check User already exists, but not as an org
-      elif User.objects.filter(username=username_email):
-        register_error = 'That email is registered with Project Central. Please register using a different email.'
-        logger.warning('User already exists, but not Org: ' + username_email)
-      #clear to register
-      else:
-        #create User and Organization
-        created = User.objects.create_user(username_email, username_email, password)
-        new_org = models.Organization(name=org, email=username_email)
-        new_org.save()
-        logger.info('Registration - created user and org for ' + username_email)
-        #try to log in
-        user = authenticate(username=username_email, password=password)
-        if user:
-          if user.is_active:
-            login(request, user)
-            return redirect(org_home)
-          else:
-            register_error = 'Your account is not active. Please contact an administrator.'
-            logger.error('Inactive right after registration, account: ' + username_email)
+      #create User and Organization
+      created = User.objects.create_user(username_email, username_email, password)
+      new_org = models.Organization(name=org, email=username_email)
+      new_org.save()
+      logger.info('Registration - created user and org for ' + username_email)
+      #try to log in
+      user = authenticate(username=username_email, password=password)
+      if user:
+        if user.is_active:
+          login(request, user)
+          return redirect(org_home)
         else:
-          register_error = 'There was a problem with your registration.  Please <a href=""/apply/support#contact">contact a site admin</a> for assistance.'
-          logger.error('Password not working at registration, account:  ' + username_email)
+          messages.error('Your account is not active. Please contact an administrator.')
+          register_error = 'Your account is not active. Please contact an administrator.'
+          logger.error('Inactive right after registration, account: ' + username_email)
+      else:
+        messages.error('There was a problem with your registration. '
+            'Please <a href=""/apply/support#contact">contact a site admin</a> for assistance.')
+        logger.error('Password not working at registration, account:  ' + username_email)
   else: #GET
     register = RegisterForm()
   form = LoginForm()
   logger.info(register_error)
-  return render(request, 'grants/org_login_register.html', {'form':form, 'register':register, 'register_errors':register_error})
+  return render(request, 'grants/org_login_register.html', {'form':form, 'register':register})
 
 def org_support(request):
   return render(request, 'grants/org_support.html', {

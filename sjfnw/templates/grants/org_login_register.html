@@ -2,10 +2,12 @@
 {% block title %}Login or register | {{block.super}}{% endblock %}
 {%block content %}
 <div id="login_wrapper">
-	<p>Welcome to Social Justice Fund's online grant application.  Please login or register below in order to apply for a grant.</p>
+  <p>Welcome to Social Justice Fund's online grant application.
+  Please login or register below in order to apply for a grant.</p>
 	<table style="width:600px;">
 		<tr>
 			<td style="padding-top:0px;padding-right:10px">
+
 				LOGIN<br>
 				{%if login_errors%}<ul class="errorlist">{{login_errors|safe}}</ul>{%endif%}
 				<form method="post" action="/apply/login/">
@@ -30,9 +32,10 @@
 				<br><br>
 				<div class="helptext"><a href="/apply/reset">Can't access your account?</a></div>
 			</td>
+
 			<td style="padding-left:10px;padding-right:10px">
-			REGISTER<br>
-				{% if register_errors %}<ul class="errorlist">{{register_errors|safe}}</ul>{%endif%}
+        
+        REGISTER<br>
 				<form method="post" action="/apply/register/">
 					<table>
 						<tr>

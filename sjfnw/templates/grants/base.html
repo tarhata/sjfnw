@@ -35,7 +35,18 @@
           <img id="logo" src="/static/images/logo_horiz.png" align="middle" alt="Social Justice Fund NW Logo">home
         </a>
     </div>
-    {% block content %} {% endblock %}  
+    <div class="content_area">
+      <!-- messages -->
+      {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      {% block content %} {% endblock %}  
+    </div>
     <br><br><br>
     <table id="org_footer"><tr>
       <td style="width:25%;"><a href="{% url "sjfnw.grants.views.org_support" %}">support</a></td>
