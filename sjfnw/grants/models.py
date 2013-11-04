@@ -728,11 +728,13 @@ class GrantAward(models.Model):
 
 class SponsoredProgramGrant(models.Model):
 
+  entered = models.DateTimeField(default=timezone.now())
   organization = models.ForeignKey(Organization)
   amount = models.PositiveIntegerField()
-  check_number = models.PositiveIntegerField()
+  check_number = models.PositiveIntegerField(null=True, blank=True)
   check_mailed = models.DateField(null=True, blank=True)
   approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
 
   class Meta:
     ordering = ['organization']
+
