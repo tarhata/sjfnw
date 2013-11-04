@@ -6,12 +6,14 @@ from django.forms import ModelForm, Textarea
 from django.forms.widgets import FileInput, MultiWidget
 from django.utils import timezone
 from django.utils.text import capfirst
+
 from sjfnw.fund.models import GivingProject
 from sjfnw.forms import IntegerCommaField, PhoneNumberField
 from sjfnw import constants
-from datetime import timedelta
 
+from datetime import timedelta
 import logging, json, re
+
 logger = logging.getLogger('sjfnw')
 
 
@@ -204,6 +206,9 @@ class GrantCycle(models.Model):
                                help_text='Track any conflicts of interest '
                                '(automatic & personally declared) that occurred'
                                ' during this cycle.')
+
+  class Meta:
+    ordering = ['title', 'close']
 
   def __unicode__(self):
     return self.title
@@ -488,6 +493,7 @@ class GrantApplication(models.Model):
   site_visit_report = models.URLField(blank=True, help_text='Link to the google doc containing the site visit report. This will be visible to all project members, but not the organization.')
 
   class Meta:
+    ordering = ['organization', 'submission_time']
     unique_together = ('organization', 'grant_cycle')
 
   def __unicode__(self):
@@ -705,6 +711,9 @@ class GrantAward(models.Model):
   agreement_returned = models.DateField(null=True, blank=True)
   approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
 
+  class Meta:
+    ordering = ['application']
+
   def agreement_due(self):
     if self.agreement_mailed:
       return self.agreement_mailed + timedelta(days=30)
@@ -717,3 +726,13 @@ class GrantAward(models.Model):
     else:
       return None
 
+class SponsoredProgramGrant(models.Model):
+
+  organization = models.ForeignKey(Organization)
+  amount = models.PositiveIntegerField()
+  check_number = models.PositiveIntegerField()
+  check_mailed = models.DateField(null=True, blank=True)
+  approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
+
+  class Meta:
+    ordering = ['organization']

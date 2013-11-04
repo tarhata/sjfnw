@@ -69,6 +69,8 @@ class Member(models.Model):
   def __unicode__(self):
     return unicode(self.first_name +u' '+self.last_name)
 
+  class Meta:
+    ordering = ['first_name', 'last_name']
 
 class Membership(models.Model): #relationship b/n member and gp
   giving_project = models.ForeignKey(GivingProject)
@@ -84,6 +86,9 @@ class Membership(models.Model): #relationship b/n member and gp
                                               'this membership.'))
 
   notifications = models.TextField(default='', blank=True)
+
+  class Meta:
+    ordering = ['member']
 
   def __unicode__(self):
     return unicode(self.member)+u', '+unicode(self.giving_project)
@@ -226,6 +231,9 @@ class Donor(models.Model):
   phone = models.CharField(max_length=15, blank=True)
   email = models.EmailField(max_length=100, blank=True)
   notes = models.TextField(blank=True)
+
+  class Meta:
+    ordering = ['firstname', 'lastname']
 
   def __unicode__(self):
     if self.lastname:
