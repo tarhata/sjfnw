@@ -8,36 +8,12 @@ from django.forms.models import BaseInlineFormSet
 from sjfnw.admin import advanced_admin
 from sjfnw.forms import IntegerCommaField
 
-from .models import *
+from sjfnw.grants.models import *
+from sjfnw.grants.modelforms import AppAdminForm, DraftAdminForm
+
 import unicodecsv as csv
 import logging, re
 logger = logging.getLogger('sjfnw')
-
-# Forms
-class AppAdminForm(ModelForm):
-  def clean(self):
-    cleaned_data = super(AppAdminForm, self).clean()
-    status = cleaned_data.get("screening_status")
-    if status >= 100:
-      logger.info('Require check details')
-    return cleaned_data
-
-  class Meta:
-    model = GrantApplication
-
-class DraftForm(ModelForm):
-  class Meta:
-    model = DraftGrantApplication
-
-  def clean(self):
-    cleaned_data = super(DraftForm, self).clean()
-    org = cleaned_data.get('organization')
-    cycle = cleaned_data.get('grant_cycle')
-    if org and cycle:
-      if GrantApplication.objects.filter(organization=org, grant_cycle=cycle):
-        raise ValidationError('This organization has already submitted an '
-                              'application to this grant cycle.')
-    return cleaned_data
 
 # Inlines
 class GrantLogInlineRead(admin.TabularInline): #Org, Application
@@ -91,7 +67,7 @@ class AwardInline(admin.TabularInline):
     else:
       return ''
   edit_award.allow_tags = True
-  
+
 class AppCycleInline(admin.TabularInline): #Cycle
   model = GrantApplication
   extra = 0
@@ -215,7 +191,7 @@ class DraftGrantApplicationA(admin.ModelAdmin):
   list_filter = ('grant_cycle',) #extended
   fields = (('organization', 'grant_cycle', 'modified'), ('extended_deadline'))
   readonly_fields = ('modified',)
-  form = DraftForm
+  form = DraftAdminForm
   search_fields = ('organization__name',)
 
   def get_readonly_fields(self, request, obj=None):
@@ -251,6 +227,16 @@ class GrantAwardA(admin.ModelAdmin):
   def year_end_report_due(self, obj):
     return obj.yearend_due()
 
+class SponsoredProgramGrantA(admin.ModelAdmin):
+  list_display = ('organization', 'amount', 'check_mailed')
+  list_filter = ('check_mailed',)
+  exclude = ('entered',)
+  fields = (
+    ('organization', 'amount'),
+    ('check_number', 'check_mailed', 'approved')
+  )
+  #readonly_fields = ()
+
 # Register
 
 admin.site.register(GrantCycle, GrantCycleA)
@@ -258,10 +244,12 @@ admin.site.register(Organization, OrganizationA)
 admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
 admin.site.register(GrantAward, GrantAwardA)
+admin.site.register(SponsoredProgramGrant, SponsoredProgramGrantA)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)
 advanced_admin.register(GrantApplication, GrantApplicationA)
 advanced_admin.register(DraftGrantApplication, DraftAdv)
 advanced_admin.register(GrantAward, GrantAwardA)
+advanced_admin.register(SponsoredProgramGrant, SponsoredProgramGrantA)
 
