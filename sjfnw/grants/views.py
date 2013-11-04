@@ -40,15 +40,16 @@ def org_login(request):
           login(request, user)
           return redirect(org_home)
         else:
-          login_errors = 'Your account is inactive. Please contact an administrator.'
           logger.warning('Inactive org account tried to log in, username: ' + email)
+          messages.error(request, 'Your account is inactive. Please contact an administrator.')
       else:
-        login_errors = "Your password didn't match. Please try again."
+        login_error = "Your password didn't match the one on file. Please try again."
   else:
     form = LoginForm()
   register = RegisterForm()
-  logger.info(login_errors)
-  return render(request, 'grants/org_login_register.html', {'form':form, 'register':register, 'login_errors':login_errors})
+  logger.info('org_login' + login_error)
+  return render(request, 'grants/org_login_register.html',
+      {'form':form, 'register':register, 'login_error':login_error})
 
 def org_register(request):
   if request.method == 'POST':
@@ -70,7 +71,6 @@ def org_register(request):
           return redirect(org_home)
         else:
           messages.error('Your account is not active. Please contact an administrator.')
-          register_error = 'Your account is not active. Please contact an administrator.'
           logger.error('Inactive right after registration, account: ' + username_email)
       else:
         messages.error('There was a problem with your registration. '
@@ -79,7 +79,7 @@ def org_register(request):
   else: #GET
     register = RegisterForm()
   form = LoginForm()
-  logger.info(register_error)
+  logger.debug(register)
   return render(request, 'grants/org_login_register.html', {'form':form, 'register':register})
 
 def org_support(request):
