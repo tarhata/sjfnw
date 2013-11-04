@@ -1,19 +1,14 @@
-from django.contrib.auth.models import User
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
 
 from sjfnw.constants import TEST_MIDDLEWARE
+from sjfnw.tests import BaseTestCase
 
 from sjfnw.fund import models
 
 from datetime import timedelta
 import unittest, logging
 logger = logging.getLogger('sjfnw')
-
-# Sets root & sjfnw loggers to DEBUG. Comment out for less output.
-logging.getLogger().setLevel(0)
-logging.getLogger('sjfnw').setLevel(0)
 
 
 def setDates():
@@ -27,7 +22,7 @@ def setDates():
   gp.fundraising_deadline = today + timedelta(days=30)
   gp.save()
 
-class BaseFundTestCase(TestCase):
+class BaseFundTestCase(BaseTestCase):
 
   fixtures = ['sjfnw/fund/fixtures/test_fund.json']
 
@@ -36,21 +31,9 @@ class BaseFundTestCase(TestCase):
     cls, meth = full[-2], full[-1]
     print('\n\033[1m' + cls + ' ' + meth + '\033[m ' + (self.shortDescription() or '')) #_testMethodName
 
-  def logInTesty(self):
-    user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'testy')
-    self.client.login(username = 'testacct@gmail.com', password = 'testy')
-
-  def logInNewbie(self):
-    user = User.objects.create_user('newacct@gmail.com', 'newacct@gmail.com', 'noob')
-    self.client.login(username = 'newacct@gmail.com', password = 'noob')
-
   def setUp(self, login):
-    self.printName()
+    super(BaseFundTestCase, self).setUp(login)
     setDates()
-    if login == 'testy':
-      self.logInTesty()
-    elif login == 'newbie':
-      self.logInNewbie()
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class StepCompleteTest(BaseFundTestCase):

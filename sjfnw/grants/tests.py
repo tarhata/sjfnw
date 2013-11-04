@@ -1,24 +1,20 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils import timezone
 
 from google.appengine.ext import testbed
 
 from sjfnw.constants import TEST_MIDDLEWARE
+from sjfnw.tests import BaseTestCase
 from sjfnw.fund.models import GivingProject
-from sjfnw.grants.views import RefreshUploadUrl
 from sjfnw.grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
 
 import sys, datetime, json, unittest
 import logging
 logger = logging.getLogger('sjfnw')
 
-# Sets root & sjfnw loggers to DEBUG level. Comment out to see less output.
-logging.getLogger().setLevel(0)
-logging.getLogger('sjfnw').setLevel(0)
 
 """ NOTE: some tests depend on having these files in sjfnw/media
   budget.docx      diversity.doc      funding_sources.docx
@@ -53,38 +49,15 @@ def setCycleDates():
   cycle.close = now + ten_days
   cycle.save()
 
-class BaseGrantTestCase(TestCase):
+class BaseGrantTestCase(BaseTestCase):
   """ Base for grants tests. Provides fixture and basic setUp
       as well as several helper functions """
 
   fixtures = ['sjfnw/grants/fixtures/test_grants.json']
 
-  def logInTesty(self): # 2 OfficeMax Foundation
-    self.user = User.objects.create_user('testorg@gmail.com', 'testorg@gmail.com', 'testy')
-    self.client.login(username = 'testorg@gmail.com', password = 'testy')
-
-  def logInNewbie(self): # 1 Fresh New Org
-    user = User.objects.create_user('neworg@gmail.com', 'neworg@gmail.com', 'noob')
-    self.client.login(username = 'neworg@gmail.com', password = 'noob')
-
-  def logInAdmin(self): #just a django superuser
-    superuser = User.objects.create_superuser('admin@gmail.com', 'admin@gmail.com', 'admin')
-    self.client.login(username = 'admin@gmail.com', password = 'admin')
-
-  def printName(self):
-    full =  self.id().split('.')
-    cls, meth = full[-2], full[-1]
-    print('\n\033[1m' + cls + ' ' + meth + '\033[m ' + (self.shortDescription() or ''))
-
   def setUp(self, login):
-    self.printName()
+    super(BaseGrantTestCase, self).setUp(login)
     setCycleDates()
-    if login == 'testy':
-      self.logInTesty()
-    elif login == 'newbie':
-      self.logInNewbie()
-    elif login == 'admin':
-      self.logInAdmin()
 
   class Meta:
     abstract = True
@@ -141,7 +114,6 @@ class Register(BaseGrantTestCase):
     self.printName()
 
   def valid_registration(self):
-    print(sys.path)
     registration = {
       'email': 'uniquenewyork@gmail.com',
       'password': 'one',
@@ -175,7 +147,7 @@ class Register(BaseGrantTestCase):
     self.assertEqual(1, Organization.objects.filter(name='OfficeMax Foundation').count())
     self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
     self.assertTemplateUsed(response, 'grants/org_login_register.html')
-    self.assertEqual(response.context['register_errors'], 'That organization is already registered. Log in instead.')
+    self.assertFormError(response, 'register', None, 'That organization is already registered. Log in instead.')
 
   def test_repeat_org_email(self):
 
@@ -194,7 +166,7 @@ class Register(BaseGrantTestCase):
     self.assertEqual(1, Organization.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
     self.assertTemplateUsed(response, 'grants/org_login_register.html')
-    self.assertEqual(response.context['register_errors'], 'That organization is already registered. Log in instead.')
+    self.assertFormError(response, 'register', None, 'That organization is already registered. Log in instead.')
 
   def test_repeat_user_email(self):
 
@@ -215,7 +187,8 @@ class Register(BaseGrantTestCase):
     self.assertEqual(1, User.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
     self.assertTemplateUsed(response, 'grants/org_login_register.html')
-    self.assertEqual(response.context['register_errors'], 'That email is registered with Project Central. Please register using a different email.')
+    self.assertFormError(response, 'register', None,
+        'That email is registered with Project Central. Please register using a different email.')
 
 @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage',
     FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',),
@@ -420,7 +393,7 @@ class StartApplication(BaseGrantTestCase): #MIGHT BE OUT OF DATE
         Form is blank
         Draft is created """
 
-    self.logInNewbie()
+    self.logInNeworg()
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
 
     response = self.client.get('/apply/1/')
@@ -435,7 +408,7 @@ class StartApplication(BaseGrantTestCase): #MIGHT BE OUT OF DATE
         Form has stuff from profile
         Draft is created """
 
-    self.logInTesty()
+    self.logInTestorg()
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
 
     response = self.client.get('/apply/5/')
@@ -582,7 +555,7 @@ class OrgRollover(BaseGrantTestCase):
     self.assertNotContains(response, 'Select')
 
     self.client.logout()
-    self.logInTesty()
+    self.logInTestorg()
     response = self.client.get('/apply/copy')
     self.assertTemplateUsed(response, 'grants/org_app_copy.html')
     self.assertEqual(response.context['apps_count'], 5)
@@ -685,16 +658,20 @@ class ViewGrantPermissions(BaseGrantTestCase):
     app.giving_project = GivingProject.objects.get(pk=2)
     app.save()
 
+  """ Note: using grant app #1
+    Author: testorg@gmail.com (org #2)
+    GP: #2, which newacct is a member of, test is not  
+  """
   def test_author(self):
-    self.logInTesty()
+    self.logInTestorg()
 
-    response = self.client.get('/grants/view/1')
+    response = self.client.get('/grants/view/1', follow=True)
 
     self.assertTemplateUsed(response, 'grants/reading.html')
     self.assertEqual(3, response.context['perm'])
 
   def test_other_org(self):
-    self.logInNewbie()
+    self.logInNeworg()
 
     response = self.client.get('/grants/view/1', follow=True)
 
@@ -710,8 +687,7 @@ class ViewGrantPermissions(BaseGrantTestCase):
     self.assertEqual(2, response.context['perm'])
 
   def test_valid_member(self):
-    user = User.objects.create_user('newacct@gmail.com', 'newacct@gmail.com', 'noob')
-    self.client.login(username = 'newacct@gmail.com', password = 'noob')
+    self.logInNewbie()
 
     response = self.client.get('/grants/view/1', follow=True)
 
@@ -719,8 +695,7 @@ class ViewGrantPermissions(BaseGrantTestCase):
     self.assertEqual(1, response.context['perm'])
 
   def test_invalid_member(self):
-    user = User.objects.create_user('testacct@gmail.com', 'testacct@gmail.com', 'noob')
-    self.client.login(username = 'testacct@gmail.com', password = 'noob')
+    self.logInTesty()
 
     response = self.client.get('/grants/view/1', follow=True)
 
