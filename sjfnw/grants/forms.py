@@ -1,10 +1,15 @@
 ﻿from django import forms
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from sjfnw.fund.models import GivingProject
 from sjfnw.grants.models import Organization, GrantCycle, GrantApplication, DraftGrantApplication, STATE_CHOICES
 
 import datetime, logging
+
+logger = logging.getLogger('sjfnw')
+
 
 class LoginForm(forms.Form):
   email = forms.EmailField(max_length=255)
@@ -19,7 +24,6 @@ class RegisterForm(forms.Form):
 
   def clean(self):
     cleaned_data = super(RegisterForm, self).clean()
-
     # make sure org is not already registered
     org = cleaned_data.get('organization')
     email = cleaned_data.get('email')
