@@ -91,6 +91,23 @@ class GrantApplicationInline(admin.TabularInline): #Org
             '/" target="_blank">Edit</a>')
   edit_application.allow_tags = True
 
+class SponsoredProgramInline(admin.TabularInline): # Org
+  model = SponsoredProgramGrant
+  extra = 0
+  max_num = 0
+  fields = ('amount', 'check_mailed', 'approved', 'edit_view')
+  readonly_fields = ('edit_view',)
+  can_delete = False
+  template = 'admin/grants/sponsoredprogramgrant/tabular.html'
+
+  def edit_view(self, obj):
+    if obj.pk:
+      return ('<a href="/admin/grants/sponsoredprogramgrant/' + str(obj.pk) +
+            '/" target="_blank">View/edit</a>')
+    else:
+      return ''
+  edit_view.allow_tags = True
+
 # ModelAdmin
 class GrantCycleA(admin.ModelAdmin):
   list_display = ('title', 'open', 'close')
@@ -126,7 +143,8 @@ class OrganizationA(admin.ModelAdmin):
   inlines = ()
 
   def change_view(self, request, object_id, form_url='', extra_context=None):
-    self.inlines = (GrantApplicationInline, GrantLogInlineRead, GrantLogInline)
+    self.inlines = (GrantApplicationInline, SponsoredProgramInline,
+                    GrantLogInlineRead, GrantLogInline)
     self.readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone',
                             'fiscal_address', 'fiscal_email', 'fiscal_letter')
     return super(OrganizationA, self).change_view(request, object_id)
@@ -233,7 +251,8 @@ class SponsoredProgramGrantA(admin.ModelAdmin):
   exclude = ('entered',)
   fields = (
     ('organization', 'amount'),
-    ('check_number', 'check_mailed', 'approved')
+    ('check_number', 'check_mailed', 'approved'),
+    'description'
   )
   #readonly_fields = ()
 

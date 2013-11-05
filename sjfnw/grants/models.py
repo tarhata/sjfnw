@@ -745,6 +745,8 @@ class SponsoredProgramGrant(models.Model):
   check_mailed = models.DateField(null=True, blank=True)
   approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
 
+  description = models.TextField()
+
   class Meta:
     ordering = ['organization']
 
