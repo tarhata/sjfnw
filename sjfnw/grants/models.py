@@ -143,9 +143,12 @@ STATUS_CHOICES = [
 
 class Organization(models.Model):
   #registration fields
-  name = models.CharField(max_length=255)
+  name = models.CharField(max_length=255, unique=True, error_messages={
+    'unique': ('An organization with this name is already in the system. '
+    'To add a separate org with the same name, add/alter the name to '
+    'differentiate the two.')})
   email = models.EmailField(max_length=100, verbose_name='Email(login)',
-                            unique=True) #= django username
+                            null=True, blank=True, unique=True) #= django username
 
   #org contact info
   address = models.CharField(max_length=100, blank=True)
@@ -189,6 +192,13 @@ class Organization(models.Model):
 
   class Meta:
     ordering = ('name',)
+
+  def save(self, *args, **kwargs):
+    logger.debug('Org save')
+    if self.email == '':
+      logger.info('Blank org login, setting to None')
+      self.email = None
+    super(Organization, self).save(*args, **kwargs)
 
 class OrgProfile(ModelForm):
   class Meta:
