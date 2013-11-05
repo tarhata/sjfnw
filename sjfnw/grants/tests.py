@@ -57,6 +57,12 @@ class BaseGrantTestCase(BaseTestCase):
 
   def setUp(self, login):
     super(BaseGrantTestCase, self).setUp(login)
+    if login == 'testy':
+      self.logInTestorg()
+    elif login == 'newbie':
+      self.logInNeworg()
+    elif login == 'admin':
+      self.logInAdmin()
     setCycleDates()
 
   class Meta:

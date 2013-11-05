@@ -33,6 +33,12 @@ class BaseFundTestCase(BaseTestCase):
 
   def setUp(self, login):
     super(BaseFundTestCase, self).setUp(login)
+    if login == 'testy':
+      self.logInTesty()
+    elif login == 'newbie':
+      self.logInNewbie()
+    elif login == 'admin':
+      self.logInAdmin()
     setDates()
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)

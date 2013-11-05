@@ -15,12 +15,6 @@ class BaseTestCase(TestCase):
 
   def setUp(self, login):
     self.printName()
-    if login == 'testy':
-      self.logInTesty()
-    elif login == 'newbie':
-      self.logInNewbie()
-    elif login == 'admin':
-      self.logInAdmin()
 
   def printName(self):
     """ Outputs class name, method name and method desc to console """
