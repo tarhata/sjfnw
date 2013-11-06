@@ -527,8 +527,12 @@ class GrantApplication(models.Model):
   timeline_display.allow_tags = True
 
   @classmethod
-  def fiscal_fields(cls):
-    return [f for f in cls._meta.get_all_field_names() if f.startswith('fiscal')]
+  def get_field_names(cls):
+    return [f for f in cls._meta.get_all_field_names()]
+
+  @classmethod
+  def fields_starting_with(cls, start):
+    return [f for f in cls._meta.get_all_field_names() if f.startswith(start)]
 
   @classmethod
   def file_fields(cls):
