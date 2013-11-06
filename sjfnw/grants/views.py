@@ -28,7 +28,7 @@ LOGIN_URL = '/apply/login/'
 
 # PUBLIC ORG VIEWS
 def org_login(request):
-  login_errors = ''
+  login_error = ''
   if request.method == 'POST':
     form = LoginForm(request.POST)
     if form.is_valid():
@@ -471,7 +471,6 @@ def DiscardDraft(request, organization, draft_id):
 
 # VIEW APPS/FILES
 
-  ['member']
 def view_permission(user, application):
   """ Return a number indicating viewing permission for a submitted app.
 
@@ -659,9 +658,9 @@ def SearchApps(request):
         fields += models.GrantApplication.fiscal_fields()
         fields.remove('fiscal_letter')
       if options['report_collab']:
-        fields += [f for f in models.GrantApplication._meta.get_all_field_names() if f.startswith('collab_ref')]
+        fields += models.GrantApplication.fields_starting_with('collab_ref')
       if options['report_racial_ref']:
-        fields += [f for f in models.GrantApplication._meta.get_all_field_names() if f.startswith('racial_justice')]
+        fields += models.GrantApplication.fields_starting_with('racial')
       if options['report_bonuses']:
         fields.append('scoring_bonus_poc')
         fields.append('scoring_bonus_geo')
