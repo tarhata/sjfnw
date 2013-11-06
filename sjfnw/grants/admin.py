@@ -145,11 +145,14 @@ class OrganizationA(admin.ModelAdmin):
                 'fiscal_letter')
     })
   )
-  readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone',
-                     'fiscal_address', 'fiscal_email', 'fiscal_letter')
   search_fields = ('name', 'email')
-  inlines = [GrantApplicationInline, GrantLogInlineRead, GrantLogInline]
-  search_fields = ('name', 'email')
+  inlines = ()
+
+  def change_view(self, request, object_id, form_url='', extra_context=None):
+    self.inlines = (GrantApplicationInline, GrantLogInlineRead, GrantLogInline)
+    self.readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone',
+                            'fiscal_address', 'fiscal_email', 'fiscal_letter')
+    return super(OrganizationA, self).change_view(request, object_id)
 
 class DraftInline(admin.TabularInline): #Adv only
   model = DraftGrantApplication
@@ -233,7 +236,7 @@ class DraftAdv(admin.ModelAdmin): #Advanced
 
 class GrantAwardA(admin.ModelAdmin):
   list_display = ('application', 'amount', 'check_mailed')
-  list_filter = ('application__organization', 'application__giving_project')
+  list_filter = ('application__organization',)
   exclude = ('created',)
   fields = (
       ('application', 'amount'),
