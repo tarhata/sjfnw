@@ -60,8 +60,18 @@ def org_register(request):
       org = request.POST['organization']
       #create User and Organization
       created = User.objects.create_user(username_email, username_email, password)
-      new_org = models.Organization(name=org, email=username_email)
-      new_org.save()
+      created.first_name = org
+      created.last_name = '(organization)'
+      logger.info(request.body)
+      try:
+        org = models.Organization.objects.get(name = org)
+        org.email = username_email
+        org.save()
+        created.is_active = False
+      except models.Organization.DoesNotExist:
+        new_org = models.Organization(name=org, email=username_email)
+        new_org.save()
+      created.save()
       logger.info('Registration - created user and org for ' + username_email)
       #try to log in
       user = authenticate(username=username_email, password=password)
@@ -70,10 +80,11 @@ def org_register(request):
           login(request, user)
           return redirect(org_home)
         else:
-          messages.error('Your account is not active. Please contact an administrator.')
-          logger.error('Inactive right after registration, account: ' + username_email)
+          messages.warning(request, 'You have registered successfully but your account '
+          'needs administrator approval. Please contact '
+          '<a href="mailto:info@socialjusticefund.org">info@socialjusticefund.org</a>')
       else:
-        messages.error('There was a problem with your registration. '
+        messages.error(request, 'There was a problem with your registration. '
             'Please <a href=""/apply/support#contact">contact a site admin</a> for assistance.')
         logger.error('Password not working at registration, account:  ' + username_email)
   else: #GET

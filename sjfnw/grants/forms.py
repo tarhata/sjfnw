@@ -28,12 +28,18 @@ class RegisterForm(forms.Form):
     org = cleaned_data.get('organization')
     email = cleaned_data.get('email')
     if org and email:
-      if (Organization.objects.filter(name = org) or
-          Organization.objects.filter(email = email)):
+      if Organization.objects.filter(email = email):
         logger.warning(org + 'tried to re-register with ' + email)
-        raise ValidationError('That organization is already registered. Log in instead.')
+        raise ValidationError('That email is already registered. Log in instead.')
+      name_match = Organization.objects.filter(name = org)
+      if name_match:
+        if name_match[0].email:
+          logger.warning('Name match on registration, emails diff: ' + org)
+          raise ValidationError('That organization is already registered. Log in instead.')
+        else: #name match, blank email
+          logger.warning('Name match, blank email. ' + org)
       # check if User already exists
-      elif User.objects.filter(username = email):
+      if User.objects.filter(username = email):
         logger.warning('User already exists, but not Org: ' + email)
         raise ValidationError('That email is registered with Project Central.'
                               ' Please register using a different email.')
