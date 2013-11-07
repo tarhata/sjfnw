@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
+from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils import timezone
 
@@ -9,7 +10,7 @@ from google.appengine.ext import testbed
 from sjfnw.constants import TEST_MIDDLEWARE
 from sjfnw.tests import BaseTestCase
 from sjfnw.fund.models import GivingProject
-from sjfnw.grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle
+from sjfnw.grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle, GrantAward
 
 import sys, datetime, json, unittest
 import logging
@@ -707,4 +708,42 @@ class ViewGrantPermissions(BaseGrantTestCase):
 
     self.assertTemplateUsed(response, 'grants/reading.html')
     self.assertEqual(0, response.context['perm'])
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class OrgHomeAwards(BaseGrantTestCase):
+
+  url = reverse('sjfnw.grants.views.org_home')
+  template = 'grants/org_home.html'
+
+  def setUp(self):
+    super(OrgHomeAwards, self).setUp('testy')
+
+  def test_none(self):
+    """ org has no awards. verify no award info is shown """
+    
+    response = self.client.get(self.url)
+
+    self.assertTemplateUsed(self.template)
+    self.assertNotContains(response, 'Agreement mailed')
+
+  def test_early(self):
+    """ org has an award, but agreement has not been mailed. verify not shown """
+    award = GrantAward(application_id = 1, amount = 9000)
+    award.save()
+
+    response = self.client.get(self.url)
+
+    self.assertTemplateUsed(self.template)
+    self.assertNotContains(response, 'Agreement mailed')
+
+  def test_sent(self):
+    """ org has award, agreement mailed. verify shown """
+    award = GrantAward(application_id = 1, amount = 9000,
+        agreement_mailed = timezone.now()-datetime.timedelta(days=1))
+    award.save()
+
+    response = self.client.get(self.url)
+
+    self.assertTemplateUsed(self.template)
+    self.assertContains(response, 'Agreement mailed')
 
