@@ -16,14 +16,17 @@ from google.appengine.ext import deferred, ereporter
 from sjfnw import constants
 from sjfnw.grants.models import Organization, GrantApplication
 
-from .decorators import approved_membership
-from . import forms, models, utils
+from sjfnw.fund.decorators import approved_membership
+from sjfnw.fund import forms
+from sjfnw.fund import models, utils
 
 import datetime, logging
 import os
 
 if not settings.DEBUG:
   ereporter.register_logger()
+
+logger = logging.getLogger('sjfnw')
 
 # MAIN VIEWS
 
@@ -32,7 +35,7 @@ def get_block_content(membership, first=True):
 
   bks = []
   # upcoming steps
-  if first: #home page does its own thing
+  if first:
     bks.append(models.Step.objects.select_related('donor')
                      .filter(donor__membership=membership,
                      completed__isnull=True).order_by('date')[:2])
@@ -53,14 +56,14 @@ def get_block_content(membership, first=True):
               .filter(giving_project=membership.giving_project,
                       screening_status__gte=status_cutoff)
               .order_by('organization__name'))
-  #logging.info(bks)
+  #logger.info(bks)
   return bks
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def Home(request):
 
-  #hacks
+  #hacks FIXME
   mult_template = 'fund/add_mult.html'
   formset = ''
 
@@ -92,19 +95,20 @@ def Home(request):
   #donors
   donors = list(membership.donor_set.all())
   prog = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0,
-              'promised':0, 'received':0}
+          'promised':0, 'received':0}
   donor_data = {}
   empty_date = datetime.date(2500, 1, 1)
 
-  #checking for direct links from emails & whether ests are req
-  est = membership.giving_project.require_estimates()
-  add_est = est
+  #checking for direct links from emails & whether estmates are required
+  est_req = membership.giving_project.require_estimates()
+  add_est = est_req # we'll need original est value later
   if load != '':
     add_est = False #override, don't check if following link from email
   else:
     amount_entered, amount_missing = False, False
     need_est, initiale = [], []
 
+  # go through contacts, tally progress & see which need estimates
   for donor in donors:
     donor_data[donor.pk] = {'donor':donor, 'complete_steps':[],
                             'next_step':False, 'next_date':empty_date,
@@ -143,64 +147,55 @@ def Home(request):
                         ' raised')
   else:
     prog['contactsremaining'] = 0
-  logging.info(prog)
+  logger.debug(prog)
 
   notif = membership.notifications
   if notif and not settings.DEBUG: #on live, only show a notification once
-    logging.info('Displaying notification to ' + str(membership) + ': ' + notif)
+    logger.info('Displaying notification to ' + str(membership) + ': ' + notif)
     membership.notifications = ''
     membership.save(skip=True)
 
-  #show estimates form
+  #show/handle estimates form TODO move the POST to its own view
   if add_est and amount_missing:
     if amount_entered:
       #should not happen!
-      logging.warning(str(membership) + ' has some with est & some without.')
+      logger.warning(str(membership) + ' has some with est & some without.')
     est_formset = formset_factory(forms.DonorEstimates, extra=0)
     if request.method == 'POST':
       formset = est_formset(request.POST)
-      logging.debug('Adding estimates - posted: ' + str(request.POST))
+      logger.debug('Adding estimates - posted: ' + str(request.POST))
       if formset.is_valid():
-        logging.debug('Adding estimates - is_valid passed, cycling through forms')
+        logger.debug('Adding estimates - is_valid passed, cycling through forms')
         for form in formset.cleaned_data:
           if form:
             current = form['donor']
             current.amount = form['amount']
             current.likelihood = form['likelihood']
             current.save()
-            logging.debug('Amount & likelihood entered for ' + str(current))
+            logger.debug('Amount & likelihood entered for ' + str(current))
         return HttpResponse("success")
     else:
       formset = est_formset(initial=initiale)
-      logging.info('Adding estimates - loading initial formset: ' +str(need_est))
+      logger.info('Adding estimates - loading initial formset: ' +str(need_est))
     fd = zip(formset, need_est)
 
     #basic version for blocks
     step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
     return render(request, 'fund/page_personal.html',
-      {'1active':'true',
-      'header':header,
-      'progress':prog,
-      'member':member,
-      'news':news,
-      'grants':grants,
-      'steps':step_list,
-      'membership':membership,
-      'notif':notif,
-      'formset':formset,
-      'fd': fd,
-      'load':load,
-      'loadto':loadto})
+      {'1active':'true', 'header':header, 'progress':prog, 'member':member,
+      'news':news, 'grants':grants, 'steps':step_list, 'membership':membership,
+      'notif':notif, 'formset':formset, 'fd': fd, 'load':load, 'loadto':loadto})
 
-  #show regular contacts view
+  # show regular contacts view (don't need to show estimates form)
   else:
     if donors:
-      #steps
+      # get all steps
       step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
+      #split into complete/not, attach to donors
       upcoming_steps = []
       ctz = timezone.get_current_timezone()
       today = ctz.normalize(timezone.now()).date()
-      for step in step_list: #split into complete/not, attach to donors
+      for step in step_list:
         if step.completed:
           donor_data[step.donor_id]['complete_steps'].append(step)
         else:
@@ -215,12 +210,12 @@ def Home(request):
 
     else: #no donors - showing mass form
       donor_list, upcoming_steps = [], [] #FIX
-      if est:
-        logging.info('No donors - showing add contacts form with estimates')
+      if est_req:
+        logger.info('No donors - showing add contacts form with estimates')
         ContactFormset = formset_factory(forms.MassDonor, extra=5)
         mult_template = 'fund/add_mult.html'
       else:
-        logging.info('No donors - showing add contacts form without estimates')
+        logger.info('No donors - showing add contacts form without estimates')
         ContactFormset = formset_factory(forms.MassDonorPre, extra=5)
         mult_template = 'fund/add_mult_pre.html'
       formset = ContactFormset()
@@ -229,20 +224,10 @@ def Home(request):
     suggested = [sug for sug in suggested if sug] #filter out empty lines
 
     return render(request, 'fund/page_personal.html', {
-      '1active':'true',
-      'header':header,
-      'donor_list': donor_list,
-      'progress':prog,
-      'member':member,
-      'news':news,
-      'grants':grants,
-      'steps':upcoming_steps,
-      'membership':membership,
-      'notif':notif,
-      'suggested':suggested,
-      'formset':formset,
-      'load':load,
-      'loadto':loadto,
+      '1active':'true', 'header':header, 'donor_list': donor_list, 'progress':prog,
+      'member':member, 'news':news, 'grants':grants, 'steps':upcoming_steps,
+      'membership':membership, 'notif':notif, 'suggested':suggested,
+      'formset':formset, 'load':load, 'loadto':loadto,
       'mult_template':mult_template})
 
 @login_required(login_url='/fund/login/')
@@ -329,12 +314,12 @@ def FundLogin(request):
         return redirect(Home)
       else:
         error_msg = 'Your account is not active.  Contact an administrator.'
-        logging.warning("Inactive account tried to log in. Username: "+username)
+        logger.warning("Inactive account tried to log in. Username: "+username)
     else:
       error_msg = "Your login and password didn't match."
   else:
     form = forms.LoginForm()
-  logging.info(error_msg)
+  logger.info(error_msg)
   return render(request, 'fund/login.html', {'form':form, 'error_msg':error_msg})
 
 def Register(request):
@@ -347,11 +332,11 @@ def Register(request):
       #check Member already
       if models.Member.objects.filter(email = username_email):
         error_msg = 'That email is already registered.  <a href="/fund/login/">Login</a> instead.'
-        logging.info(username_email + ' tried to re-register')
+        logger.warning(username_email + ' tried to re-register')
       #check User already but not Member
       elif User.objects.filter(username=username_email):
         error_msg = 'That email is already registered through Social Justice Fund\'s online grant application.  Please use a different email address.'
-        logging.warning('User already exists, but not Member: ' + username_email)
+        logger.warning('User already exists, but not Member: ' + username_email)
       #clear to register
       else:
         #create User and Member
@@ -363,7 +348,7 @@ def Register(request):
         new_user.save()
         member = models.Member(email = username_email, first_name = fn, last_name = ln)
         member.save()
-        logging.info('Registration - user and member objects created for ' + username_email)
+        logger.info('Registration - user and member objects created for ' + username_email)
         gp = request.POST['giving_project']
         if gp: #create Membership
           giv = models.GivingProject.objects.get(pk=gp)
@@ -372,7 +357,7 @@ def Register(request):
           membership.save()
           member.current = membership.pk
           member.save()
-          logging.info('Registration - membership in ' + str(giv) + 'created, welcome message set')
+          logger.info('Registration - membership in ' + str(giv) + 'created, welcome message set')
         #try to log in
         user = authenticate(username=username_email, password=password)
         if user:
@@ -381,14 +366,14 @@ def Register(request):
             return redirect('/fund/registered')
           else: #not active
             error_msg = 'Your account is not active. Please contact a site admin for assistance.'
-            logging.error('Inactive right after registering. Email: ' + username_email)
+            logger.error('Inactive right after registering. Email: ' + username_email)
         else: #email & pw didn't match
           error_msg = 'There was a problem with your registration.  Please <a href="/fund/support#contact">contact a site admin</a> for assistance.'
-          logging.error("Password didn't match right after registering. Email: " + username_email)
+          logger.error("Password didn't match right after registering. Email: " + username_email)
   else: #GET
     register = forms.RegistrationForm()
 
-  logging.info(error_msg)
+  logger.info(error_msg)
   return render(request, 'fund/register.html', {'form':register, 'error_msg':error_msg})
 
 @login_required(login_url='/fund/login/')
@@ -404,22 +389,22 @@ def Registered(request):
   try:
     ship = models.Membership.objects.get(pk=nship, member=member)
   except models.Membership.DoesNotExist: #only if they manually entered # or something went horribly wrong
-    logging.warning('Membership does not exist right at /registered ' + request.user.username)
+    logger.warning('Membership does not exist right at /registered ' + request.user.username)
     return redirect(Home)
   if ship.approved == True: #another precaution
-    logging.warning('Membership approved before check at /registered ' + request.user.username)
+    logger.warning('Membership approved before check at /registered ' + request.user.username)
     return redirect(Home)
 
   proj = ship.giving_project
   if proj.pre_approved:
     app_list = [email.strip().lower() for email in proj.pre_approved.split(',')]
-    logging.info('Checking pre-approval for ' + request.user.username + ' in ' + str(proj) + ', list: ' + proj.pre_approved)
+    logger.info('Checking pre-approval for ' + request.user.username + ' in ' + str(proj) + ', list: ' + proj.pre_approved)
     if ship.member.email in app_list:
       ship.approved = True
       ship.save(skip=True)
       member.current = nship
       member.save()
-      logging.info('Pre-approval succeeded')
+      logger.info('Pre-approval succeeded')
       return redirect(Home)
 
   return render(request, 'fund/registered.html', {'member':member, 'proj':proj})
@@ -439,7 +424,7 @@ def Projects(request):
   if request.method == 'POST':
     form = forms.AddProjectForm(request.POST)
     if form.is_valid():
-      logging.debug('Valid add project')
+      logger.debug('Valid add project')
       gp = request.POST['giving_project']
       giv = models.GivingProject.objects.get(pk=gp)
       ship, new = models.Membership.objects.get_or_create(member = member, giving_project=giv)
@@ -499,7 +484,7 @@ def Support(request):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def AddMult(request):
-  logging.info(request.path)
+  logger.info(request.path)
   membership = request.membership
   est = membership.giving_project.require_estimates() #showing estimates t/f
   if est:
@@ -511,11 +496,11 @@ def AddMult(request):
   if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save()
-    logging.info(request.POST)
+    logger.debug(request.POST)
     formset = ContactFormset(request.POST)
     if formset.is_valid():
       if formset.has_changed():
-        logging.info('AddMult valid formset')
+        logger.info('AddMult valid formset')
         #count = 0
         for form in formset.cleaned_data:
           if form:
@@ -535,7 +520,7 @@ def AddMult(request):
       else: #empty formset
         empty_error = u'<ul class="errorlist"><li>Please enter at least one contact.</li></ul>'
     else: #invalid
-      logging.info(formset.errors)
+      logger.info(formset.errors)
   else:
     formset = ContactFormset()
 
@@ -562,9 +547,9 @@ def AddEstimates(request):
     membership.last_activity = timezone.now()
     membership.save(skip=True)
     formset = est_formset(request.POST)
-    logging.debug('Adding estimates - posted: ' + str(request.POST))
+    logger.debug('Adding estimates - posted: ' + str(request.POST))
     if formset.is_valid():
-      logging.debug('Adding estimates - is_valid passed, cycling through forms')
+      logger.debug('Adding estimates - is_valid passed, cycling through forms')
       for form in formset.cleaned_data:
         if form:
           current = form['donor']
@@ -574,7 +559,7 @@ def AddEstimates(request):
       return HttpResponse("success")
   else:
     formset = est_formset(initial=initiald)
-    logging.info('Adding estimates - loading initial formset, size ' +
+    logger.info('Adding estimates - loading initial formset, size ' +
                  str(len(dlist)))
   fd = zip(formset, dlist)
   return render(request, 'fund/add_estimates.html',
@@ -587,7 +572,7 @@ def EditDonor(request, donor_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
-    logging.error('Tried to edit a nonexist donor. User: ' +
+    logger.error('Tried to edit a nonexist donor. User: ' +
                   str(request.membership) + ', id given: ' + str(donor_id))
     raise Http404
 
@@ -595,8 +580,7 @@ def EditDonor(request, donor_id):
   est = request.membership.giving_project.require_estimates()
 
   if request.method == 'POST':
-    logging.info(request.body)
-    logging.info(request.POST)
+    logger.debug(request.POST)
     request.membership.last_activity = timezone.now()
     request.membership.save(skip=True)
     if est:
@@ -606,7 +590,7 @@ def EditDonor(request, donor_id):
       form = models.DonorPreForm(request.POST, instance=donor,
                                  auto_id = str(donor.pk) + '_id_%s')
     if form.is_valid():
-      logging.info('Edit donor success')
+      logger.info('Edit donor success')
       form.save()
       return HttpResponse("success")
   else:
@@ -627,7 +611,7 @@ def DeleteDonor(request, donor_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
-    logging.warning(str(request.user) + 'tried to delete nonexistent donor: ' +
+    logger.warning(str(request.user) + 'tried to delete nonexistent donor: ' +
                     str(donor_id))
     raise Http404
 
@@ -648,13 +632,13 @@ def AddStep(request, donor_id):
   membership = request.membership
   suggested = membership.giving_project.suggested_steps.splitlines()
 
-  logging.info('Single step - start of view. ' + str(membership.member) +
+  logger.info('Single step - start of view. ' + str(membership.member) +
                ', donor id: ' + str(donor_id))
 
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=membership)
   except models.Donor.DoesNotExist:
-    logging.error('Single step - tried to add step to nonexistent donor.')
+    logger.error('Single step - tried to add step to nonexistent donor.')
     raise Http404
 
   action = '/fund/' + donor_id + '/step'
@@ -665,17 +649,12 @@ def AddStep(request, donor_id):
     membership.last_activity = timezone.now()
     membership.save(skip=True)
     form = models.StepForm(request.POST, auto_id = str(donor.pk) + '_id_%s')
-    has_step = donor.next_step
-    logging.info('Single step - POST: ' + str(request.POST))
-    if has_step:
-      logging.error('Donor already has an incomplete step: ' + str(has_step))
-    elif form.is_valid():
+    logger.info('Single step - POST: ' + str(request.POST))
+    if form.is_valid():
       step = form.save(commit = False)
       step.donor = donor
       step.save()
-      logging.info('Single step - form valid, step saved')
-      donor.next_step = step
-      donor.save()
+      logger.info('Single step - form valid, step saved')
       return HttpResponse("success")
   else:
     form = models.StepForm(auto_id = str(donor.pk) + '_id_%s')
@@ -695,7 +674,7 @@ def AddMultStep(request):
   suggested = membership.giving_project.suggested_steps.splitlines()
 
   for donor in membership.donor_set.order_by('-added'): #sort by added
-    if not (donor.next_step or (donor.promised is not None) or donor.received):
+    if (donor.received == 0 and donor.promised is None and donor.get_next_step() is None):
       initiald.append({'donor': donor})
       dlist.append(donor)
       size = size +1
@@ -706,23 +685,21 @@ def AddMultStep(request):
     membership.last_activity = timezone.now()
     membership.save(skip=True)
     formset = step_formset(request.POST)
-    logging.debug('Multiple steps - posted: ' + str(request.POST))
+    logger.debug('Multiple steps - posted: ' + str(request.POST))
     if formset.is_valid():
-      logging.debug('Multiple steps - is_valid passed, cycling through forms')
+      logger.debug('Multiple steps - is_valid passed, cycling through forms')
       for form in formset.cleaned_data:
         if form:
           step = models.Step(donor = form['donor'], date = form['date'],
                              description = form['description'])
           step.save()
-          step.donor.next_step = step
-          step.donor.save()
-          logging.info('Multiple steps - step created')
+          logger.info('Multiple steps - step created')
       return HttpResponse("success")
     else:
-      logging.info('Multiple steps invalid')
+      logger.info('Multiple steps invalid')
   else:
     formset = step_formset(initial=initiald)
-    logging.info('Multiple steps - loading initial formset, size ' + str(size) +
+    logger.info('Multiple steps - loading initial formset, size ' + str(size) +
                  ': ' +str(dlist))
   fd = zip(formset, dlist)
   return render(request, 'fund/add_mult_step.html',
@@ -734,20 +711,20 @@ def AddMultStep(request):
 def EditStep(request, donor_id, step_id):
 
   suggested = request.membership.giving_project.suggested_steps.splitlines()
-  logging.info(suggested)
+  logger.info(suggested)
 
   try:
     donor = models.Donor.objects.get(pk=donor_id,
                                      membership=request.membership)
   except models.Donor.DoesNotExist:
-    logging.error(str(request.user) + 'edit step on nonexistent donor ' +
+    logger.error(str(request.user) + 'edit step on nonexistent donor ' +
                   str(donor_id))
     raise Http404
 
   try:
     step = models.Step.objects.get(id=step_id)
   except models.Step.DoesNotExist:
-    logging.error(str(request.user) + 'edit step on nonexistent step ' +
+    logger.error(str(request.user) + 'edit step on nonexistent step ' +
                   str(step_id))
     raise Http404
 
@@ -761,7 +738,7 @@ def EditStep(request, donor_id, step_id):
     form = models.StepForm(request.POST, instance=step, auto_id = str(step.pk) +
                            '_id_%s')
     if form.is_valid():
-      logging.debug('Edit step success')
+      logger.debug('Edit step success')
       form.save()
       return HttpResponse("success")
   else:
@@ -782,14 +759,14 @@ def DoneStep(request, donor_id, step_id):
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=membership)
   except models.Donor.DoesNotExist:
-    logging.error(str(request.user) + ' complete step on nonexistent donor ' +
+    logger.error(str(request.user) + ' complete step on nonexistent donor ' +
                   str(donor_id))
     raise Http404
 
   try:
     step = models.Step.objects.get(id=step_id, donor=donor)
   except models.Step.DoesNotExist:
-    logging.error(str(request.user) + ' complete step on nonexistent step ' +
+    logger.error(str(request.user) + ' complete step on nonexistent step ' +
                   str(step_id))
     raise Http404
 
@@ -803,23 +780,22 @@ def DoneStep(request, donor_id, step_id):
       step.completed = timezone.now()
       donor.talked = True
       donor.notes = form.cleaned_data['notes']
-      donor.next_step = None
       asked = form.cleaned_data['asked']
       response = form.cleaned_data['response']
       promised = form.cleaned_data['promised_amount']
       news = ' talked to a donor' #TODO is this unused?
       if asked:
         if not donor.asked: #asked this step
-          logging.debug('Asked this step')
+          logger.debug('Asked this step')
           step.asked = True
           donor.asked = True
           news = ' asked a donor'
         if response == '3': #declined, doesn't matter this step or not
           donor.promised = 0
           step.promised = 0
-          logging.debug('Declined')
+          logger.debug('Declined')
         if response == '1' and promised and not donor.promised: #this step
-          logging.debug('Promise entered')
+          logger.debug('Promise entered')
           step.promised = promised
           donor.promised = promised
           donor.lastname = form.cleaned_data['last_name']
@@ -829,12 +805,12 @@ def DoneStep(request, donor_id, step_id):
             donor.phone = phone
           if email:
             donor.email = email
-      logging.info('Completing a step')
+      logger.info('Completing a step')
       step.save()
       #call story creator/updater
       if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
-        deferred.defer(utils.UpdateStory, membership.pk, timezone.now())
-        logging.info('calling update story')
+        deferred.defer(membership.update_story(timezone.now()))
+        logger.info('calling update story')
       next_step = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
       if next_step != '' and next_date != None:
@@ -843,8 +819,7 @@ def DoneStep(request, donor_id, step_id):
         form2.description = next_step
         form2.donor = donor
         ns = form2.save()
-        logging.info(form2)
-        donor.next_step = ns
+        logger.info(form2)
       donor.save()
       return HttpResponse("success")
   else: #GET - fill form with initial data
@@ -881,7 +856,7 @@ def EmailOverdue(request):
     if not ship.emailed or (ship.emailed <= limit):
       num, st = ship.overdue_steps(next=True)
       if num > 0 and st:
-        logging.info(user.email + ' has overdue step(s), emailing.')
+        logger.info(user.email + ' has overdue step(s), emailing.')
         to = user.email
         html_content = render_to_string('fund/email_overdue.html',
                                         {'login_url':settings.APP_BASE_URL+'fund/login',
@@ -947,7 +922,7 @@ def GiftNotify(request):
                          'height=86 width=176 alt="Odo flying">' +
                          '</td></tr></table>')
     ship.save(skip=True)
-    logging.info('Gift notification set for ' + str(ship))
+    logger.info('Gift notification set for ' + str(ship))
 
   login_url = settings.APP_BASE_URL + 'fund/'
   subject, from_email = 'Gift or pledge received', constants.FUND_EMAIL
@@ -960,7 +935,7 @@ def GiftNotify(request):
                                  [constants.SUPPORT_EMAIL])
     msg.attach_alternative(html_content, "text/html")
     msg.send()
-    logging.info('Emailed gift notification to ' + to)
+    logger.info('Emailed gift notification to ' + to)
   donors.update(gift_notified=True)
   return HttpResponse("")
 

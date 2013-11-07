@@ -3,6 +3,8 @@ from django.shortcuts import redirect
 from django.template import RequestContext, loader
 import logging
 
+logger = logging.getLogger('sjfnw')
+
 #404
 def page_not_found(request):
   """ Modified version of default handler - returns app-specific template.
@@ -52,8 +54,8 @@ def admin_adv_redirect(request):
   return redirect('/admin-advanced/')
 
 def log_javascript(request):
-  logging.info('log_js')
+  logger.info('log_js')
   if request.method == 'POST':
-    logging.warning(request.POST)
+    logger.warning(request.POST)
   return http.HttpResponse('success')
 

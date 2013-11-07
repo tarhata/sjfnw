@@ -1,10 +1,12 @@
 ﻿from django.core.management.base import BaseCommand
 from django.utils import timezone
-from random import randint
-from datetime import timedelta
-import string, json
-from sjfnw.grants import models
+
 from sjfnw.fund.models import GivingProject
+from sjfnw.grants import models
+
+from datetime import timedelta
+from random import randint
+import string, json
 
 #updated 4/28/13
 

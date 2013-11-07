@@ -11,9 +11,7 @@ builtins:
 
 libraries:
 - name: django
-  version: "1.4"
-- name: webob
-  version: "1.2.3"
+  version: "1.5"
 
 handlers:
 
@@ -32,7 +30,7 @@ handlers:
 - url: /dev
   script: sjfnw.wsgi.application
   login: admin
-  
+
 - url: /static/admin
   static_dir: sjfnw/static/django_admin
   expiration: '0'

@@ -1,11 +1,12 @@
-﻿import os, sys,logging
+﻿import os, sys, logging
 
 WSGI_APPLICATION = 'sjfnw.wsgi.application'
 
+ALLOWED_HOSTS  = ['.appspot.com']
+
 SECRET_KEY = '*r-$b*8hglm+959&7x043hlm6-&6-3d3vfc4((7yd0dbrakhvi'
 
-if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or
-    os.getenv('SETTINGS_MODE') == 'prod'):
+if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
   DATABASES = {
     'default': {
       'ENGINE': 'google.appengine.ext.django.backends.rdbms',
@@ -22,7 +23,7 @@ else:
       'USER': 'root',
       'PASSWORD': 'SJFdb',
       'HOST': 'localhost',
-      'NAME': 'sjfdb',
+      'NAME': 'sjfdb_local',
     }
   }
   DEBUG = True
@@ -35,6 +36,7 @@ INSTALLED_APPS = (
   'django.contrib.humanize',
   'django.contrib.sessions',
   'django.contrib.messages',
+  'sjfnw',
   'sjfnw.grants',
   'sjfnw.fund',
   'pytz',
@@ -52,7 +54,7 @@ MIDDLEWARE_CLASSES = (
 TEMPLATE_CONTEXT_PROCESSORS = (
   'django.contrib.auth.context_processors.auth',
   'django.core.context_processors.request', #only used in fund/base.html js
-  #'django.contrib.messages.context_processors.messages', messages var. not using yet
+  'django.contrib.messages.context_processors.messages',
 )
 TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), 'templates'),)
 

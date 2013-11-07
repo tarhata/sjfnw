@@ -2,41 +2,18 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.helpers import InlineAdminFormSet
 from django.http import HttpResponse
-from django.forms import ValidationError
+from django.forms import ValidationError, ModelForm
 from django.forms.models import BaseInlineFormSet
 
 from sjfnw.admin import advanced_admin
 from sjfnw.forms import IntegerCommaField
 
-from .models import *
+from sjfnw.grants.models import *
+from sjfnw.grants.modelforms import AppAdminForm, DraftAdminForm
+
 import unicodecsv as csv
 import logging, re
-
-# Forms
-class AppAdminForm(ModelForm):
-  def clean(self):
-    cleaned_data = super(AppAdminForm, self).clean()
-    status = cleaned_data.get("screening_status")
-    if status >= 100:
-      logging.info('Require check details')
-    return cleaned_data
-
-  class Meta:
-    model = GrantApplication
-
-class DraftForm(ModelForm):
-  class Meta:
-    model = DraftGrantApplication
-
-  def clean(self):
-    cleaned_data = super(DraftForm, self).clean()
-    org = cleaned_data.get('organization')
-    cycle = cleaned_data.get('grant_cycle')
-    if org and cycle:
-      if GrantApplication.objects.filter(organization=org, grant_cycle=cycle):
-        raise ValidationError('This organization has already submitted an '
-                              'application to this grant cycle.')
-    return cleaned_data
+logger = logging.getLogger('sjfnw')
 
 # Inlines
 class GrantLogInlineRead(admin.TabularInline): #Org, Application
@@ -90,7 +67,7 @@ class AwardInline(admin.TabularInline):
     else:
       return ''
   edit_award.allow_tags = True
-  
+
 class AppCycleInline(admin.TabularInline): #Cycle
   model = GrantApplication
   extra = 0
@@ -113,6 +90,23 @@ class GrantApplicationInline(admin.TabularInline): #Org
     return ('<a href="/admin/grants/grantapplication/' + str(obj.pk) +
             '/" target="_blank">Edit</a>')
   edit_application.allow_tags = True
+
+class SponsoredProgramInline(admin.TabularInline): # Org
+  model = SponsoredProgramGrant
+  extra = 0
+  max_num = 0
+  fields = ('amount', 'check_mailed', 'approved', 'edit_view')
+  readonly_fields = ('edit_view',)
+  can_delete = False
+  template = 'admin/grants/sponsoredprogramgrant/tabular.html'
+
+  def edit_view(self, obj):
+    if obj.pk:
+      return ('<a href="/admin/grants/sponsoredprogramgrant/' + str(obj.pk) +
+            '/" target="_blank">View/edit</a>')
+    else:
+      return ''
+  edit_view.allow_tags = True
 
 # ModelAdmin
 class GrantCycleA(admin.ModelAdmin):
@@ -149,7 +143,8 @@ class OrganizationA(admin.ModelAdmin):
   inlines = ()
 
   def change_view(self, request, object_id, form_url='', extra_context=None):
-    self.inlines = (GrantApplicationInline, GrantLogInlineRead, GrantLogInline)
+    self.inlines = (GrantApplicationInline, SponsoredProgramInline,
+                    GrantLogInlineRead, GrantLogInline)
     self.readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone',
                             'fiscal_address', 'fiscal_email', 'fiscal_letter')
     return super(OrganizationA, self).change_view(request, object_id)
@@ -214,7 +209,7 @@ class DraftGrantApplicationA(admin.ModelAdmin):
   list_filter = ('grant_cycle',) #extended
   fields = (('organization', 'grant_cycle', 'modified'), ('extended_deadline'))
   readonly_fields = ('modified',)
-  form = DraftForm
+  form = DraftAdminForm
   search_fields = ('organization__name',)
 
   def get_readonly_fields(self, request, obj=None):
@@ -235,15 +230,31 @@ class DraftAdv(admin.ModelAdmin): #Advanced
                      'budget1', 'budget2', 'budget3', 'project_budget_file')
 
 class GrantAwardA(admin.ModelAdmin):
-  list_display = ('application', 'amount', 'check_mailed')
-  list_filter = ('application__organization',)
+  list_display = ('application', 'amount', 'check_mailed', 'year_end_report_due')
+  list_filter = ('agreement_mailed',)
   exclude = ('created',)
   fields = (
       ('application', 'amount'),
       ('check_number', 'check_mailed'),
       ('agreement_mailed', 'agreement_returned'),
       'approved',
+      'year_end_report_due',
     )
+  readonly_fields = ('year_end_report_due',)
+
+  def year_end_report_due(self, obj):
+    return obj.yearend_due()
+
+class SponsoredProgramGrantA(admin.ModelAdmin):
+  list_display = ('organization', 'amount', 'check_mailed')
+  list_filter = ('check_mailed',)
+  exclude = ('entered',)
+  fields = (
+    ('organization', 'amount'),
+    ('check_number', 'check_mailed', 'approved'),
+    'description'
+  )
+  #readonly_fields = ()
 
 # Register
 
@@ -252,10 +263,12 @@ admin.site.register(Organization, OrganizationA)
 admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
 admin.site.register(GrantAward, GrantAwardA)
+# admin.site.register(SponsoredProgramGrant, SponsoredProgramGrantA)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)
 advanced_admin.register(GrantApplication, GrantApplicationA)
 advanced_admin.register(DraftGrantApplication, DraftAdv)
 advanced_admin.register(GrantAward, GrantAwardA)
+advanced_admin.register(SponsoredProgramGrant, SponsoredProgramGrantA)
 
