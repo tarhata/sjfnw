@@ -6,11 +6,16 @@ from django.forms import ModelForm, Textarea
 from django.forms.widgets import FileInput, MultiWidget
 from django.utils import timezone
 from django.utils.text import capfirst
+
 from sjfnw.fund.models import GivingProject
 from sjfnw.forms import IntegerCommaField, PhoneNumberField
-import logging, json, re
 from sjfnw import constants
+
 from datetime import timedelta
+import logging, json, re
+
+logger = logging.getLogger('sjfnw')
+
 
 class TimelineWidget(MultiWidget):
   def __init__(self, attrs=None):
@@ -138,24 +143,25 @@ STATUS_CHOICES = [
 
 class Organization(models.Model):
   #registration fields
-  name = models.CharField(max_length=255)
+  name = models.CharField(max_length=255, unique=True, error_messages={
+    'unique': ('An organization with this name is already in the system. '
+    'To add a separate org with the same name, add/alter the name to '
+    'differentiate the two.')})
   email = models.EmailField(max_length=100, verbose_name='Email(login)',
-                            unique=True) #= django username
+                            null=True, blank=True, unique=True) #= django username
 
   #org contact info
   address = models.CharField(max_length=100, blank=True)
   city = models.CharField(max_length=50, blank=True)
-  state = models.CharField(max_length=2, choices=STATE_CHOICES, null=True,
-                           blank=True)
+  state = models.CharField(max_length=2, choices=STATE_CHOICES, blank=True)
   zip = models.CharField(max_length=50, blank=True)
   telephone_number = models.CharField(max_length=20, blank=True)
   fax_number = models.CharField(max_length=20, blank=True)
   email_address = models.EmailField(max_length=100, blank=True)
-  website = models.CharField(max_length=50, null=True, blank=True)
+  website = models.CharField(max_length=50, blank=True)
 
   #org info
-  status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True,
-                            blank=True)
+  status = models.CharField(max_length=50, choices=STATUS_CHOICES, blank=True)
   ein = models.CharField(max_length=50,
                          verbose_name="Organization's or Fiscal Sponsor Organization's EIN",
                          blank=True)
@@ -165,15 +171,15 @@ class Organization(models.Model):
 
   #fiscal sponsor info (if applicable)
   fiscal_org = models.CharField(verbose_name='Organization name',
-                                max_length=255, null=True, blank=True)
+                                max_length=255, blank=True)
   fiscal_person = models.CharField(verbose_name='Contact person',
-                                   max_length=255, null=True, blank=True)
+                                   max_length=255, blank=True)
   fiscal_telephone = models.CharField(verbose_name='Telephone',
-                                      max_length=25, null=True, blank=True)
+                                      max_length=25, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address',
-                                  max_length=100, null=True, blank=True)
+                                  max_length=100, blank=True)
   fiscal_address = models.CharField(verbose_name='Address',
-                                    max_length=255, null=True, blank=True)
+                                    max_length=255, blank=True)
   fiscal_city = models.CharField(verbose_name='City',
                                  max_length=50, blank=True)
   fiscal_state = models.CharField(verbose_name='State', max_length=2,
@@ -186,6 +192,13 @@ class Organization(models.Model):
 
   class Meta:
     ordering = ('name',)
+
+  def save(self, *args, **kwargs):
+    logger.debug('Org save')
+    if self.email == '':
+      logger.info('Blank org login, setting to None')
+      self.email = None
+    super(Organization, self).save(*args, **kwargs)
 
 class OrgProfile(ModelForm):
   class Meta:
@@ -203,6 +216,9 @@ class GrantCycle(models.Model):
                                help_text='Track any conflicts of interest '
                                '(automatic & personally declared) that occurred'
                                ' during this cycle.')
+
+  class Meta:
+    ordering = ['title', 'close']
 
   def __unicode__(self):
     return self.title
@@ -334,7 +350,7 @@ class GrantApplication(models.Model):
   SUPPORT_CHOICES = [('General support', 'General support'),
                      ('Project support', 'Project support'),]
   support_type = models.CharField(max_length=50, choices=SUPPORT_CHOICES)
-  project_title = models.CharField(max_length=250, null=True, blank=True,
+  project_title = models.CharField(max_length=250, blank=True,
                                    verbose_name='Project title (if applicable)')
   project_budget = models.PositiveIntegerField(null=True, blank=True,
                                                verbose_name='Project budget (if applicable)')
@@ -487,6 +503,7 @@ class GrantApplication(models.Model):
   site_visit_report = models.URLField(blank=True, help_text='Link to the google doc containing the site visit report. This will be visible to all project members, but not the organization.')
 
   class Meta:
+    ordering = ['organization', 'submission_time']
     unique_together = ('organization', 'grant_cycle')
 
   def __unicode__(self):
@@ -500,7 +517,7 @@ class GrantApplication(models.Model):
   view_link.allow_tags = True
 
   def timeline_display(self):
-    logging.info(type(self.timeline))
+    logger.info(type(self.timeline))
     timeline = json.loads(self.timeline)
     html = '<table id="timeline_display"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
     for i in range(0, 15, 3):
@@ -510,8 +527,12 @@ class GrantApplication(models.Model):
   timeline_display.allow_tags = True
 
   @classmethod
-  def fiscal_fields(cls):
-    return [f for f in cls._meta.get_all_field_names() if f.startswith('fiscal')]
+  def get_field_names(cls):
+    return [f for f in cls._meta.get_all_field_names()]
+
+  @classmethod
+  def fields_starting_with(cls, start):
+    return [f for f in cls._meta.get_all_field_names() if f.startswith(start)]
 
   @classmethod
   def file_fields(cls):
@@ -533,7 +554,9 @@ def custom_fields(f, **kwargs): #sets phonenumber and money fields
     return f.formfield(**kwargs)
 
 class GrantApplicationModelForm(ModelForm):
+
   formfield_callback = custom_fields
+
   class Meta:
     model = GrantApplication
     exclude = ['screening_status', 'submission_time'] #auto fields with defaults
@@ -565,7 +588,7 @@ class GrantApplicationModelForm(ModelForm):
     super(GrantApplicationModelForm, self).__init__(*args, **kwargs)
     if cycle and cycle.extra_question:
       self.fields['cycle_question'].required = True
-      logging.info('Requiring the cycle question')
+      logger.info('Requiring the cycle question')
 
   def clean(self):
     cleaned_data = super(GrantApplicationModelForm, self).clean()
@@ -702,6 +725,9 @@ class GrantAward(models.Model):
   agreement_returned = models.DateField(null=True, blank=True)
   approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
 
+  class Meta:
+    ordering = ['application']
+
   def agreement_due(self):
     if self.agreement_mailed:
       return self.agreement_mailed + timedelta(days=30)
@@ -709,9 +735,22 @@ class GrantAward(models.Model):
       return None
 
   def yearend_due(self):
-    with self.agreement_mailed as mailed:
-      if mailed:
-        return (mailed + timedelta(days=30)).replace(year = mailed.year+1)
-      else:
-        return None
+    if self.agreement_mailed:
+      return (self.agreement_mailed + timedelta(days=30)).replace(year = self.agreement_mailed.year + 1)
+    else:
+      return None
+
+class SponsoredProgramGrant(models.Model):
+
+  entered = models.DateTimeField(default=timezone.now())
+  organization = models.ForeignKey(Organization)
+  amount = models.PositiveIntegerField()
+  check_number = models.PositiveIntegerField(null=True, blank=True)
+  check_mailed = models.DateField(null=True, blank=True)
+  approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
+
+  description = models.TextField()
+
+  class Meta:
+    ordering = ['organization']
 

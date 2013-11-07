@@ -2,18 +2,20 @@
 from django.http import HttpResponse, Http404
 from google.appengine.ext import blobstore
 import logging, re
+logger = logging.getLogger('sjfnw')
 
 def FindBlobKey(body):
   """ Extract blobkey from request.body """
-  if settings.DEBUG: #on dev server, has quotes around it
-    key = re.search('blob-key="(.*?)"', body)
-  else:
-    key = re.search('blob-key=(\S*)', body)
+  #if settings.DEBUG: #on dev server, has quotes around it
+  key = re.search('blob-key="([^"\s]*)"', body)
+  #else:
+  #  key = re.search('blob-key=(\S*)', body)
+  logger.debug(key)
   if key:
     key = key.group(1)
   else:
     key = None
-  logging.info(['Extracted blobkey from request.body: ' + str(key)])
+  logger.info(['Extracted blobkey from request.body: ' + str(key)])
   return key
 
 def FindBlob(file_field, hide_errors=False):
@@ -23,7 +25,7 @@ def FindBlob(file_field, hide_errors=False):
   if key:
     blob = blobstore.BlobInfo.get(key)
     if blob:
-      logging.info('Found blob - filename ' + blob.filename + ', size ' +
+      logger.info('Found blob - filename ' + blob.filename + ', size ' +
                    str(blob.size) + ', type ' + blob.content_type)
       return blob
 
@@ -40,7 +42,7 @@ def ServeBlob(application, field_name):
   #find the filefield
   file_field = getattr(application, field_name)
   if not file_field:
-    logging.warning('Unknown file type ' + field_name)
+    logger.warning('Unknown file type ' + field_name)
     raise Http404
 
   blob = FindBlob(file_field)
@@ -51,12 +53,12 @@ def ServeBlob(application, field_name):
 
 def DeleteBlob(file_field):
   if not file_field:
-    logging.info('Delete empty')
+    logger.info('Delete empty')
     return
   blob = FindBlob(file_field, hide_errors=True)
   if blob:
     blob.delete()
-    logging.info('Blob deleted')
+    logger.info('Blob deleted')
     return HttpResponse("deleted")
   else:
     return HttpResponse("nothing deleted")

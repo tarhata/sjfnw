@@ -1,7 +1,15 @@
 ﻿from django import forms
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.utils import timezone
-from fund.models import GivingProject
-import models, datetime, logging
+
+from sjfnw.fund.models import GivingProject
+from sjfnw.grants.models import Organization, GrantCycle, GrantApplication, DraftGrantApplication, STATE_CHOICES
+
+import datetime, logging
+
+logger = logging.getLogger('sjfnw')
+
 
 class LoginForm(forms.Form):
   email = forms.EmailField(max_length=255)
@@ -14,14 +22,26 @@ class RegisterForm(forms.Form):
                                 label="Re-enter password")
   organization = forms.CharField()
 
-  def clean(self): #make sure passwords match
+  def clean(self):
     cleaned_data = super(RegisterForm, self).clean()
-    password = cleaned_data.get("password")
-    passwordtwo = cleaned_data.get("passwordtwo")
-    if password and passwordtwo and password != passwordtwo:
-      self._errors["password"] = self.error_class(["Passwords did not match."])
-      del cleaned_data["password"]
-      del cleaned_data["passwordtwo"]
+    # make sure org is not already registered
+    org = cleaned_data.get('organization')
+    email = cleaned_data.get('email')
+    if org and email:
+      if (Organization.objects.filter(name = org) or
+          Organization.objects.filter(email = email)):
+        logger.warning(org + 'tried to re-register with ' + email)
+        raise ValidationError('That organization is already registered. Log in instead.')
+      # check if User already exists
+      elif User.objects.filter(username = email):
+        logger.warning('User already exists, but not Org: ' + email)
+        raise ValidationError('That email is registered with Project Central.'
+                              ' Please register using a different email.')
+      # make sure passwords match
+      password = cleaned_data.get("password")
+      passwordtwo = cleaned_data.get("passwordtwo")
+      if password and passwordtwo and password != passwordtwo:
+        raise ValidationError('Passwords did not match.')
     return cleaned_data
 
 class RolloverForm(forms.Form): #used by org
@@ -35,12 +55,12 @@ class RolloverForm(forms.Form): #used by org
     super(RolloverForm, self).__init__(*args, **kwargs)
 
     #get apps & drafts
-    submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time').select_related('grant_cycle')
-    drafts = models.DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
+    submitted = GrantApplication.objects.filter(organization=organization).order_by('-submission_time').select_related('grant_cycle')
+    drafts = DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
 
     #filter out their cycles, get rest of open ones
     exclude_cycles = [d.grant_cycle.pk for d in drafts] + [a.grant_cycle.pk for a in submitted]
-    cycles = models.GrantCycle.objects.filter(open__lt = timezone.now(), close__gt = timezone.now()).exclude(id__in=exclude_cycles)
+    cycles = GrantCycle.objects.filter(open__lt = timezone.now(), close__gt = timezone.now()).exclude(id__in=exclude_cycles)
 
     #create fields
     self.fields['application'] = forms.ChoiceField(choices = [('', '--- Submitted applications ---')] + [(a.id, str(a.grant_cycle) + ' - submitted ' + datetime.datetime.strftime(a.submission_time, '%m/%d/%y')) for a in submitted], required=False, initial = 0)
@@ -56,9 +76,9 @@ class RolloverForm(forms.Form): #used by org
       self._errors["cycle"] = self.error_class(["Required."])
     else: #check cycle is still open
       try:
-        cycle_obj = models.GrantCycle.objects.get(pk = int(cycle))
-      except models.GrantCycle.DoesNotExist:
-        logging.error("RolloverForm submitted cycle does not exist")
+        cycle_obj = GrantCycle.objects.get(pk = int(cycle))
+      except GrantCycle.DoesNotExist:
+        logger.error("RolloverForm submitted cycle does not exist")
         self._errors["cycle"] = self.error_class(["Internal error, please try again."])
       if not cycle_obj.is_open:
         self._errors["cycle"] = self.error_class(["That cycle has closed.  Select a different one."])
@@ -73,13 +93,13 @@ class AdminRolloverForm(forms.Form):
     super(AdminRolloverForm, self).__init__(*args, **kwargs)
 
     #get apps & drafts (for eliminating cycles)
-    submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time').select_related('grant_cycle')
-    drafts = models.DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
+    submitted = GrantApplication.objects.filter(organization=organization).order_by('-submission_time').select_related('grant_cycle')
+    drafts = DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
 
     #get last 6 mos of cycles
     cutoff = timezone.now() - datetime.timedelta(days=180)
     exclude_cycles = [d.grant_cycle.pk for d in drafts] + [a.grant_cycle.pk for a in submitted]
-    cycles = models.GrantCycle.objects.filter(close__gt = cutoff).exclude(id__in=exclude_cycles)
+    cycles = GrantCycle.objects.filter(close__gt = cutoff).exclude(id__in=exclude_cycles)
 
     #create field
     self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, unicode(c)) for c in cycles])
@@ -88,10 +108,10 @@ class AppSearchForm(forms.Form):
   #filters
   year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
   year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
-  screening_status = forms.MultipleChoiceField(choices = models.GrantApplication.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
+  screening_status = forms.MultipleChoiceField(choices = GrantApplication.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
   organization = forms.CharField(max_length=255, required=False)
   city = forms.CharField(max_length=255, required=False)
-  state = forms.MultipleChoiceField(choices = models.STATE_CHOICES[:5], widget = forms.CheckboxSelectMultiple, required = False)
+  state = forms.MultipleChoiceField(choices = STATE_CHOICES[:5], widget = forms.CheckboxSelectMultiple, required = False)
   giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
   grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
   has_fiscal_sponsor = forms.BooleanField(required=False)
@@ -151,7 +171,7 @@ class AppSearchForm(forms.Form):
     self.fields['giving_project'].choices = choices
 
     #get cycles
-    choices = models.GrantCycle.objects.values_list('title', flat = True)
+    choices = GrantCycle.objects.values_list('title', flat = True)
     choices = set(choices)
     choices = [(g, g) for g in choices]
     self.fields['grant_cycle'].choices = choices
@@ -167,6 +187,6 @@ class LoginAsOrgForm(forms.Form):
   def __init__(self, *args, **kwargs):
     super(LoginAsOrgForm, self).__init__(*args, **kwargs)
 
-    orgs = models.Organization.objects.order_by('name')
+    orgs = Organization.objects.order_by('name')
     self.fields['organization'] = forms.ChoiceField(choices = [('', '--- Organizations ---')] + [(o.email, unicode(o)) for o in orgs])
 

@@ -13,6 +13,8 @@ from google.appengine.ext.blobstore import BlobInfo, BlobKey, delete, BLOB_KEY_H
 
 from sjfnw.grants.utils import FindBlobKey
 
+logger = logging.getLogger('sjfnw')
+
 # MODIFIED VERSION OF DJANGOAPPENGINE'S STORAGE.PY FILE
 # SEE LICENSE AT BOTTOM
 
@@ -20,11 +22,11 @@ class BlobstoreStorage(Storage):
   """Google App Engine Blobstore storage backend."""
 
   def _open(self, name, mode='rb'):
-    logging.info('storage open ' + str([name]))
+    logger.info('storage open ' + str([name]))
     return BlobstoreFile(name, mode, self)
 
   def _save(self, name, content):
-    logging.info('storage _save on ' + str([name]))
+    logger.info('storage _save on ' + str([name]))
 
     name = name.replace('\\', '/')
     if hasattr(content, 'file') and hasattr(content.file, 'blobstore_info'):
@@ -51,14 +53,14 @@ class BlobstoreStorage(Storage):
 
     if isinstance(data, (BlobInfo, BlobKey)):
       if isinstance(data, BlobInfo):
-        logging.info('data is blobinfo, storing its key')
+        logger.info('data is blobinfo, storing its key')
         data = data.key()
 
       name = name.lstrip('/')
       if len(name) > 65: #shorten it so extension fits in FileField
         name = name.split(".")[0][:60].rstrip() + u'.' + name.split(".")[1]
-        logging.info(name)
-        logging.info('Returning ' + str(data) + name )
+        logger.info(name)
+        logger.info('Returning ' + str(data) + name )
       return '%s/%s' % (data, name)
 
     else:
@@ -99,7 +101,7 @@ class BlobstoreStorage(Storage):
 class BlobstoreFile(File):
 
   def __init__(self, name, mode, storage):
-    logging.info('.BlobstoreFile__init on ' + name)
+    logger.info('BlobstoreFile__init on ' + name)
     self.name = name
     self._storage = storage
     self._mode = mode
@@ -126,7 +128,7 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
   def new_file(self, *args, **kwargs):
     """field_name, file_name, content_type, content_length, charset=None"""
 
-    logging.info('BlobstoreFileUploadHandler.new_file')
+    logger.debug('BlobstoreFileUploadHandler.new_file')
     super(BlobstoreFileUploadHandler, self).new_file(*args, **kwargs)
 
     blobkey = FindBlobKey(self.request.body)
@@ -146,9 +148,9 @@ class BlobstoreFileUploadHandler(FileUploadHandler):
     """
     Return a file object if we're activated.
     """
-    logging.info('BlobstoreFileUploadHandler.file_complete')
+    logger.info('BlobstoreFileUploadHandler.file_complete')
     if not self.active:
-      logging.info('not active')
+      logger.info('not active')
       return
     return BlobstoreUploadedFile(
       blobinfo=BlobInfo(self.blobkey),
@@ -160,7 +162,7 @@ class BlobstoreUploadedFile(UploadedFile):
   """
 
   def __init__(self, blobinfo, charset):
-    logging.info('BlobstoreUploadedFile.__init__')
+    logger.info('BlobstoreUploadedFile.__init__')
     super(BlobstoreUploadedFile, self).__init__(
       BlobReader(blobinfo.key()), blobinfo.filename,
       blobinfo.content_type, blobinfo.size, charset)

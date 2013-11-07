@@ -1,11 +1,17 @@
-﻿from django.core.validators import MaxValueValidator
+﻿from django.contrib.humanize.templatetags.humanize import intcomma
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.forms import ModelForm
 from django.forms.widgets import Textarea
 from django.utils import timezone
+
 from sjfnw.forms import IntegerCommaField
-from .utils import NotifyApproval
+from sjfnw.fund.utils import NotifyApproval
+
 import datetime, logging
+
+logger = logging.getLogger('sjfnw')
 
 def custom_integer_field(f, **kwargs):
   if f.verbose_name == '*Amount to ask ($)':
@@ -20,7 +26,7 @@ class GivingProject(models.Model):
                                ' the dropdown menu for members registering or '
                                'adding a project to their account.'))
 
-  pre_approved = models.TextField(null=True, blank=True, help_text='List of member emails, separated by commas.  Anyone who registers using an email on this list will have their account automatically approved.  IMPORTANT: Any syntax error can make this feature stop working; in that case memberships will default to requiring manual approval by an administrator.') #remove null from all char
+  pre_approved = models.TextField(blank=True, help_text='List of member emails, separated by commas.  Anyone who registers using an email on this list will have their account automatically approved.  IMPORTANT: Any syntax error can make this feature stop working; in that case memberships will default to requiring manual approval by an administrator.')
 
   #fundraising
   fundraising_training = models.DateTimeField(help_text='Date & time of fundraising training.  At this point the app will require members to enter an ask amount & estimated likelihood for each contact.')
@@ -29,7 +35,7 @@ class GivingProject(models.Model):
   suggested_steps = models.TextField(default='Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank', help_text='Displayed to users when they add a step.  Put each step on a new line')
 
   site_visits = models.BooleanField(default=False, help_text='If checked, members will only see grants with a screening status of at least "site visit awarded"')
-  calendar = models.CharField(max_length=255, null=True, blank=True,
+  calendar = models.CharField(max_length=255, blank=True,
                               help_text= ('Calendar ID of a google calendar - '
                               'format: ____@group.calendar.google.com'))
   resources = models.ManyToManyField('Resource', through = 'ProjectResource',
@@ -39,7 +45,6 @@ class GivingProject(models.Model):
     return self.title+u' '+unicode(self.fundraising_deadline.year)
 
   def save(self, *args, **kwargs):
-    logging.debug(self.suggested_steps.count('\r'))
     self.suggested_steps = self.suggested_steps.replace('\r', '')
     super(GivingProject, self).save(*args, **kwargs)
 
@@ -64,6 +69,9 @@ class Member(models.Model):
   def __unicode__(self):
     return unicode(self.first_name +u' '+self.last_name)
 
+  class Meta:
+    ordering = ['first_name', 'last_name']
+
 class Membership(models.Model): #relationship b/n member and gp
   giving_project = models.ForeignKey(GivingProject)
   member = models.ForeignKey(Member)
@@ -79,6 +87,9 @@ class Membership(models.Model): #relationship b/n member and gp
 
   notifications = models.TextField(default='', blank=True)
 
+  class Meta:
+    ordering = ['member']
+
   def __unicode__(self):
     return unicode(self.member)+u', '+unicode(self.giving_project)
 
@@ -86,20 +97,20 @@ class Membership(models.Model): #relationship b/n member and gp
     if not skip:
       try:
         previous = Membership.objects.get(id=self.id)
-        logging.debug('Previously: ' + str(previous.approved) + ', now: ' +
+        logger.debug('Previously: ' + str(previous.approved) + ', now: ' +
                       str(self.approved))
         if self.approved and not previous.approved: #newly approved!
-          logging.debug('Detected approval on save for ' + unicode(self))
+          logger.debug('Detected approval on save for ' + unicode(self))
           NotifyApproval(self)
       except Membership.DoesNotExist:
         pass
     super(Membership, self).save(*args, **kwargs)
 
-  def overdue_steps(self, next=False): # 1 db query
+  def overdue_steps(self, get_next=False): # 1 db query
     cutoff = timezone.now().date() - datetime.timedelta(days=1)
     steps = Step.objects.filter(donor__membership = self, completed__isnull = True, date__lt = cutoff).order_by('-date')
     count = steps.count()
-    if not next:
+    if not get_next:
       return count
     elif count == 0:
       return count, False
@@ -132,13 +143,78 @@ class Membership(models.Model): #relationship b/n member and gp
         estimated = estimated + donor.amount*donor.likelihood/100
     return estimated
 
+  def update_story(self, timestamp):
+
+    logger.info('update_story running for membership ' + str(self.pk) +
+                 ' from ' + str(timestamp))
+
+    #today's range
+    today_min = timestamp.replace(hour=0, minute=0, second=0)
+    today_max = timestamp.replace(hour=23, minute=59, second=59)
+
+    #check for steps
+    logger.debug("Getting steps")
+    steps = Step.objects.filter(
+        completed__range=(today_min, today_max),
+        donor__membership = self).select_related('donor')
+    if not steps:
+      logger.warning('update story called on ' + str(self.pk) + 'but there are no steps')
+      return
+
+    #get or create newsitem object
+    logger.debug('Checking for story with date between ' + str(today_min) +
+                  ' and ' + str(today_max))
+    search = self.newsitem_set.filter(date__range=(today_min, today_max))
+    if search:
+      story = search[0]
+    else:
+      story = NewsItem(date = timestamp, membership=self, summary = '')
+
+    #tally today's steps
+    talked, asked, promised = 0, 0, 0
+    talkedlist = [] #for talk counts, don't want to double up
+    askedlist = []
+    for step in steps:
+      logger.debug(unicode(step))
+      if step.asked:
+        asked += 1
+        askedlist.append(step.donor)
+        if step.donor in talkedlist: #if donor counted already, remove
+          talked -= 1
+          talkedlist.remove(step.donor)
+      elif not step.donor in talkedlist and not step.donor in askedlist:
+        talked += 1
+        talkedlist.append(step.donor)
+      if step.promised and step.promised > 0:
+        promised += step.promised
+    summary = self.member.first_name
+    if talked > 0:
+      summary += u' talked to ' + unicode(talked) + (u' people' if talked>1 else u' person')
+      if asked > 0:
+        if promised > 0:
+          summary += u', asked ' + unicode(asked)
+        else:
+          summary += u' and asked ' + unicode(asked)
+    elif asked > 0:
+      summary += u' asked ' + unicode(asked) + (u' people' if asked>1 else u' person')
+    else:
+      logger.error('News update with 0 talked, 0 asked. Story pk: ' + str(story.pk))
+    if promised > 0:
+      summary += u' and got $' + unicode(intcomma(promised)) + u' in promises'
+    summary += u'.'
+    logger.info(summary)
+    story.summary = summary
+    story.updated = timezone.now()
+    story.save()
+    logger.info('Story saved')
+
+
 class Donor(models.Model):
   added = models.DateTimeField(default=timezone.now())
   membership = models.ForeignKey(Membership)
 
   firstname = models.CharField(max_length=100, verbose_name='*First name')
-  lastname = models.CharField(max_length=100, null=True, blank=True,
-                              verbose_name='Last name')
+  lastname = models.CharField(max_length=100, blank=True, verbose_name='Last name')
 
   amount = models.PositiveIntegerField(verbose_name='*Amount to ask ($)',
                                        null=True, blank=True)
@@ -152,12 +228,12 @@ class Donor(models.Model):
   received = models.PositiveIntegerField(default=0)
   gift_notified = models.BooleanField(default=False)
 
-  phone = models.CharField(max_length=15, null=True, blank=True)
-  email = models.EmailField(max_length=100, null=True, blank=True)
+  phone = models.CharField(max_length=15, blank=True)
+  email = models.EmailField(max_length=100, blank=True)
   notes = models.TextField(blank=True)
 
-  next_step = models.ForeignKey('Step', null=True, blank=True,
-                                related_name = '+') #don't need to go backwards
+  class Meta:
+    ordering = ['firstname', 'lastname']
 
   def __unicode__(self):
     if self.lastname:
@@ -180,6 +256,13 @@ class Donor(models.Model):
       if step.date < timezone.now().date():
         return timezone.now().date()-step.date
     return False
+
+  def get_next_step(self):
+    steps = self.step_set.filter(completed__isnull=True)
+    if steps:
+      return steps[0]
+    else:
+      return None
 
 def make_custom_datefield(f):
   """
@@ -220,6 +303,11 @@ class Step(models.Model):
 
   def __unicode__(self):
     return unicode(self.date.strftime('%m/%d/%y')) + u' -  ' + self.description
+
+  def clean(self):
+    if self.completed is None and Step.objects.filter(completed__isnull=True):
+      logger.error('Attempt to add 2nd incomplete step to donor ' + str(self.donor_id))
+      raise ValidationError('You can only have one incomplete step per contact.')
 
 class StepForm(ModelForm): #for adding a step
   formfield_callback = make_custom_datefield #date input

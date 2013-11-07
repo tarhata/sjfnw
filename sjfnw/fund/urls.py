@@ -1,7 +1,7 @@
 from django.conf.urls import patterns
 from sjfnw import constants
 
-urlpatterns = patterns('fund.views',
+urlpatterns = patterns('sjfnw.fund.views',
 
   #login, logout, registration
   (r'^login/?$', 'FundLogin'),
