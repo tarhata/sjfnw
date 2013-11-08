@@ -117,10 +117,16 @@ class BaseGrantFilesTestCase(BaseGrantTestCase):
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class Register(BaseGrantTestCase):
+
+  url = reverse('sjfnw.grants.views.org_register')
+  template_success = 'grants/org_home.html'
+  template_error = 'grants/org_login_register.html'
+
   def setUp(self, *args):
     self.printName()
 
-  def valid_registration(self):
+  def test_valid_registration(self):
+    """ All fields provided, neither email nor name match an org in db """
     registration = {
       'email': 'uniquenewyork@gmail.com',
       'password': 'one',
@@ -131,14 +137,14 @@ class Register(BaseGrantTestCase):
     self.assertEqual(0, Organization.objects.filter(name='Unique, New York').count())
     self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
 
-    response = self.client.post('/apply/register', registration, follow=True)
+    response = self.client.post(self.url, registration, follow=True)
 
     self.assertEqual(1, Organization.objects.filter(name='Unique, New York').count())
     self.assertEqual(1, User.objects.filter(email='uniquenewyork@gmail.com').count())
-    self.assertTemplateUsed(response, 'grants/org_home.html')
+    self.assertTemplateUsed(response, self.template_success)
 
   def test_repeat_org_name(self):
-
+    """ Name matches an existing org (email doesn't) """
     registration = {
       'email': 'uniquenewyork@gmail.com',
       'password': 'one',
@@ -149,15 +155,16 @@ class Register(BaseGrantTestCase):
     self.assertEqual(1, Organization.objects.filter(name='OfficeMax Foundation').count())
     self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
 
-    response = self.client.post('/apply/register', registration, follow=True)
+    response = self.client.post(self.url, registration, follow=True)
 
     self.assertEqual(1, Organization.objects.filter(name='OfficeMax Foundation').count())
     self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
-    self.assertTemplateUsed(response, 'grants/org_login_register.html')
-    self.assertFormError(response, 'register', None, 'That organization is already registered. Log in instead.')
+    self.assertTemplateUsed(response, self.template_error)
+    self.assertFormError(response, 'register', None,
+        'That organization is already registered. Log in instead.')
 
   def test_repeat_org_email(self):
-
+    """ Email matches an existing org (name doesn't) """
     registration = {
       'email': 'neworg@gmail.com',
       'password': 'one',
@@ -168,15 +175,16 @@ class Register(BaseGrantTestCase):
     self.assertEqual(1, Organization.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
 
-    response = self.client.post('/apply/register', registration, follow=True)
+    response = self.client.post(self.url, registration, follow=True)
 
     self.assertEqual(1, Organization.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
-    self.assertTemplateUsed(response, 'grants/org_login_register.html')
-    self.assertFormError(response, 'register', None, 'That organization is already registered. Log in instead.')
+    self.assertTemplateUsed(response, self.template_error)
+    self.assertFormError(response, 'register', None,
+        'That email is already registered. Log in instead.')
 
   def test_repeat_user_email(self):
-
+    """ Email matches a user, but email/name don't match an org """
     user = User.objects.create_user('bababa@gmail.com', 'neworg@gmail.com', 'noob')
 
     registration = {
@@ -189,13 +197,40 @@ class Register(BaseGrantTestCase):
     self.assertEqual(1, User.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
 
-    response = self.client.post('/apply/register', registration, follow=True)
+    response = self.client.post(self.url, registration, follow=True)
 
     self.assertEqual(1, User.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
-    self.assertTemplateUsed(response, 'grants/org_login_register.html')
+    self.assertTemplateUsed(response, self.template_error)
     self.assertFormError(response, 'register', None,
         'That email is registered with Project Central. Please register using a different email.')
+
+  def test_admin_entered_match(self):
+    """ Org name matches an org that was entered by staff (no login email) """
+
+    org = Organization(name = "Ye olde Orge")
+    org.save()
+
+    registration = {
+      'email': 'bababa@gmail.com',
+      'password': 'one',
+      'passwordtwo': 'one',
+      'organization': 'Ye olde Orge'
+    }
+
+    response = self.client.post(self.url, registration, follow=True)
+    
+    org = Organization(name = "Ye olde Orge")
+    # org email was updated
+    #self.assertEqual(org.email, registration['email'])
+    # user was created, is_active = False
+    self.assertEqual(1, User.objects.filter(email='bababa@gmail.com', is_active=False).count())
+    # stayed on login page
+    self.assertTemplateUsed(response, self.template_error)
+    # message telling them to contact admin
+    self.assertMessage(response, ('You have registered successfully but your '
+        'account needs administrator approval. Please contact '
+        '<a href="mailto:info@socialjusticefund.org">info@socialjusticefund.org</a>'))
 
 @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage',
     FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',),
