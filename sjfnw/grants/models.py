@@ -147,7 +147,7 @@ class Organization(models.Model):
     'unique': ('An organization with this name is already in the system. '
     'To add a separate org with the same name, add/alter the name to '
     'differentiate the two.')})
-  email = models.EmailField(max_length=100, verbose_name='Email(login)',
+  email = models.EmailField(max_length=100, verbose_name='Login',
                             null=True, blank=True, unique=True) #= django username
 
   #org contact info

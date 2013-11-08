@@ -125,14 +125,14 @@ class OrganizationA(admin.ModelAdmin):
     ('', {
       'fields':(('name', 'email'),)
     }),
-    ('', {
+    ('Contact info from most recent application', {
       'fields':(('address', 'city', 'state', 'zip'),
                 ('telephone_number', 'fax_number', 'email_address', 'website'))
     }),
-    ('', {
+    ('Organization info from most recent application', {
       'fields':(('status', 'ein'), ('founded', 'mission'))
     }),
-    ('Fiscal sponsor info', {
+    ('Fiscal sponsor info from most recent application', {
       'classes':('collapse',),
       'fields':(('fiscal_org', 'fiscal_person'),
                 ('fiscal_telephone', 'fiscal_address', 'fiscal_email'),
