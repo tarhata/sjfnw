@@ -62,17 +62,17 @@ def org_register(request):
       created = User.objects.create_user(username_email, username_email, password)
       created.first_name = org
       created.last_name = '(organization)'
-      logger.info(request.body)
-      try:
+      try: # see if matching org with no email exists
         org = models.Organization.objects.get(name = org)
         org.email = username_email
+        logger.info("matching org name found. setting email")
         org.save()
         created.is_active = False
-      except models.Organization.DoesNotExist:
+      except models.Organization.DoesNotExist: # if not, create new
+        logger.info("Creating new org")
         new_org = models.Organization(name=org, email=username_email)
         new_org.save()
       created.save()
-      logger.info('Registration - created user and org for ' + username_email)
       #try to log in
       user = authenticate(username=username_email, password=password)
       if user:
@@ -80,6 +80,8 @@ def org_register(request):
           login(request, user)
           return redirect(org_home)
         else:
+          logger.info('Registration needs admin approval, showing message. ' +
+              username_email)
           messages.warning(request, 'You have registered successfully but your account '
           'needs administrator approval. Please contact '
           '<a href="mailto:info@socialjusticefund.org">info@socialjusticefund.org</a>')
@@ -90,7 +92,6 @@ def org_register(request):
   else: #GET
     register = RegisterForm()
   form = LoginForm()
-  logger.debug(register)
   return render(request, 'grants/org_login_register.html', {'form':form, 'register':register})
 
 def org_support(request):
