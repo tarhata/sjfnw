@@ -10,6 +10,11 @@
   padding-left:0;
 }
 
+div.report_type {
+  text-align:center; 
+  padding-bottom:1em;
+}
+
 div.report_form{
   float:left;
 }

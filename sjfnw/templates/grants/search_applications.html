@@ -1,11 +1,13 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-	<link rel="stylesheet" type="text/css" href="/static/css/base.css">
-	<link rel="stylesheet" type="text/css" href="/static/css/reporting.css">
-	<title>Reports | Grant Applications</title>
-	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+﻿{% extends 'grants/base.html' %}
+
+{% block title %}Reports{% endblock %}
+{% block style %}<link rel="stylesheet" type="text/css" href="/static/css/reporting.css">{% endblock %}
+{% block script %}
+  <!-- reporting javascript -->
 	<script type="text/javascript">
+
+  var active_form = '#app_form';
+
 	function check(name, checked){
 		console.log(name + ' ' + checked);
 		$('input[name="'+name+'"]').attr('checked', checked);
@@ -19,114 +21,58 @@
 			help.style.display = 'block';
 		}
 	}
-	</script>
-</head>
 
-<body>
+  function typeSelected(){
+    console.log('type selected');
+    var new_val = $('#report_type_selector').val();
+    if (new_val != active_form){
+      console.log('hiding ' + active_form);
+      $(active_form).hide();
+      active_form = new_val;
+      console.log('showing ' + active_form);
+      $(active_form).show();
+      console.log('active swapped');
+    }
+  }
+
+	</script>
+{% endblock %}
+
+{% block body %}
 <a class="back_link" href="/admin/grants/">Back to admin site</a>
-<h1>Grant Application Database -- Reports</h1>
+<h1>Grants Database -- Reports</h1>
 
 <div class="report_form">
-	<img class="help_toggle" alt="Click for more information about this form" title="Click for more information about this form" src="/static/images/info.png" onclick="toggleHelp()">
-	{{form.errors}}
-	<form id="report-grantapplication" method="POST">
-		<table>
-			<tr class="heading">
-				<td>1.</td>
-				<td>Filter criteria</td>
-			</tr>
-			<tr class="sub_heading">
-				<td></td>
-				<td>Include only applications that match your selections. Blank categories will not be used to filter</td>
-			</tr>
-			<tr>
-				<td></td>
-				<td><table>
-					<tr>
-						<td colspan="3">{{form.year_min.errors}}<h4>Year</h4>Between {{form.year_min}} and {{form.year_max}}</td>
-						<td rowspan="4">{{form.screening_status.errors}}<h4>{{form.screening_status.label}}</h4>{{form.screening_status}}</td>
-					</tr>
-					<tr>
-						<td><h4>{{form.organization.label}}</h4>{{form.organization}}</td>
-						<td><h4>{{form.city.label}}</h4>{{form.city}}</td>
-						<td rowspan="2">{{form.state.errors}}<h4>{{form.state.label}}</h4>{{form.state}}</td>
-						<td></td>
-					</tr>
-					<tr>
-						<td><h4>{{form.giving_project.label}}</h4>{{form.giving_project}}</td>
-						<td><h4>{{form.grant_cycle.label}}</h4>{{form.grant_cycle}}</td>
-						<td></td>
-						<td></td>
-					</tr>
-					<tr>
-						<td><h4>{{form.poc_bonus.label}}</h4><span title="Checking this will show only applications with POC-led bonus.">{{form.poc_bonus}}</span></td>
-						<td><h4>{{form.geo_bonus.label}}</h4><span title="Checking this will show only applications with geographic diversity bonus.">{{form.geo_bonus}}</span></td>
-						<td><h4>{{form.has_fiscal_sponsor.label}}</h4>{{form.has_fiscal_sponsor}}</td>
-					</tr>
-				</table></td>
-			</tr>
-			<tr class="heading">
-				<td>2.</td>
-				<td>Reporting</td>
-			</tr>
-			<tr class="sub_heading">
-				<td></td>
-				<td>Select the fields you want to include in the report</td>
-			</tr>
-			<tr>
-				<td></td>
-				<td><table>
-					<tr>
-						<td><h4>{{form.report_basics.label}}</h4>{{form.report_basics}}<h4>{{form.report_org.label}}</h4>{{form.report_org}}</td>
-						<td><h4>{{form.report_contact.label}}</h4>
-						<div class="mult_select">[<a onclick="check('report_contact', true)">all</a>] [<a onclick="check('report_contact', false)">none</a>]</div>
-						{{form.report_contact}}</td>
-						<td><h4>{{form.report_proposal.label}}</h4>
-						<div class="mult_select">[<a onclick="check('report_proposal', true)">all</a>] [<a onclick="check('report_proposal', false)">none</a>]</div>
-						{{form.report_proposal}}</td>
-					</tr><tr>
-						<td><h4>{{form.report_budget.label}}</h4>{{form.report_budget}}</td>
-						<td><h4>{{form.report_collab.label}}</h4>{{form.report_collab}}<h4>{{form.report_racial_ref.label}}</h4>{{form.report_racial_ref}}</td>
-						<td><h4>{{form.report_bonuses.label}}</h4>{{form.report_bonuses}}<h4>{{form.report_fiscal.label}}</h4>{{form.report_fiscal}}</td>
-                    </tr><tr>
-                        <td><h4>{{form.report_award.label}}</h4>{{form.report_award}}</td>
-					</tr>
-				</table></td>
-			</tr>
-			<tr class="heading">
-				<td>3.</td>
-				<td>Output</td>
-			</tr>
-			<tr class="sub_heading">
-				<td></td>
-				<td>Select the format for the report</td>
-			</tr>
-			<tr>
-				<td></td>
-				<td>{{form.format}}</td>
-			</tr>
-		</table>
 
-		<input type="submit" id ="run" value="Run report">
-	</form>
-</div>
+  <div class="report_type">
+    <select id="report_type_selector" onchange="typeSelected();">
+      <option value="#org_form">Organizations</option>
+      <option value="#app_form">Applications/giving project awards</option>
+      <option value="#award_form">All awards</option>
+    </select>
+  </div>
+
+  {% include 'grants/reporting_app_form.html' %}
+  {% include 'grants/reporting_org_form.html' %}
+
+</div><!-- ends report_form -->
 
 <div id="help">
-	<u>This form is for</u>
-	<ul>
-		<li>Grant applications only</li>
-		<li>Exporting to spreadsheet</li>
-		<li>Complex filtering</li>
-		<li>Viewing specific fields</li>
-	</ul>
-	<u>Use the admin site for</u>
-	<ul>
-		<li>Reading applications</li>
-		<li>Viewing organization info</li>
-		<li>Simple filtering and sorting</li>
-		<li>Changing screening status or any other attributes</li>
-	</ul>
+  <u>This form is for</u>
+  <ul>
+    <li>Grant applications only</li>
+    <li>Exporting to spreadsheet</li>
+    <li>Complex filtering</li>
+    <li>Viewing specific fields</li>
+  </ul>
+  <u>Use the admin site for</u>
+  <ul>
+    <li>Reading applications</li>
+    <li>Viewing organization info</li>
+    <li>Simple filtering and sorting</li>
+    <li>Changing screening status or any other attributes</li>
+  </ul>
 </div>
 
-</body>
-</html>
+{% endblock %}
+
