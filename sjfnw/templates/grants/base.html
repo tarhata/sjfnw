@@ -1,17 +1,22 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+﻿<!DOCTYPE html>
 <html>
 <head>
   <title>{% block title %}Social Justice Fund Grants{% endblock %}</title>
+
   <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
   <link rel="stylesheet" type="text/css" href="/static/css/base.css">
+  {% block style %}
   <link rel="stylesheet" type="text/css" href="/static/css/grants.css">
   <!--[if IE]>
   <link rel="stylesheet" type="text/css" href="/static/css/ie.css">
   <![endif]-->
-  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-  <script type="text/javascript"><!--google analytics -->
+  {% endblock %}
+
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+  <!--google analytics -->
+  <script type="text/javascript">
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-28076150-2']); 
 
@@ -25,16 +30,20 @@
       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
   </script>
+
   {% block script %}{% endblock %}
 </head>
 
 <body>
+  {% block body %}
   <div id="org_wrapper">
+    <!-- top nav -->
     <div id="nav_menu">
         <a href="{% url "sjfnw.grants.views.org_home" %}{{user_override|default:''}}">
           <img id="logo" src="/static/images/logo_horiz.png" align="middle" alt="Social Justice Fund NW Logo">home
         </a>
     </div>
+
     <div class="content_area">
       <!-- messages -->
       {% if messages %}
@@ -44,10 +53,11 @@
         {% endfor %}
       </ul>
       {% endif %}
-
-      {% block content %} {% endblock %}  
+      <!-- CONTENT -->
+      {% block content %}{% endblock %}  
     </div>
-    <br><br><br>
+
+    <!-- footer -->
     <table id="org_footer"><tr>
       <td style="width:25%;"><a href="{% url "sjfnw.grants.views.org_support" %}">support</a></td>
       <td style="width:25%;"><a href="http://socialjusticefund.org">socialjusticefund.org</a></td>
@@ -57,6 +67,7 @@
       {% elif not register %}<a href="{% url "sjfnw.grants.views.org_login" %}">log in</a>{% endif %}</td>
     </tr></table>
   </div>
+  {% endblock %}
 </body>
 
 </html>
