@@ -619,6 +619,8 @@ def SearchApps(request):
 
   form = AppSearchForm()
 
+  logger.info(form.get_filter_fields())
+
   if request.method == 'POST':
     logger.info('Search form submitted')
     form = AppSearchForm(request.POST)
@@ -637,8 +639,8 @@ def SearchApps(request):
       max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
       apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
       #logger.info('After year, count is ' + str(apps.count()))
-      if options.get('organization'):
-        apps = apps.filter(organization__contains=options['organization'])
+      if options.get('organization_name'):
+        apps = apps.filter(organization__contains=options['organization_name'])
       if options.get('city'):
         apps = apps.filter(city=options['city'])
       if options.get('state'):
