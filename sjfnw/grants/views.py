@@ -613,9 +613,11 @@ def Impersonate(request):
   return render(request, 'admin/grants/impersonate.html', {'form':form})
 
 def grants_report(request):
-  """ View that handles grant application reporting
-      Displays all reporting forms
-      Uses report type-specific methods to handle POSTs """
+  """ Handles grant reporting
+
+  Displays all reporting forms
+  Uses report type-specific methods to handle POSTs
+  """
 
   app_form = AppSearchForm()
   org_form = OrgReportForm()
@@ -662,29 +664,115 @@ def grants_report(request):
     else:
       logger.info('Invalid form!')
   return render(request, 'grants/search_applications.html',
-      { 'app_form': app_form, 'org_form': org_form, 'award_form': award_form})
+      {'app_form': app_form, 'org_form': org_form, 'award_form': award_form})
 
 def get_award_results(options):
+  """ Fetches award report results
 
+  Args:
+    options: cleaned_data from a request.POST-filled instance of AwardReportForm
+
+  Returns:
+    A list of display-formatted field names. Example:
+      ['Amount', 'Check mailed', 'Organization']
+
+    A list of award objects, each of which is a list of requested values
+    Example:
+      [
+        ['10000', '2013-10-23 09:08:56+0:00', 'Fancy pants org'],
+        ['5987', '2011-08-04 09:08:56+0:00', 'Justice League']
+      ]
+  """
+
+  # initial querysets
   gp_awards = models.GrantAward.objects.all().select_related('application',
-      'application__organization'))
+      'application__organization')
   sponsored = models.SponsoredProgramGrant.objects.all().select_related('organization')
 
-  return [], {}
+  # filters
+  min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S')
+  min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
+  max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S')
+  max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
+  gp_awards = gp_awards.filter(check_mailed__gte=min_year, check_mailed__lte=max_year)
+  sponsored = sponsored.filter(check_mailed__gte=min_year, check_mailed__lte=max_year)
+
+  if options.get('organization_name'):
+    gp_awards = gp_awards.filter(application__organization__contains=options['organization_name'])
+    sponsored = sponsored.filter(organization__contains=options['organization_name'])
+  if options.get('city'):
+    gp_awards = gp_awards.filter(application__organization__city=options['city'])
+    sponsored = sponsored.filter(organization__city=options['city'])
+  if options.get('state'):
+    gp_awards = gp_awards.filter(application__organization__state__in=options['state'])
+    sponsored = sponsored.filter(organization__state__in=options['state'])
+  if options.get('has_fiscal_sponsor'):
+    gp_awards = gp_awards.exclude(application__organization__fiscal_org='')
+    sponsored = sponsored.exclude(organization__fiscal_org='')
+
+  # fields
+  fields = ['check_mailed', 'amount', 'organization']
+  if options.get('report_check_number'):
+    fields.append('check_number')
+  if options.get('report_date_approved'):
+    fields.append('approved')
+  if options.get('report_agreement_dates'):
+    fields.append('agreement_mailed')
+    fields.append('agreement_returned')
+  
+  org_fields = options['report_contact'] + options['report_org']
+  if options.get('report_fiscal'):
+    org_fields += models.GrantApplication.fiscal_fields()
+    org_fields.remove('fiscal_letter')
+
+
+  #TODO year end report
+
+  # get values
+  results = []
+  for award in gp_awards:
+    row = []
+    for field in fields:
+      if field == 'organization':
+        row.append(award.application.organization.name)
+      else:
+        row.append(getattr(award, field))
+    for field in org_fields:
+      row.append(getattr(award.application.organization, field))
+    results.append(row)
+  for award in sponsored:
+    row = []
+    for field in fields:
+      if hasattr(award, field):
+        row.append(getattr(award, field))
+      else:
+        row.append('')
+    for field in org_fields:
+      row.append(getattr(award.organization, field))
+    results.append(row)
+  
+  field_names = [f.capitalize().replace('_', ' ') for f in fields]
+  field_names += ['Org. '+ f.capitalize().replace('_', ' ') for f in org_fields]
+
+  return field_names, results
 
 def get_app_results(options):
-  """ Takes reporting form inputs, returns field names and a list of apps
-      Each app is in list form, containing selected values
+  """ Fetches application report results
 
-    Arguments:
-      options - AppSearchForm data
+  Arguments:
+    options - cleaned_data from a request.POST-filled instance of AppSearchForm
+  
+  Returns:
+    A list of display-formatted field names
 
-      fields - list of fields to include
-      apps - queryset of applications
-      awards - grant award queryset or False """
+    A list of application objects
+
+  """
   logger.info('Get app results')
 
-  apps = models.GrantApplication.objects.order_by('-submission_time').select_related('giving_project', 'grant_cycle')
+  #initial queryset
+  apps = models.GrantApplication.objects.order_by('-submission_time').select_related(
+      'giving_project', 'grant_cycle')
 
   #filters
   min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S')
