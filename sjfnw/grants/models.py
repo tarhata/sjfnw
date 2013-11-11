@@ -159,6 +159,10 @@ class Organization(models.Model):
   fax_number = models.CharField(max_length=20, blank=True)
   email_address = models.EmailField(max_length=100, blank=True)
   website = models.CharField(max_length=50, blank=True)
+  contact_person = models.CharField(max_length=250, blank=True,
+      verbose_name= 'Contact person')
+  contact_person_title = models.CharField(max_length=100, blank=True,
+      verbose_name='Title')
 
   #org info
   status = models.CharField(max_length=50, choices=STATUS_CHOICES, blank=True)
@@ -213,9 +217,8 @@ class GrantCycle(models.Model):
   info_page = models.URLField()
   email_signature = models.TextField(blank=True)
   conflicts = models.TextField(blank=True,
-                               help_text='Track any conflicts of interest '
-                               '(automatic & personally declared) that occurred'
-                               ' during this cycle.')
+      help_text='Track any conflicts of interest (automatic & personally '
+      'declared) that occurred  during this cycle.')
 
   class Meta:
     ordering = ['title', 'close']
@@ -326,10 +329,8 @@ class GrantApplication(models.Model):
   founded = models.PositiveIntegerField(verbose_name='Year founded')
   mission = models.TextField(verbose_name="Mission statement",
                              validators=[WordLimitValidator(150)])
-  previous_grants = models.CharField(max_length=255,
-                                     verbose_name=("Previous SJF grants awarded"
-                                                  " (amounts and year)"),
-                                     blank=True)
+  previous_grants = models.CharField(max_length=255, blank=True,
+      verbose_name='Previous SJF grants awarded (amounts and year)')
 
   #budget info
   start_year = models.CharField(max_length=250,
