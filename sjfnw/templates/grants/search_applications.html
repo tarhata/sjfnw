@@ -6,7 +6,7 @@
   <!-- reporting javascript -->
 	<script type="text/javascript">
 
-  var active_form = '#app_form';
+  var active_form = '#app-form';
 
 	function check(name, checked){
 		console.log(name + ' ' + checked);
@@ -46,12 +46,13 @@
 
   <div class="report_type">
     <select id="report_type_selector" onchange="typeSelected();">
-      <option value="#org_form">Organizations</option>
-      <option value="#app_form">Applications/giving project awards</option>
-      <option value="#award_form">All awards</option>
+      <option value="#app-form">Applications/giving project awards</option>
+      <option value="#org-form">Organizations</option>
+      <option value="#award-form">All awards</option>
     </select>
   </div>
 
+  {% include 'grants/reporting_award_form.html' %}
   {% include 'grants/reporting_app_form.html' %}
   {% include 'grants/reporting_org_form.html' %}
 

@@ -1,92 +1,92 @@
-  <div id="org_form">
-    <img class="help_toggle" alt="Click for more information about this form"
-         title="Click for more information about this form" src="/static/images/info.png"
-         onclick="toggleHelp()">
+<div id="org-form" style="display:none;">
+  <img class="help_toggle" alt="Click for more information about this form"
+       title="Click for more information about this form" src="/static/images/info.png"
+       onclick="toggleHelp()">
 
-    {{form.errors}}
-    <form id="report-grantapplication" method="POST">
-      <table><!-- form table -->
-        <tr class="heading">
-          <td>1.</td>
-          <td>Filter criteria</td>
-        </tr>
-        <tr class="sub_heading">
-          <td></td>
-          <td>Include only organizations that match your selections. Blank categories will not be used to filter</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td><table><!-- filter table -->
+  {{ org_form.errors}}
+  <form id="report-grantapplication" method="POST">
+    <table><!-- form table -->
+      <tr class="heading">
+        <td>1.</td>
+        <td>Filter criteria</td>
+      </tr>
+      <tr class="sub_heading">
+        <td></td>
+        <td>Include only organizations that match your selections. Blank categories will not be used to filter</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td><table><!-- filter table -->
+          <tr>
+            <td><h4>{{ org_form.organization_name.label}}</h4>{{ org_form.organization_name}}</td>
+            <td><h4>{{ org_form.city.label}}</h4>{{ org_form.city}}</td>
+            <td rowspan="2">{{ org_form.state.errors}}<h4>{{ org_form.state.label}}</h4>{{ org_form.state}}</td>
+            <td></td>
+          </tr>
+            <td><h4>{{ org_form.registered.label}}</h4>{{ org_form.registered}}</td>
+            <td><h4>{{ org_form.has_fiscal_sponsor.label}}</h4>{{ org_form.has_fiscal_sponsor}}</td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr class="heading">
+        <td>2.</td>
+        <td>Reporting</td>
+      </tr>
+      <tr class="sub_heading">
+        <td></td>
+        <td>Select the fields you want to include in the report</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>
+          <table><!-- fields table -->
             <tr>
-              <td><h4>{{form.organization_name.label}}</h4>{{form.organization_name}}</td>
-              <td><h4>{{form.city.label}}</h4>{{form.city}}</td>
-              <td rowspan="2">{{form.state.errors}}<h4>{{form.state.label}}</h4>{{form.state}}</td>
-              <td></td>
+              <td>
+                <h4>{{ org_form.report_basics.label}}</h4>{{ org_form.report_basics}}
+                <h4>{{ org_form.report_org.label}}</h4>{{ org_form.report_org}}
+              </td>
+              <td>
+                <h4>{{ org_form.report_contact.label}}</h4>
+                <div class="mult_select">
+                  [<a onclick="check('report_contact', true)">all</a>] [<a onclick="check('report_contact', false)">none</a>]
+                </div>
+                {{ org_form.report_contact}}
+              </td>
+              <td>
+                <h4>{{ org_form.report_proposal.label}}</h4>
+                <div class="mult_select">
+                  [<a onclick="check('report_proposal', true)">all</a>] [<a onclick="check('report_proposal', false)">none</a>]
+                </div>
+                {{ org_form.report_proposal}}
+              </td>
             </tr>
-              <td><h4>{{form.registered.label}}</h4>{{form.registered}}</td>
-              <td><h4>{{form.has_fiscal_sponsor.label}}</h4>{{form.has_fiscal_sponsor}}</td>
+            <tr>
+              <td>
+                <h4>{{ org_form.account_email.label}}</h4>{{ org_form.account_email}}
+                <h4>{{ org_form.applications.label}}</h4>{{ org_form.applications}}
+              </td>
+              <td>
+                <h4>{{ org_form.awards.label}}</h4>{{ org_form.awards}}
+              </td>
             </tr>
-          </table></td>
-        </tr>
-        <tr class="heading">
-          <td>2.</td>
-          <td>Reporting</td>
-        </tr>
-        <tr class="sub_heading">
-          <td></td>
-          <td>Select the fields you want to include in the report</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <table><!-- fields table -->
-              <tr>
-                <td>
-                  <h4>{{form.report_basics.label}}</h4>{{form.report_basics}}
-                  <h4>{{form.report_org.label}}</h4>{{form.report_org}}
-                </td>
-                <td>
-                  <h4>{{form.report_contact.label}}</h4>
-                  <div class="mult_select">
-                    [<a onclick="check('report_contact', true)">all</a>] [<a onclick="check('report_contact', false)">none</a>]
-                  </div>
-                  {{form.report_contact}}
-                </td>
-                <td>
-                  <h4>{{form.report_proposal.label}}</h4>
-                  <div class="mult_select">
-                    [<a onclick="check('report_proposal', true)">all</a>] [<a onclick="check('report_proposal', false)">none</a>]
-                  </div>
-                  {{form.report_proposal}}
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <h4>{{form.account_email.label}}</h4>{{form.account_email}}
-                  <h4>{{form.applications.label}}</h4>{{form.applications}}
-                </td>
-                <td>
-                  <h4>{{form.awards.label}}</h4>{{form.awards}}
-                </td>
-              </tr>
-            </table>
-          </td>
-       </tr>
-       <tr class="heading">
-         <td>3.</td>
-         <td>Output</td>
-       </tr>
-       <tr class="sub_heading">
-         <td></td>
-         <td>Select the format for the report</td>
-       </tr>
-       <tr>
-         <td></td>
-         <td>{{form.format}}</td>
-       </tr>
-     </table>
+          </table>
+        </td>
+     </tr>
+     <tr class="heading">
+       <td>3.</td>
+       <td>Output</td>
+     </tr>
+     <tr class="sub_heading">
+       <td></td>
+       <td>Select the format for the report</td>
+     </tr>
+     <tr>
+       <td></td>
+       <td>{{ org_form.format}}</td>
+     </tr>
+   </table>
 
-      <input type="submit" id ="run" value="Run report">
-    </form>
-  </div>
+    <input type="submit" name="run-org" id ="run" value="Run report">
+  </form>
+</div>
 

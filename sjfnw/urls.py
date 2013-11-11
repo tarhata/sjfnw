@@ -36,7 +36,7 @@ urlpatterns = patterns('',
   (r'^admin-advanced/grants/grantapplication/(?P<app_id>\d+)/rollover', 'sjfnw.grants.views.AdminRollover'),
   (r'^admin/grants/organization/login', 'sjfnw.grants.views.Impersonate'),
   #reporting
-  (r'^admin/grants/search/?', 'sjfnw.grants.views.SearchApps'),
+  (r'^admin/grants/search/?', 'sjfnw.grants.views.grants_report'),
 
   # cron emails
   (r'^mail/overdue-step', 'sjfnw.fund.views.EmailOverdue'),

@@ -239,7 +239,29 @@ class OrgReportForm(BaseOrgAppReport):
   awards = forms.BooleanField(label='List of awards received',
       required=False)
 
-#class AwardReportForm(forms.Form):
+class AwardReportForm(BaseOrgAppReport):
+
+  # filters
+  year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
+  year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
+
+  # fields
+  # always: org name, amount, check_mailed
+  report_check_number = forms.BooleanField(required=False)
+  report_date_approved = forms.BooleanField(required=False)
+  report_agreement_dates = forms.BooleanField(
+      label='Date agreement mailed & returned (if applicable)', required=False)
+  report_year_end_report_due = forms.BooleanField(required=False)
+
+  def clean(self):
+    cleaned_data = super(AwardReportForm, self).clean()
+    if cleaned_data['year_max'] < cleaned_data['year_min']:
+      raise ValidationError('Start year must be less than or equal to end year.')
+    return cleaned_data
+
+
+  
+
 
 class LoginAsOrgForm(forms.Form):
 
