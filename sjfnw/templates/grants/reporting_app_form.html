@@ -1,113 +1,113 @@
-  <div id="app-form">
-    <img class="help_toggle" alt="Click for more information about this form"
-         title="Click for more information about this form" src="/static/images/info.png"
-         onclick="toggleHelp()">
+<div id="app-form">
+  <img class="help_toggle" alt="Click for more information about this form"
+       title="Click for more information about this form" src="/static/images/info.png"
+       onclick="toggleHelp()">
 
-    {{ app_form.errors}}
-    <form id="report-grantapplication" method="POST">
-      <table><!-- form table -->
-        <tr class="heading">
-          <td>1.</td>
-          <td>Filter criteria</td>
-        </tr>
-        <tr class="sub_heading">
-          <td></td>
-          <td>Include only applications that match your selections. Blank categories will not be used to filter</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td><table><!-- filter table -->
+  {{ app_form.errors}}
+  <form id="report-grantapplication" method="POST">
+    <table><!-- form table -->
+      <tr class="heading">
+        <td>1.</td>
+        <td>Filter criteria</td>
+      </tr>
+      <tr class="sub_heading">
+        <td></td>
+        <td>Include only applications that match your selections. Blank categories will not be used to filter</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td><table><!-- filter table -->
+          <tr>
+            <td colspan="3">{{ app_form.year_min.errors}}<h4>Year</h4>Between {{ app_form.year_min}} and {{ app_form.year_max}}</td>
+            <td rowspan="4">{{ app_form.screening_status.errors}}<h4>{{ app_form.screening_status.label}}</h4>{{ app_form.screening_status}}</td>
+          </tr>
+          <tr>
+            <td><h4>{{ app_form.organization_name.label}}</h4>{{ app_form.organization_name}}</td>
+            <td><h4>{{ app_form.city.label}}</h4>{{ app_form.city}}</td>
+            <td rowspan="2">{{ app_form.state.errors}}<h4>{{ app_form.state.label}}</h4>{{ app_form.state}}</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><h4>{{ app_form.giving_project.label}}</h4>{{ app_form.giving_project}}</td>
+            <td><h4>{{ app_form.grant_cycle.label}}</h4>{{ app_form.grant_cycle}}</td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><h4>{{ app_form.poc_bonus.label}}</h4><span title="Checking this will show only applications with POC-led bonus.">{{ app_form.poc_bonus}}</span></td>
+            <td><h4>{{ app_form.geo_bonus.label}}</h4><span title="Checking this will show only applications with geographic diversity bonus.">{{ app_form.geo_bonus}}</span></td>
+            <td><h4>{{ app_form.has_fiscal_sponsor.label}}</h4>{{ app_form.has_fiscal_sponsor}}</td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr class="heading">
+        <td>2.</td>
+        <td>Reporting</td>
+      </tr>
+      <tr class="sub_heading">
+        <td></td>
+        <td>Select the fields you want to include in the report</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>
+          <table><!-- fields table -->
             <tr>
-              <td colspan="3">{{ app_form.year_min.errors}}<h4>Year</h4>Between {{ app_form.year_min}} and {{ app_form.year_max}}</td>
-              <td rowspan="4">{{ app_form.screening_status.errors}}<h4>{{ app_form.screening_status.label}}</h4>{{ app_form.screening_status}}</td>
+              <td>
+                <h4>{{ app_form.report_basics.label}}</h4>{{ app_form.report_basics}}
+                <h4>{{ app_form.report_org.label}}</h4>{{ app_form.report_org}}
+              </td>
+              <td>
+                <h4>{{ app_form.report_contact.label}}</h4>
+                <div class="mult_select">
+                  [<a onclick="check('report_contact', true)">all</a>] [<a onclick="check('report_contact', false)">none</a>]
+                </div>
+                {{ app_form.report_contact}}
+              </td>
+              <td>
+                <h4>{{ app_form.report_proposal.label}}</h4>
+                <div class="mult_select">
+                  [<a onclick="check('report_proposal', true)">all</a>] [<a onclick="check('report_proposal', false)">none</a>]
+                </div>
+                {{ app_form.report_proposal}}
+              </td>
             </tr>
             <tr>
-              <td><h4>{{ app_form.organization_name.label}}</h4>{{ app_form.organization_name}}</td>
-              <td><h4>{{ app_form.city.label}}</h4>{{ app_form.city}}</td>
-              <td rowspan="2">{{ app_form.state.errors}}<h4>{{ app_form.state.label}}</h4>{{ app_form.state}}</td>
-              <td></td>
+              <td>
+                <h4>{{ app_form.report_budget.label}}</h4>{{ app_form.report_budget}}
+              </td>
+              <td>
+                <h4>{{ app_form.report_collab.label}}</h4>{{ app_form.report_collab}}
+                <h4>{{ app_form.report_racial_ref.label}}</h4>{{ app_form.report_racial_ref}}
+              </td>
+              <td>
+                <h4>{{ app_form.report_bonuses.label}}</h4>{{ app_form.report_bonuses}}
+                <h4>{{ app_form.report_fiscal.label}}</h4>{{ app_form.report_fiscal}}
+              </td>
             </tr>
             <tr>
-              <td><h4>{{ app_form.giving_project.label}}</h4>{{ app_form.giving_project}}</td>
-              <td><h4>{{ app_form.grant_cycle.label}}</h4>{{ app_form.grant_cycle}}</td>
-              <td></td>
-              <td></td>
+              <td>
+                <h4>{{ app_form.report_award.label}}</h4>{{ app_form.report_award}}
+              </td>
             </tr>
-            <tr>
-              <td><h4>{{ app_form.poc_bonus.label}}</h4><span title="Checking this will show only applications with POC-led bonus.">{{ app_form.poc_bonus}}</span></td>
-              <td><h4>{{ app_form.geo_bonus.label}}</h4><span title="Checking this will show only applications with geographic diversity bonus.">{{ app_form.geo_bonus}}</span></td>
-              <td><h4>{{ app_form.has_fiscal_sponsor.label}}</h4>{{ app_form.has_fiscal_sponsor}}</td>
-            </tr>
-          </table></td>
-        </tr>
-        <tr class="heading">
-          <td>2.</td>
-          <td>Reporting</td>
-        </tr>
-        <tr class="sub_heading">
-          <td></td>
-          <td>Select the fields you want to include in the report</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <table><!-- fields table -->
-              <tr>
-                <td>
-                  <h4>{{ app_form.report_basics.label}}</h4>{{ app_form.report_basics}}
-                  <h4>{{ app_form.report_org.label}}</h4>{{ app_form.report_org}}
-                </td>
-                <td>
-                  <h4>{{ app_form.report_contact.label}}</h4>
-                  <div class="mult_select">
-                    [<a onclick="check('report_contact', true)">all</a>] [<a onclick="check('report_contact', false)">none</a>]
-                  </div>
-                  {{ app_form.report_contact}}
-                </td>
-                <td>
-                  <h4>{{ app_form.report_proposal.label}}</h4>
-                  <div class="mult_select">
-                    [<a onclick="check('report_proposal', true)">all</a>] [<a onclick="check('report_proposal', false)">none</a>]
-                  </div>
-                  {{ app_form.report_proposal}}
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <h4>{{ app_form.report_budget.label}}</h4>{{ app_form.report_budget}}
-                </td>
-                <td>
-                  <h4>{{ app_form.report_collab.label}}</h4>{{ app_form.report_collab}}
-                  <h4>{{ app_form.report_racial_ref.label}}</h4>{{ app_form.report_racial_ref}}
-                </td>
-                <td>
-                  <h4>{{ app_form.report_bonuses.label}}</h4>{{ app_form.report_bonuses}}
-                  <h4>{{ app_form.report_fiscal.label}}</h4>{{ app_form.report_fiscal}}
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <h4>{{ app_form.report_award.label}}</h4>{{ app_form.report_award}}
-                </td>
-              </tr>
-            </table>
-          </td>
-       </tr>
-       <tr class="heading">
-         <td>3.</td>
-         <td>Output</td>
-       </tr>
-       <tr class="sub_heading">
-         <td></td>
-         <td>Select the format for the report</td>
-       </tr>
-       <tr>
-         <td></td>
-         <td>{{ app_form.format}}</td>
-       </tr>
-     </table>
+          </table>
+        </td>
+     </tr>
+     <tr class="heading">
+       <td>3.</td>
+       <td>Output</td>
+     </tr>
+     <tr class="sub_heading">
+       <td></td>
+       <td>Select the format for the report</td>
+     </tr>
+     <tr>
+       <td></td>
+       <td>{{ app_form.format}}</td>
+     </tr>
+   </table>
 
-      <input type="submit" name="run-app" id ="run" value="Run report">
-    </form>
-  </div>
+    <input type="submit" name="run-app" id ="run" value="Run report">
+  </form>
+</div>
 

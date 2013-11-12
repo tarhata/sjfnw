@@ -4,42 +4,55 @@
 }
 
 /** SEARCH **/
-.report_form ul, .report_form li {
+
+ul, li { /* errors */
   list-style-type:none;
   margin:0;
   padding-left:0;
 }
 
-div.report_type {
+div.reporting-wrapper{
+  width: 920px;
+}
+
+.reporting-wrapper p {
+  margin: 0 0 1em 1.3em;
+  font-size: 1em;
+}
+
+div.report-type {
   text-align:center; 
   padding-bottom:1em;
 }
 
-div.report_form{
-  float:left;
-}
-
-.report_form tr {
+.reporting-wrapper tr {
   vertical-align:top;
 }
 
-.report_form td {
+.reporting-wrapper td {
   padding:0 1.25em .5em 0;
 }
 
-.heading{
+.reporting-section {
+  width: 100%;
+}
+
+.reporting-field {
+  padding: 0 0 1em 1.3em;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.small {
+  float:left;
+}
+
+.report-heading {
   font-size:1.3em;
   font-weight:bold;
-}
-
-.heading td{
   border-top:1px dashed black;
   padding-top:5px;
-  margin-bottom:1em;
-}
-
-.sub_heading{
-  font-size:1em;
+  margin-bottom:.5em;
 }
 
 h1 {

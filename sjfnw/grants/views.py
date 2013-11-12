@@ -663,7 +663,7 @@ def grants_report(request):
         return response
     else:
       logger.info('Invalid form!')
-  return render(request, 'grants/search_applications.html',
+  return render(request, 'grants/reporting.html',
       {'app_form': app_form, 'org_form': org_form, 'award_form': award_form})
 
 def get_award_results(options):
@@ -763,9 +763,14 @@ def get_app_results(options):
     options - cleaned_data from a request.POST-filled instance of AppSearchForm
 
   Returns:
-    A list of display-formatted field names
+    A list of display-formatted field names. Example:
+      ['Submitted', 'Organization', 'Grant cycle']
 
-    A list of application objects
+    A list of applications & related info. Example:
+      [
+        ['2011-04-20 06:18:36+0:00', 'Justice League', 'LGBTQ Grant Cycle'],
+        ['2013-10-23 09:08:56+0:00', 'ACLU of Idaho', 'General Grant Cycle'],
+      ]
 
   """
   logger.info('Get app results')

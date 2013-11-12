@@ -147,9 +147,8 @@ class BaseOrgAppReport(forms.Form):
   #format (browse, csv, tsv)
   format = forms.ChoiceField(choices = [('csv', 'CSV'), ('browse', 'Don\'t export, just browse')])
 
-  def get_filter_fields(cls):
-    logger.info(cls.fields)
-    return [f for name, f in cls.fields.iteritems() if not name.startswith(('report','format'))]
+  def get_filter_fields(self): #TODO remove - probably not using these
+    return [f for name, f in self.fields.iteritems() if not name.startswith(('report','format'))]
 
   def get_include_fields(cls):
     return [f for f in cls.fields if f.name.startswith('report')]
