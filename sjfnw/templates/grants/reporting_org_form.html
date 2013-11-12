@@ -42,7 +42,6 @@
           <table><!-- fields table -->
             <tr>
               <td>
-                <h4>{{ org_form.report_basics.label}}</h4>{{ org_form.report_basics}}
                 <h4>{{ org_form.report_org.label}}</h4>{{ org_form.report_org}}
               </td>
               <td>
@@ -52,21 +51,14 @@
                 </div>
                 {{ org_form.report_contact}}
               </td>
-              <td>
-                <h4>{{ org_form.report_proposal.label}}</h4>
-                <div class="mult_select">
-                  [<a onclick="check('report_proposal', true)">all</a>] [<a onclick="check('report_proposal', false)">none</a>]
-                </div>
-                {{ org_form.report_proposal}}
-              </td>
             </tr>
             <tr>
               <td>
-                <h4>{{ org_form.account_email.label}}</h4>{{ org_form.account_email}}
-                <h4>{{ org_form.applications.label}}</h4>{{ org_form.applications}}
+                <h4>{{ org_form.report_account_email.label}}</h4>{{ org_form.report_account_email}}
+                <h4>{{ org_form.report_applications.label}}</h4>{{ org_form.report_applications}}
               </td>
               <td>
-                <h4>{{ org_form.awards.label}}</h4>{{ org_form.awards}}
+                <h4>{{ org_form.report_awards.label}}</h4>{{ org_form.report_awards}}
               </td>
             </tr>
           </table>

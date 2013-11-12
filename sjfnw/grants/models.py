@@ -148,7 +148,7 @@ class Organization(models.Model):
     'To add a separate org with the same name, add/alter the name to '
     'differentiate the two.')})
   email = models.EmailField(max_length=100, verbose_name='Login',
-                            null=True, blank=True, unique=True) #= django username
+                            blank=True, unique=True) #django username
 
   #org contact info
   address = models.CharField(max_length=100, blank=True)
