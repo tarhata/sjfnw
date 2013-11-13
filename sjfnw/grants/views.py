@@ -872,13 +872,13 @@ def get_org_results(options):
 
   Returns:
     A list of display-formatted field names. Example:
-      ['Amount', 'Check mailed', 'Organization']
+      ['Name', 'Login', 'State']
 
     A list of organization & related info. Each item is a list of requested values
     Example:
       [
-        ['Fancy pants org'],
-        ['Justice League']
+        ['Fancy pants org', 'fancy@pants.org', 'ID'],
+        ['Justice League', 'trouble@gender.org', 'WA']
       ]
   """
 
@@ -886,8 +886,11 @@ def get_org_results(options):
   orgs = models.Organization.objects.all()
 
   # filters
-  if options.get('registered'): #TODO handle true and false
+  reg = options.get('registered')
+  if reg == True:
     orgs = orgs.exclude(email="")
+  elif reg == False:
+    org = orgs.filter(email="")
   if options.get('organization_name'):
     orgs = orgs.filter(name__contains=options['organization_name'])
   if options.get('city'):
