@@ -767,7 +767,7 @@ def get_app_results(options):
   return field_names, results
 
 def get_award_results(options):
-  """ Fetches award report results
+  """ Fetches award (all types) report results
 
   Args:
     options: cleaned_data from a request.POST-filled instance of AwardReportForm
@@ -811,7 +811,7 @@ def get_award_results(options):
     sponsored = sponsored.exclude(organization__fiscal_org='')
 
   # fields
-  fields = ['check_mailed', 'amount', 'organization']
+  fields = ['check_mailed', 'amount', 'organization', 'grant_type']
   if options.get('report_check_number'):
     fields.append('check_number')
   if options.get('report_date_approved'):
@@ -819,6 +819,8 @@ def get_award_results(options):
   if options.get('report_agreement_dates'):
     fields.append('agreement_mailed')
     fields.append('agreement_returned')
+  if options.get('report_year_end_report_due'):
+    fields.append('year_end_report_due')
 
   org_fields = options['report_contact'] + options['report_org']
   if options.get('report_fiscal'):
@@ -835,6 +837,10 @@ def get_award_results(options):
     for field in fields:
       if field == 'organization':
         row.append(award.application.organization.name)
+      elif field == 'grant_type':
+        row.append('Giving project')
+      elif field == 'year_end_report_due':
+        row.append(award.yearend_due())
       else:
         row.append(getattr(award, field))
     for field in org_fields:
@@ -843,7 +849,9 @@ def get_award_results(options):
   for award in sponsored:
     row = []
     for field in fields:
-      if hasattr(award, field):
+      if field == 'grant_type':
+        row.append('Sponsored program')
+      elif hasattr(award, field):
         row.append(getattr(award, field))
       else:
         row.append('')

@@ -222,22 +222,6 @@ class AppSearchForm(BaseOrgAppReport):
     return cleaned_data
 
 
-class OrgReportForm(BaseOrgAppReport):
-
-  # filters
-  registered = forms.ChoiceField(choices = [('None', '---'), ('True', 'yes'), ('False', 'no')])
-
-  #NOTE: if you want to see only orgs with applications on file, or orgs who have received awards,
-  # use the appropriate report type at the top
-
-  # fields
-  report_account_email = forms.BooleanField(label='Login email associated with org',
-      required=False)
-  report_applications = forms.BooleanField(label='List of applications submitted',
-      required=False)
-  report_awards = forms.BooleanField(label='List of awards received',
-      required=False)
-
 class AwardReportForm(BaseOrgAppReport):
 
   # filters
@@ -258,6 +242,22 @@ class AwardReportForm(BaseOrgAppReport):
       raise ValidationError('Start year must be less than or equal to end year.')
     return cleaned_data
 
+
+class OrgReportForm(BaseOrgAppReport):
+
+  # filters
+  registered = forms.ChoiceField(choices = [('None', '---'), ('True', 'yes'), ('False', 'no')])
+
+  #NOTE: if you want to see only orgs with applications on file, or orgs who have received awards,
+  # use the appropriate report type at the top
+
+  # fields
+  report_account_email = forms.BooleanField(label='Login email associated with org',
+      required=False)
+  report_applications = forms.BooleanField(label='List of applications submitted',
+      required=False)
+  report_awards = forms.BooleanField(label='List of awards received',
+      required=False)
 
 
 class LoginAsOrgForm(forms.Form):
