@@ -1,0 +1,59 @@
+<!-- needs:
+  report_type: one of 'application', 'award', 'organization'
+  form: reporting form object -->
+<div id="{{ report_type }}-form" style="display:none;">
+  <img class="help_toggle" alt="Click for more information about this form"
+       title="Click for more information about this form" src="/static/images/info.png"
+       onclick="toggleHelp()">
+
+  {{ form.errors }}
+  <form id="report-{{ report_type }}" method="POST">
+
+    <div class="reporting-section">
+      <div class="report-heading">1. Filter criteria</div>
+      <p>Include only {{ report_type }}s that match your selections. Blank categories will not be used to filter.</p>
+
+        {% for field in form %}
+          {% if not 'report' in field.name and field.name != 'format' %}
+          <div class="reporting-field">
+            <h4>{{ field.label }}</h4>{{ field }}
+          </div>
+          {% endif %}
+        {% endfor %}
+    </div>
+
+
+    <div class="report-heading">2. Fields to include</div>
+    <p>Select the fields you want to include in the report.</p>
+
+    {% for field in form %}
+    {% if 'report' in field.name and field.name != 'format' %}
+    <div class="reporting-field">
+      <h4>{{ field.label }}</h4>{{ field }}
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <div class="report-heading">3. Output</div>
+    <p>Select a format.</p>
+    {{ form.format }}
+
+    <!--
+                <h4>{{ form.report_contact.label}}</h4>
+                <div class="mult_select">
+                  [<a onclick="check('report_contact', true)">all</a>] [<a onclick="check('report_contact', false)">none</a>]
+                </div>
+                {{ form.report_contact}}
+              </td>
+              <td>
+                <h4>{{ form.report_proposal.label}}</h4>
+                <div class="mult_select">
+                  [<a onclick="check('report_proposal', true)">all</a>] [<a onclick="check('report_proposal', false)">none</a>]
+                </div>
+                {{ form.report_proposal}}
+              </td>
+    -->
+   <input type="submit" name="run-{{ report_type }}" id ="run" value="Run report">
+  </form>
+</div>
+
