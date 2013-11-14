@@ -8,8 +8,8 @@ import logging
 
 
 # Sets root & sjfnw loggers to DEBUG. Comment out for less output.
-#logging.getLogger().setLevel(0)
-#logging.getLogger('sjfnw').setLevel(0)
+logging.getLogger().setLevel(1)
+logging.getLogger('sjfnw').setLevel(1)
 
 class BaseTestCase(TestCase):
 

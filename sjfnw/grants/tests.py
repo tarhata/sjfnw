@@ -1,3 +1,4 @@
+from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
@@ -10,6 +11,7 @@ from google.appengine.ext import testbed
 from sjfnw.constants import TEST_MIDDLEWARE
 from sjfnw.tests import BaseTestCase
 from sjfnw.fund.models import GivingProject
+from sjfnw.grants.forms import AppReportForm, OrgReportForm, AwardReportForm
 from sjfnw.grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle, GrantAward
 
 import sys, datetime, json, unittest
@@ -219,7 +221,7 @@ class Register(BaseGrantTestCase):
     }
 
     response = self.client.post(self.url, registration, follow=True)
-    
+
     org = Organization(name = "Ye olde Orge")
     # org email was updated
     #self.assertEqual(org.email, registration['email'])
@@ -702,7 +704,7 @@ class ViewGrantPermissions(BaseGrantTestCase):
 
   """ Note: using grant app #1
     Author: testorg@gmail.com (org #2)
-    GP: #2, which newacct is a member of, test is not  
+    GP: #2, which newacct is a member of, test is not
   """
   def test_author(self):
     self.logInTestorg()
@@ -746,6 +748,7 @@ class ViewGrantPermissions(BaseGrantTestCase):
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class OrgHomeAwards(BaseGrantTestCase):
+  """ Verify that correct data is showing on the org home page """
 
   url = reverse('sjfnw.grants.views.org_home')
   template = 'grants/org_home.html'
@@ -755,7 +758,7 @@ class OrgHomeAwards(BaseGrantTestCase):
 
   def test_none(self):
     """ org has no awards. verify no award info is shown """
-    
+
     response = self.client.get(self.url)
 
     self.assertTemplateUsed(self.template)
@@ -781,4 +784,103 @@ class OrgHomeAwards(BaseGrantTestCase):
 
     self.assertTemplateUsed(self.template)
     self.assertContains(response, 'Agreement mailed')
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class Reporting(BaseGrantTestCase):
+  """ Admin reporting on applications, awards and organizations
+
+  Fields can just be tested once; filters should be tested in combinations
+  """
+
+  url = reverse('sjfnw.grants.views.grants_report')
+  template_success = 'grants/report_results.html'
+  template_error = 'grants/reporting.html'
+  fixtures = ['sjfnw/grants/fixtures/org_live_dump.json',
+      'sjfnw/grants/fixtures/cycle_live_dump.json',
+      'sjfnw/grants/fixtures/app_live_dump.json'
+      'sjfnw/grants/fixtures/award_live_dump.json']
+
+  def setUp(self):
+    super(Reporting, self).setUp('admin')
+
+  def fill_report_form(self, form, filters=False, fields=False, format='browse'):
+    """ Shared method to create POST data for the given form
+
+    Methods need to insert report type key themselves
+
+    Arguments:
+      form: form instance to populate
+      filters: TODO
+      fields: True = select all fields, False = select none
+      format: select browse or csv option in form
+
+    Returns:
+      Dictionary that should be a valid POST submission for the given form
+    """
+
+    post_dict = {}
+    for bfield in form:
+      field = bfield.field
+      name = bfield.name
+      if fields and name.startswith('report'): # select all
+        if isinstance(field, forms.BooleanField):
+          post_dict[name] = True
+        elif isinstance(field, forms.MultipleChoiceField):
+          post_dict[name] = [val[0] for val in field.choices]
+        else:
+          logger.error('Unexpected field type: ' + str(field))
+      else: # set blank
+        if isinstance(field, forms.BooleanField):
+          post_dict[name] = False
+        elif isinstance(field, forms.MultipleChoiceField):
+          post_dict[name] = []
+        elif name.startswith('year_m'):
+          post_dict[name] = timezone.now().year
+        elif isinstance(field, forms.CharField):
+          post_dict[name] = ''
+        else:
+          logger.error('Unexpected field type: ' + str(field))
+
+    post_dict['format'] = format
+    return post_dict
+
+
+  def test_app_fields(self):
+    """ Verify that application fields are fetched without error
+
+    Setup:
+      No filters selected
+      All fields selected
+
+    Asserts:
+      Basic success: 200 status, correct template
+      Number of rows in results == number of apps in database
+
+    """
+
+    form = AppReportForm()
+    post_dict = self.fill_report_form(form, fields=True)
+    post_dict['run-application'] = '' # simulate dropdown at top of page
+
+    response = self.client.post(self.url, post_dict)
+
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, self.template_success)
+
+    results = response.context['results']
+    logger.info(results)
+    self.assertEqual(len(results), GrantApplication.objects.count())
+
+  @unittest.skip('Incomplete')
+  def test_app_fields_csv(self):
+    pass
+
+  @unittest.skip('Incomplete')
+  def test_unicode_browse(self):
+    pass
+
+  @unittest.skip('Incomplete')
+  def test_unicode_csv(self):
+    pass
+
 
