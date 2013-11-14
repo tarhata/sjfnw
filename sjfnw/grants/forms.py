@@ -144,7 +144,7 @@ class BaseOrgAppReport(forms.Form):
       ])
   report_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
 
-  #format (browse, csv, tsv)
+  #format (browse, csv)
   format = forms.ChoiceField(choices = [('csv', 'CSV'), ('browse', 'Don\'t export, just browse')])
 
   def get_filter_fields(self): #TODO remove - probably not using these
@@ -156,7 +156,7 @@ class BaseOrgAppReport(forms.Form):
   class Meta:
     abstract = True
 
-class AppSearchForm(BaseOrgAppReport):
+class AppReportForm(BaseOrgAppReport):
 
   #filters
   year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
@@ -189,7 +189,7 @@ class AppSearchForm(BaseOrgAppReport):
         ('previous_grants', 'Previous grants from SJF')
       ])
   report_budget = forms.MultipleChoiceField(
-      label='Budget', required=False, 
+      label='Budget', required=False,
       widget = forms.CheckboxSelectMultiple, choices = [
         ('start_year', 'Start of fiscal year'),
         ('budget_last', 'Budget last year'),
@@ -201,7 +201,7 @@ class AppSearchForm(BaseOrgAppReport):
   report_award = forms.BooleanField(label='Grant awards', required=False)
 
   def __init__(self, *args, **kwargs):
-    super(AppSearchForm, self).__init__(*args, **kwargs)
+    super(AppReportForm, self).__init__(*args, **kwargs)
 
     #get projects
     choices = GivingProject.objects.values_list('title', flat = True)
@@ -216,7 +216,7 @@ class AppSearchForm(BaseOrgAppReport):
     self.fields['grant_cycle'].choices = choices
 
   def clean(self):
-    cleaned_data = super(AppSearchForm, self).clean()
+    cleaned_data = super(AppReportForm, self).clean()
     if cleaned_data['year_max'] < cleaned_data['year_min']:
       self._errors['year_min'] = [u'Start year must be less than or equal to end year.']
     return cleaned_data

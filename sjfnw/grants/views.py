@@ -17,7 +17,7 @@ import unicodecsv
 
 from sjfnw import constants
 from sjfnw.fund.models import Member
-from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
+from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
 from sjfnw.grants.decorators import registered_org
 from sjfnw.grants import models, utils
 
@@ -620,7 +620,7 @@ def grants_report(request):
   Uses report type-specific methods to handle POSTs
   """
 
-  app_form = AppSearchForm()
+  app_form = AppReportForm()
   org_form = OrgReportForm()
   award_form = AwardReportForm()
 
@@ -629,7 +629,7 @@ def grants_report(request):
     # Determine type of report
     if 'run-application' in request.POST:
       logger.info('App report')
-      form = AppSearchForm(request.POST)
+      form = AppReportForm(request.POST)
       results_func = get_app_results
     elif 'run-organization' in request.POST:
       logger.info('Org report')
@@ -663,7 +663,7 @@ def grants_report(request):
           writer.writerow(row)
         return response
     else:
-      logger.info('Invalid form!')
+      logger.warning('Invalid form!' + str(form.errors))
   return render(request, 'grants/reporting.html',
       {'app_form': app_form, 'org_form': org_form, 'award_form': award_form})
 
@@ -671,7 +671,7 @@ def get_app_results(options):
   """ Fetches application report results
 
   Arguments:
-    options - cleaned_data from a request.POST-filled instance of AppSearchForm
+    options - cleaned_data from a request.POST-filled instance of AppReportForm
 
   Returns:
     A list of display-formatted field names. Example:
@@ -723,7 +723,7 @@ def get_app_results(options):
             options['report_org'] + options['report_proposal'] +
             options['report_budget'])
   if options['report_fiscal']:
-    fields += models.GrantApplication.fiscal_fields()
+    fields += models.GrantApplication.fields_starting_with('fiscal')
     fields.remove('fiscal_letter')
   if options['report_collab']:
     fields += models.GrantApplication.fields_starting_with('collab_ref')
@@ -824,7 +824,7 @@ def get_award_results(options):
 
   org_fields = options['report_contact'] + options['report_org']
   if options.get('report_fiscal'):
-    org_fields += models.GrantApplication.fiscal_fields()
+    org_fields += models.GrantApplication.fields_starting_with('fiscal')
     org_fields.remove('fiscal_letter')
 
 
@@ -906,7 +906,7 @@ def get_org_results(options):
     fields.append('email')
   fields += options['report_contact'] + options['report_org']
   if options.get('report_fiscal'):
-    org_fields += models.GrantApplication.fiscal_fields()
+    org_fields += models.GrantApplication.fields_starting_with('fiscal')
     org_fields.remove('fiscal_letter')
 
   field_names = [f.capitalize().replace('_', ' ') for f in fields] #for display
