@@ -1,5 +1,4 @@
 from django import forms
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -14,8 +13,7 @@ from sjfnw.fund.models import GivingProject
 from sjfnw.grants.forms import AppReportForm, OrgReportForm, AwardReportForm
 from sjfnw.grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle, GrantAward
 
-import sys, datetime, json, unittest
-import logging
+import datetime, json, unittest, logging
 logger = logging.getLogger('sjfnw')
 
 
@@ -187,7 +185,7 @@ class Register(BaseGrantTestCase):
 
   def test_repeat_user_email(self):
     """ Email matches a user, but email/name don't match an org """
-    user = User.objects.create_user('bababa@gmail.com', 'neworg@gmail.com', 'noob')
+    User.objects.create_user('bababa@gmail.com', 'neworg@gmail.com', 'noob')
 
     registration = {
       'email': 'bababa@gmail.com',
@@ -329,19 +327,19 @@ class ApplyBlocked(BaseGrantTestCase):
 
   def test_closed_cycle(self):
     response = self.client.get('/apply/3/')
-    self.assertTemplateUsed('grants/closed.html')
+    self.assertTemplateUsed(response, 'grants/closed.html')
 
   def test_already_submitted(self):
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
 
     response = self.client.get('/apply/1/')
 
-    self.assertTemplateUsed('grants/already-applied.html')
+    self.assertTemplateUsed(response, 'grants/already-applied.html')
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
 
   def test_upcoming(self):
     response = self.client.get('/apply/4/')
-    self.assertTemplateUsed('grants/closed.html')
+    self.assertTemplateUsed(response, 'grants/closed.html')
 
   def test_nonexistent(self):
     response = self.client.get('/apply/79/')
@@ -443,7 +441,7 @@ class StartApplication(BaseGrantTestCase): #MIGHT BE OUT OF DATE
     response = self.client.get('/apply/1/')
 
     self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed('grants/org_app.html')
+    self.assertTemplateUsed(response, 'grants/org_app.html')
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
 
   def test_load_second_app(self):
@@ -458,7 +456,7 @@ class StartApplication(BaseGrantTestCase): #MIGHT BE OUT OF DATE
     response = self.client.get('/apply/5/')
 
     self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed('grants/org_app.html')
+    self.assertTemplateUsed(response, 'grants/org_app.html')
     org = Organization.objects.get(pk=2)
     self.assertContains(response, org.mission)
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
@@ -761,7 +759,7 @@ class OrgHomeAwards(BaseGrantTestCase):
 
     response = self.client.get(self.url)
 
-    self.assertTemplateUsed(self.template)
+    self.assertTemplateUsed(response, self.template)
     self.assertNotContains(response, 'Agreement mailed')
 
   def test_early(self):
@@ -771,7 +769,7 @@ class OrgHomeAwards(BaseGrantTestCase):
 
     response = self.client.get(self.url)
 
-    self.assertTemplateUsed(self.template)
+    self.assertTemplateUsed(response, self.template)
     self.assertNotContains(response, 'Agreement mailed')
 
   def test_sent(self):
@@ -782,7 +780,7 @@ class OrgHomeAwards(BaseGrantTestCase):
 
     response = self.client.get(self.url)
 
-    self.assertTemplateUsed(self.template)
+    self.assertTemplateUsed(response, self.template)
     self.assertContains(response, 'Agreement mailed')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
