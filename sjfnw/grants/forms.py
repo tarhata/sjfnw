@@ -2,6 +2,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from sjfnw.fund.models import GivingProject
 from sjfnw.grants.models import Organization, GrantCycle, GrantApplication, DraftGrantApplication, STATE_CHOICES
@@ -49,6 +50,20 @@ class RegisterForm(forms.Form):
       if password and passwordtwo and password != passwordtwo:
         raise ValidationError('Passwords did not match.')
     return cleaned_data
+
+
+class SelectMultipleWidget(forms.widgets.CheckboxSelectMultiple):
+  """ Adds links to javascript function to select all/none of options
+
+  Subclasses CheckboxSelectMultiple; only modifies the render function
+  """
+
+  def render(self, name, value, attrs=None, choices = ()):
+    rendered = super(SelectMultipleWidget, self).render(name, value, attrs, choices)
+    return mark_safe('[<a onclick="check(\'' + name +
+        '\', true)">all</a>] [<a onclick="check(\'' + name +
+        '\', false)">none</a>]' + rendered)
+
 
 class RolloverForm(forms.Form): #used by org
   """Fields created on init:
@@ -163,7 +178,7 @@ class AppReportForm(BaseOrgAppReport):
   year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
   screening_status = forms.MultipleChoiceField(choices = GrantApplication.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
   giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
-  grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
+  grant_cycle = forms.MultipleChoiceField(choices = [], widget = SelectMultipleWidget, required = False) #TODO -- indiv or "type"
   poc_bonus = forms.BooleanField(required=False)
   geo_bonus = forms.BooleanField(required=False)
   #awarded = forms.BooleanField(required=False)
