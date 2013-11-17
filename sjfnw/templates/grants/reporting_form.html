@@ -1,6 +1,5 @@
-{# needs:
-    report_type: one of 'application', 'award', 'organization'
-    form: reporting form object #}
+{# report_type: one of 'application', 'award', 'organization' #}
+{# form: reporting form object #}
 <div id="{{ report_type }}-form" style="display:none;">
   <img class="help_toggle" alt="Click for more information about this form"
        title="Click for more information about this form" src="/static/images/info.png"
@@ -38,21 +37,6 @@
     <p>Select a format.</p>
     {{ form.format }}
 
-    <!--
-                <h4>{{ form.report_contact.label}}</h4>
-                <div class="mult_select">
-                  [<a onclick="check('report_contact', true)">all</a>] [<a onclick="check('report_contact', false)">none</a>]
-                </div>
-                {{ form.report_contact}}
-              </td>
-              <td>
-                <h4>{{ form.report_proposal.label}}</h4>
-                <div class="mult_select">
-                  [<a onclick="check('report_proposal', true)">all</a>] [<a onclick="check('report_proposal', false)">none</a>]
-                </div>
-                {{ form.report_proposal}}
-              </td>
-    -->
    <input type="submit" name="run-{{ report_type }}" id ="run" value="Run report">
   </form>
 </div>
