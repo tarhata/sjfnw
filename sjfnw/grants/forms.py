@@ -52,14 +52,14 @@ class RegisterForm(forms.Form):
     return cleaned_data
 
 
-class SelectMultipleWidget(forms.widgets.CheckboxSelectMultiple):
+class CheckMultiple(forms.widgets.CheckboxSelectMultiple):
   """ Adds links to javascript function to select all/none of options
 
   Subclasses CheckboxSelectMultiple; only modifies the render function
   """
 
   def render(self, name, value, attrs=None, choices = ()):
-    rendered = super(SelectMultipleWidget, self).render(name, value, attrs, choices)
+    rendered = super(CheckMultiple, self).render(name, value, attrs, choices)
     return mark_safe('[<a onclick="check(\'' + name +
         '\', true)">all</a>] [<a onclick="check(\'' + name +
         '\', false)">none</a>]' + rendered)
@@ -138,7 +138,7 @@ class BaseOrgAppReport(forms.Form):
   # fields
   report_contact = forms.MultipleChoiceField(
       label='Contact', required=False,
-      widget = forms.CheckboxSelectMultiple, choices = [
+      widget = CheckMultiple, choices = [
         ('contact_person', 'Contact person name'),
         ('contact_person_title', 'Contact person title'),
         ('address', 'Address'),
@@ -152,7 +152,7 @@ class BaseOrgAppReport(forms.Form):
       ])
   report_org = forms.MultipleChoiceField(
       label='Organization', required=False,
-      widget = forms.CheckboxSelectMultiple, choices = [
+      widget = CheckMultiple, choices = [
         ('status', 'Status'),
         ('ein', 'EIN'),
         ('founded', 'Year founded')
@@ -161,12 +161,6 @@ class BaseOrgAppReport(forms.Form):
 
   #format (browse, csv)
   format = forms.ChoiceField(choices = [('csv', 'CSV'), ('browse', 'Don\'t export, just browse')])
-
-  def get_filter_fields(self): #TODO remove - probably not using these
-    return [f for name, f in self.fields.iteritems() if not name.startswith(('report','format'))]
-
-  def get_include_fields(cls):
-    return [f for f in cls.fields if f.name.startswith('report')]
 
   class Meta:
     abstract = True
@@ -178,7 +172,7 @@ class AppReportForm(BaseOrgAppReport):
   year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
   screening_status = forms.MultipleChoiceField(choices = GrantApplication.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
   giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
-  grant_cycle = forms.MultipleChoiceField(choices = [], widget = SelectMultipleWidget, required = False) #TODO -- indiv or "type"
+  grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
   poc_bonus = forms.BooleanField(required=False)
   geo_bonus = forms.BooleanField(required=False)
   #awarded = forms.BooleanField(required=False)
@@ -187,14 +181,14 @@ class AppReportForm(BaseOrgAppReport):
   #always: organization, grant cycle, submission time
   report_basics = forms.MultipleChoiceField(
       label='Basics', required=False,
-      widget = forms.CheckboxSelectMultiple, choices = [
+      widget = CheckMultiple, choices = [
         ('id', 'Unique id number'),
         ('giving_project', 'Giving project'),
         ('screening_status', 'Screening status')
       ])
   report_proposal = forms.MultipleChoiceField(
       label='Grant request and project', required=False,
-      widget = forms.CheckboxSelectMultiple, choices = [
+      widget = CheckMultiple, choices = [
         ('amount_requested', 'Amount requested'),
         ('grant_request', 'Description of grant request'),
         ('support_type', 'Support type'),
@@ -205,7 +199,7 @@ class AppReportForm(BaseOrgAppReport):
       ])
   report_budget = forms.MultipleChoiceField(
       label='Budget', required=False,
-      widget = forms.CheckboxSelectMultiple, choices = [
+      widget = CheckMultiple, choices = [
         ('start_year', 'Start of fiscal year'),
         ('budget_last', 'Budget last year'),
         ('budget_current', 'Budget current year')
