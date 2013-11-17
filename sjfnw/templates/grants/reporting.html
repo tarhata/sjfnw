@@ -4,23 +4,24 @@
 {% block style %}<link rel="stylesheet" type="text/css" href="/static/css/reporting.css">{% endblock %}
 {% block script %}
   <!-- reporting javascript -->
-	<script type="text/javascript">
+<script type="text/javascript">
 
   var active_form = '#app-form';
 
-	function check(name, checked){
-		console.log(name + ' ' + checked);
-		$('input[name="'+name+'"]').attr('checked', checked);
-	}
+  function check(name, checked){
+    console.log(name + ' ' + checked);
+    console.log($('input[name="' + name + '"]').prop('checked'));
+    $('input[name="' + name + '"]').prop('checked', checked);
+  }
 
-	function toggleHelp(){
-		help = document.getElementById('help');
-		if (help.style.display == 'block'){
-			help.style.display = 'none';
-		} else {
-			help.style.display = 'block';
-		}
-	}
+  function toggleHelp(){
+    help = document.getElementById('help');
+    if (help.style.display == 'block'){
+      help.style.display = 'none';
+    } else {
+      help.style.display = 'block';
+    }
+  }
 
   function typeSelected(){
     console.log('type selected');
@@ -39,7 +40,7 @@
     typeSelected(); // make sure form matches selection, in case of back button
   });
 
-	</script>
+</script>
 {% endblock %}
 
 {% block body %}
