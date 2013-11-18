@@ -920,7 +920,6 @@ class Reporting(BaseGrantTestCase):
     Asserts:
       Basic success: 200 status, correct template
       Number of rows in results == number of awards (gp + sponsored) in db
-
     """
 
     form = AwardReportForm()
@@ -948,7 +947,7 @@ class Reporting(BaseGrantTestCase):
       Basic success: able to iterate through response with reader
       Number of rows in results matches number of apps in database
     """
-    
+
     form = AppReportForm()
     post_dict = self.fill_report_form(form, fields=True, fmt='csv')
     post_dict['run-application'] = '' # simulate dropdown at top of page
@@ -987,12 +986,12 @@ class Reporting(BaseGrantTestCase):
 
   def test_app_filters_all(self):
     """ Verify that all filters can be selected without error
-    
+
     Setup:
       All fields
       All filters
       Format = browse
-    
+
     Asserts:
       Basic success: 200 status, correct template
       Number of rows in results == number of apps in database
@@ -1005,9 +1004,34 @@ class Reporting(BaseGrantTestCase):
     response = self.client.post(self.url, post_dict)
 
     self.assertEqual(200, response.status_code)
-    self.assertTemplateUsed(response, self.template_success)   
-  
+    self.assertTemplateUsed(response, self.template_success)
+
     results = response.context['results']
     self.assertEqual(results, [])
 
-  
+
+  def test_org_fields(self):
+    """ Verify that org fields can be fetched
+
+    Setup:
+      No filters selected
+      All fields selected
+      Format = browse
+
+    Asserts:
+      Basic success: 200 status, correct template
+      Number of rows in results == number of organizations in db
+    """
+
+    form = OrgReportForm()
+    post_dict = self.fill_report_form(form, fields=True)
+    post_dict['run-organization'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, self.template_success)
+
+    results = response.context['results']
+    self.assertEqual(len(results), Organization.objects.count())
+
