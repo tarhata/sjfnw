@@ -1108,5 +1108,5 @@ class Reporting(BaseGrantTestCase):
     self.assertTemplateUsed(response, self.template_success)
 
     results = response.context['results']
-    logger.info(results)
+    self.assertEqual(0, len(results))
 
