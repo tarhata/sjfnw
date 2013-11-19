@@ -7,7 +7,7 @@ import logging
 """ Shared testing base classes, utilities """
 
 
-# Sets root & sjfnw loggers to DEBUG. Comment out for less output.
+# Sets root & sjfnw loggers level. Comment out for less output.
 logging.getLogger().setLevel(1)
 logging.getLogger('sjfnw').setLevel(1)
 

@@ -210,7 +210,7 @@ class Register(BaseGrantTestCase):
   def test_admin_entered_match(self):
     """ Org name matches an org that was entered by staff (no login email) """
 
-    org = Organization(name = "Ye olde Orge", email="")
+    org = Organization(name = "Ye olde Orge")
     org.save()
 
     registration = {
@@ -356,7 +356,7 @@ class ApplyBlocked(BaseGrantTestCase):
 
     response = self.client.get('/apply/1/')
 
-    self.assertTemplateUsed(response, 'grants/already-applied.html')
+    self.assertTemplateUsed(response, 'grants/already_applied.html')
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
 
   def test_upcoming(self):
@@ -848,14 +848,16 @@ class Reporting(BaseGrantTestCase):
     for bfield in form:
       field = bfield.field
       name = bfield.name
-      if fields and name.startswith('report'): # select all
+      # fields
+      if fields and name.startswith('report'):
         if isinstance(field, forms.BooleanField):
           post_dict[name] = True
         elif isinstance(field, forms.MultipleChoiceField):
           post_dict[name] = [val[0] for val in field.choices]
         else:
           logger.error('Unexpected field type: ' + str(field))
-      else: # filters
+      # filters
+      else:
         if isinstance(field, forms.BooleanField):
           post_dict[name] = True if filters else False
         elif isinstance(field, forms.MultipleChoiceField):
@@ -876,8 +878,10 @@ class Reporting(BaseGrantTestCase):
               post_dict[name] = 'Seattle'
           else:
             post_dict[name] = ''
+        elif name == 'registered':
+          post_dict[name] = True if filters else None
         else:
-          logger.error('Unexpected field type: ' + str(field))
+          logger.warning('Unexpected field type: ' + str(field))
 
     post_dict['format'] = fmt
     return post_dict
@@ -909,32 +913,6 @@ class Reporting(BaseGrantTestCase):
     results = response.context['results']
     self.assertEqual(len(results), GrantApplication.objects.count())
 
-  def test_award_fields(self):
-    """ Verify that award fields can be fetched
-
-    Setup:
-      No filters selected
-      All fields selected
-      Format = browse
-
-    Asserts:
-      Basic success: 200 status, correct template
-      Number of rows in results == number of awards (gp + sponsored) in db
-    """
-
-    form = AwardReportForm()
-    post_dict = self.fill_report_form(form, fields=True)
-    post_dict['run-award'] = ''
-
-    response = self.client.post(self.url, post_dict)
-
-    self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed(response, self.template_success)
-
-    results = response.context['results']
-    self.assertEqual(len(results),
-        GrantAward.objects.count() + SponsoredProgramGrant.objects.count())
-
   def test_app_fields_csv(self):
     """ Verify that application fields are fetched in csv format without error
 
@@ -958,31 +936,6 @@ class Reporting(BaseGrantTestCase):
     row_count = sum(1 for row in reader)
     # 1st row is blank, 2nd is headers
     self.assertEqual(row_count-2, GrantApplication.objects.count())
-
-  def test_award_fields_csv(self):
-    """ Verify that award fields can be fetched in csv format
-
-    Setup:
-      No filters selected
-      All fields selected
-      Format = browse
-
-    Asserts:
-      Basic success: able to iterate through response with reader
-      Number of rows in results matches number of awards (gp + sponsored) in db
-
-    """
-
-    form = AwardReportForm()
-    post_dict = self.fill_report_form(form, fields=True, fmt='csv')
-    post_dict['run-award'] = ''
-
-    response = self.client.post(self.url, post_dict)
-
-    reader = unicodecsv.reader(response, encoding = 'utf8')
-    row_count = sum(1 for row in reader)
-    self.assertEqual(row_count-2,
-        GrantAward.objects.count() + SponsoredProgramGrant.objects.count())
 
   def test_app_filters_all(self):
     """ Verify that all filters can be selected without error
@@ -1009,6 +962,80 @@ class Reporting(BaseGrantTestCase):
     results = response.context['results']
     self.assertEqual(results, [])
 
+  def test_award_fields(self):
+    """ Verify that award fields can be fetched
+
+    Setup:
+      No filters selected
+      All fields selected
+      Format = browse
+
+    Asserts:
+      Basic success: 200 status, correct template
+      Number of rows in results == number of awards (gp + sponsored) in db
+    """
+
+    form = AwardReportForm()
+    post_dict = self.fill_report_form(form, fields=True)
+    post_dict['run-award'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, self.template_success)
+
+    results = response.context['results']
+    self.assertEqual(len(results),
+        GrantAward.objects.count() + SponsoredProgramGrant.objects.count())
+
+  def test_award_fields_csv(self):
+    """ Verify that award fields can be fetched in csv format
+
+    Setup:
+      No filters selected
+      All fields selected
+      Format = browse
+
+    Asserts:
+      Basic success: able to iterate through response with reader
+      Number of rows in results matches number of awards (gp + sponsored) in db
+
+    """
+
+    form = AwardReportForm()
+    post_dict = self.fill_report_form(form, fields=True, fmt='csv')
+    post_dict['run-award'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    reader = unicodecsv.reader(response, encoding = 'utf8')
+    row_count = sum(1 for row in reader)
+    self.assertEqual(row_count-2,
+        GrantAward.objects.count() + SponsoredProgramGrant.objects.count())
+
+  def test_award_filters_all(self):
+    """ Verify that all filters can be selected in award report without error
+
+    Setup:
+      All fields
+      All filters
+      Format = browse
+
+    Asserts:
+      Basic success: 200 status, correct template
+    """
+
+    form = AwardReportForm()
+    post_dict = self.fill_report_form(form, fields=True, filters=True)
+    post_dict['run-award'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    self.assertEqual(200, response.status_code)
+    self.assertTemplateUsed(response, self.template_success)
+
+    results = response.context['results']
+    logger.info(results)
 
   def test_org_fields(self):
     """ Verify that org fields can be fetched
@@ -1034,4 +1061,52 @@ class Reporting(BaseGrantTestCase):
 
     results = response.context['results']
     self.assertEqual(len(results), Organization.objects.count())
+
+  def test_org_fields_csv(self):
+    """ Verify that org fields can be fetched in csv format
+
+    Setup:
+      No filters selected
+      All fields selected
+      Format = browse
+
+    Asserts:
+      Basic success: able to iterate through response with reader
+      Number of rows in results matches number of orgs in db
+
+    """
+
+    form = OrgReportForm()
+    post_dict = self.fill_report_form(form, fields=True, fmt='csv')
+    post_dict['run-organization'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    reader = unicodecsv.reader(response, encoding = 'utf8')
+    row_count = sum(1 for row in reader)
+    self.assertEqual(row_count-2, Organization.objects.count())
+
+  def test_org_filters_all(self):
+    """ Verify that all filters can be selected in org report without error
+
+    Setup:
+      All fields
+      All filters
+      Format = browse
+
+    Asserts:
+      Basic success: 200 status, correct template
+    """
+
+    form = OrgReportForm()
+    post_dict = self.fill_report_form(form, fields=True, filters=True)
+    post_dict['run-organization'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    self.assertEqual(200, response.status_code)
+    self.assertTemplateUsed(response, self.template_success)
+
+    results = response.context['results']
+    logger.info(results)
 
