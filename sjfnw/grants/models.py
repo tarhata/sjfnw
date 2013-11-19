@@ -197,13 +197,6 @@ class Organization(models.Model):
   class Meta:
     ordering = ('name',)
 
-  def save(self, *args, **kwargs):
-    logger.debug('Org save')
-    if self.email == '':
-      logger.info('Blank org login, setting to None')
-      self.email = None
-    super(Organization, self).save(*args, **kwargs)
-
 class OrgProfile(ModelForm):
   class Meta:
     model = Organization
