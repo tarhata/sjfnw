@@ -246,10 +246,10 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
         if 'timeline_' + str(i) in dict:
           timeline.append(dict['timeline_' + str(i)])
       dict['timeline'] = json.dumps(timeline)
-      logger.debug('Loading draft: ' + str(dict))
+      logger.debug('Loading draft')
 
     #check if draft can be submitted
-    if not draft.editable:
+    if not draft.editable():
       return render(request, 'grants/closed.html', {'cycle':cycle})
 
     #try to determine initial load - cheaty way
@@ -909,8 +909,8 @@ def get_org_results(options):
     fields.append('email')
   fields += options['report_contact'] + options['report_org']
   if options.get('report_fiscal'):
-    org_fields += models.GrantApplication.fields_starting_with('fiscal')
-    org_fields.remove('fiscal_letter')
+    fields += models.GrantApplication.fields_starting_with('fiscal')
+    fields.remove('fiscal_letter')
 
   field_names = [f.capitalize().replace('_', ' ') for f in fields] #for display
 
