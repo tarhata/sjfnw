@@ -129,8 +129,10 @@ class BaseOrgAppReport(forms.Form):
   """ Abstract form for fields shared between report types """
 
   # filters
-  organization_name = forms.CharField(max_length=255, required=False)
-  city = forms.CharField(max_length=255, required=False)
+  organization_name = forms.CharField(max_length=255, required=False,
+      help_text='Organization name must contain the given text')
+  city = forms.CharField(max_length=255, required=False,
+      help_text='City must match the given text')
   state = forms.MultipleChoiceField(choices = STATE_CHOICES[:5],
       widget = forms.CheckboxSelectMultiple, required = False)
   has_fiscal_sponsor = forms.BooleanField(required=False)
@@ -206,7 +208,7 @@ class AppReportForm(BaseOrgAppReport):
       ])
   report_collab = forms.BooleanField(label='Collaboration references', required=False)
   report_racial_ref = forms.BooleanField(label='Racial justice references', required=False)
-  report_bonuses = forms.BooleanField(label='POC-led and geographic diversity', required=False)
+  report_bonuses = forms.BooleanField(label='Scoring bonuses', required=False)
   report_award = forms.BooleanField(label='Grant awards', required=False)
 
   def __init__(self, *args, **kwargs):
