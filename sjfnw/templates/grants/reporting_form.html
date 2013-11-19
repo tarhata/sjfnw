@@ -1,16 +1,23 @@
-{# report_type: one of 'application', 'award', 'organization' #}
-{# form: reporting form object #}
-<div id="{{ report_type }}-form" style="display:none;">
-  <img class="help_toggle" alt="Click for more information about this form"
-       title="Click for more information about this form" src="/static/images/info.png"
-       onclick="toggleHelp()">
+{% comment %} included by reporting.html
+requires:
+  report_type: one of 'application', 'award', 'organization'
+  form: reporting form object
+{% endcomment %}
 
+<div id="{{ report_type }}-form" style="display:none;">
   {{ form.errors }}
   <form id="report-{{ report_type }}" method="POST">
 
     <div class="reporting-section">
       <div class="report-heading">1. Filter criteria</div>
-      <p>Include only {{ report_type }}s that match your selections. Blank categories will not be used to filter.</p>
+      <p>Include only {{ report_type }}s that match your selections.
+      Blank categories will not be used to filter.</p>
+      <ul class="show">For example:
+        <li>Multiple checkboxes: selecting none has the same effect as selecting all.</li>
+        <li>Single checkbox filters: unchecked includes all regardless of that
+            field, checked includes only items that match (e.g., only organizations
+            that have a fiscal sponsor)</li>
+      </ul>
 
         {% for field in form %}
           {% if not 'report' in field.name and field.name != 'format' %}
@@ -35,7 +42,7 @@
 
     <div class="report-heading">3. Output</div>
     <p>Select a format.</p>
-    {{ form.format }}
+    <div class="reporting-field">{{ form.format }}</div>
 
    <input type="submit" name="run-{{ report_type }}" id ="run" value="Run report">
   </form>

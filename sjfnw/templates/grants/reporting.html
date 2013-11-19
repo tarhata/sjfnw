@@ -16,10 +16,10 @@
 
   function toggleHelp(){
     help = document.getElementById('help');
-    if (help.style.display == 'block'){
+    if (help.style.display == 'inline-block'){
       help.style.display = 'none';
     } else {
-      help.style.display = 'block';
+      help.style.display = 'inline-block';
     }
   }
 
@@ -44,12 +44,13 @@
 {% endblock %}
 
 {% block body %}
-<a class="back_link" href="/admin/grants/">Back to admin site</a>
-<h1>Grants Database -- Reports</h1>
 
 <div class="reporting-wrapper">
 
-  <div class="report-type">
+  <a id="back-link" href="/admin/grants/">Back to admin site</a>
+  <h1>Grants Database -- Reports</h1>
+
+  <div class="report-type">Report type: 
     <select id="report_type_selector" onchange="typeSelected();">
       <option value="#application-form">Applications</option>
       <option value="#organization-form">Organizations</option>
@@ -57,27 +58,53 @@
     </select>
   </div>
 
+  <img class="help_toggle" alt="Click for more information about this form"
+       title="Click for more information about this form" src="/static/images/info.png"
+       onclick="toggleHelp()"><!--TODO-->
+
   {% include 'grants/reporting_form.html' with report_type='award' form=award_form %}
   {% include 'grants/reporting_form.html' with report_type='application' form=app_form %}
   {% include 'grants/reporting_form.html' with report_type='organization' form=org_form %}
 
 </div><!-- ends report_form -->
-
 <div id="help">
-  <u>This form is for</u>
-  <ul>
-    <li>Exporting to spreadsheet</li>
-    <li>Complex filtering</li>
-    <li>Viewing specific fields</li>
+  <h2>Overview</h2>
+  <table>
+    <tr>
+      <td>
+        Use reporting for:
+        <ul class="show">
+          <li>Exporting to spreadsheet</li>
+          <li>Complex filtering</li>
+          <li>Viewing specific fields</li>
+        </ul>
+      </td>
+      <td>
+        Use the admin site for:
+        <ul class="show">
+          <li>Reading grant applications</li>
+          <li>Viewing organization info</li>
+          <li>Simple filtering and sorting</li>
+          <li>Editing or updating any fields</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+  <h2>Report types</h2>
+  <p>With any report, you will have access to information from related items.</p>
+  <p>For example, when running a report on organizations, you can include a list
+  of awards they have received from SJF.</p>
+  <p>Based on the report type:</p>
+  <ul class="show">
+    <li>You have more detailed filters and fields for the item you select</li>
+    <li>Your report will have one line per organization/award/application
+    depending on which you select</li>
   </ul>
-  <u>Use the admin site for</u>
-  <ul>
-    <li>Reading applications</li>
-    <li>Viewing organization info</li>
-    <li>Simple filtering and sorting</li>
-    <li>Editing or updating any fields</li>
-  </ul>
+  <p>For example: if you report on awards, the same organization may appear
+  multiple times in your results: once per award they've received.  If you run
+  a similar report on organizations, each organization will only appear once,
+  but the award information will be more condensed.</p>
 </div>
-
 {% endblock %}
+
 
