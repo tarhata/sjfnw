@@ -373,7 +373,6 @@ def Register(request):
   else: #GET
     register = forms.RegistrationForm()
 
-  logger.info(error_msg)
   return render(request, 'fund/register.html', {'form':register, 'error_msg':error_msg})
 
 @login_required(login_url='/fund/login/')
