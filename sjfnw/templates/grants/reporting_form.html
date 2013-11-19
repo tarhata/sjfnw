@@ -2,6 +2,7 @@
 requires:
   report_type: one of 'application', 'award', 'organization'
   form: reporting form object
+  base_fields: list of field names that are always included in report
 {% endcomment %}
 
 <div id="{{ report_type }}-form" style="display:none;">
@@ -30,7 +31,7 @@ requires:
 
 
     <div class="report-heading">2. Fields to include</div>
-    <p>Select the fields you want to include in the report.</p>
+    <p>Select the fields you want to include in the report. Included by default: {{ base_fields }}.</p>
 
     {% for field in form %}
     {% if 'report' in field.name and field.name != 'format' %}

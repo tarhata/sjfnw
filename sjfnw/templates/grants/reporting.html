@@ -62,9 +62,9 @@
        title="Click for more information about this form" src="/static/images/info.png"
        onclick="toggleHelp()"><!--TODO-->
 
-  {% include 'grants/reporting_form.html' with report_type='award' form=award_form %}
-  {% include 'grants/reporting_form.html' with report_type='application' form=app_form %}
-  {% include 'grants/reporting_form.html' with report_type='organization' form=org_form %}
+  {% include 'grants/reporting_form.html' with report_type='award' form=award_form base_fields=award_base %}
+  {% include 'grants/reporting_form.html' with report_type='application' form=app_form base_fields=app_base %}
+  {% include 'grants/reporting_form.html' with report_type='organization' form=org_form base_fields=org_base %}
 
 </div><!-- ends report_form -->
 <div id="help">

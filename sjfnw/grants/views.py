@@ -665,7 +665,10 @@ def grants_report(request):
     else:
       logger.warning('Invalid form!' + str(form.errors))
   return render(request, 'grants/reporting.html',
-      {'app_form': app_form, 'org_form': org_form, 'award_form': award_form})
+      {'app_form': app_form, 'org_form': org_form, 'award_form': award_form,
+        'app_base': 'submission time, organization name, grant cycle',
+        'award_base': 'organization name, amount, date check mailed',
+        'org_base':'name'})
 
 def get_app_results(options):
   """ Fetches application report results
