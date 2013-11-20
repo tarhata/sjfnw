@@ -95,18 +95,18 @@ class SponsoredProgramInline(admin.TabularInline): # Org
   model = SponsoredProgramGrant
   extra = 0
   max_num = 0
-  fields = ('amount', 'check_mailed', 'approved', 'edit_view')
-  readonly_fields = ('edit_view',)
+  fields = ('amount', 'check_mailed', 'approved', 'edit')
+  readonly_fields = fields
   can_delete = False
   template = 'admin/grants/sponsoredprogramgrant/tabular.html'
 
-  def edit_view(self, obj):
+  def edit(self, obj):
     if obj.pk:
       return ('<a href="/admin/grants/sponsoredprogramgrant/' + str(obj.pk) +
             '/" target="_blank">View/edit</a>')
     else:
       return ''
-  edit_view.allow_tags = True
+  edit.allow_tags = True
 
 class DraftInline(admin.TabularInline): #Adv only
   model = DraftGrantApplication
