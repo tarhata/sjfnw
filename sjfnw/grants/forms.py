@@ -206,8 +206,10 @@ class AppReportForm(BaseOrgAppReport):
         ('budget_last', 'Budget last year'),
         ('budget_current', 'Budget current year')
       ])
-  report_collab = forms.BooleanField(label='Collaboration references', required=False)
-  report_racial_ref = forms.BooleanField(label='Racial justice references', required=False)
+  report_collab = forms.BooleanField(label='Collaboration references',
+      required=False)
+  report_racial_ref = forms.BooleanField(label='Racial justice references',
+      required=False)
   report_bonuses = forms.BooleanField(label='Scoring bonuses', required=False)
   report_award = forms.BooleanField(label='Grant awards', required=False)
 
@@ -236,16 +238,21 @@ class AppReportForm(BaseOrgAppReport):
 class AwardReportForm(BaseOrgAppReport):
 
   # filters
-  year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
-  year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
+  year_min = forms.ChoiceField(choices =
+      [(n, n) for n in range(timezone.now().year, 1990, -1)])
+  year_max = forms.ChoiceField(choices =
+      [(n, n) for n in range(timezone.now().year, 1990, -1)])
 
-  # fields
-  # always: org name, amount, check_mailed
-  report_check_number = forms.BooleanField(required=False)
-  report_date_approved = forms.BooleanField(required=False)
-  report_agreement_dates = forms.BooleanField(
-      label='Date agreement mailed & returned (if applicable)', required=False)
-  report_year_end_report_due = forms.BooleanField(required=False)
+  # fields (always: org name, amount, check_mailed)
+  report_check_number = forms.BooleanField(required=False, label='Check number')
+  report_date_approved = forms.BooleanField(required=False,
+      label='Date approved by E.D.')
+  report_agreement_dates = forms.BooleanField(required=False,
+      label='Date agreement mailed/returned',
+      help_text='Only applies to giving project grants')
+  report_year_end_report_due = forms.BooleanField(required=False,
+      label='Date year end report due',
+      help_text='Only applied to giving project grants')
 
   def clean(self):
     cleaned_data = super(AwardReportForm, self).clean()
@@ -259,15 +266,12 @@ class OrgReportForm(BaseOrgAppReport):
   # filters
   registered = forms.ChoiceField(choices = [('None', '---'), ('True', 'yes'), ('False', 'no')])
 
-  #NOTE: if you want to see only orgs with applications on file, or orgs who have received awards,
-  # use the appropriate report type at the top
-
   # fields
-  report_account_email = forms.BooleanField(label='Login email associated with org',
+  report_account_email = forms.BooleanField(label='Login email',
       required=False)
-  report_applications = forms.BooleanField(label='List of applications submitted',
+  report_applications = forms.BooleanField(label='List of applications',
       required=False)
-  report_awards = forms.BooleanField(label='List of awards received',
+  report_awards = forms.BooleanField(label='List of awards',
       required=False)
 
 
@@ -277,5 +281,6 @@ class LoginAsOrgForm(forms.Form):
     super(LoginAsOrgForm, self).__init__(*args, **kwargs)
 
     orgs = Organization.objects.order_by('name')
-    self.fields['organization'] = forms.ChoiceField(choices = [('', '--- Organizations ---')] + [(o.email, unicode(o)) for o in orgs])
+    self.fields['organization'] = forms.ChoiceField(choices = 
+        [('', '--- Organizations ---')] + [(o.email, unicode(o)) for o in orgs])
 
