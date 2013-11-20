@@ -797,8 +797,8 @@ def get_award_results(options):
   min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
   max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S')
   max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
-  gp_awards = gp_awards.filter(check_mailed__gte=min_year, check_mailed__lte=max_year)
-  sponsored = sponsored.filter(check_mailed__gte=min_year, check_mailed__lte=max_year)
+  gp_awards = gp_awards.filter(created__gte=min_year, created__lte=max_year)
+  sponsored = sponsored.filter(entered__gte=min_year, entered__lte=max_year)
 
   if options.get('organization_name'):
     gp_awards = gp_awards.filter(application__organization__contains=options['organization_name'])
@@ -829,9 +829,6 @@ def get_award_results(options):
   if options.get('report_fiscal'):
     org_fields += models.GrantApplication.fields_starting_with('fiscal')
     org_fields.remove('fiscal_letter')
-
-
-  #TODO year end report
 
   # get values
   results = []
