@@ -19,9 +19,11 @@ class RegistrationForm(forms.Form):
   password = forms.CharField(widget=forms.PasswordInput())
   passwordtwo = forms.CharField(widget=forms.PasswordInput(),
                                 label="Re-enter password")
-  giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date(), public=True),
-                                          empty_label="Select a giving project",
-                                          required=False)
+  giving_project = forms.ModelChoiceField(
+      empty_label="Select a giving project", required=False,
+      queryset=models.GivingProject.objects.filter(
+          fundraising_deadline__gte=timezone.now().date(),
+          public=True))
 
   def clean(self): #make sure passwords match
     cleaned_data = super(RegistrationForm, self).clean()
@@ -34,8 +36,10 @@ class RegistrationForm(forms.Form):
     return cleaned_data
 
 class AddProjectForm(forms.Form):
-  giving_project = forms.ModelChoiceField(queryset=models.GivingProject.objects.filter(fundraising_deadline__gte=timezone.now().date(), public=True),
-                                          empty_label="Select a giving project")
+  giving_project = forms.ModelChoiceField(
+      empty_label="Select a giving project",
+      queryset=models.GivingProject.objects.filter(
+          fundraising_deadline__gte=timezone.now().date(), public=True))
 
 class MassDonor(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
@@ -60,12 +64,13 @@ class DonorEstimates(forms.Form):
                                   widget=forms.TextInput(attrs={'class':'half'}))
 
 class MassStep(forms.Form):
-  date = forms.DateField(required=False,
-                         widget=forms.DateInput(attrs={'class':'datePicker'},
-                         format = '%m/%d/%Y'),
-                         error_messages = {'invalid':'Please enter a date in mm/dd/yyyy format.'})
-  description = forms.CharField(max_length=255, required=False,
-                                widget=forms.TextInput(attrs={'onfocus':'showSuggestions(this.id)'}))
+  date = forms.DateField(
+      required=False,
+      widget=forms.DateInput(attrs={'class':'datePicker'}, format = '%m/%d/%Y'),
+      error_messages = {'invalid':'Please enter a date in mm/dd/yyyy format.'})
+  description = forms.CharField(
+      max_length=255, required=False,
+      widget=forms.TextInput(attrs={'onfocus':'showSuggestions(this.id)'}))
   donor = forms.ModelChoiceField(queryset=models.Donor.objects.all(),
                                  widget=forms.HiddenInput())
 
@@ -84,14 +89,17 @@ class MassStep(forms.Form):
     return cleaned_data
 
 class StepDoneForm(forms.Form):
-  asked = forms.BooleanField(required=False,
-                             widget=forms.CheckboxInput(attrs={'onchange':'askedToggled(this)'}))
-  response = forms.ChoiceField(choices=((1, 'Promised'), (2, 'Unsure'), (3, 'Declined')),
-                               initial=2,
-                               widget=forms.Select(attrs={'onchange':'responseSelected(this)'}))
-  promised_amount = IntegerCommaField(required=False, min_value=0,
-                                      error_messages={'min_value': 'Promise amounts cannot be negative'},
-                                      widget=forms.TextInput(attrs = {'onchange':'promiseEntered(this)', 'size':10}))
+  asked = forms.BooleanField(
+      required=False,
+      widget=forms.CheckboxInput(attrs={'onchange':'askedToggled(this)'}))
+  response = forms.ChoiceField(
+      choices=((1, 'Promised'), (2, 'Unsure'), (3, 'Declined')),
+      initial=2,
+      widget=forms.Select(attrs={'onchange':'responseSelected(this)'}))
+  promised_amount = IntegerCommaField(
+      required=False, min_value=0,
+      error_messages={'min_value': 'Promise amounts cannot be negative'},
+      widget=forms.TextInput(attrs = {'onchange':'promiseEntered(this)', 'size':10}))
 
   last_name = forms.CharField(max_length=255, required=False)
   phone = forms.CharField(max_length=15, required=False)
@@ -101,11 +109,14 @@ class StepDoneForm(forms.Form):
                           widget=forms.Textarea(attrs={'rows':3, 'cols':20}))
 
   next_step = forms.CharField(max_length=100, required=False)
-  next_step_date = forms.DateField(required=False,
-                                   widget=forms.DateInput(
-                                     attrs={'class':'datePicker', 'input_formats':"['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y', '%n-%j-%Y']"},
-                                     format = '%m/%d/%Y'),
-                                   error_messages = {'invalid':'Please enter a date in mm/dd/yyyy format.'})
+  next_step_date = forms.DateField(
+      required=False,
+      widget=forms.DateInput(
+          format = '%m/%d/%Y', 
+          attrs={
+              'class':'datePicker',
+              'input_formats':"['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y', '%n-%j-%Y']"}),
+      error_messages = {'invalid':'Please enter a date in mm/dd/yyyy format.'})
 
   def clean(self):
     cleaned_data = super(StepDoneForm, self).clean()
@@ -141,7 +152,9 @@ class MembershipInlineFormset(forms.models.BaseInlineFormSet):
     leader = 0
     for form in self.forms:
       try:
-        if form.cleaned_data and not form.cleaned_data.get('DELETE', False) and form.cleaned_data['leader']:
+        if (form.cleaned_data and
+            not form.cleaned_data.get('DELETE', False) and
+            form.cleaned_data['leader']):
           leader += 1
       except AttributeError:
         # annoyingly, if a subform is invalid Django explicity raises
