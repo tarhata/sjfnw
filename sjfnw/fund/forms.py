@@ -163,3 +163,4 @@ class MembershipInlineFormset(forms.models.BaseInlineFormSet):
     if leader < 1:
       raise forms.ValidationError('You must have at least one leader')
 
+

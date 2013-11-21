@@ -39,9 +39,9 @@ urlpatterns = patterns('',
   (r'^admin/grants/search/?', 'sjfnw.grants.views.grants_report'),
 
   # cron emails
-  (r'^mail/overdue-step', 'sjfnw.fund.views.EmailOverdue'),
-  (r'^mail/new-accounts', 'sjfnw.fund.views.NewAccounts'),
-  (r'^mail/gifts', 'sjfnw.fund.views.GiftNotify'),
+  (r'^mail/overdue-step', 'sjfnw.fund.views.email_overdue'),
+  (r'^mail/new-accounts', 'sjfnw.fund.views.new_accounts'),
+  (r'^mail/gifts', 'sjfnw.fund.views.gift_notify'),
   (r'^mail/drafts/?', 'sjfnw.grants.views.DraftWarning'),
 
   # dev
