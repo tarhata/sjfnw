@@ -61,7 +61,7 @@ def get_block_content(membership, first=True):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def Home(request):
+def home(request):
 
   #hacks FIXME
   mult_template = 'fund/add_mult.html'
@@ -232,7 +232,7 @@ def Home(request):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def ProjectPage(request):
+def project_page(request):
 
   membership = request.membership
   member = membership.member
@@ -278,7 +278,7 @@ def ProjectPage(request):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def GrantList(request):
+def grant_list(request):
 
   membership = request.membership
   member = membership.member
@@ -301,7 +301,7 @@ def GrantList(request):
     })
 
 # LOGIN & REGISTRATION
-def FundLogin(request):
+def fund_login(request):
   error_msg = ''
   if request.method == 'POST':
     form = forms.LoginForm(request.POST)
@@ -311,7 +311,7 @@ def FundLogin(request):
     if user:
       if user.is_active:
         login(request, user)
-        return redirect(Home)
+        return redirect(home)
       else:
         error_msg = 'Your account is not active.  Contact an administrator.'
         logger.warning("Inactive account tried to log in. Username: "+username)
@@ -322,7 +322,7 @@ def FundLogin(request):
   logger.info(error_msg)
   return render(request, 'fund/login.html', {'form':form, 'error_msg':error_msg})
 
-def Register(request):
+def fund_register(request):
   error_msg = ''
   if request.method == 'POST':
     register = forms.RegistrationForm(request.POST)
@@ -376,23 +376,30 @@ def Register(request):
   return render(request, 'fund/register.html', {'form':register, 'error_msg':error_msg})
 
 @login_required(login_url='/fund/login/')
-def Registered(request):
+def registered(request):
+  """ Sets up a member after registration TODO could this be a func instead of view?
+  
+  If they have no memberships, send them to projects page
+  
+  Checks membership for pre-approval status
+  """
+
   if request.membership_status == 0:
     return redirect(NotMember)
   elif request.membership_status == 1:
-    return redirect(Projects)
+    return redirect(manage_account)
   else:
     member = models.Member.objects.get(email=request.user.username)
 
-  nship = request.GET.get('sh') or member.current #sh set by Projects, current set by Register
+  nship = request.GET.get('sh') or member.current #sh set by manage_account, current set by Register
   try:
     ship = models.Membership.objects.get(pk=nship, member=member)
   except models.Membership.DoesNotExist: #only if they manually entered # or something went horribly wrong
     logger.warning('Membership does not exist right at /registered ' + request.user.username)
-    return redirect(Home)
+    return redirect(home)
   if ship.approved == True: #another precaution
     logger.warning('Membership approved before check at /registered ' + request.user.username)
-    return redirect(Home)
+    return redirect(home)
 
   proj = ship.giving_project
   if proj.pre_approved:
@@ -404,13 +411,13 @@ def Registered(request):
       member.current = nship
       member.save()
       logger.info('Pre-approval succeeded')
-      return redirect(Home)
+      return redirect(home)
 
   return render(request, 'fund/registered.html', {'member':member, 'proj':proj})
 
 #MEMBERSHIP MANAGEMENT
 @login_required(login_url='/fund/login/')
-def Projects(request):
+def manage_account(request):
 
   if request.membership_status == 0:
     return redirect(NotMember)
@@ -437,21 +444,21 @@ def Projects(request):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def SetCurrent(request, ship_id):
+def set_current(request, ship_id):
   member = request.membership.member
   try:
     shippy = models.Membership.objects.get(pk=ship_id, member=member, approved=True)
   except models.Membership.DoesNotExist:
-    return redirect(Projects)
+    return redirect(manage_account)
 
   member.current = shippy.pk
   member.save()
 
-  return redirect(Home)
+  return redirect(home)
 
 #ERROR & HELP PAGES
 @login_required(login_url='/fund/login/')
-def NotMember(request):
+def not_member(request):
   try:
     org = Organization.objects.get(email=request.user.username)
   except Organization.DoesNotExist:
@@ -459,7 +466,7 @@ def NotMember(request):
   return render(request, 'fund/not_member.html', {'contact_url':'/fund/support#contact', 'org':org})
 
 @login_required(login_url='/fund/login/')
-def NotApproved(request):
+def not_approved(request):
   try:
     member = models.Member.objects.get(email=request.user.username)
   except models.Member.DoesNotExist:
@@ -467,10 +474,10 @@ def NotApproved(request):
 
   return render(request, 'fund/not_approved.html')
 
-def Blocked(request):
+def blocked(request):
   return render(request, 'fund/blocked.html', {'contact_url':'/fund/support#contact'})
 
-def Support(request):
+def support(request):
   member = False
   if request.membership_status > 1:
     member = request.membership.member
@@ -482,7 +489,7 @@ def Support(request):
 #FORMS
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def AddMult(request):
+def add_mult(request):
   logger.info(request.path)
   membership = request.membership
   est = membership.giving_project.require_estimates() #showing estimates t/f
@@ -532,7 +539,7 @@ def AddMult(request):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def AddEstimates(request):
+def add_estimates(request):
   initiald = [] #list of dicts for form initial
   dlist = [] #list of donors for zipping to formset
   membership = request.membership
@@ -566,7 +573,7 @@ def AddEstimates(request):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def EditDonor(request, donor_id):
+def edit_donor(request, donor_id):
 
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
@@ -605,7 +612,7 @@ def EditDonor(request, donor_id):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def DeleteDonor(request, donor_id):
+def delete_donor(request, donor_id):
 
   try:
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
@@ -620,13 +627,13 @@ def DeleteDonor(request, donor_id):
     request.membership.last_activity = timezone.now()
     request.membership.save(skip=True)
     donor.delete()
-    return redirect(Home)
+    return redirect(home)
 
   return render(request, 'fund/delete.html', {'action':action})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def AddStep(request, donor_id):
+def add_step(request, donor_id):
 
   membership = request.membership
   suggested = membership.giving_project.suggested_steps.splitlines()
@@ -665,7 +672,7 @@ def AddStep(request, donor_id):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def AddMultStep(request):
+def add_mult_step(request):
   initiald = [] #list of dicts for form initial
   dlist = [] #list of donors for zipping to formset
   size = 0
@@ -707,7 +714,7 @@ def AddMultStep(request):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def EditStep(request, donor_id, step_id):
+def edit_step(request, donor_id, step_id):
 
   suggested = request.membership.giving_project.suggested_steps.splitlines()
   logger.info(suggested)
@@ -750,7 +757,7 @@ def EditStep(request, donor_id, step_id):
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
-def DoneStep(request, donor_id, step_id):
+def done_step(request, donor_id, step_id):
 
   membership = request.membership
   suggested = membership.giving_project.suggested_steps.splitlines()
@@ -844,7 +851,7 @@ def DoneStep(request, donor_id, step_id):
                  'step':step})
 
 #CRON EMAILS
-def EmailOverdue(request):
+def email_overdue(request):
   #TODO - in email content, show all overdue steps (not just for that ship)
   today = datetime.date.today()
   ships = models.Membership.objects.filter(giving_project__fundraising_deadline__gte=today)
@@ -870,7 +877,7 @@ def EmailOverdue(request):
         ship.save(skip=True)
   return HttpResponse("")
 
-def NewAccounts(request):
+def new_accounts(request):
   """
   Sends GP leaders an email saying how many unapproved memberships exist
   Will continue emailing about the same membership until it's approved/deleted.
@@ -893,7 +900,7 @@ def NewAccounts(request):
         msg.send()
   return HttpResponse("")
 
-def GiftNotify(request):
+def gift_notify(request):
   """
   Send an email to members letting them know gifts have been received
   Mark donors as notified
@@ -938,7 +945,7 @@ def GiftNotify(request):
   donors.update(gift_notified=True)
   return HttpResponse("")
 
-def FindDuplicates(request): #no url
+def find_duplicates(request): #no url
   donors = (models.Donor.objects.select_related('membership')
                                 .order_by('firstname', 'lastname',
                                           'membership', '-next_step'))

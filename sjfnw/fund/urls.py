@@ -4,36 +4,36 @@ from sjfnw import constants
 urlpatterns = patterns('sjfnw.fund.views',
 
   #login, logout, registration
-  (r'^login/?$', 'FundLogin'),
-  (r'^register/?$', 'Register'),
-  (r'^registered/?$', 'Registered'),
+  (r'^login/?$', 'fund_login'),
+  (r'^register/?$', 'fund_register'),
+  (r'^registered/?$', 'registered'),
 
   #main pages
-  (r'^$', 'Home'),
-  (r'^gp/?', 'ProjectPage'),
-  (r'^grants/?', 'GrantList'),
+  (r'^$', 'home'),
+  (r'^gp/?', 'project_page'),
+  (r'^grants/?', 'grant_list'),
 
   #manage memberships
-  (r'^projects/?', 'Projects'),
-  (r'^set-current/(?P<ship_id>\d+)/?', 'SetCurrent'),
+  (r'^projects/?', 'manage_account'),
+  (r'^set-current/(?P<ship_id>\d+)/?', 'set_current'),
 
   #forms - contacts
-  (r'^addmult', 'AddMult'),
-  (r'^(?P<donor_id>\d+)/edit','EditDonor'),
-  (r'^(?P<donor_id>\d+)/delete', 'DeleteDonor'),
-  (r'^add-estimates', 'AddEstimates'),
+  (r'^addmult', 'add_mult'),
+  (r'^(?P<donor_id>\d+)/edit','edit_donor'),
+  (r'^(?P<donor_id>\d+)/delete', 'delete_donor'),
+  (r'^add-estimates', 'add_estimates'),
 
   #forms - steps
-  (r'^(?P<donor_id>\d+)/step$','AddStep'),
-  (r'^stepmult$','AddMultStep'),
-  (r'^(?P<donor_id>\d+)/(?P<step_id>\d+)$','EditStep'),
-  (r'^(?P<donor_id>\d+)/(?P<step_id>\d+)/done','DoneStep'),
+  (r'^(?P<donor_id>\d+)/step$','add_step'),
+  (r'^stepmult$','add_mult_step'),
+  (r'^(?P<donor_id>\d+)/(?P<step_id>\d+)$','edit_step'),
+  (r'^(?P<donor_id>\d+)/(?P<step_id>\d+)/done','done_step'),
 
   #error/help pages
-  (r'^not-member/?', 'NotMember'),
-  (r'^pending/?$', 'NotApproved'),
-  (r'^support/?', 'Support'),
-  (r'^blocked/?$', 'Blocked'),
+  (r'^not-member/?', 'not_member'),
+  (r'^pending/?$', 'not_approved'),
+  (r'^support/?', 'support'),
+  (r'^blocked/?$', 'blocked'),
 )
 
 urlpatterns += patterns('',
