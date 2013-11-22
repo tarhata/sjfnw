@@ -416,7 +416,7 @@ def CopyApp(request, organization):
                                   exclude = application.file_fields() + [
                                     'organization', 'grant_cycle',
                                     'submission_time', 'screening_status',
-                                    'giving_project', 'scoring_bonus_poc',
+                                    'giving_projects', 'scoring_bonus_poc',
                                     'scoring_bonus_geo', 'cycle_question',
                                     'timeline'
                                   ])
@@ -505,10 +505,7 @@ def view_permission(user, application):
     try:
       member = Member.objects.select_related().get(email=user.email)
       for ship in member.membership_set.all():
-        if ship.giving_project == application.giving_project:
-          return 1
-        #hack for PDX/NGGP
-        if ship.giving_project.pk == 14 and application.giving_project.pk == 12:
+        if ship.giving_project in application.giving_projects:
           return 1
       return 0
     except Member.DoesNotExist:
@@ -560,7 +557,7 @@ def AppToDraft(request, app_id):
                             exclude = submitted_app.file_fields() + [
                                 'organization', 'grant_cycle',
                                 'submission_time', 'screening_status',
-                                'giving_project', 'scoring_bonus_poc',
+                                'giving_projects', 'scoring_bonus_poc',
                                 'scoring_bonus_geo', 'timeline'])
     content.update(dict(zip(['timeline_' + str(i) for i in range(15)],
                             json.loads(submitted_app.timeline))
@@ -593,7 +590,6 @@ def AdminRollover(request, app_id):
       application.screening_status = 10
       application.submission_time = timezone.now()
       application.grant_cycle = cycle
-      application.giving_project = None
       application.save()
       return redirect('/admin/grants/grantapplication/'+str(application.pk)+'/')
   else:

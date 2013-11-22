@@ -185,7 +185,7 @@ class AppReportForm(BaseOrgAppReport):
       label='Basics', required=False,
       widget = CheckMultiple, choices = [
         ('id', 'Unique id number'),
-        ('giving_project', 'Giving project'),
+        ('giving_project', 'Giving projects'),
         ('screening_status', 'Screening status')
       ])
   report_proposal = forms.MultipleChoiceField(

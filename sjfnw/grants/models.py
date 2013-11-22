@@ -411,26 +411,6 @@ class GrantApplication(models.Model):
   scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity')
   site_visit_report = models.URLField(blank=True, help_text='Link to the google doc containing the site visit report. This will be visible to all project members, but not the organization.')
 
-  #TODO remove these
-  SCREENING_CHOICES = (
-    (10, 'Received'),
-    (20, 'Incomplete'),
-    (30, 'Complete'),
-    (40, 'Pre-screened out'),
-    (45, 'Screened out by sub-committee'),
-    (50, 'Pre-screened in'), #readable, scorable
-    (60, 'Screened out'),
-    (70, 'Site visit awarded'), #site visit reports
-    (80, 'Grant denied'),
-    (90, 'Grant issued'),
-    (100, 'Grant paid'),
-    (110, 'Year-end report overdue'),
-    (120, 'Year-end report received'),
-    (130, 'Closed'),)
-  #admin fields
-  screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
-  giving_project = models.ForeignKey(GivingProject, null=True, blank=True, related_name='old_gp')
-
   class Meta:
     ordering = ['organization', 'submission_time']
     unique_together = ('organization', 'grant_cycle')
@@ -498,7 +478,6 @@ class ProjectApp(models.Model):
     return 'Giving project - grant application connection'
 
 
-
 class GrantApplicationLog(models.Model):
   date = models.DateTimeField(default = timezone.now())
   organization = models.ForeignKey(Organization)
@@ -506,33 +485,6 @@ class GrantApplicationLog(models.Model):
   staff = models.ForeignKey(User)
   contacted = models.CharField(max_length=255, help_text = 'Person from the organization that you talked to, if applicable.', blank=True)
   notes = models.TextField()
-
-#TODO remove
-class GrantAward(models.Model):
-  created = models.DateTimeField(default=timezone.now())
-
-  application = models.ForeignKey(GrantApplication)
-
-  amount = models.DecimalField(max_digits=8, decimal_places=2)
-  check_number = models.PositiveIntegerField(null=True, blank=True)
-  check_mailed = models.DateField(null=True, blank=True)
-
-  agreement_mailed = models.DateField(null=True, blank=True)
-  agreement_returned = models.DateField(null=True, blank=True)
-  approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
-
-  def agreement_due(self):
-    if self.agreement_mailed:
-      return self.agreement_mailed + timedelta(days=30)
-    else:
-      return None
-
-  def yearend_due(self):
-    if self.agreement_mailed:
-      return (self.agreement_mailed +
-          timedelta(days=30)).replace(year = self.agreement_mailed.year + 1)
-    else:
-      return None
 
 
 class GivingProjectGrant(models.Model):

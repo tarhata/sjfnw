@@ -175,7 +175,7 @@ class GrantApplicationA(admin.ModelAdmin):
                    'view_link'),)
     }),
     ('Administration', {
-        'fields': (('screening_status', 'giving_project'),
+        'fields': (('screening_status', 'giving_projects'),
                    ('scoring_bonus_poc', 'scoring_bonus_geo', 'site_visit_report'),
                    ('revert_grant', 'rollover'))
     })
@@ -266,7 +266,6 @@ admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
 admin.site.register(GivingProjectGrant, GivingProjectGrantA)
 admin.site.register(SponsoredProgramGrant, SponsoredProgramGrantA)
-admin.site.register(GrantAward)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)
