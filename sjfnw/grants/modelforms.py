@@ -1,6 +1,8 @@
 from django import forms
 from django.forms import ValidationError, ModelForm
+from django.utils.text import capfirst
 
+from sjfnw.forms import IntegerCommaField, PhoneNumberField
 from sjfnw.grants.models import Organization, GrantApplication, DraftGrantApplication
 
 import logging
@@ -14,7 +16,7 @@ class OrgProfile(ModelForm):
     exclude = ('name', 'email')
 
 
-class TimelineWidget(MultiWidget):
+class TimelineWidget(forms.widgets.MultiWidget):
   def __init__(self, attrs=None):
     _widgets = (
       forms.Textarea(attrs={'rows':'5', 'cols':'20'}),
@@ -110,14 +112,14 @@ class GrantApplicationModelForm(forms.ModelForm):
       'narrative6': forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[6]) + ')'}),
       'cycle_question': forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[7]) + ')'}),
       #file callbacks
-      'budget': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'demographics': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'funding_sources': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'fiscal_letter': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget1': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget2': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget3': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'project_budget_file': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'demographics': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'funding_sources': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'fiscal_letter': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget1': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget2': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'budget3': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
+      'project_budget_file': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
       #timeline
       'timeline':TimelineWidget(),
     }

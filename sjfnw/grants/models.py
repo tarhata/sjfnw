@@ -2,13 +2,9 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import BaseValidator
 from django.db import models
-from django.forms import ModelForm, Textarea
-from django.forms.widgets import FileInput, MultiWidget
 from django.utils import timezone
-from django.utils.text import capfirst
 
 from sjfnw.fund.models import GivingProject
-from sjfnw.forms import IntegerCommaField, PhoneNumberField
 from sjfnw import constants
 
 from datetime import timedelta
@@ -415,6 +411,26 @@ class GrantApplication(models.Model):
   scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity')
   site_visit_report = models.URLField(blank=True, help_text='Link to the google doc containing the site visit report. This will be visible to all project members, but not the organization.')
 
+  #TODO remove these
+  SCREENING_CHOICES = (
+    (10, 'Received'),
+    (20, 'Incomplete'),
+    (30, 'Complete'),
+    (40, 'Pre-screened out'),
+    (45, 'Screened out by sub-committee'),
+    (50, 'Pre-screened in'), #readable, scorable
+    (60, 'Screened out'),
+    (70, 'Site visit awarded'), #site visit reports
+    (80, 'Grant denied'),
+    (90, 'Grant issued'),
+    (100, 'Grant paid'),
+    (110, 'Year-end report overdue'),
+    (120, 'Year-end report received'),
+    (130, 'Closed'),)
+  #admin fields
+  screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
+  giving_project = models.ForeignKey(GivingProject, null=True, blank=True, related_name='old_gp')
+
   class Meta:
     ordering = ['organization', 'submission_time']
     unique_together = ('organization', 'grant_cycle')
@@ -491,6 +507,33 @@ class GrantApplicationLog(models.Model):
   contacted = models.CharField(max_length=255, help_text = 'Person from the organization that you talked to, if applicable.', blank=True)
   notes = models.TextField()
 
+#TODO remove
+class GrantAward(models.Model):
+  created = models.DateTimeField(default=timezone.now())
+
+  application = models.ForeignKey(GrantApplication)
+
+  amount = models.DecimalField(max_digits=8, decimal_places=2)
+  check_number = models.PositiveIntegerField(null=True, blank=True)
+  check_mailed = models.DateField(null=True, blank=True)
+
+  agreement_mailed = models.DateField(null=True, blank=True)
+  agreement_returned = models.DateField(null=True, blank=True)
+  approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
+
+  def agreement_due(self):
+    if self.agreement_mailed:
+      return self.agreement_mailed + timedelta(days=30)
+    else:
+      return None
+
+  def yearend_due(self):
+    if self.agreement_mailed:
+      return (self.agreement_mailed +
+          timedelta(days=30)).replace(year = self.agreement_mailed.year + 1)
+    else:
+      return None
+
 
 class GivingProjectGrant(models.Model):
   created = models.DateTimeField(default=timezone.now())
@@ -505,9 +548,6 @@ class GivingProjectGrant(models.Model):
   agreement_returned = models.DateField(null=True, blank=True)
   approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
 
-  class Meta:
-    ordering = ['application']
-
   def agreement_due(self):
     if self.agreement_mailed:
       return self.agreement_mailed + timedelta(days=30)
@@ -516,7 +556,8 @@ class GivingProjectGrant(models.Model):
 
   def yearend_due(self):
     if self.agreement_mailed:
-      return (self.agreement_mailed + timedelta(days=30)).replace(year = self.agreement_mailed.year + 1)
+      return (self.agreement_mailed +
+          timedelta(days=30)).replace(year = self.agreement_mailed.year + 1)
     else:
       return None
 
@@ -528,7 +569,8 @@ class SponsoredProgramGrant(models.Model):
   amount = models.PositiveIntegerField()
   check_number = models.PositiveIntegerField(null=True, blank=True)
   check_mailed = models.DateField(null=True, blank=True)
-  approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
+  approved = models.DateField(verbose_name='Date approved by the ED',
+                              null=True, blank=True)
 
   description = models.TextField(blank=True)
 

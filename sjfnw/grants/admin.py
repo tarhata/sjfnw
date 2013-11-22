@@ -232,11 +232,11 @@ class DraftAdv(admin.ModelAdmin): #Advanced
                      'budget1', 'budget2', 'budget3', 'project_budget_file')
 
 class GivingProjectGrantA(admin.ModelAdmin):
-  list_display = ('application', 'amount', 'check_mailed', 'year_end_report_due')
+  list_display = ('project_app', 'amount', 'check_mailed', 'year_end_report_due')
   list_filter = ('agreement_mailed',)
   exclude = ('created',)
   fields = (
-      ('application', 'amount'),
+      ('project_app', 'amount'),
       ('check_number', 'check_mailed'),
       ('agreement_mailed', 'agreement_returned'),
       'approved',
@@ -266,6 +266,7 @@ admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
 admin.site.register(GivingProjectGrant, GivingProjectGrantA)
 admin.site.register(SponsoredProgramGrant, SponsoredProgramGrantA)
+admin.site.register(GrantAward)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)

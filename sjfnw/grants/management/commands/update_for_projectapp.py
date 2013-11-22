@@ -14,9 +14,9 @@ class Command(BaseCommand):
   def handle(self, *args, **kwargs):
     
     if settings.DATABASES['default']['NAME'] != 'sjfdb_local':
-      opt_cont = input('You are using the live database.  Press 1 to continue')
-      if opt_cont != '1':
-        self.stdout.write('Terminating.')
+      opt_cont = raw_input('You are using the live database.  Press y to continue: ')
+      if opt_cont != 'y':
+        self.stderr.write('Terminating.')
         return
 
     # 1 syncdb to create the new tables
@@ -27,15 +27,15 @@ class Command(BaseCommand):
     # relevant fields there
     self.stdout.write('Restructing application - giving projects connections...')
     apps = GrantApplication.objects.filter(giving_project__isnull=False)
-    connections = 0
-    awards = 0
+    count_pa = 0
+    count_a = 0
     for app in apps:
       project_app = ProjectApp(application = app,
                                giving_project = app.giving_project,
                                screening_status = app.screening_status)
       project_app.save()
-      connections += 1
-      awards = app.grantaward_set
+      count_pa += 1
+      awards = app.grantaward_set.all()
       # if this app has awards, recreate them in new format
       if awards:
         award = awards[0]
@@ -47,5 +47,7 @@ class Command(BaseCommand):
                                  agreement_returned = award.agreement_returned,
                                  approved = award.approved)
         gpg.save()
-        awards += 1
+        count_a += 1
+
+    self.stdout.write('Done. %d intermediates created, %d awards created.' % (count_pa, count_a))
 
