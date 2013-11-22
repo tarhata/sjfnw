@@ -13,7 +13,7 @@ from sjfnw.constants import TEST_MIDDLEWARE
 from sjfnw.tests import BaseTestCase
 from sjfnw.fund.models import GivingProject
 from sjfnw.grants.forms import AppReportForm, OrgReportForm, AwardReportForm
-from sjfnw.grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle, GrantAward, SponsoredProgramGrant
+from sjfnw.grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle, GivingProjectGrant, SponsoredProgramGrant
 
 import datetime, json, unittest, logging
 logger = logging.getLogger('sjfnw')
@@ -787,7 +787,7 @@ class OrgHomeAwards(BaseGrantTestCase):
 
   def test_early(self):
     """ org has an award, but agreement has not been mailed. verify not shown """
-    award = GrantAward(application_id = 1, amount = 9000)
+    award = GivingProjectGrant(application_id = 1, amount = 9000)
     award.save()
 
     response = self.client.get(self.url)
@@ -797,7 +797,7 @@ class OrgHomeAwards(BaseGrantTestCase):
 
   def test_sent(self):
     """ org has award, agreement mailed. verify shown """
-    award = GrantAward(application_id = 1, amount = 9000,
+    award = GivingProjectGrant(application_id = 1, amount = 9000,
         agreement_mailed = timezone.now()-datetime.timedelta(days=1))
     award.save()
 
@@ -986,7 +986,7 @@ class Reporting(BaseGrantTestCase):
 
     results = response.context['results']
     self.assertEqual(len(results),
-        GrantAward.objects.count() + SponsoredProgramGrant.objects.count())
+        GivingProjectGrant.objects.count() + SponsoredProgramGrant.objects.count())
 
   def test_award_fields_csv(self):
     """ Verify that award fields can be fetched in csv format
@@ -1011,7 +1011,7 @@ class Reporting(BaseGrantTestCase):
     reader = unicodecsv.reader(response, encoding = 'utf8')
     row_count = sum(1 for row in reader)
     self.assertEqual(row_count-2,
-        GrantAward.objects.count() + SponsoredProgramGrant.objects.count())
+        GivingProjectGrant.objects.count() + SponsoredProgramGrant.objects.count())
 
   def test_award_filters_all(self):
     """ Verify that all filters can be selected in award report without error

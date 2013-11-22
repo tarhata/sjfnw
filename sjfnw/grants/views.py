@@ -788,7 +788,7 @@ def get_award_results(options):
   """
 
   # initial querysets
-  gp_awards = models.GrantAward.objects.all().select_related('application',
+  gp_awards = models.GivingProjectGrant.objects.all().select_related('application',
       'application__organization')
   sponsored = models.SponsoredProgramGrant.objects.all().select_related('organization')
 

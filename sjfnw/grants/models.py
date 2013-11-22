@@ -492,10 +492,10 @@ class GrantApplicationLog(models.Model):
   notes = models.TextField()
 
 
-class GrantAward(models.Model):
+class GivingProjectGrant(models.Model):
   created = models.DateTimeField(default=timezone.now())
 
-  application = models.ForeignKey(GrantApplication)
+  project_app = models.ForeignKey(ProjectApp)
 
   amount = models.DecimalField(max_digits=8, decimal_places=2)
   check_number = models.PositiveIntegerField(null=True, blank=True)

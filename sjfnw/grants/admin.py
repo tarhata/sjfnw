@@ -52,7 +52,7 @@ class GrantLogInline(admin.TabularInline): #Org, Application
     return super(GrantLogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class AwardInline(admin.TabularInline):
-  model = GrantAward
+  model = GivingProjectGrant
   extra = 0
   max_num = 0
   fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
@@ -231,7 +231,7 @@ class DraftAdv(admin.ModelAdmin): #Advanced
                      'demographics', 'funding_sources', 'fiscal_letter',
                      'budget1', 'budget2', 'budget3', 'project_budget_file')
 
-class GrantAwardA(admin.ModelAdmin):
+class GivingProjectGrantA(admin.ModelAdmin):
   list_display = ('application', 'amount', 'check_mailed', 'year_end_report_due')
   list_filter = ('agreement_mailed',)
   exclude = ('created',)
@@ -264,13 +264,13 @@ admin.site.register(GrantCycle, GrantCycleA)
 admin.site.register(Organization, OrganizationA)
 admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
-admin.site.register(GrantAward, GrantAwardA)
+admin.site.register(GivingProjectGrant, GivingProjectGrantA)
 admin.site.register(SponsoredProgramGrant, SponsoredProgramGrantA)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)
 advanced_admin.register(GrantApplication, GrantApplicationA)
 advanced_admin.register(DraftGrantApplication, DraftAdv)
-advanced_admin.register(GrantAward, GrantAwardA)
+advanced_admin.register(GivingProjectGrant, GivingProjectGrantA)
 advanced_admin.register(SponsoredProgramGrant, SponsoredProgramGrantA)
 
