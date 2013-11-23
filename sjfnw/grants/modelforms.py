@@ -45,8 +45,8 @@ class TimelineWidget(forms.widgets.MultiWidget):
 
     if value:
       return json.loads(value)
-    return [None, None, None, None, None, None, None, None, None, None, None,
-            None, None, None, None]
+    return [None, None, None, None, None, None, None, None,
+            None, None, None, None, None, None, None]
 
 
   def format_output(self, rendered_widgets):
@@ -99,7 +99,7 @@ class GrantApplicationModelForm(forms.ModelForm):
 
   class Meta:
     model = GrantApplication
-    exclude = ['screening_status', 'submission_time']
+    exclude = ['pre_screening_status', 'submission_time']
     widgets = {
       #char limits
       'mission': forms.Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 150)'}),
@@ -246,17 +246,6 @@ class GrantApplicationModelForm(forms.ModelForm):
 
 
 # ADMIN
-
-class AppAdminForm(ModelForm):
-  def clean(self):
-    cleaned_data = super(AppAdminForm, self).clean()
-    status = cleaned_data.get("screening_status")
-    if status >= 100:
-      logger.info('Require check details')
-    return cleaned_data
-
-  class Meta:
-    model = GrantApplication
 
 class DraftAdminForm(ModelForm):
   class Meta:

@@ -76,6 +76,26 @@ STATUS_CHOICES = [
    'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government')
   ]
 
+PRE_SCREENING = (
+  (10, 'Received'),
+  (20, 'Incomplete'),
+  (30, 'Complete'),
+  (40, 'Pre-screened out'),
+  (45, 'Screened out by sub-committee'),
+  (50, 'Pre-screened in')
+)
+
+SCREENING = (
+  (60, 'Screened out'),
+  (70, 'Site visit awarded'), #site visit reports
+  (80, 'Grant denied'),
+  (90, 'Grant issued'),
+  (100, 'Grant paid'),
+  (110, 'Year-end report overdue'),
+  (120, 'Year-end report received'),
+  (130, 'Closed')
+)
+
 class Organization(models.Model):
   #registration fields
   name = models.CharField(max_length=255, unique=True, error_messages={
@@ -406,10 +426,17 @@ class GrantApplication(models.Model):
   fiscal_letter = models.FileField(upload_to='/', blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', max_length=255, validators=[validate_file_extension])
 
   # admin fields
+  pre_screening_status = models.IntegerField(choices = PRE_SCREENING,
+                                             default = 10)
   giving_projects = models.ManyToManyField(GivingProject, through='ProjectApp')
-  scoring_bonus_poc = models.BooleanField(default=False, verbose_name='Scoring bonus for POC-led')
-  scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity')
-  site_visit_report = models.URLField(blank=True, help_text='Link to the google doc containing the site visit report. This will be visible to all project members, but not the organization.')
+  scoring_bonus_poc = models.BooleanField(default=False,
+      verbose_name='Scoring bonus for POC-led')
+  scoring_bonus_geo = models.BooleanField(default=False,
+      verbose_name='Scoring bonus for geographic diversity')
+  site_visit_report = models.URLField(
+      blank=True, help_text = ('Link to the google doc containing the site '
+      'visit report. This will be visible to all project members, but not the '
+      'organization.'))
 
   class Meta:
     ordering = ['organization', 'submission_time']
@@ -456,23 +483,8 @@ class ProjectApp(models.Model):
   giving_project = models.ForeignKey(GivingProject)
   application = models.ForeignKey(GrantApplication)
 
-  SCREENING_CHOICES = (
-    (10, 'Received'),
-    (20, 'Incomplete'),
-    (30, 'Complete'),
-    (40, 'Pre-screened out'),
-    (45, 'Screened out by sub-committee'),
-    (50, 'Pre-screened in'), #readable, scorable
-    (60, 'Screened out'),
-    (70, 'Site visit awarded'), #site visit reports
-    (80, 'Grant denied'),
-    (90, 'Grant issued'),
-    (100, 'Grant paid'),
-    (110, 'Year-end report overdue'),
-    (120, 'Year-end report received'),
-    (130, 'Closed'),)
-
-  screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
+  screening_status = models.IntegerField(choices=SCREENING, blank=True,
+                                         null=True)
 
   def __unicode__(self):
     return 'Giving project - grant application connection'

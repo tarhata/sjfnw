@@ -750,7 +750,7 @@ def get_app_results(options):
         # convert screening status to human-readable version
         val = getattr(app, field)
         if val:
-          convert = dict(models.GrantApplication.SCREENING_CHOICES)
+          convert = dict(models.PRE_SCREENING)
           val = convert[val]
         row.append(val)
       else:

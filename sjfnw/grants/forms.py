@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from sjfnw.fund.models import GivingProject
-from sjfnw.grants.models import Organization, GrantCycle, GrantApplication, DraftGrantApplication, STATE_CHOICES
+from sjfnw.grants.models import Organization, GrantCycle, GrantApplication, DraftGrantApplication, STATE_CHOICES, SCREENING, PRE_SCREENING
 
 import datetime, logging
 
@@ -172,7 +172,7 @@ class AppReportForm(BaseOrgAppReport):
   #filters
   year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
   year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
-  screening_status = forms.MultipleChoiceField(choices = GrantApplication.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
+  screening_status = forms.MultipleChoiceField(choices = PRE_SCREENING + SCREENING, widget = forms.CheckboxSelectMultiple, required = False)
   giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
   grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
   poc_bonus = forms.BooleanField(required=False)

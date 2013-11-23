@@ -719,9 +719,8 @@ class ViewGrantPermissions(BaseGrantTestCase):
 
   def setUp(self, *args):
     self.printName()
-    app = GrantApplication.objects.get(pk=1)
-    app.giving_project = GivingProject.objects.get(pk=2)
-    app.save()
+    pa = ProjectApp(application_id = 1, giving_project_id = 2)
+    pa.save()
 
   """ Note: using grant app #1
     Author: testorg@gmail.com (org #2)
