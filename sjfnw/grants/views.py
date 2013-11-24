@@ -17,8 +17,9 @@ import unicodecsv
 
 from sjfnw import constants
 from sjfnw.fund.models import Member
-from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
 from sjfnw.grants.decorators import registered_org
+from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
+from sjfnw.grants.modelforms import GrantApplicationModelForm
 from sjfnw.grants import models, utils
 
 import datetime, logging, json
@@ -185,7 +186,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     draft_data['grant_cycle'] = cycle.pk
 
     #create & submit modelform
-    form = models.GrantApplicationModelForm(cycle, draft_data, files_data)
+    form = GrantApplicationModelForm(cycle, draft_data, files_data)
 
     if form.is_valid(): #VALID SUBMISSION
       logger.info('========= Application form valid')
@@ -263,7 +264,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       profiled = True
 
     #create form
-    form = models.GrantApplicationModelForm(cycle, initial=dict)
+    form = GrantApplicationModelForm(cycle, initial=dict)
 
   #get draft files
   file_urls = GetFileURLs(draft)
@@ -505,7 +506,7 @@ def view_permission(user, application):
     try:
       member = Member.objects.select_related().get(email=user.email)
       for ship in member.membership_set.all():
-        if ship.giving_project in application.giving_projects:
+        if ship.giving_project in application.giving_projects.all():
           return 1
       return 0
     except Member.DoesNotExist:
@@ -520,7 +521,7 @@ def ReadApplication(request, app_id):
     perm = view_permission(request.user, app)
   logger.info('perm is ' + str(perm))
 
-  form = models.GrantApplicationModelForm(app.grant_cycle)
+  form = GrantApplicationModelForm(app.grant_cycle)
 
   form_only = request.GET.get('form')
   if form_only:
