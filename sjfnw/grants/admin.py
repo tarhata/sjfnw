@@ -9,7 +9,7 @@ from sjfnw.admin import advanced_admin
 from sjfnw.forms import IntegerCommaField
 
 from sjfnw.grants.models import *
-from sjfnw.grants.modelforms import AppAdminForm, DraftAdminForm
+from sjfnw.grants.modelforms import DraftAdminForm
 
 import unicodecsv as csv
 import logging, re
@@ -168,7 +168,6 @@ class OrganizationAdvA(OrganizationA):
              GrantLogInline]
 
 class GrantApplicationA(admin.ModelAdmin):
-  form = AppAdminForm
   fieldsets = (
     ('Application', {
         'fields': (('organization_link', 'grant_cycle', 'submission_time',
