@@ -1,4 +1,16 @@
-﻿GRANT CYCLES
+﻿SUMMARY
+  2 ORGS
+  5 GRANT CYCLES (3 OPEN, 1 CLOSED, 1 UPCOMING)
+  1 APPLICATION
+  2 DRAFTS
+
+TO ADD
+  MORE APPS
+  GIVING PROJECT OR 2
+  ASSIGN SOME APPS TO GP
+  AWARD(S)
+
+GRANT CYCLES
 
   1 Open cycle
   2 Another open cycle
@@ -23,6 +35,7 @@ SUBMITTED
     Complete as of 3/9/13
     includes timeline, all-in-one budget
 
+  2 OfficeMax (2), Let's have a kiki (5)
 DRAFTS
 
   1 OfficeMax (2), Another open cycle (2)
