@@ -2,7 +2,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from sjfnw.grants.models import Organization, GrantApplication, ProjectApp, GivingProjectGrant
+from sjfnw.grants.models import Organization, GrantApplication, ProjectApp, GrantAward
 from sjfnw.fund.models import GivingProject
 
 
@@ -12,7 +12,7 @@ class Command(BaseCommand):
           'with a manytomany connection')
 
   def handle(self, *args, **kwargs):
-    
+
     if settings.DATABASES['default']['NAME'] != 'sjfdb_local':
       opt_cont = raw_input('You are using the live database.  Press y to continue: ')
       if opt_cont != 'y':
@@ -23,31 +23,39 @@ class Command(BaseCommand):
     self.stdout.write('Creating new tables...')
     call_command('syncdb')
 
+    self.stdout.write('Deleting projectapps from previous fails..')
+    ProjectApp.objects.all().delete()
+
     # for each app that's assigned to a gp, create a projectapp and copy
     # relevant fields there
     self.stdout.write('Restructing application - giving projects connections...')
-    apps = GrantApplication.objects.filter(giving_project__isnull=False)
+    apps = GrantApplication.objects.all()
     count_pa = 0
     count_a = 0
     for app in apps:
-      project_app = ProjectApp(application = app,
-                               giving_project = app.giving_project,
-                               screening_status = app.screening_status)
-      project_app.save()
-      count_pa += 1
-      awards = app.grantaward_set.all()
-      # if this app has awards, recreate them in new format
-      if awards:
-        award = awards[0]
-        gpg = GivingProjectGrant(project_app = project_app,
-                                 amount = award.amount,
-                                 check_number = award.check_number,
-                                 check_mailed = award.check_mailed,
-                                 agreement_mailed = award.agreement_mailed,
-                                 agreement_returned = award.agreement_returned,
-                                 approved = award.approved)
-        gpg.save()
-        count_a += 1
+      app.pre_screening_status = app.screening_status
+      app.save()
+      if app.giving_project:
+        project_app = ProjectApp(application = app,
+                                 giving_project = app.giving_project,
+                                 screening_status = app.screening_status)
+        project_app.save()
+        count_pa += 1
 
-    self.stdout.write('Done. %d intermediates created, %d awards created.' % (count_pa, count_a))
+    awards = GrantAward.objects.all().select_related('application', 'application__giving_project')
+    for award in awards:
+      app = award.application
+      gp = app.giving_project
+      if not gp:
+        self.stderr.write('Award whose app has no gp: award #' + str(award.pk))
+      else:
+        try:
+          papp = ProjectApp.objects.get(application=app, giving_project=gp)
+          award.project_app = papp
+          award.save()
+          count_a += 1
+        except ProjectApp.DoesNotExist:
+          self.stderr.write('No ProjectApp found for awarded app #' + str(app.pk))
+
+    self.stdout.write('Done. %d intermediates created, %d awards updated.' % (count_pa, count_a))
 
