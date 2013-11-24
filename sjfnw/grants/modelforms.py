@@ -5,7 +5,7 @@ from django.utils.text import capfirst
 from sjfnw.forms import IntegerCommaField, PhoneNumberField
 from sjfnw.grants.models import Organization, GrantApplication, DraftGrantApplication
 
-import logging
+import json, logging
 logger = logging.getLogger('sjfnw')
 
 
