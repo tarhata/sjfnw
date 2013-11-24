@@ -428,6 +428,7 @@ class GrantApplication(models.Model):
     (120, 'Year-end report received'),
     (130, 'Closed'),)
   #admin fields
+  pre_screening_status = models.IntegerField(choices = SCREENING_CHOICES[:6])
   screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
   giving_project = models.ForeignKey(GivingProject, null=True, blank=True, related_name='old_gp')
 
@@ -477,12 +478,6 @@ class ProjectApp(models.Model):
   application = models.ForeignKey(GrantApplication)
 
   SCREENING_CHOICES = (
-    (10, 'Received'),
-    (20, 'Incomplete'),
-    (30, 'Complete'),
-    (40, 'Pre-screened out'),
-    (45, 'Screened out by sub-committee'),
-    (50, 'Pre-screened in'), #readable, scorable
     (60, 'Screened out'),
     (70, 'Site visit awarded'), #site visit reports
     (80, 'Grant denied'),
@@ -492,7 +487,7 @@ class ProjectApp(models.Model):
     (120, 'Year-end report received'),
     (130, 'Closed'),)
 
-  screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
+  screening_status = models.IntegerField(choices=SCREENING_CHOICES, null=True)
 
   def __unicode__(self):
     return 'Giving project - grant application connection'
@@ -507,38 +502,11 @@ class GrantApplicationLog(models.Model):
   contacted = models.CharField(max_length=255, help_text = 'Person from the organization that you talked to, if applicable.', blank=True)
   notes = models.TextField()
 
-#TODO remove
 class GrantAward(models.Model):
   created = models.DateTimeField(default=timezone.now())
 
-  application = models.ForeignKey(GrantApplication)
-
-  amount = models.DecimalField(max_digits=8, decimal_places=2)
-  check_number = models.PositiveIntegerField(null=True, blank=True)
-  check_mailed = models.DateField(null=True, blank=True)
-
-  agreement_mailed = models.DateField(null=True, blank=True)
-  agreement_returned = models.DateField(null=True, blank=True)
-  approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
-
-  def agreement_due(self):
-    if self.agreement_mailed:
-      return self.agreement_mailed + timedelta(days=30)
-    else:
-      return None
-
-  def yearend_due(self):
-    if self.agreement_mailed:
-      return (self.agreement_mailed +
-          timedelta(days=30)).replace(year = self.agreement_mailed.year + 1)
-    else:
-      return None
-
-
-class GivingProjectGrant(models.Model):
-  created = models.DateTimeField(default=timezone.now())
-
-  project_app = models.ForeignKey(ProjectApp)
+  application = models.ForeignKey(GrantApplication) #TODO remove
+  project_app = models.ForeignKey(ProjectApp, null=True) #TODO take off null ok
 
   amount = models.DecimalField(max_digits=8, decimal_places=2)
   check_number = models.PositiveIntegerField(null=True, blank=True)
