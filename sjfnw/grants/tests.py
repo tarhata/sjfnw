@@ -13,7 +13,7 @@ from sjfnw.constants import TEST_MIDDLEWARE
 from sjfnw.tests import BaseTestCase
 from sjfnw.fund.models import GivingProject
 from sjfnw.grants.forms import AppReportForm, OrgReportForm, AwardReportForm
-from sjfnw.grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle, GivingProjectGrant, SponsoredProgramGrant
+from sjfnw.grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle, GivingProjectGrant, SponsoredProgramGrant, ProjectApp
 
 import datetime, json, unittest, logging
 logger = logging.getLogger('sjfnw')
