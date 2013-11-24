@@ -23,25 +23,31 @@ class Command(BaseCommand):
     self.stdout.write('Creating new tables...')
     call_command('syncdb')
 
+    self.stdout.write('Deleting projectapps from previous fails..')
+    ProjectApp.objects.all().delete()
+
     # for each app that's assigned to a gp, create a projectapp and copy
     # relevant fields there
     self.stdout.write('Restructing application - giving projects connections...')
-    apps = GrantApplication.objects.filter(giving_project__isnull=False)
+    apps = GrantApplication.objects.all()
     count_pa = 0
     count_a = 0
     for app in apps:
-      project_app = ProjectApp(application = app,
-                               giving_project = app.giving_project,
-                               screening_status = app.screening_status)
-      project_app.save()
-      count_pa += 1
+      app.pre_screening_status = app.screening_status
+      app.save()
+      if app.giving_project:
+        project_app = ProjectApp(application = app,
+                                 giving_project = app.giving_project,
+                                 screening_status = app.screening_status)
+        project_app.save()
+        count_pa += 1
 
     awards = GrantAward.objects.all().select_related('application', 'application__giving_project')
     for award in awards:
       app = award.application
       gp = app.giving_project
       if not gp:
-        self.stderr.write('Award whose app has no gp: award #' + award.pk)
+        self.stderr.write('Award whose app has no gp: award #' + str(award.pk))
       else:
         try:
           papp = ProjectApp.objects.get(application=app, giving_project=gp)
@@ -49,7 +55,7 @@ class Command(BaseCommand):
           award.save()
           count_a += 1
         except ProjectApp.DoesNotExist:
-          self.stderr.write('No ProjectApp found for awarded app #' + app.pk)
+          self.stderr.write('No ProjectApp found for awarded app #' + str(app.pk))
 
     self.stdout.write('Done. %d intermediates created, %d awards updated.' % (count_pa, count_a))
 
