@@ -919,6 +919,7 @@ def get_org_results(options):
     orgs = orgs.prefetch_related('grantapplication_set')
     field_names.append('Grant applications')
   if options.get('report_awards'):
+    orgs = orgs.prefetch_related('grantapplication_set')
     orgs = orgs.prefetch_related('sponsoredprogramgrant_set')
     field_names.append('Grants awarded')
     awards = True
@@ -931,10 +932,11 @@ def get_org_results(options):
     for field in fields:
       row.append(getattr(org, field))
     awards_str = ''
-    if apps:
+    if apps or awards:
       apps_str = ''
       for app in org.grantapplication_set.all():
-        apps_str += (app.grant_cycle.title + ' ' +
+        if apps:
+          apps_str += (app.grant_cycle.title + ' ' +
             app.submission_time.strftime('%m/%d/%Y') + linebreak)
         if awards:
           for award in app.grantaward_set.all():
@@ -943,10 +945,10 @@ def get_org_results(options):
               timestamp = timestamp.strftime('%m/%d/%Y')
             else:
               timestamp = 'No timestamp'
-            #TODO change to GP title once we're sure it's not null
-            awards_str += '$%s %s %s' % (award.amount, app.giving_project, timestamp)
+            awards_str += '$%s %s %s' % (award.amount, app.giving_project.title, timestamp)
             awards_str += linebreak
-      row.append(apps_str)
+      if apps:
+        row.append(apps_str)
     if awards:
       for award in org.sponsoredprogramgrant_set.all():
         timestamp = award.check_mailed or award.entered
