@@ -701,7 +701,7 @@ def get_app_results(options):
   apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
 
   if options.get('organization_name'):
-    apps = apps.filter(organization__contains=options['organization_name'])
+    apps = apps.filter(organization__name__contains=options['organization_name'])
   if options.get('city'):
     apps = apps.filter(city=options['city'])
   if options.get('state'):
@@ -949,8 +949,13 @@ def get_org_results(options):
       row.append(apps_str)
     if awards:
       for award in org.sponsoredprogramgrant_set.all():
-        awards_str += '$%s %s %s' % (award.amount, ' sponsored program grant ',
-            award.check_mailed.strftime('%m/%d/%Y'))
+        timestamp = award.check_mailed or award.entered
+        if timestamp:
+          timestamp = timestamp.strftime('%m/%d/%Y')
+        else:
+          timestamp = 'No timestamp'
+        awards_str += ('$%s %s %s' % (award.amount, ' sponsored program grant ',
+            timestamp))
         awards_str += linebreak
       row.append(awards_str)
 
