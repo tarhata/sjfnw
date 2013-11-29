@@ -66,10 +66,12 @@ class CheckMultiple(forms.widgets.CheckboxSelectMultiple):
 
 
 class RolloverForm(forms.Form): #used by org
-  """Fields created on init:
-  application - any of org's submitted apps
-  draft - any of org's drafts
-  cycle - any open cycle that does not have a submission or draft
+  """ Used by organizations to copy a draft or app into another grant cycle
+  
+  Fields (created on init):
+    application - any of org's submitted apps
+    draft - any of org's drafts
+    cycle - any open cycle that does not have a submission or draft
   """
 
   def __init__(self, organization, *args, **kwargs):
@@ -172,9 +174,14 @@ class AppReportForm(BaseOrgAppReport):
   #filters
   year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
   year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
-  screening_status = forms.MultipleChoiceField(choices = PRE_SCREENING + SCREENING, widget = forms.CheckboxSelectMultiple, required = False)
-  giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
-  grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
+  screening_status = forms.MultipleChoiceField(
+      choices = PRE_SCREENING + SCREENING,
+      widget = forms.CheckboxSelectMultiple, required = False)
+  giving_project = forms.MultipleChoiceField(
+      choices = [], widget = forms.CheckboxSelectMultiple, required = False)
+  grant_cycle = forms.MultipleChoiceField(choices = [],
+                                          widget = forms.CheckboxSelectMultiple,
+                                          required = False)
   poc_bonus = forms.BooleanField(required=False)
   geo_bonus = forms.BooleanField(required=False)
   #awarded = forms.BooleanField(required=False)
@@ -185,7 +192,7 @@ class AppReportForm(BaseOrgAppReport):
       label='Basics', required=False,
       widget = CheckMultiple, choices = [
         ('id', 'Unique id number'),
-        ('giving_project', 'Giving projects'),
+        ('giving_projects', 'Giving projects'),
         ('screening_status', 'Screening status')
       ])
   report_proposal = forms.MultipleChoiceField(

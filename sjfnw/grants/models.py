@@ -428,7 +428,8 @@ class GrantApplication(models.Model):
   # admin fields
   pre_screening_status = models.IntegerField(choices = PRE_SCREENING,
                                              default = 10)
-  giving_projects = models.ManyToManyField(GivingProject, through='ProjectApp')
+  giving_projects = models.ManyToManyField(GivingProject, through='ProjectApp',
+                                           blank=True)
   scoring_bonus_poc = models.BooleanField(default=False,
       verbose_name='Scoring bonus for POC-led')
   scoring_bonus_geo = models.BooleanField(default=False,

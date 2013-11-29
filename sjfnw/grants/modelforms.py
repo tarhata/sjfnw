@@ -99,7 +99,7 @@ class GrantApplicationModelForm(forms.ModelForm):
 
   class Meta:
     model = GrantApplication
-    exclude = ['pre_screening_status', 'submission_time']
+    exclude = ['pre_screening_status', 'submission_time', 'giving_projects']
     widgets = {
       #char limits
       'mission': forms.Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 150)'}),

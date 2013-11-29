@@ -19,7 +19,7 @@ from sjfnw import constants
 from sjfnw.fund.models import Member
 from sjfnw.grants.decorators import registered_org
 from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
-from sjfnw.grants.modelforms import GrantApplicationModelForm
+from sjfnw.grants.modelforms import GrantApplicationModelForm, OrgProfile
 from sjfnw.grants import models, utils
 
 import datetime, logging, json
@@ -114,9 +114,10 @@ def cycle_info(request, cycle_id):
 def org_home(request, organization):
 
   saved = models.DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
-  submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time')
+  submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time').select_related('giving_projects')
   cycles = models.GrantCycle.objects.filter(close__gt=timezone.now()-datetime.timedelta(days=180)).order_by('open')
   submitted_cycles = submitted.values_list('grant_cycle', flat=True)
+  #TODO could this be changed so the template is less messy when finding awards
 
   closed, open, applied, upcoming = [], [], [], []
   for cycle in cycles:
@@ -195,7 +196,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       new_app = form.save()
 
       #update org profile
-      form2 = models.OrgProfile(draft_data, instance=organization)
+      form2 = OrgProfile(draft_data, instance=organization)
       if form2.is_valid():
         form2.save()
         if files_data.get('fiscal_letter'):
@@ -404,7 +405,8 @@ def CopyApp(request, organization):
         return render(request, 'grants/copy_app_error.html')
 
       #make sure the combo does not exist already
-      new_draft, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
+      new_draft, cr = models.DraftGrantApplication.objects.get_or_create(
+          organization=organization, grant_cycle=cycle)
       if not cr:
         logger.error("CopyApp the combo already exists!?")
         return render(request, 'grants/copy_app_error.html')
@@ -421,9 +423,10 @@ def CopyApp(request, organization):
                                     'scoring_bonus_geo', 'cycle_question',
                                     'timeline'
                                   ])
-          content.update(dict(zip(['timeline_' + str(i) for i in range(15)],
-                                  json.loads(application.timeline))
-                             ))
+          content.update(dict(zip(
+              ['timeline_' + str(i) for i in range(15)],
+              json.loads(application.timeline)
+              )))
           content = json.dumps(content)
         except models.GrantApplication.DoesNotExist:
           logger.error('CopyApp - submitted app ' + app + ' not found')
@@ -453,13 +456,15 @@ def CopyApp(request, organization):
     else: #INVALID FORM
       logger.warning('form invalid')
       logger.info(form.errors)
-      cycle_count = str(form['cycle']).count('<option value')
-      apps_count = str(form['application']).count('<option value') + str(form['draft']).count('<option value')
+      cycle_count = str(form['cycle']).count('<option value') - 1
+      apps_count = (str(form['application']).count('<option value') +
+                    str(form['draft']).count('<option value') - 2)
 
   else: #GET
     form = RolloverForm(organization)
-    cycle_count = str(form['cycle']).count('<option value')
-    apps_count = str(form['application']).count('<option value') + str(form['draft']).count('<option value')
+    cycle_count = str(form['cycle']).count('<option value') - 1
+    apps_count = (str(form['application']).count('<option value') +
+                  str(form['draft']).count('<option value') -2)
     logger.info(cycle_count)
     logger.info(apps_count)
 
@@ -712,8 +717,8 @@ def get_app_results(options):
     apps = apps.filter(scoring_bonus_poc=True)
   if options.get('geo_bonus'):
     apps = apps.filter(scoring_bonus_geo=True)
-  if options.get('giving_project'):
-    apps = apps.filter(giving_project__title__in=options.get('giving_project'))
+  #if options.get('giving_project'): #TODO any of app's GPs is in given GP selection
+    #apps = apps.filter(giving_project__title__in=options.get('giving_project'))
   if options.get('grant_cycle'):
     apps = apps.filter(grant_cycle__title__in=options.get('grant_cycle'))
 

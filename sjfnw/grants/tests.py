@@ -51,6 +51,10 @@ def set_cycle_dates():
   cycle.open = now - twenty_days
   cycle.close = now + ten_days
   cycle.save()
+  cycle = GrantCycle.objects.get(pk=6)
+  cycle.open = now - twenty_days
+  cycle.close = now + ten_days
+  cycle.save()
 
 class BaseGrantTestCase(BaseTestCase):
   """ Base for grants tests. Provides fixture and basic setUp
@@ -375,7 +379,7 @@ class ApplyValidation(BaseGrantFilesTestCase):
       timeline
       files  """
 
-  def setUp(self, *args):
+  def setUp(self):
     super(ApplyValidation, self).setUp('testy')
 
   @override_settings(MEDIA_ROOT = 'media/')
@@ -473,15 +477,15 @@ class StartApplication(BaseGrantTestCase): #MIGHT BE OUT OF DATE
         Draft is created """
 
     self.logInTestorg()
-    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=6).count())
 
-    response = self.client.get('/apply/5/')
+    response = self.client.get('/apply/6/')
 
     self.assertEqual(response.status_code, 200)
     self.assertTemplateUsed(response, 'grants/org_app.html')
     org = Organization.objects.get(pk=2)
     self.assertContains(response, org.mission)
-    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
+    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=6).count())
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftWarning(BaseGrantTestCase):
@@ -613,24 +617,31 @@ class OrgRollover(BaseGrantTestCase):
     assert_app_matches_draft(self, draft, app, True)
 
   def test_rollover_form_display(self):
+    """ Verify that rollover form displays correctly for both orgs
+
+    cycle_count = number of open cycles that don't have a draft or app already
+    apps_count = number of drafts + number of apps
+    (+1 are for the starting option)
+    """
+    # start out logged into neworg
     response = self.client.get('/apply/copy')
     self.assertTemplateUsed(response, 'grants/org_app_copy.html')
-    self.assertEqual(response.context['apps_count'], 2)
+    self.assertEqual(response.context['apps_count'], 0)
     self.assertEqual(response.context['cycle_count'], 4)
     self.assertNotContains(response, 'Select')
-
     self.client.logout()
+    # login to testorg (officemax)
     self.logInTestorg()
     response = self.client.get('/apply/copy')
     self.assertTemplateUsed(response, 'grants/org_app_copy.html')
-    self.assertEqual(response.context['apps_count'], 5)
-    self.assertEqual(response.context['cycle_count'], 2)
+    self.assertEqual(response.context['apps_count'], 4)
+    self.assertEqual(response.context['cycle_count'], 1)
     self.assertContains(response, 'Select')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class AdminRevert(BaseGrantTestCase):
 
-  def setUp(self, *args):
+  def setUp(self):
     super(AdminRevert, self).setUp('admin')
 
   def test_load_revert(self):
@@ -660,13 +671,13 @@ class AdminRevert(BaseGrantTestCase):
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class AdminRollover(BaseGrantTestCase):
 
-  def setUp(self, *args):
+  def setUp(self):
     super(AdminRollover, self).setUp('admin')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftExtension(BaseGrantTestCase):
 
-  def setUp(self, *args):
+  def setUp(self):
     super(DraftExtension, self).setUp('admin')
 
   def test_create_draft(self):
@@ -691,7 +702,7 @@ class DraftExtension(BaseGrantTestCase):
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class Draft(BaseGrantTestCase):
 
-  def setUp(self, *args):
+  def setUp(self):
     super(Draft, self).setUp('testy')
 
   def test_autosave1(self):
@@ -717,7 +728,7 @@ class ViewGrantPermissions(BaseGrantTestCase):
 
   fixtures = ['sjfnw/grants/fixtures/test_grants.json', 'sjfnw/fund/fixtures/test_fund.json']
 
-  def setUp(self, *args):
+  def setUp(self):
     self.printName()
     pa = ProjectApp(application_id = 1, giving_project_id = 2)
     pa.save()
@@ -776,6 +787,8 @@ class OrgHomeAwards(BaseGrantTestCase):
   def setUp(self):
     super(OrgHomeAwards, self).setUp('testy')
 
+  #TODO test mult awards per app
+
   def test_none(self):
     """ org has no awards. verify no award info is shown """
 
@@ -786,7 +799,7 @@ class OrgHomeAwards(BaseGrantTestCase):
 
   def test_early(self):
     """ org has an award, but agreement has not been mailed. verify not shown """
-    award = GivingProjectGrant(application_id = 1, amount = 9000)
+    award = GivingProjectGrant(project_app_id = 1, amount = 9000)
     award.save()
 
     response = self.client.get(self.url)
@@ -796,7 +809,7 @@ class OrgHomeAwards(BaseGrantTestCase):
 
   def test_sent(self):
     """ org has award, agreement mailed. verify shown """
-    award = GivingProjectGrant(application_id = 1, amount = 9000,
+    award = GivingProjectGrant(project_app_id = 1, amount = 9000,
         agreement_mailed = timezone.now()-datetime.timedelta(days=1))
     award.save()
 
