@@ -1,14 +1,16 @@
 ﻿SUMMARY
-  2 ORGS
-  5 GRANT CYCLES (3 OPEN, 1 CLOSED, 1 UPCOMING)
-  1 APPLICATION
-  2 DRAFTS
+  2 orgs
+  5 grant cycles (3 open, 1 closed, 1 upcoming)
+  2 applications (1 projectapp)
+  2 drafts
+  2 giving projects
+
+(reporting tests use live dump fixtures)
 
 TO ADD
-  MORE APPS
-  GIVING PROJECT OR 2
-  ASSIGN SOME APPS TO GP
-  AWARD(S)
+  more apps
+  assign some apps to gp
+  award(s)
 
 GRANT CYCLES
 
@@ -17,6 +19,7 @@ GRANT CYCLES
   3 Closed cycle
   4 Upcoming cycle
   5 Let's have a kiki [open]
+  6 Oui [open]
 
 * For all but closed, set the dates in setUp
   
@@ -27,15 +30,17 @@ ORGANIZATIONS
   
   2 OfficeMax Foundation - testorg@gmail.com
     Drafts:     1 (cycle 2), 2 (cycle 3)
-    Submitted:  1 (cycle 1)
+    Submitted:  1 (cycle 1), 2 (cycle 5)
 
 SUBMITTED
   
   1 OfficeMax (2), Open cycle (1)
-    Complete as of 3/9/13
+    Complete as of 11/2013
     includes timeline, all-in-one budget
+    Assigned to Immigration Reform Giving Project (4)
 
   2 OfficeMax (2), Let's have a kiki (5)
+
 DRAFTS
 
   1 OfficeMax (2), Another open cycle (2)

@@ -60,6 +60,18 @@
     }
   },
   {
+    "pk": 6,
+    "model": "grants.grantcycle",
+    "fields": {
+      "extra_question": "",
+      "close": "2013-05-15T19:57:45Z",
+      "open": "2013-01-01T20:57:44Z",
+      "title": "Oui",
+      "email_signature": "",
+      "info_page": ""
+    }
+  },
+  {
     "pk": 1,
     "model": "grants.organization",
     "fields": {
@@ -302,6 +314,43 @@
       "demographics": "diversity.doc",
       "contents": "{\"status\": \"501c3\", \"mission\": \"Our mission is to boldly go where no database has gone before.\", \"racial_justice_ref1_name\": \"\", \"founded\": \"351\", \"narrative3\": \"To create a dynamic and multi-pane user interface on Android, you need to encapsulate UI components and activity behaviors into modules that you can swap into and out of your activities. You can create these modules with the Fragment class, which behaves somewhat like a nested activity that can define its own layout and manage its own lifecycle.\\r\\n\\r\\nWhen a fragment specifies its own layout, it can be configured in different combinations with other fragments inside an activity to modify your layout configuration for different screen sizes (a small screen might show one fragment at a time, but a large screen can show two or more).\\r\\n\\r\\nThis class shows you how to create a dynamic user experience with fragments and optimize your app's user experience for devices with different screen sizes, all while continuing to support devices running versions as old as Android 1.6.\", \"fiscal_telephone\": \"\", \"racial_justice_ref1_email\": \"\", \"email_address\": \"as@gmail.com\", \"collab_ref1_name\": \"Robyn\", \"city\": \"sdaf\", \"amount_requested\": \"8965\", \"zip\": \"654\", \"project_budget\": \"\", \"collab_ref1_phone\": \"\", \"support_type\": \"General support\", \"collab_ref1_org\": \"Body Talk\", \"state\": \"WA\", \"fiscal_org\": \"\", \"collab_ref2_name\": \"Atlas\", \"racial_justice_ref2_name\": \"\", \"collab_ref2_phone\": \"555-298-9635\", \"website\": \"asdfsdaf\", \"narrative1\": \"Once a narrative, always a narrative.\", \"start_year\": \"January 1\", \"contact_person_title\": \"Senor Moose\", \"narrative4\": \"n a typical SSL usage scenario, a server is configured with a certificate containing a public key as well as a matching private key. As part of the handshake between an SSL client and server, the server proves it has the private key by signing its certificate with public-key cryptography.\\r\\n\\r\\nHowever, anyone can generate their own certificate and private key, so a simple handshake doesn't prove anything about the server other than that the server knows the private key that matches the public key of the certificate. One way to solve this problem is to have the client have a set of one or more certificates it trusts. If the certificate is not in the set, the server is not to be trusted.\\r\\n\\r\\nThere are several downsides to this simple approach. Servers should be able to upgrade to stronger keys over time (\\\"key rotation\\\"), which replaces the public key in the certificate with a new one. Unfortunately, now the client app has to be updated due to what is essentially a server configuration change. This is especially problematic if the server is not under the app developer's control, for example if it is a third party web service. This approach also has issues if the app has to talk to arbitrary servers such as a web browser or email app.\", \"narrative5\": \"The Android system shows an on-screen keyboard known as a soft input method when a text field in your UI receives focus. To provide the best user experience, you can specify characteristics about the type of input you expect (such as whether it's a phone number or email address) and how the input method should behave (such as whether it performs auto-correct for spelling mistakes).\\r\\n\\r\\nIn addition to the on-screen input methods, Android also supports hardware keyboards, so it's important that your app optimize its user experience for interaction that might occur through an attached keyboard.\\r\\n\\r\\nThese topics and more are discussed in the following lessons.\", \"narrative6\": \"In this class you will learn to minimize the battery life impact of downloads and network connections, particularly in relation to the wireless radio.\\r\\n\\r\\nThis class demonstrates the best practices for scheduling and executing downloads using techniques such as caching, polling, and prefetching. You will learn how the power-use profile of the wireless radio can affect your choices on when, what, and how to transfer data in order to minimize impact on battery life.\", \"collab_ref2_org\": \"Shrugged\", \"fax_number\": \"(325)589-9269\", \"budget_last\": \"50435\", \"collab_ref2_email\": \"\", \"racial_justice_ref2_email\": \"\", \"address\": \"7517 25th Ave NW\", \"racial_justice_ref2_org\": \"\", \"fiscal_email\": \"\", \"narrative2\": \"Welcome to Training for Android developers. Here you'll find sets of lessons within classes that describe how to accomplish a specific task with code samples you can re-use in your app. Classes are organized into several groups you can see at the top-level of the left navigation.\\r\\n\\r\\nThis first group, Getting Started, teaches you the bare essentials for Android app development. If you're a new Android app developer, you should complete each of these classes in order:\", \"grant_period\": \"\", \"racial_justice_ref1_phone\": \"\", \"previous_grants\": \"We never got a grant >:|\", \"grant_request\": \"We want some money, please.\", \"fiscal_person\": \"\", \"project_title\": \"\", \"racial_justice_ref2_phone\": \"\", \"budget_current\": \"58965\", \"fiscal_address\": \"\", \"telephone_number\": \"2066050048\", \"cycle_question\": \"asdfhskadhfs EXTAR EXTRA EXTRA EXTRAAAAAAAAAAAAAAAAAAA\", \"collab_ref1_email\": \"robyn@gmail.com\", \"racial_justice_ref1_org\": \"\", \"contact_person\": \"Albert Fonanza\", \"ein\": \"654\", \"timeline_8\": \"\", \"timeline_6\": \"\", \"timeline_14\": \"\", \"timeline_4\": \"\", \"timeline_3\": \"\", \"timeline_7\": \"\", \"timeline_11\": \"\", \"timeline_13\": \"\", \"timeline_9\": \"\", \"timeline_5\": \"\", \"timeline_2\": \"15 members\", \"timeline_0\": \"January\", \"timeline_10\": \"\", \"timeline_1\": \"4 parties\", \"timeline_12\": \"\"}",
       "extended_deadline": null
+    }
+  },
+  {
+    "pk": 3,
+    "model": "fund.givingproject",
+    "fields":{
+      "suggested_steps": "Talk to about project\r\nInvite to SJF event\r\nSet up time to meet for the ask\r\nAsk\r\nFollow up\r\nThank",
+      "title": "LGBTQ Giving Project",
+      "fund_goal": 5000,
+      "pre_approved": "",
+      "fundraising_deadline": "2013-03-13",
+      "calendar": "rum1rhrk8coq8e3t301frig62c@group.calendar.google.com",
+      "public":true,
+      "fundraising_training": "2013-01-01T17:24:44Z"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "fund.givingproject",
+    "fields":{
+      "suggested_steps": "Talk to about project\r\nInvite to SJF event\r\nSet up time to meet for the ask\r\nAsk\r\nFollow up\r\nThank",
+      "title": "Immigration Reform Giving Project",
+      "fund_goal": 500,
+      "pre_approved": "sjfnwads@gmail.com",
+      "fundraising_deadline": "2013-08-31",
+      "calendar": "",
+      "public":true,
+      "fundraising_training": "2013-05-23T17:35:21Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "grants.projectapp",
+    "fields": {
+      "application": 1,
+      "giving_project": 4,
+      "screening_status": null
     }
   }
 ]
