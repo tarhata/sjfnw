@@ -20,9 +20,9 @@ from sjfnw.fund.models import Member
 from sjfnw.grants.decorators import registered_org
 from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
 from sjfnw.grants.modelforms import GrantApplicationModelForm, OrgProfile
-from sjfnw.grants import models, utils
-
-import datetime, logging, json
+from sjfnw.grants.utils import local_date_str, FindBlobKey, FindBlob, ServeBlob, DeleteBlob
+from sjfnw.grants import models
+import logging, json
 logger = logging.getLogger('sjfnw')
 
 # CONSTANTS
@@ -338,7 +338,7 @@ def AddFile(request, draft_id):
         """ delete previous file
         old = getattr(draft, key)
         if old:
-        deferred.defer(utils.DeleteBlob, old) """
+        deferred.defer(DeleteBlob, old) """
         # set new file
         setattr(draft, key, blob_file)
         field_name = key
@@ -363,7 +363,7 @@ def RemoveFile(request, draft_id, file_field):
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   if hasattr(draft, file_field):
     old = getattr(draft, file_field)
-    deferred.defer(utils.DeleteBlob, old)
+    deferred.defer(DeleteBlob, old)
     setattr(draft, file_field, '')
     draft.modified = timezone.now()
     draft.save()
@@ -540,11 +540,11 @@ def ReadApplication(request, app_id):
 
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
-  return utils.ServeBlob(application, file_type)
+  return ServeBlob(application, file_type)
 
 def ViewDraftFile(request, draft_id, file_type):
   application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
-  return utils.ServeBlob(application, file_type)
+  return ServeBlob(application, file_type)
 
 # ADMIN
 def RedirToApply(request):
@@ -771,12 +771,11 @@ def get_app_results(options):
       papps = app.projectapp_set.all()
       if papps:
         for papp in papps:
-          awards = papp.givingprojectgrant_set.all()
-          if awards:
-            award_row += '%s %s %s' % (awards[0].amount, papp.giving_project,
-                awards[0].created)
-      else:
-        award_row = '-'  
+          try:
+            award = papp.givingprojectgrant
+            award_row += '%s %s' % (award.amount, papp.giving_project)
+          except models.GivingProjectGrant.DoesNotExist:
+            pass
       row.append(award_row)
 
     results.append(row)
@@ -954,21 +953,24 @@ def get_org_results(options):
             app.submission_time.strftime('%m/%d/%Y') + linebreak)
         # giving project grants
         if get_awards:
-          awards = app.get_awards()  
-          for award in awards:
-            timestamp = award.check_mailed or award.created
-            if timestamp:
-              timestamp = timestamp.strftime('%m/%d/%Y')
-            else:
-              timestamp = 'No timestamp'
-            awards_str += '$%s %s %s' % (award.amount, award.project_app.giving_project, timestamp)
-            awards_str += linebreak
+          for papp in app.projectapp_set.all():
+            try:
+              award = papp.givingprojectgrant
+              timestamp = award.check_mailed or award.created
+              if timestamp:
+                timestamp = timestamp.strftime('%m/%d/%Y')
+              else:
+                timestamp = 'No timestamp'
+              awards_str += '$%s %s %s' % (award.amount, award.project_app.giving_project.title, timestamp)
+              awards_str += linebreak
+            except models.GivingProjectGrant.DoesNotExist:
+              pass
       row.append(apps_str)
     # sponsored program grants
     if get_awards:
       for award in org.sponsoredprogramgrant_set.all():
         awards_str += '$%s %s %s' % (award.amount, ' sponsored program grant ',
-            award.check_mailed.strftime('%m/%d/%Y'))
+            (award.check_mailed or award.entered).strftime('%m/%d/%Y'))
         awards_str += linebreak
       row.append(awards_str)
 

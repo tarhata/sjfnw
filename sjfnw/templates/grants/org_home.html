@@ -47,16 +47,16 @@ function confirmation(draft_pk) { //confirmation window before discarding a draf
     </tr>
     {% with projectapps=sub.projectapp_set.all %}
       {% for papp in projectapps %}
-      {% with awards=papp.givingprojectgrant_set.all %}
+      {% with award=papp.givingprojectgrant %}
     <tr><td colspan="3">
-      {% for award in awards %}
+      {% if award %}
         {% if award.agreement_mailed and award.agreement_mailed|timesince > 0 %}
         ${{ award.amount|intcomma }} awarded. Agreement mailed {{ award.agreement_mailed|date:"n/j/y" }},
           {% if award.agreement_returned|date:"n/j/y" %}returned {{ award.agreement_returned|date:"n/j/y" }}
           {% else %}due {{ award.agreement_due|date:"n/j/y" }}{% endif %}.
         Year end report due {{ award.yearend_due|date:"n/j/y" }}.
         {% endif %}
-      {% endfor %}{# award in awards #}
+      {% endif %}
       {% endwith %}
     </td></tr>
     {% endfor %}{# papp in projectapps #}

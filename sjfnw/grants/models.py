@@ -503,7 +503,7 @@ class GrantApplicationLog(models.Model):
 class GivingProjectGrant(models.Model):
   created = models.DateTimeField(default=timezone.now())
 
-  project_app = models.ForeignKey(ProjectApp)
+  project_app = models.OneToOneField(ProjectApp)
 
   amount = models.DecimalField(max_digits=8, decimal_places=2)
   check_number = models.PositiveIntegerField(null=True, blank=True)
