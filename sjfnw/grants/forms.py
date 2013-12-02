@@ -174,10 +174,13 @@ class AppReportForm(BaseOrgAppReport):
   #filters
   year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
   year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
-  screening_status = forms.MultipleChoiceField(
-      choices = PRE_SCREENING + SCREENING,
+  pre_screening_status = forms.MultipleChoiceField(
+      choices = PRE_SCREENING,
       widget = forms.CheckboxSelectMultiple, required = False)
-  giving_project = forms.MultipleChoiceField(
+  screening_status = forms.MultipleChoiceField(
+      choices = SCREENING,
+      widget = forms.CheckboxSelectMultiple, required = False)
+  giving_projects = forms.MultipleChoiceField(
       choices = [], widget = forms.CheckboxSelectMultiple, required = False)
   grant_cycle = forms.MultipleChoiceField(choices = [],
                                           widget = forms.CheckboxSelectMultiple,
@@ -227,7 +230,7 @@ class AppReportForm(BaseOrgAppReport):
     choices = GivingProject.objects.values_list('title', flat = True)
     choices = set(choices)
     choices = [(g, g) for g in choices]
-    self.fields['giving_project'].choices = choices
+    self.fields['giving_projects'].choices = choices
 
     #get cycles
     choices = GrantCycle.objects.values_list('title', flat = True)
