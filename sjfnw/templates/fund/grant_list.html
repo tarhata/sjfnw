@@ -8,7 +8,7 @@
 {% else %}
 <p>Click to open a grant application in a new tab.</p>
 {% for grant in grants %}
-<a href="/grants/view/{{grant.pk}}" target="_blank">{{grant.organization}}</a><br>
+<a href="/grants/view/{{grant.application.pk}}" target="_blank">{{grant.application.organization}}</a><br>
 {% endfor %}
 {% endif %}
 

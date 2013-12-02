@@ -14,7 +14,7 @@ from django.utils.html import strip_tags
 from google.appengine.ext import deferred, ereporter
 
 from sjfnw import constants
-from sjfnw.grants.models import Organization, GrantApplication
+from sjfnw.grants.models import Organization, GrantApplication, ProjectApp
 
 from sjfnw.fund.decorators import approved_membership
 from sjfnw.fund import forms
@@ -30,12 +30,12 @@ logger = logging.getLogger('sjfnw')
 
 # MAIN VIEWS
 
-def get_block_content(membership, first=True):
+def get_block_content(membership, get_steps=True):
   """ Provide upper block content for the 3 main views """
 
   bks = []
   # upcoming steps
-  if first:
+  if get_steps:
     bks.append(models.Step.objects.select_related('donor')
                      .filter(donor__membership=membership,
                      completed__isnull=True).order_by('date')[:2])
@@ -44,19 +44,14 @@ def get_block_content(membership, first=True):
             .filter(membership__giving_project=membership.giving_project)
             .order_by('-date'))
   # grants
-  status_cutoff = 50
+  p_apps = ProjectApp.objects.filter(giving_project=membership.giving_project)
+  p_apps = p_apps.select_related('giving_project', 'application',
+      'application__organization')
   if membership.giving_project.site_visits == 1:
-    status_cutoff = 70
-  if membership.giving_project.pk == 14: # hack for PDX to view NGGP
-    bks.append(GrantApplication.objects
-              .filter(giving_project_id=12, screening_status__gte=status_cutoff)
-              .order_by('organization__name'))
-  else:
-    bks.append(GrantApplication.objects
-              .filter(giving_project=membership.giving_project,
-                      screening_status__gte=status_cutoff)
-              .order_by('organization__name'))
-  #logger.info(bks)
+    p_apps = p_apps.filter(screening_status__gte=70)
+  p_apps = p_apps.order_by('application__organization__name')
+  bks.append(p_apps)
+
   return bks
 
 @login_required(login_url='/fund/login/')
@@ -89,7 +84,7 @@ def home(request):
   member = membership.member
 
   #top content
-  news, grants = get_block_content(membership, first=False)
+  news, grants = get_block_content(membership, get_steps=False)
   header = membership.giving_project.title
 
   #donors
@@ -291,14 +286,8 @@ def grant_list(request):
   header = project.title
 
   return render(request, 'fund/grant_list.html',
-    { '3active':'true',
-      'header':header,
-      'news':news,
-      'member':member,
-      'steps':steps,
-      'membership':membership,
-      'grants':grants,
-    })
+      { '3active':'true', 'header':header, 'news':news, 'member':member,
+        'steps':steps, 'membership':membership, 'grants':grants })
 
 # LOGIN & REGISTRATION
 def fund_login(request):
