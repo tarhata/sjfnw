@@ -3,20 +3,20 @@
   "pk": 1, 
   "model": "fund.member", 
   "fields": {
-    "current": 228, 
+    "current": 1, 
     "first_name": "SJF", 
     "last_name": "Account", 
-    "email": "sjfnwads@gmail.com"
+    "email": "testacct@gmail.com"
   }
 },
 {
   "pk": 2, 
   "model": "fund.member", 
   "fields": {
-    "current": 113, 
+    "current": 2, 
     "first_name": "Kylie", 
     "last_name": "Gursky", 
-    "email": "kylie@socialjusticefund.org"
+    "email": "newacct@gmail.com"
   }
 },
 {

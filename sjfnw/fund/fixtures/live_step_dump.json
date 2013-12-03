@@ -26461,10 +26461,10 @@
     "description": "Talk to about project", 
     "created": "2013-05-24T17:38:44Z", 
     "completed": "2013-05-24T18:58:35Z", 
-    "promised": 50, 
+    "promised": null, 
     "date": "2013-05-24", 
     "donor": 2901, 
-    "asked": true
+    "asked": false
   }
 },
 {
@@ -28840,10 +28840,10 @@
     "description": "5", 
     "created": "2013-06-04T01:08:15Z", 
     "completed": "2013-06-22T20:44:02Z", 
-    "promised": 0, 
+    "promised": null, 
     "date": "2013-06-05", 
     "donor": 2900, 
-    "asked": true
+    "asked": false
   }
 },
 {

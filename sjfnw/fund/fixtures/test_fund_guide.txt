@@ -1,39 +1,40 @@
-﻿SUMMARY
-  2 giving projects
-  2 members
-  3 memberships
-  4 donors
-  2 steps
+﻿-- SUMMARY --
+  16 giving projects
+
+  193 members
+  231 memberships
+  4154 donors
+  4111 steps
   1 news item
 
-GIVING PROJECT
+-- USED IN TESTS --
 
-  1 Post Training Giving Project
-  2 Pre training project
+GIVING PROJECTS
 
-MEMBER
+  1 is always set to be post-training
+  2 is always set to be pre-training
+
+MEMBERs
 
   1 testacct@gmail.com - current 1
   2 newacct@gmail.com - current 2
 
 MEMBERSHIPS
-    DONORS
-        STEPS
 
   1 testacct@gmail.com & Post - approved true
 
-      1 Lauren O'Laughlin - next step 1
-      2 Aniseto - next step 2
-      3 Lynne - asked, no response
-      4 Elsa - asked, declined
+      2900 asked=False
+        3 complete steps, one incomplete (3270)
+      2901 asked=True, promised=50, received=0
+        1 complete step (2598)
 
-  2 newacct@gmail.com & Post - approved true
+  96 testacct & GP 10
+
+    Twenty nine donors
+
+  2 newacct@gmail.com & Pre - approved true
     no donors
 
-  3 newacct@gmail.com & Pre - approved true
+  6 newacct@gmail.com & Post - approved true
     no donors
-
-USER
-
-  created in test code because of passwords
 
