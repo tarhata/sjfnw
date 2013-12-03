@@ -1,0 +1,37 @@
+{% extends request.is_ajax|yesno:"base_ajax.html,fund/base_personal.html" %}
+{% block content %}
+<div id="addmult-wrapper">
+  <form id="addcontacts" method="post" action="" accept-charset="UTF-8">
+    <table class="form" id="add_form" style="text-align:center">
+    <tr>
+      <td colspan="4">{{ formset.management_form }}</td>
+    </tr>
+    {% for form in formset %}
+    {% if forloop.counter == 1 %}
+    <tr>
+      {% for field in form %}
+      <td>{{ field.label }}</td>
+      {% endfor %}
+    </tr>
+    <tr>
+      <td colspan="4">{{empty_error|safe}}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      {% for field in form %}
+      <td>{{ field.errors }}{{ field }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+    </table>
+  </form>
+  <div align="right" style="margin-right:40px;">
+    <a onclick="addRow('#add_form tr:last', 'form')">Add more contacts</a>
+  </div>
+  <div align="center">
+    <img id = "ajax_loading" src="/static/images/ajaxloader.gif" style="display:none;" alt="Loading..."><br>
+    <button onclick="Submit('{{ request.path }}', '#addcontacts', 'addmult-wrapper')">Save</button>
+    <button onclick="location.href='/fund/'">Cancel</button>
+  </div>
+</div>
+{% endblock %}

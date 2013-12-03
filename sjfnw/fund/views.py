@@ -57,10 +57,25 @@ def get_block_content(membership, get_steps=True):
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def home(request):
+  """ Handles display of the home/personal page
 
-  #hacks FIXME
-  mult_template = 'fund/add_mult.html'
-  formset = ''
+  Redirects:
+    no contacts -> add_mult
+    contacts without estimates + post-training + no url params -> add_estimates
+
+  Basic display:
+    Top blocks
+    Charts of personal progress
+    List of donors, with details and associated steps
+    Url param can trigger display of a form on a specific donor/step
+
+  """
+
+  #member/ship info
+  membership = request.membership
+  donors = list(membership.donor_set.all())
+  if not donors: # empty list; no contacts entered yet
+    return redirect(add_mult)
 
   #querydict for pre-loading forms
   step = request.GET.get('step')
@@ -79,16 +94,12 @@ def home(request):
     load = ''
     loadto = ''
 
-  #member/ship info
-  membership = request.membership
-  member = membership.member
 
   #top content
   news, grants = get_block_content(membership, get_steps=False)
   header = membership.giving_project.title
 
   #donors
-  donors = list(membership.donor_set.all())
   prog = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0,
           'promised':0, 'received':0}
   donor_data = {}
@@ -177,53 +188,39 @@ def home(request):
     #basic version for blocks
     step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
     return render(request, 'fund/page_personal.html',
-      {'1active':'true', 'header':header, 'progress':prog, 'member':member,
+      {'1active':'true', 'header':header, 'progress':prog,
       'news':news, 'grants':grants, 'steps':step_list, 'membership':membership,
       'notif':notif, 'formset':formset, 'fd': fd, 'load':load, 'loadto':loadto})
 
   # show regular contacts view (don't need to show estimates form)
   else:
-    if donors:
-      # get all steps
-      step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
-      #split into complete/not, attach to donors
-      upcoming_steps = []
-      ctz = timezone.get_current_timezone()
-      today = ctz.normalize(timezone.now()).date()
-      for step in step_list:
-        if step.completed:
-          donor_data[step.donor_id]['complete_steps'].append(step)
-        else:
-          upcoming_steps.append(step)
-          donor_data[step.donor_id]['next_step'] = step
-          donor_data[step.donor_id]['next_date'] = step.date
-          if step.date < today:
-            donor_data[step.donor_id]['overdue'] = True
-      upcoming_steps.sort(key = lambda step: step.date)
-      donor_list = donor_data.values() #convert outer dict to list and sort it
-      donor_list.sort(key = lambda donor: donor['next_date'])
-
-    else: #no donors - showing mass form
-      donor_list, upcoming_steps = [], [] #FIX
-      if est_req:
-        logger.info('No donors - showing add contacts form with estimates')
-        ContactFormset = formset_factory(forms.MassDonor, extra=5)
-        mult_template = 'fund/add_mult.html'
+    # get all steps
+    step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
+    #split into complete/not, attach to donors
+    upcoming_steps = []
+    ctz = timezone.get_current_timezone()
+    today = ctz.normalize(timezone.now()).date()
+    for step in step_list:
+      if step.completed:
+        donor_data[step.donor_id]['complete_steps'].append(step)
       else:
-        logger.info('No donors - showing add contacts form without estimates')
-        ContactFormset = formset_factory(forms.MassDonorPre, extra=5)
-        mult_template = 'fund/add_mult_pre.html'
-      formset = ContactFormset()
+        upcoming_steps.append(step)
+        donor_data[step.donor_id]['next_step'] = step
+        donor_data[step.donor_id]['next_date'] = step.date
+        if step.date < today:
+          donor_data[step.donor_id]['overdue'] = True
+    upcoming_steps.sort(key = lambda step: step.date)
+    donor_list = donor_data.values() #convert outer dict to list and sort it
+    donor_list.sort(key = lambda donor: donor['next_date'])
 
     suggested = membership.giving_project.suggested_steps.splitlines()
     suggested = [sug for sug in suggested if sug] #filter out empty lines
 
     return render(request, 'fund/page_personal.html', {
       '1active':'true', 'header':header, 'donor_list': donor_list, 'progress':prog,
-      'member':member, 'news':news, 'grants':grants, 'steps':upcoming_steps,
+      'news':news, 'grants':grants, 'steps':upcoming_steps,
       'membership':membership, 'notif':notif, 'suggested':suggested,
-      'formset':formset, 'load':load, 'loadto':loadto,
-      'mult_template':mult_template})
+      'load':load, 'loadto':loadto})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -265,7 +262,6 @@ def project_page(request):
   'header':header,
   'news':news,
   'grants':grants,
-  'member':member,
   'steps':steps,
   'membership':membership,
   'project_progress':project_progress,
@@ -286,10 +282,11 @@ def grant_list(request):
   header = project.title
 
   return render(request, 'fund/grant_list.html',
-      { '3active':'true', 'header':header, 'news':news, 'member':member,
+      { '3active':'true', 'header':header, 'news':news,
         'steps':steps, 'membership':membership, 'grants':grants })
 
 # LOGIN & REGISTRATION
+
 def fund_login(request):
   error_msg = ''
   if request.method == 'POST':
@@ -374,7 +371,7 @@ def registered(request):
   """
 
   if request.membership_status == 0:
-    return redirect(NotMember)
+    return redirect(not_member)
   elif request.membership_status == 1:
     return redirect(manage_account)
   else:
@@ -404,12 +401,13 @@ def registered(request):
 
   return render(request, 'fund/registered.html', {'member':member, 'proj':proj})
 
-#MEMBERSHIP MANAGEMENT
+# MEMBERSHIP MANAGEMENT
+
 @login_required(login_url='/fund/login/')
 def manage_account(request):
 
   if request.membership_status == 0:
-    return redirect(NotMember)
+    return redirect(not_member)
   else:
     member = models.Member.objects.get(email=request.user.username)
 
@@ -445,7 +443,8 @@ def set_current(request, ship_id):
 
   return redirect(home)
 
-#ERROR & HELP PAGES
+# ERROR & HELP PAGES
+
 @login_required(login_url='/fund/login/')
 def not_member(request):
   try:
@@ -459,7 +458,7 @@ def not_approved(request):
   try:
     member = models.Member.objects.get(email=request.user.username)
   except models.Member.DoesNotExist:
-    return redirect(NotMember)
+    return redirect(not_member)
 
   return render(request, 'fund/not_approved.html')
 
@@ -475,24 +474,31 @@ def support(request):
   return render(request, 'fund/support.html',
                 {'member':member, 'support_email': constants.SUPPORT_EMAIL, 'support_form':constants.FUND_SUPPORT_FORM})
 
-#FORMS
+# CONTACTS
+
 @login_required(login_url='/fund/login/')
 @approved_membership()
 def add_mult(request):
-  logger.info(request.path)
+  """ Add multiple contacts
+  GET is via redirect from home, and should render top blocks as well as form
+
+  POST will be via AJAX and does not need block info
+  (template extends only when not ajax)
+  """
+
   membership = request.membership
+
   est = membership.giving_project.require_estimates() #showing estimates t/f
   if est:
-    ContactFormset = formset_factory(forms.MassDonor, extra=5)
+    contact_formset = formset_factory(forms.MassDonor, extra=5)
   else:
-    ContactFormset = formset_factory(forms.MassDonorPre, extra=5)
+    contact_formset = formset_factory(forms.MassDonorPre, extra=5)
   empty_error = ''
 
   if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save()
-    logger.debug(request.POST)
-    formset = ContactFormset(request.POST)
+    formset = contact_formset(request.POST)
     if formset.is_valid():
       if formset.has_changed():
         logger.info('AddMult valid formset')
@@ -516,15 +522,19 @@ def add_mult(request):
         empty_error = u'<ul class="errorlist"><li>Please enter at least one contact.</li></ul>'
     else: #invalid
       logger.info(formset.errors)
-  else:
-    formset = ContactFormset()
+    return render(request, 'fund/add_mult_flex.html',
+                  {'formset':formset, 'empty_error':empty_error})
 
-  if est:
-    return render(request, 'fund/add_mult.html',
-                  {'formset':formset, 'empty_error':empty_error})
-  else:
-    return render(request, 'fund/add_mult_pre.html',
-                  {'formset':formset, 'empty_error':empty_error})
+  else: #GET
+    formset = contact_formset()
+    news, grants, steps = get_block_content(membership)
+    header = membership.giving_project.title
+
+    return render(request, 'fund/add_mult_flex.html', {
+      '1active':'true', 'header':header, 'news': news, 'grants': grants,
+      'steps': steps, 'formset': formset })
+
+
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -619,6 +629,8 @@ def delete_donor(request, donor_id):
     return redirect(home)
 
   return render(request, 'fund/delete.html', {'action':action})
+
+# STEPS
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -839,7 +851,7 @@ def done_step(request, donor_id, step_id):
                  'target': str(step.pk) + '_id_next_step', 'step_id':step_id,
                  'step':step})
 
-#CRON EMAILS
+# CRON EMAILS
 def email_overdue(request):
   #TODO - in email content, show all overdue steps (not just for that ship)
   today = datetime.date.today()
