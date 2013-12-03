@@ -124,10 +124,11 @@ class ProjectAppI(BaseShowInline):
 
   def granted(self, obj):
     if obj.pk:
-      award = obj.givingprojectgrant_set.all()
-      if award:
-        return award[0].amount
-    return ''
+      try:
+        award = obj.givingprojectgrant
+        return award.amount
+      except GivingProjectGrant.DoesNotExist:
+        return ''
 
 
 # ModelAdmin
