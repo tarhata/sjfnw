@@ -1,17 +1,18 @@
+from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils import timezone
 
 from sjfnw.constants import TEST_MIDDLEWARE
-from sjfnw.tests import BaseTestCase
-
 from sjfnw.fund import models
+from sjfnw.tests import BaseTestCase
 
 from datetime import timedelta
 import unittest, logging
 logger = logging.getLogger('sjfnw')
 
 
-def setDates():
+def set_project_dates():
+  """ Sets giving project training and deadline dates """
   today = timezone.now()
   gp = models.GivingProject.objects.get(pk=1) #post
   gp.fundraising_training = today - timedelta(days=10)
@@ -23,13 +24,20 @@ def setDates():
   gp.save()
 
 class BaseFundTestCase(BaseTestCase):
+  """ Base test case for fundraising tests
 
-  fixtures = ['sjfnw/fund/fixtures/test_fund.json']
+  Defines:
+    Fixtures (all live dumps)
+    setUp
+      handles logins based on string passed in
+      sets project dates
+  """
 
-  def printName(self):
-    full =  self.id().split('.')
-    cls, meth = full[-2], full[-1]
-    print('\n\033[1m' + cls + ' ' + meth + '\033[m ' + (self.shortDescription() or '')) #_testMethodName
+  fixtures = ['sjfnw/fund/fixtures/live_gp_dump.json',
+              'sjfnw/fund/fixtures/live_member_dump.json',
+              'sjfnw/fund/fixtures/live_membership_dump.json',
+              'sjfnw/fund/fixtures/live_donor_dump.json',
+              'sjfnw/fund/fixtures/live_step_dump.json']
 
   def setUp(self, login):
     super(BaseFundTestCase, self).setUp(login)
@@ -39,13 +47,23 @@ class BaseFundTestCase(BaseTestCase):
       self.logInNewbie()
     elif login == 'admin':
       self.logInAdmin()
-    setDates()
+    set_project_dates()
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class StepCompleteTest(BaseFundTestCase):
+class StepComplete(BaseFundTestCase):
+  """ Tests various scenarios of test completion
+
+  Uses step 3270, belonging to donor 2900, belonging to membership 1
+  (testacct & post-training)
+  """
+
+  donor_id = 2900
+  step_id = 3270
+  url = reverse('sjfnw.fund.views.done_step', kwargs = {
+    'donor_id': donor_id, 'step_id': step_id })
 
   def setUp(self, *args):
-    super(StepCompleteTest, self).setUp('testy')
+    super(StepComplete, self).setUp('testy')
 
   def test_valid_asked(self):
 
@@ -54,7 +72,8 @@ class StepCompleteTest(BaseFundTestCase):
         step.asked false -> true
         donor.asked false -> true """
 
-    form_data = {'asked': 'on',
+    form_data = {
+        'asked': 'on',
         'response': 2,
         'promised_amount': '',
         'last_name': '',
@@ -62,18 +81,18 @@ class StepCompleteTest(BaseFundTestCase):
         'next_step': '',
         'next_step_date': ''}
 
-    step1 = models.Step.objects.get(pk=1)
-    donor1 = models.Donor.objects.get(pk=1)
+    step1 = models.Step.objects.get(pk=self.step_id)
+    donor1 = models.Donor.objects.get(pk=self.donor_id)
 
     self.assertIsNone(step1.completed)
     self.assertFalse(step1.asked)
     self.assertFalse(donor1.asked)
 
-    response = self.client.post('/fund/1/1/done', form_data)
+    response = self.client.post(self.url, form_data)
     self.assertEqual(response.content, "success")
 
-    step1 = models.Step.objects.get(pk=1)
-    donor1 = models.Donor.objects.get(pk=1)
+    step1 = models.Step.objects.get(pk=self.step_id)
+    donor1 = models.Donor.objects.get(pk=self.donor_id)
 
     self.assertIsNotNone(step1.completed)
     self.assertTrue(step1.asked)
@@ -95,7 +114,7 @@ class StepCompleteTest(BaseFundTestCase):
 
     pre_count = models.Step.objects.count()
 
-    response = self.client.post('/fund/1/1/done', form_data)
+    response = self.client.post(self.url, form_data)
     self.assertEqual(response.content, "success")
 
     self.assertEqual(pre_count + 1, models.Step.objects.count())
@@ -125,13 +144,13 @@ class StepCompleteTest(BaseFundTestCase):
       'next_step': 'A BRAND NEW STEP',
       'next_step_date': '2013-01-25'}
 
-    response = self.client.post('/fund/1/1/done', form_data)
+    response = self.client.post(self.url, form_data)
     self.assertEqual(response.content, "success")
 
-    donor1 = models.Donor.objects.get(pk=1)
+    donor1 = models.Donor.objects.get(pk=self.donor_id)
     self.assertEqual(donor1.lastname, 'Sozzity')
     self.assertEqual(donor1.email, 'blah@gmail.com')
-    step1 = models.Step.objects.get(pk=1)
+    step1 = models.Step.objects.get(pk=self.step_id)
     self.assertEqual(step1.promised, 50)
 
   def test_valid_followup2(self):
@@ -149,10 +168,10 @@ class StepCompleteTest(BaseFundTestCase):
       'next_step': 'A BRAND NEW STEP',
       'next_step_date': '2013-01-25'}
 
-    response = self.client.post('/fund/1/1/done', form_data)
+    response = self.client.post(self.url, form_data)
     self.assertEqual(response.content, "success")
 
-    donor1 = models.Donor.objects.get(pk=1)
+    donor1 = models.Donor.objects.get(pk=self.donor_id)
     self.assertEqual(donor1.lastname, 'Sozzity')
     self.assertEqual(donor1.phone, '206-555-5898')
 
@@ -170,10 +189,10 @@ class StepCompleteTest(BaseFundTestCase):
       'next_step': 'A BRAND NEW STEP',
       'next_step_date': '2013-01-25'}
 
-    response = self.client.post('/fund/1/1/done', form_data)
+    response = self.client.post(self.url, form_data)
     self.assertEqual(response.content, "success")
 
-    donor1 = models.Donor.objects.get(pk=1)
+    donor1 = models.Donor.objects.get(pk=self.donor_id)
     self.assertEqual(donor1.lastname, 'Sozzity')
     self.assertEqual(donor1.phone, '206-555-5898')
     self.assertEqual(donor1.promised, 5000)
@@ -193,14 +212,14 @@ class StepCompleteTest(BaseFundTestCase):
       'next_step': '',
       'next_step_date': ''}
 
-    response = self.client.post('/fund/1/1/done', form_data)
+    response = self.client.post(self.url, form_data)
     self.assertEqual(response.content, "success")
 
-    donor1 = models.Donor.objects.get(pk=1)
+    donor1 = models.Donor.objects.get(pk=self.donor_id)
     self.assertNotEqual(donor1.lastname, 'Sozzity')
     self.assertNotEqual(donor1.phone, '206-555-5898')
     self.assertIsNone(donor1.promised)
-    step1 = models.Step.objects.get(pk=1)
+    step1 = models.Step.objects.get(pk=self.step_id)
     self.assertIsNone(step1.promised)
 
   def test_valid_hiddendata2(self):
@@ -219,14 +238,14 @@ class StepCompleteTest(BaseFundTestCase):
       'next_step': '',
       'next_step_date': ''}
 
-    response = self.client.post('/fund/1/1/done', form_data)
+    response = self.client.post(self.url, form_data)
     self.assertEqual(response.content, "success")
 
-    donor1 = models.Donor.objects.get(pk=1)
+    donor1 = models.Donor.objects.get(pk=self.donor_id)
     self.assertNotEqual(donor1.lastname, 'Sozzity')
     self.assertNotEqual(donor1.phone, '206-555-5898')
     self.assertEqual(donor1.promised, 0)
-    step1 = models.Step.objects.get(pk=1)
+    step1 = models.Step.objects.get(pk=self.step_id)
     self.assertEqual(step1.promised, 0)
 
   def test_valid_hiddendata3(self):
@@ -245,22 +264,28 @@ class StepCompleteTest(BaseFundTestCase):
       'next_step': '',
       'next_step_date': ''}
 
-    response = self.client.post('/fund/1/1/done', form_data)
+    response = self.client.post(self.url, form_data)
     self.assertEqual(response.content, "success")
 
-    donor1 = models.Donor.objects.get(pk=1)
+    donor1 = models.Donor.objects.get(pk=self.donor_id)
     self.assertIsNone(donor1.promised)
-    step1 = models.Step.objects.get(pk=1)
+    step1 = models.Step.objects.get(pk=self.step_id)
     self.assertIsNone(step1.promised)
 
-  def test_invalid_asked(self):
+  def test_invalid_promise(self):
+    """ Verify that additional info is required when a promise is entered
 
-    """ promise w/no amount, last name, phone or email gives errors
-        step.completed stays null
-        step.asked stays False
-        donor.asked stays False """
+    Setup:
+      Complete a step with response promised, but no amount, phone or email
 
-    form_data = {'asked': 'on',
+    Asserts:
+      Form template used (not successful)
+      Form errors on promised_amount, last_name, phone
+      Step and donor not modified
+    """
+
+    form_data = {
+        'asked': 'on',
         'response': 1,
         'promised_amount': '',
         'last_name': '',
@@ -268,22 +293,22 @@ class StepCompleteTest(BaseFundTestCase):
         'next_step': '',
         'next_step_date': ''}
 
-    step1 = models.Step.objects.get(pk=1)
-    donor1 = models.Donor.objects.get(pk=1)
+    step1 = models.Step.objects.get(pk=self.step_id)
+    donor1 = models.Donor.objects.get(pk=self.donor_id)
 
     self.assertIsNone(step1.completed)
     self.assertFalse(step1.asked)
     self.assertFalse(donor1.asked)
 
-    response = self.client.post('/fund/1/1/done', form_data)
+    response = self.client.post(self.url, form_data)
 
     self.assertTemplateUsed(response, 'fund/done_step.html')
     self.assertFormError(response, 'form', 'promised_amount', "Enter an amount.")
     self.assertFormError(response, 'form', 'last_name', "Enter a last name.")
     self.assertFormError(response, 'form', 'phone', "Enter a phone number or email.")
 
-    step1 = models.Step.objects.get(pk=1)
-    donor1 = models.Donor.objects.get(pk=1)
+    step1 = models.Step.objects.get(pk=self.step_id)
+    donor1 = models.Donor.objects.get(pk=self.donor_id)
 
     self.assertIsNone(step1.completed)
     self.assertFalse(step1.asked)
@@ -302,12 +327,12 @@ class StepCompleteTest(BaseFundTestCase):
         'next_step': 'A step description!',
         'next_step_date': ''}
 
-    response = self.client.post('/fund/1/1/done', form_data)
+    response = self.client.post(self.url, form_data)
 
     self.assertTemplateUsed(response, 'fund/done_step.html')
     self.assertFormError(response, 'form', 'next_step_date', "Enter a date in mm/dd/yyyy format.")
 
-    step1 = models.Step.objects.get(pk=1)
+    step1 = models.Step.objects.get(pk=self.step_id)
     self.assertIsNone(step1.completed)
 
     form_data = {'asked': '',
@@ -318,39 +343,47 @@ class StepCompleteTest(BaseFundTestCase):
         'next_step': '',
         'next_step_date': '2013-01-25'}
 
-    response = self.client.post('/fund/1/1/done', form_data)
+    response = self.client.post(self.url, form_data)
     self.assertTemplateUsed(response, 'fund/done_step.html')
     self.assertFormError(response, 'form', 'next_step', "Enter a description.")
 
-    step1 = models.Step.objects.get(pk=1)
+    step1 = models.Step.objects.get(pk=self.step_id)
     self.assertIsNone(step1.completed)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class MainPageContent(BaseFundTestCase):
+class Home(BaseFundTestCase):
+
+  url = reverse('sjfnw.fund.views.home')
 
   def setUp(self):
-    super(MainPageContent, self).setUp('newbie')
+    super(Home, self).setUp('newbie')
 
   def test_new(self):
+    """ Verify that add mult form is shown to new memberships
 
-    """ no contacts
-        logged into pre gp, sees mass add pre
-        logged into post gp, sees reg mass add """
+    Setup:
+      Login to membership in pre-training with 0 contacts
+      Login to membership in post-training with 0 contacts
 
-    membership = models.Membership.objects.get(pk=2)
+    Asserts:
+      Pre: add_mult_pre.html is used
+      Post: add_mult.html is used
+    """
 
-    response = self.client.get('/fund/')
-    self.assertTemplateUsed(response, 'fund/add_mult.html')
+    membership = models.Membership.objects.get(pk=2) # pre
+
+    response = self.client.get(self.url)
+    self.assertTemplateUsed(response, 'fund/add_mult_pre.html')
     self.assertEqual(response.context['membership'], membership)
 
     member = membership.member
-    member.current = 3 # the pre-training one
+    member.current = 6 # post
     member.save()
 
-    response = self.client.get('/fund/')
+    response = self.client.get(self.url)
 
-    membership = models.Membership.objects.get(pk=3)
-    self.assertTemplateUsed(response, 'fund/add_mult_pre.html')
+    membership = models.Membership.objects.get(pk=6)
+    self.assertTemplateUsed(response, 'fund/add_mult.html')
     self.assertEqual(response.context['membership'], membership)
 
   def test_no_estimates(self):
@@ -366,7 +399,7 @@ class MainPageContent(BaseFundTestCase):
     contact = models.Donor(firstname='Banana', membership=membership)
     contact.save()
 
-    response = self.client.get('/fund/')
+    response = self.client.get(self.url)
     self.assertTemplateUsed('fund/add_estimates.html')
 
     member = membership.member
@@ -380,7 +413,7 @@ class MainPageContent(BaseFundTestCase):
     contact = models.Donor(firstname='Banana', membership=membership)
     contact.save()
 
-    response = self.client.get('/fund/')
+    response = self.client.get(self.url)
     self.assertTemplateNotUsed('fund/add_estimates.html')
 
   def test_estimates(self):
@@ -395,7 +428,7 @@ class MainPageContent(BaseFundTestCase):
     contact = models.Donor(firstname='Banana', membership=membership, amount=567, likelihood=34)
     contact.save()
 
-    response = self.client.get('/fund/')
+    response = self.client.get(self.url)
     self.assertTemplateNotUsed('fund/add_estimates.html')
 
   @unittest.skip('Incomplete')
