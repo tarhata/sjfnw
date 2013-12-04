@@ -12,11 +12,12 @@ from django.utils import timezone
 from django.utils.html import strip_tags
 
 from google.appengine.ext import blobstore, deferred
+
 import unicodecsv
 
 from sjfnw import constants
 from sjfnw.fund.models import Member
-from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppSearchForm, LoginAsOrgForm
+from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
 from sjfnw.grants.decorators import registered_org
 from sjfnw.grants import models, utils
 
@@ -60,9 +61,19 @@ def org_register(request):
       org = request.POST['organization']
       #create User and Organization
       created = User.objects.create_user(username_email, username_email, password)
-      new_org = models.Organization(name=org, email=username_email)
-      new_org.save()
-      logger.info('Registration - created user and org for ' + username_email)
+      created.first_name = org
+      created.last_name = '(organization)'
+      try: # see if matching org with no email exists
+        org = models.Organization.objects.get(name = org)
+        org.email = username_email
+        logger.info("matching org name found. setting email")
+        org.save()
+        created.is_active = False
+      except models.Organization.DoesNotExist: # if not, create new
+        logger.info("Creating new org")
+        new_org = models.Organization(name=org, email=username_email)
+        new_org.save()
+      created.save()
       #try to log in
       user = authenticate(username=username_email, password=password)
       if user:
@@ -70,16 +81,18 @@ def org_register(request):
           login(request, user)
           return redirect(org_home)
         else:
-          messages.error('Your account is not active. Please contact an administrator.')
-          logger.error('Inactive right after registration, account: ' + username_email)
+          logger.info('Registration needs admin approval, showing message. ' +
+              username_email)
+          messages.warning(request, 'You have registered successfully but your account '
+          'needs administrator approval. Please contact '
+          '<a href="mailto:info@socialjusticefund.org">info@socialjusticefund.org</a>')
       else:
-        messages.error('There was a problem with your registration. '
+        messages.error(request, 'There was a problem with your registration. '
             'Please <a href=""/apply/support#contact">contact a site admin</a> for assistance.')
         logger.error('Password not working at registration, account:  ' + username_email)
   else: #GET
     register = RegisterForm()
   form = LoginForm()
-  logger.debug(register)
   return render(request, 'grants/org_login_register.html', {'form':form, 'register':register})
 
 def org_support(request):
@@ -136,7 +149,7 @@ def org_home(request, organization):
 @registered_org()
 def Apply(request, organization, cycle_id): # /apply/[cycle_id]
   """ Get or submit the whole application form """
-  
+
   #staff override
   user_override = request.GET.get('user')
   if user_override:
@@ -233,10 +246,10 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
         if 'timeline_' + str(i) in dict:
           timeline.append(dict['timeline_' + str(i)])
       dict['timeline'] = json.dumps(timeline)
-      logger.debug('Loading draft: ' + str(dict))
+      logger.debug('Loading draft')
 
     #check if draft can be submitted
-    if not draft.editable:
+    if not draft.editable():
       return render(request, 'grants/closed.html', {'cycle':cycle})
 
     #try to determine initial load - cheaty way
@@ -503,13 +516,13 @@ def view_permission(user, application):
 
 def ReadApplication(request, app_id):
   app = get_object_or_404(models.GrantApplication, pk=app_id)
-  
+
   if not request.user.is_authenticated():
     perm = 0
   else:
     perm = view_permission(request.user, app)
   logger.info('perm is ' + str(perm))
-  
+
   form = models.GrantApplicationModelForm(app.grant_cycle)
 
   form_only = request.GET.get('form')
@@ -600,85 +613,43 @@ def Impersonate(request):
   form = LoginAsOrgForm()
   return render(request, 'admin/grants/impersonate.html', {'form':form})
 
-def SearchApps(request):
-  """ View that handles grant application reporting
-    Creates the queryset, but uses get_results to execute it
+def grants_report(request):
+  """ Handles grant reporting
+
+  Displays all reporting forms
+  Uses report type-specific methods to handle POSTs
   """
 
-  form = AppSearchForm()
+  app_form = AppReportForm()
+  org_form = OrgReportForm()
+  award_form = AwardReportForm()
 
   if request.method == 'POST':
-    logger.info('Search form submitted')
-    form = AppSearchForm(request.POST)
 
-    if form.is_valid():
-      logger.info('A valid form')
+    # Determine type of report
+    if 'run-application' in request.POST:
+      logger.info('App report')
+      form = AppReportForm(request.POST)
+      results_func = get_app_results
+    elif 'run-organization' in request.POST:
+      logger.info('Org report')
+      form = OrgReportForm(request.POST)
+      results_func = get_org_results
+    elif 'run-award' in request.POST:
+      logger.info('Award report')
+      form = AwardReportForm(request.POST)
+      results_func = get_award_results
+    else:
+      logger.error('Unknown report type')
+      form = False
 
+    if form and form.is_valid():
       options = form.cleaned_data
-      logger.info(options)
-      apps = models.GrantApplication.objects.order_by('-submission_time').select_related('giving_project', 'grant_cycle')
-
-      #filters
-      min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S')
-      min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
-      max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S')
-      max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
-      apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
-      #logger.info('After year, count is ' + str(apps.count()))
-      if options.get('organization'):
-        apps = apps.filter(organization__contains=options['organization'])
-      if options.get('city'):
-        apps = apps.filter(city=options['city'])
-      if options.get('state'):
-        apps = apps.filter(state__in=options['state'])
-      if options.get('screening_status'):
-        apps = apps.filter(screening_status__in=options.get('screening_status'))
-      """ filters on awarded (redundant with screening status)
-      if options.get('awarded'):
-        awards = models.GrantAward.objects.values_list('id')
-        apps = apps.filter(id__in=awards) """
-      if options.get('poc_bonus'):
-        apps = apps.filter(scoring_bonus_poc=True)
-      if options.get('geo_bonus'):
-        apps = apps.filter(scoring_bonus_geo=True)
-      if options.get('giving_project'):
-        apps = apps.filter(giving_project__title__in=options.get('giving_project'))
-      #logger.info('After gp, count is ' + str(apps.count()))
-      if options.get('grant_cycle'):
-        apps = apps.filter(grant_cycle__title__in=options.get('grant_cycle'))
-      if options.get('has_fiscal_sponsor'):
-        apps = apps.exclude(fiscal_org='')
-
-      #fields
-      fields = (['submission_time', 'organization', 'grant_cycle'] +
-                options['report_basics'] + options['report_contact'] +
-                options['report_org'] + options['report_proposal'] +
-                options['report_budget'])
-      if options['report_fiscal']:
-        fields += models.GrantApplication.fiscal_fields()
-        fields.remove('fiscal_letter')
-      if options['report_collab']:
-        fields += models.GrantApplication.fields_starting_with('collab_ref')
-      if options['report_racial_ref']:
-        fields += models.GrantApplication.fields_starting_with('racial')
-      if options['report_bonuses']:
-        fields.append('scoring_bonus_poc')
-        fields.append('scoring_bonus_geo')
-
-      # format headers
-      field_names = [f.capitalize().replace('_', ' ') for f in fields] #for display
- 
-      # grant awards
-      if options['report_award']:
-        awards = models.GrantAward.objects.all()
-        field_names += ['Amount', 'Check number', 'Check mailed', 'Agreement mailed',
-                   'Agreement returned', 'Approved'] #TODO don't hardcode these
-      else:
-        awards = False
+      logger.info('A valid form: ' + str(options))
 
       #get results
-      results = get_results(fields, apps, awards)
- 
+      field_names, results = results_func(options)
+
       #format results
       if options['format'] == 'browse':
         return render_to_response('grants/report_results.html',
@@ -692,27 +663,92 @@ def SearchApps(request):
           writer.writerow(row)
         return response
     else:
-      logger.info('Invalid form!')
-  return render(request, 'grants/search_applications.html', {'form':form})
+      logger.warning('Invalid form!' + str(form.errors))
+  return render(request, 'grants/reporting.html',
+      {'app_form': app_form, 'org_form': org_form, 'award_form': award_form,
+        'app_base': 'submission time, organization name, grant cycle',
+        'award_base': 'organization name, amount, date check mailed',
+        'org_base':'name'})
 
-def get_results(fields, apps, awards):
-  """ Return a list of apps
-      Each app is in list form, containing selected values
+def get_app_results(options):
+  """ Fetches application report results
 
-    Arguments:
-      fields - list of fields to include
-      apps - queryset of applications
-      awards - grant award queryset or False """
+  Arguments:
+    options - cleaned_data from a request.POST-filled instance of AppReportForm
 
-  awards_dict = {}
-  if awards:
-    for award in awards:
-      awards_dict[award.application_id] = award
+  Returns:
+    A list of display-formatted field names. Example:
+      ['Submitted', 'Organization', 'Grant cycle']
 
+    A list of applications & related info. Example:
+      [
+        ['2011-04-20 06:18:36+0:00', 'Justice League', 'LGBTQ Grant Cycle'],
+        ['2013-10-23 09:08:56+0:00', 'ACLU of Idaho', 'General Grant Cycle'],
+      ]
+
+  """
+  logger.info('Get app results')
+
+  #initial queryset
+  apps = models.GrantApplication.objects.order_by('-submission_time').select_related(
+      'giving_project', 'grant_cycle')
+
+  #filters
+  min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S')
+  min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
+  max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S')
+  max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
+  apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
+
+  if options.get('organization_name'):
+    apps = apps.filter(organization__name__contains=options['organization_name'])
+  if options.get('city'):
+    apps = apps.filter(city=options['city'])
+  if options.get('state'):
+    apps = apps.filter(state__in=options['state'])
+  if options.get('has_fiscal_sponsor'):
+    apps = apps.exclude(fiscal_org='')
+
+  if options.get('screening_status'):
+    apps = apps.filter(screening_status__in=options.get('screening_status'))
+  if options.get('poc_bonus'):
+    apps = apps.filter(scoring_bonus_poc=True)
+  if options.get('geo_bonus'):
+    apps = apps.filter(scoring_bonus_geo=True)
+  if options.get('giving_project'):
+    apps = apps.filter(giving_project__title__in=options.get('giving_project'))
+  if options.get('grant_cycle'):
+    apps = apps.filter(grant_cycle__title__in=options.get('grant_cycle'))
+
+  #fields
+  fields = (['submission_time', 'organization', 'grant_cycle'] +
+            options['report_basics'] + options['report_contact'] +
+            options['report_org'] + options['report_proposal'] +
+            options['report_budget'])
+  if options['report_fiscal']:
+    fields += models.GrantApplication.fields_starting_with('fiscal')
+    fields.remove('fiscal_letter')
+  if options['report_collab']:
+    fields += models.GrantApplication.fields_starting_with('collab_ref')
+  if options['report_racial_ref']:
+    fields += models.GrantApplication.fields_starting_with('racial')
+  if options['report_bonuses']:
+    fields.append('scoring_bonus_poc')
+    fields.append('scoring_bonus_geo')
+
+  # format headers
+  field_names = [f.capitalize().replace('_', ' ') for f in fields]
+
+  # grant awards
+  if options['report_award']:
+    apps = apps.prefetch_related('grantaward_set')
+    field_names.append('Awarded')
+
+  # execute queryset, populate results
   results = []
   for app in apps:
     row = []
-    # get field values
+
     for field in fields:
       if field == 'screening_status':
         # convert screening status to human-readable version
@@ -721,23 +757,215 @@ def get_results(fields, apps, awards):
           convert = dict(models.GrantApplication.SCREENING_CHOICES)
           val = convert[val]
         row.append(val)
+      elif field=='submission_time':
+        row.append(utils.local_date_str(getattr(app, field))) 
       else:
         row.append(getattr(app, field))
-    # get award, if applicable
-    if awards != False:
-      if app.id in awards_dict:
-        award = awards_dict[app.id]
-        row.append(award.amount) #TODO don't hardcode these
-        row.append(award.check_number)
-        row.append(award.check_mailed)
-        row.append(award.agreement_mailed)
-        row.append(award.agreement_returned)
-        row.append(award.approved)
+
+    if field_names[-1] == 'Awarded':
+      if app.grantaward_set.all(): #TODO update once there are mult GP per app
+        row.append(app.grantaward_set.all()[0].amount)
       else:
-        row = row + ['', '', '', '', '', '']
+        row.append('-')
     results.append(row)
 
-  return results
+  return field_names, results
+
+def get_award_results(options):
+  """ Fetches award (all types) report results
+
+  Args:
+    options: cleaned_data from a request.POST-filled instance of AwardReportForm
+
+  Returns:
+    A list of display-formatted field names. Example:
+      ['Amount', 'Check mailed', 'Organization']
+
+    A list of awards & related info. Each item is a list of requested values
+    Example:
+      [
+        ['10000', '2013-10-23 09:08:56+0:00', 'Fancy pants org'],
+        ['5987', '2011-08-04 09:08:56+0:00', 'Justice League']
+      ]
+  """
+
+  # initial querysets
+  gp_awards = models.GrantAward.objects.all().select_related('application',
+      'application__organization')
+  sponsored = models.SponsoredProgramGrant.objects.all().select_related('organization')
+
+  # filters
+  min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S')
+  min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
+  max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S')
+  max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
+  gp_awards = gp_awards.filter(created__gte=min_year, created__lte=max_year)
+  sponsored = sponsored.filter(entered__gte=min_year, entered__lte=max_year)
+
+  if options.get('organization_name'):
+    gp_awards = gp_awards.filter(application__organization__contains=options['organization_name'])
+    sponsored = sponsored.filter(organization__contains=options['organization_name'])
+  if options.get('city'):
+    gp_awards = gp_awards.filter(application__organization__city=options['city'])
+    sponsored = sponsored.filter(organization__city=options['city'])
+  if options.get('state'):
+    gp_awards = gp_awards.filter(application__organization__state__in=options['state'])
+    sponsored = sponsored.filter(organization__state__in=options['state'])
+  if options.get('has_fiscal_sponsor'):
+    gp_awards = gp_awards.exclude(application__organization__fiscal_org='')
+    sponsored = sponsored.exclude(organization__fiscal_org='')
+
+  # fields
+  fields = ['check_mailed', 'amount', 'organization', 'grant_type']
+  if options.get('report_check_number'):
+    fields.append('check_number')
+  if options.get('report_date_approved'):
+    fields.append('approved')
+  if options.get('report_agreement_dates'):
+    fields.append('agreement_mailed')
+    fields.append('agreement_returned')
+  if options.get('report_year_end_report_due'):
+    fields.append('year_end_report_due')
+
+  org_fields = options['report_contact'] + options['report_org']
+  if options.get('report_fiscal'):
+    org_fields += models.GrantApplication.fields_starting_with('fiscal')
+    org_fields.remove('fiscal_letter')
+
+  # get values
+  results = []
+  for award in gp_awards:
+    row = []
+    for field in fields:
+      if field == 'organization':
+        row.append(award.application.organization.name)
+      elif field == 'grant_type':
+        row.append('Giving project')
+      elif field == 'year_end_report_due':
+        row.append(award.yearend_due())
+      else:
+        row.append(getattr(award, field))
+    for field in org_fields:
+      row.append(getattr(award.application.organization, field))
+    results.append(row)
+  for award in sponsored:
+    row = []
+    for field in fields:
+      if field == 'grant_type':
+        row.append('Sponsored program')
+      elif hasattr(award, field):
+        row.append(getattr(award, field))
+      else:
+        row.append('')
+    for field in org_fields:
+      row.append(getattr(award.organization, field))
+    results.append(row)
+
+  field_names = [f.capitalize().replace('_', ' ') for f in fields]
+  field_names += ['Org. '+ f.capitalize().replace('_', ' ') for f in org_fields]
+
+  return field_names, results
+
+def get_org_results(options):
+  """ Fetches organization report results
+
+  Args:
+    options: cleaned_data from a request.POST-filled instance of OrgReportForm
+
+  Returns:
+    A list of display-formatted field names. Example:
+      ['Name', 'Login', 'State']
+
+    A list of organization & related info. Each item is a list of requested values
+    Example:
+      [
+        ['Fancy pants org', 'fancy@pants.org', 'ID'],
+        ['Justice League', 'trouble@gender.org', 'WA']
+      ]
+  """
+
+  # initial queryset
+  orgs = models.Organization.objects.all()
+
+  # filters
+  reg = options.get('registered')
+  if reg == True:
+    orgs = orgs.exclude(email="")
+  elif reg == False:
+    org = orgs.filter(email="")
+  if options.get('organization_name'):
+    orgs = orgs.filter(name__contains=options['organization_name'])
+  if options.get('city'):
+    orgs = orgs.filter(city=options['city'])
+  if options.get('state'):
+    orgs = orgs.filter(state__in=options['state'])
+  if options.get('has_fiscal_sponsor'):
+    orgs = orgs.exclude(fiscal_org='')
+
+  # fields
+  fields = ['name']
+  if options.get('report_account_email'):
+    fields.append('email')
+  fields += options['report_contact'] + options['report_org']
+  if options.get('report_fiscal'):
+    fields += models.GrantApplication.fields_starting_with('fiscal')
+    fields.remove('fiscal_letter')
+
+  field_names = [f.capitalize().replace('_', ' ') for f in fields] #for display
+
+  # related objects
+  apps = False
+  awards = False
+  if options.get('report_applications'):
+    apps = True
+    orgs = orgs.prefetch_related('grantapplication_set')
+    field_names.append('Grant applications')
+  if options.get('report_awards'):
+    orgs = orgs.prefetch_related('grantapplication_set')
+    orgs = orgs.prefetch_related('sponsoredprogramgrant_set')
+    field_names.append('Grants awarded')
+    awards = True
+
+  # execute queryset, build results
+  results = []
+  linebreak = '\n' if options['format'] == 'csv' else '<br>'
+  for org in orgs:
+    row = []
+    for field in fields:
+      row.append(getattr(org, field))
+    awards_str = ''
+    if apps or awards:
+      apps_str = ''
+      for app in org.grantapplication_set.all():
+        if apps:
+          apps_str += (app.grant_cycle.title + ' ' +
+            app.submission_time.strftime('%m/%d/%Y') + linebreak)
+        if awards:
+          for award in app.grantaward_set.all():
+            timestamp = award.check_mailed or award.created
+            if timestamp:
+              timestamp = timestamp.strftime('%m/%d/%Y')
+            else:
+              timestamp = 'No timestamp'
+            awards_str += '$%s %s %s' % (award.amount, app.giving_project.title, timestamp)
+            awards_str += linebreak
+      if apps:
+        row.append(apps_str)
+    if awards:
+      for award in org.sponsoredprogramgrant_set.all():
+        timestamp = award.check_mailed or award.entered
+        if timestamp:
+          timestamp = timestamp.strftime('%m/%d/%Y')
+        else:
+          timestamp = 'No timestamp'
+        awards_str += ('$%s %s %s' % (award.amount, ' sponsored program grant ',
+            timestamp))
+        awards_str += linebreak
+      row.append(awards_str)
+
+    results.append(row)
+
+  return field_names, results
 
 # CRON
 def DraftWarning(request):

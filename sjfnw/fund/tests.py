@@ -99,10 +99,10 @@ class StepCompleteTest(BaseFundTestCase):
     self.assertEqual(response.content, "success")
 
     self.assertEqual(pre_count + 1, models.Step.objects.count())
-    self.assertEqual(1, models.Step.objects.filter(description = 'A BRAND NEW STEP').count())
+    self.assertEqual(1, models.Step.objects.filter(description='A BRAND NEW STEP').count())
 
   @unittest.skip('Incomplete')
-  def test_valid_response(self): #TO DO
+  def test_valid_response(self): #TODO
     """ TO DO
     contact that was already asked
     add a response
@@ -337,7 +337,7 @@ class MainPageContent(BaseFundTestCase):
         logged into pre gp, sees mass add pre
         logged into post gp, sees reg mass add """
 
-    membership = models.Membership.objects.get(pk = 2)
+    membership = models.Membership.objects.get(pk=2)
 
     response = self.client.get('/fund/')
     self.assertTemplateUsed(response, 'fund/add_mult.html')
@@ -349,7 +349,7 @@ class MainPageContent(BaseFundTestCase):
 
     response = self.client.get('/fund/')
 
-    membership = models.Membership.objects.get(pk = 3)
+    membership = models.Membership.objects.get(pk=3)
     self.assertTemplateUsed(response, 'fund/add_mult_pre.html')
     self.assertEqual(response.context['membership'], membership)
 
@@ -359,11 +359,11 @@ class MainPageContent(BaseFundTestCase):
         logs into post training, gets estimates form
         logs into pre, does not """
 
-    membership = models.Membership.objects.get(pk = 2)
+    membership = models.Membership.objects.get(pk=2)
 
-    contact = models.Donor(firstname = 'Anna', membership = membership)
+    contact = models.Donor(firstname='Anna', membership=membership)
     contact.save()
-    contact = models.Donor(firstname = 'Banana', membership = membership)
+    contact = models.Donor(firstname='Banana', membership=membership)
     contact.save()
 
     response = self.client.get('/fund/')
@@ -373,11 +373,11 @@ class MainPageContent(BaseFundTestCase):
     member.current = 3 # the pre-training one
     member.save()
 
-    membership = models.Membership.objects.get(pk = 3)
+    membership = models.Membership.objects.get(pk=3)
 
-    contact = models.Donor(firstname = 'Anna', membership = membership)
+    contact = models.Donor(firstname='Anna', membership=membership)
     contact.save()
-    contact = models.Donor(firstname = 'Banana', membership = membership)
+    contact = models.Donor(firstname='Banana', membership=membership)
     contact.save()
 
     response = self.client.get('/fund/')
@@ -388,11 +388,11 @@ class MainPageContent(BaseFundTestCase):
     """ 2 contacts w/est
         logs into post training, gets reg list """
 
-    membership = models.Membership.objects.get(pk = 2)
+    membership = models.Membership.objects.get(pk=2)
 
-    contact = models.Donor(firstname = 'Anna', membership = membership, amount = 0, likelihood = 0)
+    contact = models.Donor(firstname='Anna', membership=membership, amount=0, likelihood=0)
     contact.save()
-    contact = models.Donor(firstname = 'Banana', membership = membership, amount = 567, likelihood = 34)
+    contact = models.Donor(firstname='Banana', membership=membership, amount=567, likelihood=34)
     contact.save()
 
     response = self.client.get('/fund/')

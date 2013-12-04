@@ -1,44 +1,83 @@
 ﻿body {
-  font-family:Verdana;
+  font-family:Verdana, "DejaVu Sans", Arial;
   font-size:80%;
 }
 
 /** SEARCH **/
-.report_form ul, .report_form li {
-  list-style-type:none;
-  margin:0;
-  padding-left:0;
-}
 
-div.report_form{
-  float:left;
-}
-
-.report_form tr {
+h1 {
+  margin: 0;
+  padding:0 0 .5em 35%;
   vertical-align:top;
 }
 
-.report_form td {
+#back-link {
+  float:left;
+}
+
+/* errors */
+ul{
+  padding-left:0;
+}
+
+li {
+  list-style-type:none;
+  margin:0;
+}
+
+ul.show {
+  padding-left: 40px;
+}
+
+.show li{
+  margin-left:20px;
+  list-style-type: disc;
+}
+
+div.reporting-wrapper{
+  width: 920px;
+  padding-bottom:2em;
+  display:inline-block;
+}
+
+.reporting-wrapper p {
+  margin: 0 0 1em 1.3em;
+  font-size: 1em;
+}
+
+div.report-type {
+  text-align:center; 
+  padding-bottom:1em;
+}
+
+.reporting-wrapper tr {
+  vertical-align:top;
+}
+
+.reporting-wrapper td {
   padding:0 1.25em .5em 0;
 }
 
-.heading{
+.reporting-section {
+  width: 100%;
+}
+
+.reporting-field {
+  padding: 0 0 1em 1.3em;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.small {
+  float:left;
+}
+
+.report-heading {
   font-size:1.3em;
   font-weight:bold;
-}
-
-.heading td{
   border-top:1px dashed black;
   padding-top:5px;
-  margin-bottom:1em;
-}
-
-.sub_heading{
-  font-size:1em;
-}
-
-h1 {
-  margin:.25em 0 .5em 0;
+  margin-bottom:.5em;
 }
 
 h4 { /** section labels **/
@@ -65,17 +104,25 @@ input#run { /** run the report button **/
 }
 
 #help{
-  float:left;
-  position:relative;
-  margin:-3em 0 0 1em;
   padding:5px;
-  width: 200px;
+  width: 500px;
   border: 1px solid #555;
   display:none;
+  vertical-align:top;
+  margin: 1em 0 0 1em;
 }
 
-#help ul{
-  padding-left:20px;
+#help h2 {
+  margin-top:0;
+}
+
+#help td {
+  vertical-align: top;
+  padding: 0 1em;
+}
+
+#help ul {
+  padding-left:15px;
 }
 
 /** RESULTS **/

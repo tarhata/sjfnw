@@ -1,0 +1,51 @@
+{% comment %} included by reporting.html
+requires:
+  report_type: one of 'application', 'award', 'organization'
+  form: reporting form object
+  base_fields: list of field names that are always included in report
+{% endcomment %}
+
+<div id="{{ report_type }}-form" style="display:none;">
+  {{ form.errors }}
+  <form id="report-{{ report_type }}" method="POST">
+
+    <div class="reporting-section">
+      <div class="report-heading">1. Filter criteria</div>
+      <p>Include only {{ report_type }}s that match your selections.
+      Blank categories will not be used to filter.</p>
+      <ul class="show">
+        <li>Multiple checkboxes: selecting none has the same effect as selecting all.</li>
+        <li>Single checkbox filters: unchecked includes all regardless of that
+            field, checked includes only items that match (e.g., only organizations
+            that have a fiscal sponsor)</li>
+      </ul>
+
+        {% for field in form %}
+          {% if not 'report' in field.name and field.name != 'format' %}
+          <div class="reporting-field">
+            <h4>{{ field.label }}</h4>{{ field }}
+          </div>
+          {% endif %}
+        {% endfor %}
+    </div>
+
+
+    <div class="report-heading">2. Fields to include</div>
+    <p>Select the fields you want to include in the report. Included by default: {{ base_fields }}.</p>
+
+    {% for field in form %}
+    {% if 'report' in field.name and field.name != 'format' %}
+    <div class="reporting-field">
+      <h4>{{ field.label }}</h4>{{ field }}
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <div class="report-heading">3. Output</div>
+    <p>Select a format.</p>
+    <div class="reporting-field">{{ form.format }}</div>
+
+   <input type="submit" name="run-{{ report_type }}" id ="run" value="Run report">
+  </form>
+</div>
+

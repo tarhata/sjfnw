@@ -95,18 +95,30 @@ class SponsoredProgramInline(admin.TabularInline): # Org
   model = SponsoredProgramGrant
   extra = 0
   max_num = 0
-  fields = ('amount', 'check_mailed', 'approved', 'edit_view')
-  readonly_fields = ('edit_view',)
+  fields = ('amount', 'check_mailed', 'approved', 'edit')
+  readonly_fields = fields
   can_delete = False
   template = 'admin/grants/sponsoredprogramgrant/tabular.html'
 
-  def edit_view(self, obj):
+  def edit(self, obj):
     if obj.pk:
       return ('<a href="/admin/grants/sponsoredprogramgrant/' + str(obj.pk) +
             '/" target="_blank">View/edit</a>')
     else:
       return ''
-  edit_view.allow_tags = True
+  edit.allow_tags = True
+
+class DraftInline(admin.TabularInline): #Adv only
+  model = DraftGrantApplication
+  extra = 0
+  max_num = 0
+  can_delete = False
+  readonly_fields = ('grant_cycle', 'modified', 'overdue', 'extended_deadline', 'adv_viewdraft')
+  fields = ('grant_cycle', 'modified', 'overdue', 'extended_deadline', 'adv_viewdraft')
+
+  def adv_viewdraft(obj): #Link from Draft inline on Org to Draft page
+    return '<a href="/admin-advanced/grants/draftgrantapplication/' + str(obj.pk) + '/" target="_blank">View</a>'
+  adv_viewdraft.allow_tags = True
 
 # ModelAdmin
 class GrantCycleA(admin.ModelAdmin):
@@ -125,14 +137,14 @@ class OrganizationA(admin.ModelAdmin):
     ('', {
       'fields':(('name', 'email'),)
     }),
-    ('', {
+    ('Contact info from most recent application', {
       'fields':(('address', 'city', 'state', 'zip'),
                 ('telephone_number', 'fax_number', 'email_address', 'website'))
     }),
-    ('', {
-      'fields':(('status', 'ein'), ('founded', 'mission'))
+    ('Organization info from most recent application', {
+      'fields':(('founded', 'status', 'ein', 'mission'),)
     }),
-    ('Fiscal sponsor info', {
+    ('Fiscal sponsor info from most recent application', {
       'classes':('collapse',),
       'fields':(('fiscal_org', 'fiscal_person'),
                 ('fiscal_telephone', 'fiscal_address', 'fiscal_email'),
@@ -145,21 +157,11 @@ class OrganizationA(admin.ModelAdmin):
   def change_view(self, request, object_id, form_url='', extra_context=None):
     self.inlines = (GrantApplicationInline, SponsoredProgramInline,
                     GrantLogInlineRead, GrantLogInline)
-    self.readonly_fields = ('fiscal_org', 'fiscal_person', 'fiscal_telephone',
-                            'fiscal_address', 'fiscal_email', 'fiscal_letter')
+    self.readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number',
+        'fax_number', 'email_address', 'website', 'status', 'ein', 'founded',
+        'mission', 'fiscal_org', 'fiscal_person', 'fiscal_telephone',
+        'fiscal_address', 'fiscal_email', 'fiscal_letter')
     return super(OrganizationA, self).change_view(request, object_id)
-
-class DraftInline(admin.TabularInline): #Adv only
-  model = DraftGrantApplication
-  extra = 0
-  max_num = 0
-  can_delete = False
-  readonly_fields = ('grant_cycle', 'modified', 'overdue', 'extended_deadline', 'adv_viewdraft')
-  fields = ('grant_cycle', 'modified', 'overdue', 'extended_deadline', 'adv_viewdraft')
-
-  def adv_viewdraft(obj): #Link from Draft inline on Org to Draft page
-    return '<a href="/admin-advanced/grants/draftgrantapplication/' + str(obj.pk) + '/" target="_blank">View</a>'
-  adv_viewdraft.allow_tags = True
 
 class OrganizationAdvA(OrganizationA):
   inlines = [GrantApplicationInline, DraftInline, GrantLogInlineRead,
@@ -263,7 +265,7 @@ admin.site.register(Organization, OrganizationA)
 admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
 admin.site.register(GrantAward, GrantAwardA)
-# admin.site.register(SponsoredProgramGrant, SponsoredProgramGrantA)
+admin.site.register(SponsoredProgramGrant, SponsoredProgramGrantA)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)

@@ -2,6 +2,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from sjfnw.fund.models import GivingProject
 from sjfnw.grants.models import Organization, GrantCycle, GrantApplication, DraftGrantApplication, STATE_CHOICES
@@ -28,12 +29,18 @@ class RegisterForm(forms.Form):
     org = cleaned_data.get('organization')
     email = cleaned_data.get('email')
     if org and email:
-      if (Organization.objects.filter(name = org) or
-          Organization.objects.filter(email = email)):
+      if Organization.objects.filter(email = email):
         logger.warning(org + 'tried to re-register with ' + email)
-        raise ValidationError('That organization is already registered. Log in instead.')
+        raise ValidationError('That email is already registered. Log in instead.')
+      name_match = Organization.objects.filter(name = org)
+      if name_match:
+        if name_match[0].email:
+          logger.warning('Name match on registration, emails diff: ' + org)
+          raise ValidationError('That organization is already registered. Log in instead.')
+        else: #name match, blank email
+          logger.warning('Name match, blank email. ' + org)
       # check if User already exists
-      elif User.objects.filter(username = email):
+      if User.objects.filter(username = email):
         logger.warning('User already exists, but not Org: ' + email)
         raise ValidationError('That email is registered with Project Central.'
                               ' Please register using a different email.')
@@ -43,6 +50,20 @@ class RegisterForm(forms.Form):
       if password and passwordtwo and password != passwordtwo:
         raise ValidationError('Passwords did not match.')
     return cleaned_data
+
+
+class CheckMultiple(forms.widgets.CheckboxSelectMultiple):
+  """ Adds links to javascript function to select all/none of options
+
+  Subclasses CheckboxSelectMultiple; only modifies the render function
+  """
+
+  def render(self, name, value, attrs=None, choices = ()):
+    rendered = super(CheckMultiple, self).render(name, value, attrs, choices)
+    return mark_safe('[<a onclick="check(\'' + name +
+        '\', true)">all</a>] [<a onclick="check(\'' + name +
+        '\', false)">none</a>]' + rendered)
+
 
 class RolloverForm(forms.Form): #used by org
   """Fields created on init:
@@ -104,65 +125,96 @@ class AdminRolloverForm(forms.Form):
     #create field
     self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, unicode(c)) for c in cycles])
 
-class AppSearchForm(forms.Form):
+class BaseOrgAppReport(forms.Form):
+  """ Abstract form for fields shared between report types """
+
+  # filters
+  organization_name = forms.CharField(max_length=255, required=False,
+      help_text='Organization name must contain the given text')
+  city = forms.CharField(max_length=255, required=False,
+      help_text='City must match the given text')
+  state = forms.MultipleChoiceField(choices = STATE_CHOICES[:5],
+      widget = forms.CheckboxSelectMultiple, required = False)
+  has_fiscal_sponsor = forms.BooleanField(required=False)
+
+  # fields
+  report_contact = forms.MultipleChoiceField(
+      label='Contact', required=False,
+      widget = CheckMultiple, choices = [
+        ('contact_person', 'Contact person name'),
+        ('contact_person_title', 'Contact person title'),
+        ('address', 'Address'),
+        ('city', 'City'),
+        ('state', 'State'),
+        ('zip', 'ZIP'),
+        ('telephone_number', 'Telephone number'),
+        ('fax_number', 'Fax number'),
+        ('email_address', 'Email address'),
+        ('website', 'Website')
+      ])
+  report_org = forms.MultipleChoiceField(
+      label='Organization', required=False,
+      widget = CheckMultiple, choices = [
+        ('status', 'Status'),
+        ('ein', 'EIN'),
+        ('founded', 'Year founded')
+      ])
+  report_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
+
+  #format (browse, csv)
+  format = forms.ChoiceField(choices = [('csv', 'CSV'), ('browse', 'Don\'t export, just browse')])
+
+  class Meta:
+    abstract = True
+
+class AppReportForm(BaseOrgAppReport):
+
   #filters
   year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
   year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
   screening_status = forms.MultipleChoiceField(choices = GrantApplication.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
-  organization = forms.CharField(max_length=255, required=False)
-  city = forms.CharField(max_length=255, required=False)
-  state = forms.MultipleChoiceField(choices = STATE_CHOICES[:5], widget = forms.CheckboxSelectMultiple, required = False)
   giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
   grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
-  has_fiscal_sponsor = forms.BooleanField(required=False)
   poc_bonus = forms.BooleanField(required=False)
   geo_bonus = forms.BooleanField(required=False)
   #awarded = forms.BooleanField(required=False)
 
   #fields
   #always: organization, grant cycle, submission time
-  report_basics = forms.MultipleChoiceField(label='Basics', required=False, widget = forms.CheckboxSelectMultiple, choices = [
-    ('id', 'Unique id number'),
-    ('giving_project', 'Giving project'),
-    ('screening_status', 'Screening status')])
-  report_contact = forms.MultipleChoiceField(label='Contact', required=False, widget = forms.CheckboxSelectMultiple, choices = [
-    ('contact_person', 'Contact person name'),
-    ('contact_person_title', 'Contact person title'),
-    ('address', 'Address'),
-    ('city', 'City'),
-    ('state', 'State'),
-    ('zip', 'ZIP'),
-    ('telephone_number', 'Telephone number'),
-    ('fax_number', 'Fax number'),
-    ('email_address', 'Email address'),
-    ('website', 'Website')])
-  report_org = forms.MultipleChoiceField(label='Organization', required=False, widget = forms.CheckboxSelectMultiple, choices = [
-    ('status', 'Status'),
-    ('ein', 'EIN'),
-    ('founded', 'Year founded')])
-  report_proposal = forms.MultipleChoiceField(label='Grant request and project', required=False, widget = forms.CheckboxSelectMultiple, choices = [
-    ('amount_requested', 'Amount requested'),
-    ('grant_request', 'Description of grant request'),
-    ('support_type', 'Support type'),
-    ('grant_period', 'Grant period'),
-    ('project_title', 'Project title'),
-    ('project_budget', 'Project budget'),
-    ('previous_grants', 'Previous grants from SJF')])
-  report_budget = forms.MultipleChoiceField(label='Budget', required=False, widget = forms.CheckboxSelectMultiple, choices = [
-    ('start_year', 'Start of fiscal year'),
-    ('budget_last', 'Budget last year'),
-    ('budget_current', 'Budget current year')])
-  report_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
-  report_collab = forms.BooleanField(label='Collaboration references', required=False)
-  report_racial_ref = forms.BooleanField(label='Racial justice references', required=False)
-  report_bonuses = forms.BooleanField(label='POC-led and geographic diversity', required=False)
+  report_basics = forms.MultipleChoiceField(
+      label='Basics', required=False,
+      widget = CheckMultiple, choices = [
+        ('id', 'Unique id number'),
+        ('giving_project', 'Giving project'),
+        ('screening_status', 'Screening status')
+      ])
+  report_proposal = forms.MultipleChoiceField(
+      label='Grant request and project', required=False,
+      widget = CheckMultiple, choices = [
+        ('amount_requested', 'Amount requested'),
+        ('grant_request', 'Description of grant request'),
+        ('support_type', 'Support type'),
+        ('grant_period', 'Grant period'),
+        ('project_title', 'Project title'),
+        ('project_budget', 'Project budget'),
+        ('previous_grants', 'Previous grants from SJF')
+      ])
+  report_budget = forms.MultipleChoiceField(
+      label='Budget', required=False,
+      widget = CheckMultiple, choices = [
+        ('start_year', 'Start of fiscal year'),
+        ('budget_last', 'Budget last year'),
+        ('budget_current', 'Budget current year')
+      ])
+  report_collab = forms.BooleanField(label='Collaboration references',
+      required=False)
+  report_racial_ref = forms.BooleanField(label='Racial justice references',
+      required=False)
+  report_bonuses = forms.BooleanField(label='Scoring bonuses', required=False)
   report_award = forms.BooleanField(label='Grant awards', required=False)
 
-  #format (browse, csv, tsv)
-  format = forms.ChoiceField(choices = [('csv', 'CSV'), ('browse', 'Don\'t export, just browse')])
-
   def __init__(self, *args, **kwargs):
-    super(AppSearchForm, self).__init__(*args, **kwargs)
+    super(AppReportForm, self).__init__(*args, **kwargs)
 
     #get projects
     choices = GivingProject.objects.values_list('title', flat = True)
@@ -177,10 +229,51 @@ class AppSearchForm(forms.Form):
     self.fields['grant_cycle'].choices = choices
 
   def clean(self):
-    cleaned_data = super(AppSearchForm, self).clean()
+    cleaned_data = super(AppReportForm, self).clean()
     if cleaned_data['year_max'] < cleaned_data['year_min']:
       self._errors['year_min'] = [u'Start year must be less than or equal to end year.']
     return cleaned_data
+
+
+class AwardReportForm(BaseOrgAppReport):
+
+  # filters
+  year_min = forms.ChoiceField(choices =
+      [(n, n) for n in range(timezone.now().year, 1990, -1)])
+  year_max = forms.ChoiceField(choices =
+      [(n, n) for n in range(timezone.now().year, 1990, -1)])
+
+  # fields (always: org name, amount, check_mailed)
+  report_check_number = forms.BooleanField(required=False, label='Check number')
+  report_date_approved = forms.BooleanField(required=False,
+      label='Date approved by E.D.')
+  report_agreement_dates = forms.BooleanField(required=False,
+      label='Date agreement mailed/returned',
+      help_text='Only applies to giving project grants')
+  report_year_end_report_due = forms.BooleanField(required=False,
+      label='Date year end report due',
+      help_text='Only applied to giving project grants')
+
+  def clean(self):
+    cleaned_data = super(AwardReportForm, self).clean()
+    if cleaned_data['year_max'] < cleaned_data['year_min']:
+      raise ValidationError('Start year must be less than or equal to end year.')
+    return cleaned_data
+
+
+class OrgReportForm(BaseOrgAppReport):
+
+  # filters
+  registered = forms.ChoiceField(choices = [('None', '---'), ('True', 'yes'), ('False', 'no')])
+
+  # fields
+  report_account_email = forms.BooleanField(label='Login email',
+      required=False)
+  report_applications = forms.BooleanField(label='List of applications',
+      required=False)
+  report_awards = forms.BooleanField(label='List of awards',
+      required=False)
+
 
 class LoginAsOrgForm(forms.Form):
 
@@ -188,5 +281,6 @@ class LoginAsOrgForm(forms.Form):
     super(LoginAsOrgForm, self).__init__(*args, **kwargs)
 
     orgs = Organization.objects.order_by('name')
-    self.fields['organization'] = forms.ChoiceField(choices = [('', '--- Organizations ---')] + [(o.email, unicode(o)) for o in orgs])
+    self.fields['organization'] = forms.ChoiceField(choices = 
+        [('', '--- Organizations ---')] + [(o.email, unicode(o)) for o in orgs])
 

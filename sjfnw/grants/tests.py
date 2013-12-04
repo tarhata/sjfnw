@@ -1,4 +1,4 @@
-from django.conf import settings
+from django import forms
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -7,13 +7,15 @@ from django.utils import timezone
 
 from google.appengine.ext import testbed
 
+import unicodecsv
+
 from sjfnw.constants import TEST_MIDDLEWARE
 from sjfnw.tests import BaseTestCase
 from sjfnw.fund.models import GivingProject
-from sjfnw.grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle, GrantAward
+from sjfnw.grants.forms import AppReportForm, OrgReportForm, AwardReportForm
+from sjfnw.grants.models import GrantApplication, DraftGrantApplication, Organization, GrantCycle, GrantAward, SponsoredProgramGrant
 
-import sys, datetime, json, unittest
-import logging
+import datetime, json, unittest, logging
 logger = logging.getLogger('sjfnw')
 
 
@@ -21,7 +23,7 @@ logger = logging.getLogger('sjfnw')
   budget.docx      diversity.doc      funding_sources.docx
   budget1.docx     budget2.txt         budget3.png  """
 
-def setCycleDates():
+def set_cycle_dates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
       open, open, closed, upcoming, open """
 
@@ -64,12 +66,12 @@ class BaseGrantTestCase(BaseTestCase):
       self.logInNeworg()
     elif login == 'admin':
       self.logInAdmin()
-    setCycleDates()
+    set_cycle_dates()
 
   class Meta:
     abstract = True
 
-def alterDraftTimeline(draft, values):
+def alter_draft_timeline(draft, values):
   """ values: list of timeline widget values (0-14) """
   contents_dict = json.loads(draft.contents)
   for i in range(15):
@@ -77,7 +79,7 @@ def alterDraftTimeline(draft, values):
   draft.contents = json.dumps(contents_dict)
   draft.save()
 
-def alterDraftFiles(draft, files_dict):
+def alter_draft_files(draft, files_dict):
   """ File list should match this order:
       ['budget', 'demographics', 'funding_sources', 'budget1', 'budget2',
       'budget3', 'project_budget_file', 'fiscal_letter'] """
@@ -86,7 +88,7 @@ def alterDraftFiles(draft, files_dict):
     setattr(draft, key, val)
   draft.save()
 
-def assertDraftAppMatch(self, draft, app, exclude_cycle): #only checks fields in draft
+def assert_app_matches_draft(self, draft, app, exclude_cycle): #only checks fields in draft
   """ Timeline formats:
         submitted: json'd list, in order, no file names
         draft: mixed in with other contents by widget name: timeline_0 - timeline_14 """
@@ -117,10 +119,16 @@ class BaseGrantFilesTestCase(BaseGrantTestCase):
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class Register(BaseGrantTestCase):
-  def setUp(self, *args):
+
+  url = reverse('sjfnw.grants.views.org_register')
+  template_success = 'grants/org_home.html'
+  template_error = 'grants/org_login_register.html'
+
+  def setUp(self):
     self.printName()
 
-  def valid_registration(self):
+  def test_valid_registration(self):
+    """ All fields provided, neither email nor name match an org in db """
     registration = {
       'email': 'uniquenewyork@gmail.com',
       'password': 'one',
@@ -131,14 +139,14 @@ class Register(BaseGrantTestCase):
     self.assertEqual(0, Organization.objects.filter(name='Unique, New York').count())
     self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
 
-    response = self.client.post('/apply/register', registration, follow=True)
+    response = self.client.post(self.url, registration, follow=True)
 
     self.assertEqual(1, Organization.objects.filter(name='Unique, New York').count())
     self.assertEqual(1, User.objects.filter(email='uniquenewyork@gmail.com').count())
-    self.assertTemplateUsed(response, 'grants/org_home.html')
+    self.assertTemplateUsed(response, self.template_success)
 
   def test_repeat_org_name(self):
-
+    """ Name matches an existing org (email doesn't) """
     registration = {
       'email': 'uniquenewyork@gmail.com',
       'password': 'one',
@@ -149,15 +157,16 @@ class Register(BaseGrantTestCase):
     self.assertEqual(1, Organization.objects.filter(name='OfficeMax Foundation').count())
     self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
 
-    response = self.client.post('/apply/register', registration, follow=True)
+    response = self.client.post(self.url, registration, follow=True)
 
     self.assertEqual(1, Organization.objects.filter(name='OfficeMax Foundation').count())
     self.assertEqual(0, User.objects.filter(email='uniquenewyork@gmail.com').count())
-    self.assertTemplateUsed(response, 'grants/org_login_register.html')
-    self.assertFormError(response, 'register', None, 'That organization is already registered. Log in instead.')
+    self.assertTemplateUsed(response, self.template_error)
+    self.assertFormError(response, 'register', None,
+        'That organization is already registered. Log in instead.')
 
   def test_repeat_org_email(self):
-
+    """ Email matches an existing org (name doesn't) """
     registration = {
       'email': 'neworg@gmail.com',
       'password': 'one',
@@ -168,16 +177,17 @@ class Register(BaseGrantTestCase):
     self.assertEqual(1, Organization.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
 
-    response = self.client.post('/apply/register', registration, follow=True)
+    response = self.client.post(self.url, registration, follow=True)
 
     self.assertEqual(1, Organization.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
-    self.assertTemplateUsed(response, 'grants/org_login_register.html')
-    self.assertFormError(response, 'register', None, 'That organization is already registered. Log in instead.')
+    self.assertTemplateUsed(response, self.template_error)
+    self.assertFormError(response, 'register', None,
+        'That email is already registered. Log in instead.')
 
   def test_repeat_user_email(self):
-
-    user = User.objects.create_user('bababa@gmail.com', 'neworg@gmail.com', 'noob')
+    """ Email matches a user, but email/name don't match an org """
+    User.objects.create_user('bababa@gmail.com', 'neworg@gmail.com', 'noob')
 
     registration = {
       'email': 'bababa@gmail.com',
@@ -189,20 +199,47 @@ class Register(BaseGrantTestCase):
     self.assertEqual(1, User.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
 
-    response = self.client.post('/apply/register', registration, follow=True)
+    response = self.client.post(self.url, registration, follow=True)
 
     self.assertEqual(1, User.objects.filter(email='neworg@gmail.com').count())
     self.assertEqual(0, Organization.objects.filter(name='Brand New').count())
-    self.assertTemplateUsed(response, 'grants/org_login_register.html')
+    self.assertTemplateUsed(response, self.template_error)
     self.assertFormError(response, 'register', None,
         'That email is registered with Project Central. Please register using a different email.')
+
+  def test_admin_entered_match(self):
+    """ Org name matches an org that was entered by staff (no login email) """
+
+    org = Organization(name = "Ye olde Orge")
+    org.save()
+
+    registration = {
+      'email': 'bababa@gmail.com',
+      'password': 'one',
+      'passwordtwo': 'one',
+      'organization': 'Ye olde Orge'
+    }
+
+    response = self.client.post(self.url, registration, follow=True)
+
+    org = Organization(name = "Ye olde Orge")
+    # org email was updated
+    #self.assertEqual(org.email, registration['email'])
+    # user was created, is_active = False
+    self.assertEqual(1, User.objects.filter(email='bababa@gmail.com', is_active=False).count())
+    # stayed on login page
+    self.assertTemplateUsed(response, self.template_error)
+    # message telling them to contact admin
+    self.assertMessage(response, ('You have registered successfully but your '
+        'account needs administrator approval. Please contact '
+        '<a href="mailto:info@socialjusticefund.org">info@socialjusticefund.org</a>'))
 
 @override_settings(DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage',
     FILE_UPLOAD_HANDLERS = ('django.core.files.uploadhandler.MemoryFileUploadHandler',),
     MIDDLEWARE_CLASSES = TEST_MIDDLEWARE, MEDIA_ROOT = 'media/')
 class ApplySuccessful(BaseGrantFilesTestCase):
 
-  def setUp(self, *args):
+  def setUp(self):
     super(ApplySuccessful, self).setUp('testy')
 
 
@@ -232,6 +269,16 @@ class ApplySuccessful(BaseGrantFilesTestCase):
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
 
   def test_saved_timeline1(self):
+    """ Verify that a timeline with just a complete first row is accepted
+
+    Setup:
+      Use same complete draft as test_post_valid_app
+      Modify so just first row (first 3 entries of timeline) are filled in.
+
+    Asserts:
+      Gets newly created application (throws exception if not created)
+      App timeline matches inputted timeline fields
+    """
 
     answers = [ 'Jan', 'Chillin', 'Not applicable',
                 '', '', '',
@@ -240,7 +287,7 @@ class ApplySuccessful(BaseGrantFilesTestCase):
                 '', '', '']
 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    alterDraftTimeline(draft, answers)
+    alter_draft_timeline(draft, answers)
 
     response = self.client.post('/apply/3/', follow=True)
     self.assertEqual(response.status_code, 200)
@@ -248,6 +295,16 @@ class ApplySuccessful(BaseGrantFilesTestCase):
     self.assertEqual(app.timeline, json.dumps(answers))
 
   def test_saved_timeline5(self):
+    """ Verify that a completely filled out timeline is accepted
+
+    Setup:
+      Use same complete draft as test_post_valid_app
+      Modify draft with a fully filled out timeline
+
+    Asserts:
+      App created
+      App timeline matches inputted values
+    """
 
     answers = [
       'Jan', 'Chillin', 'Not applicable',
@@ -257,7 +314,7 @@ class ApplySuccessful(BaseGrantFilesTestCase):
       'August', 'Reading in the shade', 'No sunburns',]
 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    alterDraftTimeline(draft, answers)
+    alter_draft_timeline(draft, answers)
 
     response = self.client.post('/apply/3/', follow=True)
     self.assertEqual(response.status_code, 200)
@@ -272,11 +329,11 @@ class ApplySuccessful(BaseGrantFilesTestCase):
 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     files = ['', 'funding_sources.docx', 'diversity.doc', 'budget1.docx', 'budget2.txt', '', '', '']
-    alterDraftFiles(draft, files)
+    alter_draft_files(draft, files)
 
     response = self.client.post('/apply/3/', follow=True)
 
-    org = Organization.objects.get(pk=2)
+    Organization.objects.get(pk=2)
     self.assertTemplateUsed(response, 'grants/submitted.html')
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
@@ -287,24 +344,24 @@ class ApplySuccessful(BaseGrantFilesTestCase):
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyBlocked(BaseGrantTestCase):
 
-  def setUp(self, *args):
+  def setUp(self):
     super(ApplyBlocked, self).setUp('testy')
 
   def test_closed_cycle(self):
     response = self.client.get('/apply/3/')
-    self.assertTemplateUsed('grants/closed.html')
+    self.assertTemplateUsed(response, 'grants/closed.html')
 
   def test_already_submitted(self):
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
 
     response = self.client.get('/apply/1/')
 
-    self.assertTemplateUsed('grants/already-applied.html')
+    self.assertTemplateUsed(response, 'grants/already_applied.html')
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 1).count())
 
   def test_upcoming(self):
     response = self.client.get('/apply/4/')
-    self.assertTemplateUsed('grants/closed.html')
+    self.assertTemplateUsed(response, 'grants/closed.html')
 
   def test_nonexistent(self):
     response = self.client.get('/apply/79/')
@@ -331,7 +388,7 @@ class ApplyValidation(BaseGrantFilesTestCase):
 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     files = ['budget.docx', 'diversity.doc', '', 'budget1.docx', 'budget2.txt', 'budget3.png', '', '']
-    alterDraftFiles(draft, files)
+    alter_draft_files(draft, files)
     response = self.client.post('/apply/3/', follow=True)
 
     self.assertTemplateUsed(response, 'grants/org_app.html')
@@ -360,7 +417,7 @@ class ApplyValidation(BaseGrantFilesTestCase):
     self.assertFormError(response, 'form', 'project_title', "This field is required when applying for project support.")
     self.assertFormError(response, 'form', 'project_budget', "This field is required when applying for project support.")
 
-  def test_timeline_validation_incomplete(self):
+  def test_timeline_incomplete(self):
 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     answers = [
@@ -369,12 +426,12 @@ class ApplyValidation(BaseGrantFilesTestCase):
       'Mar', '', 'Sprouts',
       'July', '', '',
       '', 'Reading in the shade', 'No sunburns',]
-    alterDraftTimeline(draft, answers)
+    alter_draft_timeline(draft, answers)
 
     response = self.client.post('/apply/3/', follow=True)
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">All three columns are required for each quarter that you include in your timeline.</div>')
 
-  def test_timeline_validation_empty(self):
+  def test_timeline_empty(self):
 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     answers = [
@@ -383,7 +440,7 @@ class ApplyValidation(BaseGrantFilesTestCase):
       '', '', '',
       '', '', '',
       '', '', '']
-    alterDraftTimeline(draft, answers)
+    alter_draft_timeline(draft, answers)
 
     response = self.client.post('/apply/3/', follow=True)
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">This field is required.</div>')
@@ -391,7 +448,7 @@ class ApplyValidation(BaseGrantFilesTestCase):
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class StartApplication(BaseGrantTestCase): #MIGHT BE OUT OF DATE
 
-  def setUp(self, *args):
+  def setUp(self):
     super(StartApplication, self).setUp('none')
 
   def test_load_first_app(self):
@@ -406,7 +463,7 @@ class StartApplication(BaseGrantTestCase): #MIGHT BE OUT OF DATE
     response = self.client.get('/apply/1/')
 
     self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed('grants/org_app.html')
+    self.assertTemplateUsed(response, 'grants/org_app.html')
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
 
   def test_load_second_app(self):
@@ -421,7 +478,7 @@ class StartApplication(BaseGrantTestCase): #MIGHT BE OUT OF DATE
     response = self.client.get('/apply/5/')
 
     self.assertEqual(response.status_code, 200)
-    self.assertTemplateUsed('grants/org_app.html')
+    self.assertTemplateUsed(response, 'grants/org_app.html')
     org = Organization.objects.get(pk=2)
     self.assertContains(response, org.mission)
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=5).count())
@@ -429,7 +486,7 @@ class StartApplication(BaseGrantTestCase): #MIGHT BE OUT OF DATE
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftWarning(BaseGrantTestCase):
 
-  def setUp(self, *args):
+  def setUp(self):
     super(DraftWarning, self).setUp('admin')
 
   def test_long_alert(self):
@@ -445,7 +502,7 @@ class DraftWarning(BaseGrantTestCase):
     cycle.close = now + datetime.timedelta(days=7, hours=12)
     cycle.save()
 
-    response = self.client.get('/mail/drafts/')
+    self.client.get('/mail/drafts/')
     self.assertEqual(len(mail.outbox), 1)
 
   def test_long_alert_skip(self):
@@ -461,7 +518,7 @@ class DraftWarning(BaseGrantTestCase):
     cycle.close = now + datetime.timedelta(days=7, hours=12)
     cycle.save()
 
-    response = self.client.get('/mail/drafts/')
+    self.client.get('/mail/drafts/')
     self.assertEqual(len(mail.outbox), 0)
 
   def test_short_alert(self):
@@ -477,7 +534,7 @@ class DraftWarning(BaseGrantTestCase):
     cycle.close = now + datetime.timedelta(days=2, hours=12)
     cycle.save()
 
-    response = self.client.get('/mail/drafts/')
+    self.client.get('/mail/drafts/')
     self.assertEqual(len(mail.outbox), 1)
 
   def test_short_alert_ignore(self):
@@ -492,7 +549,7 @@ class DraftWarning(BaseGrantTestCase):
     cycle.close = now + datetime.timedelta(days=2, hours=12)
     cycle.save()
 
-    response = self.client.get('/mail/drafts/')
+    self.client.get('/mail/drafts/')
     self.assertEqual(len(mail.outbox), 0)
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
@@ -516,18 +573,19 @@ class OrgRollover(BaseGrantTestCase):
     draft.save()
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
 
-    response = self.client.post('/apply/copy', {'cycle':'1', 'draft':'2', 'application':''}, follow=True)
+    response = self.client.post('/apply/copy',
+        {'cycle':'1', 'draft':'2', 'application':''}, follow=True)
 
     self.assertEqual(response.status_code, 200)
     self.assertTemplateUsed(response, 'grants/org_app.html')
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
     new_draft = DraftGrantApplication.objects.get(organization_id = 1, grant_cycle_id = 1)
     old_contents = json.loads(draft.contents) # TODO could this use the compare function defined in base?
-    cq = old_contents.pop('cycle_question', None)
+    old_cycle_q = old_contents.pop('cycle_question', None)
     new_contents = json.loads(new_draft.contents)
-    nq = new_contents.pop('cycle_question', '')
+    new_cycle_q = new_contents.pop('cycle_question', '')
     self.assertEqual(old_contents, new_contents)
-    self.assertNotEqual(cq, nq)
+    self.assertNotEqual(old_cycle_q, new_cycle_q)
     for field in GrantApplication.file_fields():
       self.assertEqual(getattr(draft, field), getattr(new_draft, field))
 
@@ -552,7 +610,7 @@ class OrgRollover(BaseGrantTestCase):
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=2).count())
 
     draft = DraftGrantApplication.objects.get(organization_id=1, grant_cycle_id=2)
-    assertDraftAppMatch(self, draft, app, True)
+    assert_app_matches_draft(self, draft, app, True)
 
   def test_rollover_form_display(self):
     response = self.client.get('/apply/copy')
@@ -596,14 +654,14 @@ class AdminRevert(BaseGrantTestCase):
 
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=1).count())
     draft = DraftGrantApplication.objects.get(organization_id=2, grant_cycle_id=1)
-    assertDraftAppMatch(self, draft, app, False)
+    assert_app_matches_draft(self, draft, app, False)
 
 @unittest.skip('Incomplete')
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class AdminRollover(BaseGrantTestCase):
 
   def setUp(self, *args):
-    super(AdminRevert, self).setUp('admin')
+    super(AdminRollover, self).setUp('admin')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftExtension(BaseGrantTestCase):
@@ -667,7 +725,7 @@ class ViewGrantPermissions(BaseGrantTestCase):
 
   """ Note: using grant app #1
     Author: testorg@gmail.com (org #2)
-    GP: #2, which newacct is a member of, test is not  
+    GP: #2, which newacct is a member of, test is not
   """
   def test_author(self):
     self.logInTestorg()
@@ -711,6 +769,7 @@ class ViewGrantPermissions(BaseGrantTestCase):
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class OrgHomeAwards(BaseGrantTestCase):
+  """ Verify that correct data is showing on the org home page """
 
   url = reverse('sjfnw.grants.views.org_home')
   template = 'grants/org_home.html'
@@ -720,10 +779,10 @@ class OrgHomeAwards(BaseGrantTestCase):
 
   def test_none(self):
     """ org has no awards. verify no award info is shown """
-    
+
     response = self.client.get(self.url)
 
-    self.assertTemplateUsed(self.template)
+    self.assertTemplateUsed(response, self.template)
     self.assertNotContains(response, 'Agreement mailed')
 
   def test_early(self):
@@ -733,7 +792,7 @@ class OrgHomeAwards(BaseGrantTestCase):
 
     response = self.client.get(self.url)
 
-    self.assertTemplateUsed(self.template)
+    self.assertTemplateUsed(response, self.template)
     self.assertNotContains(response, 'Agreement mailed')
 
   def test_sent(self):
@@ -744,6 +803,310 @@ class OrgHomeAwards(BaseGrantTestCase):
 
     response = self.client.get(self.url)
 
-    self.assertTemplateUsed(self.template)
+    self.assertTemplateUsed(response, self.template)
     self.assertContains(response, 'Agreement mailed')
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class Reporting(BaseGrantTestCase):
+  """ Admin reporting on applications, awards and organizations
+
+  Fields can just be tested once; filters should be tested in combinations
+  Fixtures include unicode characters
+  """
+
+  url = reverse('sjfnw.grants.views.grants_report')
+  template_success = 'grants/report_results.html'
+  template_error = 'grants/reporting.html'
+  fixtures = [
+    'sjfnw/fund/fixtures/live_gp_dump.json',
+    'sjfnw/grants/fixtures/org_live_dump.json',
+    'sjfnw/grants/fixtures/cycle_live_dump.json',
+    'sjfnw/grants/fixtures/app_live_dump.json',
+    'sjfnw/grants/fixtures/award_live_dump.json'
+  ]
+
+  def setUp(self): #don't super, can't set cycle dates with this fixture
+    self.logInAdmin()
+    self.printName()
+
+  def fill_report_form(self, form, filters=False, fields=False, fmt='browse'):
+    """ Shared method to create POST data for the given form
+
+    Methods need to insert report type key themselves
+
+    Args:
+      form: form instance to populate
+      filters: True = select all filters, False = select none
+      fields: True = select all fields, TODO False = select none
+      fmt: browse or csv option in form
+
+    Returns:
+      Dictionary that should be a valid POST submission for the given form
+    """
+
+    post_dict = {}
+    for bfield in form:
+      field = bfield.field
+      name = bfield.name
+      # fields
+      if fields and name.startswith('report'):
+        if isinstance(field, forms.BooleanField):
+          post_dict[name] = True
+        elif isinstance(field, forms.MultipleChoiceField):
+          post_dict[name] = [val[0] for val in field.choices]
+        else:
+          logger.error('Unexpected field type: ' + str(field))
+      # filters
+      else:
+        if isinstance(field, forms.BooleanField):
+          post_dict[name] = True if filters else False
+        elif isinstance(field, forms.MultipleChoiceField):
+          post_dict[name] = [field.choices[0][0], field.choices[1][0]] if filters else []
+        elif name.startswith('year_m'):
+          if filters:
+            if name == 'year_min':
+              post_dict[name] = 1995
+            else:
+              post_dict[name] = 2012
+          else:
+            post_dict[name] = timezone.now().year
+        elif isinstance(field, forms.CharField):
+          if filters:
+            if name == 'organization':
+              post_dict[name] = 'Foundation'
+            elif name == 'city':
+              post_dict[name] = 'Seattle'
+          else:
+            post_dict[name] = ''
+        elif name == 'registered':
+          post_dict[name] = True if filters else None
+        else:
+          logger.warning('Unexpected field type: ' + str(field))
+
+    post_dict['format'] = fmt
+    return post_dict
+
+
+  def test_app_fields(self):
+    """ Verify that application fields are fetched for browsing without error
+
+    Setup:
+      No filters selected
+      All fields selected
+      Format = browse
+
+    Asserts:
+      Basic success: 200 status, correct template
+      Number of rows in results == number of apps in database
+
+    """
+
+    form = AppReportForm()
+    post_dict = self.fill_report_form(form, fields=True)
+    post_dict['run-application'] = '' # simulate dropdown at top of page
+
+    response = self.client.post(self.url, post_dict)
+
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, self.template_success)
+
+    results = response.context['results']
+    self.assertEqual(len(results), GrantApplication.objects.count())
+
+  def test_app_fields_csv(self):
+    """ Verify that application fields are fetched in csv format without error
+
+    Setup:
+      No filters selected
+      All fields selected
+      Format = csv
+
+    Asserts:
+      Basic success: able to iterate through response with reader
+      Number of rows in results matches number of apps in database
+    """
+
+    form = AppReportForm()
+    post_dict = self.fill_report_form(form, fields=True, fmt='csv')
+    post_dict['run-application'] = '' # simulate dropdown at top of page
+
+    response = self.client.post(self.url, post_dict)
+
+    reader = unicodecsv.reader(response, encoding = 'utf8')
+    row_count = sum(1 for row in reader)
+    # 1st row is blank, 2nd is headers
+    self.assertEqual(row_count-2, GrantApplication.objects.count())
+
+  def test_app_filters_all(self):
+    """ Verify that all filters can be selected without error
+
+    Setup:
+      All fields
+      All filters
+      Format = browse
+
+    Asserts:
+      Basic success: 200 status, correct template
+      Number of rows in results == number of apps in database
+    """
+
+    form = AppReportForm()
+    post_dict = self.fill_report_form(form, fields=True, filters=True)
+    post_dict['run-application'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    self.assertEqual(200, response.status_code)
+    self.assertTemplateUsed(response, self.template_success)
+
+    results = response.context['results']
+    self.assertEqual(results, [])
+
+  def test_award_fields(self):
+    """ Verify that award fields can be fetched
+
+    Setup:
+      No filters selected
+      All fields selected
+      Format = browse
+
+    Asserts:
+      Basic success: 200 status, correct template
+      Number of rows in results == number of awards (gp + sponsored) in db
+    """
+
+    form = AwardReportForm()
+    post_dict = self.fill_report_form(form, fields=True)
+    post_dict['run-award'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, self.template_success)
+
+    results = response.context['results']
+    self.assertEqual(len(results),
+        GrantAward.objects.count() + SponsoredProgramGrant.objects.count())
+
+  def test_award_fields_csv(self):
+    """ Verify that award fields can be fetched in csv format
+
+    Setup:
+      No filters selected
+      All fields selected
+      Format = browse
+
+    Asserts:
+      Basic success: able to iterate through response with reader
+      Number of rows in results matches number of awards (gp + sponsored) in db
+
+    """
+
+    form = AwardReportForm()
+    post_dict = self.fill_report_form(form, fields=True, fmt='csv')
+    post_dict['run-award'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    reader = unicodecsv.reader(response, encoding = 'utf8')
+    row_count = sum(1 for row in reader)
+    self.assertEqual(row_count-2,
+        GrantAward.objects.count() + SponsoredProgramGrant.objects.count())
+
+  def test_award_filters_all(self):
+    """ Verify that all filters can be selected in award report without error
+
+    Setup:
+      All fields
+      All filters
+      Format = browse
+
+    Asserts:
+      Basic success: 200 status, correct template
+    """
+
+    form = AwardReportForm()
+    post_dict = self.fill_report_form(form, fields=True, filters=True)
+    post_dict['run-award'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    self.assertEqual(200, response.status_code)
+    self.assertTemplateUsed(response, self.template_success)
+
+    results = response.context['results']
+    logger.info(results)
+
+  def test_org_fields(self):
+    """ Verify that org fields can be fetched
+
+    Setup:
+      No filters selected
+      All fields selected
+      Format = browse
+
+    Asserts:
+      Basic success: 200 status, correct template
+      Number of rows in results == number of organizations in db
+    """
+
+    form = OrgReportForm()
+    post_dict = self.fill_report_form(form, fields=True)
+    post_dict['run-organization'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    self.assertEqual(response.status_code, 200)
+    self.assertTemplateUsed(response, self.template_success)
+
+    results = response.context['results']
+    self.assertEqual(len(results), Organization.objects.count())
+
+  def test_org_fields_csv(self):
+    """ Verify that org fields can be fetched in csv format
+
+    Setup:
+      No filters selected
+      All fields selected
+      Format = browse
+
+    Asserts:
+      Basic success: able to iterate through response with reader
+      Number of rows in results matches number of orgs in db
+
+    """
+
+    form = OrgReportForm()
+    post_dict = self.fill_report_form(form, fields=True, fmt='csv')
+    post_dict['run-organization'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    reader = unicodecsv.reader(response, encoding = 'utf8')
+    row_count = sum(1 for row in reader)
+    self.assertEqual(row_count-2, Organization.objects.count())
+
+  def test_org_filters_all(self):
+    """ Verify that all filters can be selected in org report without error
+
+    Setup:
+      All fields
+      All filters
+      Format = browse
+
+    Asserts:
+      Basic success: 200 status, correct template
+    """
+
+    form = OrgReportForm()
+    post_dict = self.fill_report_form(form, fields=True, filters=True)
+    post_dict['run-organization'] = ''
+
+    response = self.client.post(self.url, post_dict)
+
+    self.assertEqual(200, response.status_code)
+    self.assertTemplateUsed(response, self.template_success)
+
+    results = response.context['results']
+    self.assertEqual(0, len(results))
 

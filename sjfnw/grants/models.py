@@ -147,8 +147,8 @@ class Organization(models.Model):
     'unique': ('An organization with this name is already in the system. '
     'To add a separate org with the same name, add/alter the name to '
     'differentiate the two.')})
-  email = models.EmailField(max_length=100, verbose_name='Email(login)',
-                            null=True, blank=True, unique=True) #= django username
+  email = models.EmailField(max_length=100, verbose_name='Login',
+                            blank=True, unique=True) #django username
 
   #org contact info
   address = models.CharField(max_length=100, blank=True)
@@ -159,6 +159,10 @@ class Organization(models.Model):
   fax_number = models.CharField(max_length=20, blank=True)
   email_address = models.EmailField(max_length=100, blank=True)
   website = models.CharField(max_length=50, blank=True)
+  contact_person = models.CharField(max_length=250, blank=True,
+      verbose_name= 'Contact person')
+  contact_person_title = models.CharField(max_length=100, blank=True,
+      verbose_name='Title')
 
   #org info
   status = models.CharField(max_length=50, choices=STATUS_CHOICES, blank=True)
@@ -193,13 +197,6 @@ class Organization(models.Model):
   class Meta:
     ordering = ('name',)
 
-  def save(self, *args, **kwargs):
-    logger.debug('Org save')
-    if self.email == '':
-      logger.info('Blank org login, setting to None')
-      self.email = None
-    super(Organization, self).save(*args, **kwargs)
-
 class OrgProfile(ModelForm):
   class Meta:
     model = Organization
@@ -213,9 +210,8 @@ class GrantCycle(models.Model):
   info_page = models.URLField()
   email_signature = models.TextField(blank=True)
   conflicts = models.TextField(blank=True,
-                               help_text='Track any conflicts of interest '
-                               '(automatic & personally declared) that occurred'
-                               ' during this cycle.')
+      help_text='Track any conflicts of interest (automatic & personally '
+      'declared) that occurred  during this cycle.')
 
   class Meta:
     ordering = ['title', 'close']
@@ -275,9 +271,10 @@ class DraftGrantApplication(models.Model):
 
   def editable(self):
     deadline = self.grant_cycle.close
+    logger.debug('deadline is ' + str(self.grant_cycle.close))
     now = timezone.now()
-    if deadline > now or (self.extended_deadline and
-                          self.extended_deadline > now):
+    if self.grant_cycle.open < now and (deadline > now or 
+        (self.extended_deadline and self.extended_deadline > now)):
       return True
     else:
       return False
@@ -326,10 +323,8 @@ class GrantApplication(models.Model):
   founded = models.PositiveIntegerField(verbose_name='Year founded')
   mission = models.TextField(verbose_name="Mission statement",
                              validators=[WordLimitValidator(150)])
-  previous_grants = models.CharField(max_length=255,
-                                     verbose_name=("Previous SJF grants awarded"
-                                                  " (amounts and year)"),
-                                     blank=True)
+  previous_grants = models.CharField(max_length=255, blank=True,
+      verbose_name='Previous SJF grants awarded (amounts and year)')
 
   #budget info
   start_year = models.CharField(max_length=250,
@@ -510,13 +505,13 @@ class GrantApplication(models.Model):
     return unicode(self.organization) + u' - ' + unicode(self.grant_cycle) + u' - ' + unicode(self.submission_time.year)
 
   def id_number(self):
-    return self.pk + 5211 #picking up after the access db
+    return self.pk + 5211 #TODO obsolete?
 
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
   view_link.allow_tags = True
 
-  def timeline_display(self):
+  def timeline_display(self): #TODO move to modelform?
     logger.info(type(self.timeline))
     timeline = json.loads(self.timeline)
     html = '<table id="timeline_display"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
@@ -749,7 +744,7 @@ class SponsoredProgramGrant(models.Model):
   check_mailed = models.DateField(null=True, blank=True)
   approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
 
-  description = models.TextField()
+  description = models.TextField(blank=True)
 
   class Meta:
     ordering = ['organization']

@@ -7,9 +7,9 @@ import logging
 """ Shared testing base classes, utilities """
 
 
-# Sets root & sjfnw loggers to DEBUG. Comment out for less output.
-logging.getLogger().setLevel(0)
-logging.getLogger('sjfnw').setLevel(0)
+# Sets root & sjfnw loggers level. Comment out for less output.
+logging.getLogger().setLevel(1)
+logging.getLogger('sjfnw').setLevel(1)
 
 class BaseTestCase(TestCase):
 
@@ -43,6 +43,8 @@ class BaseTestCase(TestCase):
     self.client.login(username = 'testorg@gmail.com', password = 'noob')
 
   def assertMessage(self, response, text):
+    """ Asserts that a message (django.contrib.messages) with the given text
+        is displayed """
     m = list(response.context['messages'])
     self.assertEqual(1, len(m))
     self.assertEqual(str(m[0]), text)

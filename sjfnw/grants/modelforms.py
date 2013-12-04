@@ -7,6 +7,8 @@ import logging
 logger = logging.getLogger('sjfnw')
 
 
+# ADMIN
+
 class AppAdminForm(ModelForm):
   def clean(self):
     cleaned_data = super(AppAdminForm, self).clean()

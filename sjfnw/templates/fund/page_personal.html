@@ -1,5 +1,5 @@
 ﻿{% extends 'fund/blocks.html' %}
-{% block title %}My fundraising {{block.super}}{% endblock %}
+{% block title %}My fundraising {{ block.super }}{% endblock %}
 {% block script %}
 <script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -25,15 +25,15 @@
 				data.addColumn('string', 'Status');
 				data.addColumn('number', 'Contacts');
 				data.addRows([
-					["Haven't contacted", {{progress.contactsremaining}}],
-					["Talked to", {{progress.talked}}],
-					['Asked', {{progress.asked}}]
+					["Haven't contacted", {{ progress.contactsremaining }}],
+					["Talked to", {{ progress.talked }}],
+					['Asked', {{ progress.asked }}]
 				]);
 
 				// Instantiate and draw our chart, passing in some options.
 				var chart = new google.visualization.PieChart(chart_div);
 				chart.draw(data, options);
-				if ({{progress.estimated}} > 0) {
+				if ({{ progress.estimated }} > 0) {
 					drawChart2();
 				}
 			} else {
@@ -48,9 +48,9 @@
       data.addColumn('string', 'Status');
       data.addColumn('number', 'Amount');
       data.addRows([
-        ['Remaining', {{progress.togo|default:'0'}}],
-        ["Promised", {{progress.promised}}],
-        ['Received', {{progress.received}}]
+        ['Remaining', {{ progress.togo|default:'0'}}],
+        ["Promised", {{ progress.promised }}],
+        ['Received', {{ progress.received }}]
       ]);
 
       // Instantiate and draw our chart, passing in some options.
@@ -73,16 +73,16 @@
     console.log('textProgress');
     chart = document.getElementById('chart_div');
 		if (chart) {
-			chart.innerHTML = "<br><br>Haven't contacted: {{progress.contactsremaining}}<br>Talked to: {{progress.talked}}<br>Asked: {{progress.asked}}";
-			if ({{progress.estimated}} > 0) {
-				document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{progress.togo|default:'0'}}<br>Promised: ${{progress.promised}}<br>Received: ${{progress.received}}";
+			chart.innerHTML = "<br><br>Haven't contacted: {{ progress.contactsremaining }}<br>Talked to: {{ progress.talked }}<br>Asked: {{ progress.asked }}";
+			if ({{ progress.estimated }} > 0) {
+				document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{ progress.togo|default:'0'}}<br>Promised: ${{ progress.promised }}<br>Received: ${{ progress.received }}";
 			}
 		} else {
 			console.log('no chart div, not running textprogress');
 		}
   }
 </script>
-<script type="text/javascript"><!-- custom js for this page -->
+<script type="text/javascript">
   //constants
   var status_texts = { //for ajax error messages
     400: '400 Bad request',
@@ -445,8 +445,8 @@
   //log errors
   function logError(msg, url, line) {
     var dict = {msg: msg, script: url, line: line, url: window.location};
-    if ('{{membership}}') {
-      dict['membership'] = '{{membership}}'
+    if ('{{ membership }}') {
+      dict['membership'] = '{{ membership }}'
     } else {
       dict['membership'] = 'no membership'
     }
@@ -472,8 +472,8 @@
 
   //on load
   $(document).ready(function() {
-    var load = '{{load}}';
-    var loadto = '{{loadto}}';
+    var load = '{{ load }}';
+    var loadto = '{{ loadto }}';
     if (load) {
       loadView(load, loadto);
     }
@@ -490,16 +490,16 @@
 <div id="form_saved"></div>
 
 {% if notif %}
-<div id="notifications">{{notif|safe}}</div>
+<div id="notifications">{{ notif|safe }}</div>
 {% endif %}
 
 {% if donor_list.0 %}
 <span class="header">YOUR PROGRESS</span><!-- PROGRESS -->
 <table style="width:90%;margin-left:8%;margin-top:10px;margin-bottom:15px;text-align:center;">
   <tr>
-    <td><div align="center">{{progress.contacts}} contacts</div><div align="center" id ="chart_div" style="width:240px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
+    <td><div align="center">{{ progress.contacts }} contacts</div><div align="center" id ="chart_div" style="width:240px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
     {% if progress.estimated > 0 %}
-    <td><div align="center" title = "Personal fundraising goal of ${{progress.estimated}} calculated based on your ask amount and estimated likelihood for each contact">{{progress.header}}</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
+    <td><div align="center" title = "Personal fundraising goal of ${{ progress.estimated }} calculated based on your ask amount and estimated likelihood for each contact">{{ progress.header }}</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
     {% endif %}
   </tr>
 </table>
@@ -512,66 +512,66 @@
 {% endif %}
 {% load humanize %}
 {% for dict in donor_list %} <!-- donors -->
-<div class="donor indent" id="donor-{{dict.donor.pk}}">
+<div class="donor indent" id="donor-{{ dict.donor.pk }}">
   <!-- line 1 name click to toggle -->
-  <a class="{%if dict.donor.promised != None%}promised{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{dict.donor.lastname}}</b></a><br>
+  <a class="{% if dict.donor.promised != None %}promised{% endif %}" onclick="toggle('details-{{ dict.donor.pk }}', 'donor-{{ dict.donor.pk }}')"><b>{{ dict.donor.firstname }} {{ dict.donor.lastname }}</b></a><br>
   {% if dict.next_step %}
     <!-- line 2 next step summary -->
-    <div id="{{dict.donor.pk}}-nextstep">{%if dict.overdue%}<span title="This step's goal date has passed! Edit or complete it" style="display:inline;"><span class="overdue_step">! </span>{{dict.next_step}}</span>{% else %}{{dict.next_step}}{%endif%}
+    <div id="{{ dict.donor.pk }}-nextstep">{% if dict.overdue %}<span title="This step's goal date has passed! Edit or complete it" style="display:inline;"><span class="overdue_step">! </span>{{ dict.next_step }}</span>{% else %}{{ dict.next_step }}{% endif %}
     <!-- edit/complete links -->
-    <div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}', '{{dict.donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}/done', '{{dict.donor.pk}}-nextstep', '{{dict.donor.asked}}', '{{dict.donor.promised}}');">complete</a>]</div>
+    <div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{ dict.donor.pk }}/{{ dict.next_step.pk }}', '{{ dict.donor.pk }}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{ dict.donor.pk }}/{{ dict.next_step.pk }}/done', '{{ dict.donor.pk }}-nextstep', '{{ dict.donor.asked }}', '{{ dict.donor.promised }}');">complete</a>]</div>
     </div>
   {% else %}
-    <div id="{{dict.donor.pk}}-addstep">
+    <div id="{{ dict.donor.pk }}-addstep">
     {% if dict.donor.promised == None and dict.donor.received == 0 %}
       <!-- line 2 add a step -->
-      No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
+      No next step. <a onclick="loadView('/fund/{{ dict.donor.pk }}/step', '{{ dict.donor.pk }}-addstep')">Add one.</a>
     {% else %}
       <!-- line 2 summary of response -->
-      <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.received %}${{dict.donor.received|intcomma}} received by SJF.{% elif dict.donor.promised != None %}{% if dict.donor.promised > 0 %}Promised ${{dict.donor.promised|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
+      <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.received %}${{ dict.donor.received|intcomma }} received by SJF.{% elif dict.donor.promised != None %}{% if dict.donor.promised > 0 %}Promised ${{ dict.donor.promised|intcomma }}.{% else %}Declined to donate.{% endif %}{% endif %}
     {% endif %}
     </div>
   {% endif %}
 
-  <div class="donor_details indent" id="details-{{dict.donor.pk}}" style="display:none;"><!-- donor details (hidden) -->
+  <div class="donor_details indent" id="details-{{ dict.donor.pk }}" style="display:none;"><!-- donor details (hidden) -->
     <table>
       {% if dict.donor.received %}<!-- received, promised, asked, etc. -->
-        <tr><td>Received by SJF:</td><td>${{dict.donor.received|intcomma}}</td></tr>
-        <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
-      {% elif dict.donor.promised != None%}
+        <tr><td>Received by SJF:</td><td>${{ dict.donor.received|intcomma }}</td></tr>
+        <tr><td>Original estimation:</td><td>${{ dict.donor.estimated|intcomma }}</td></tr>
+      {% elif dict.donor.promised != None %}
         {% if dict.donor.promised > 0 %}
-          <tr><td>Promised:</td><td>${{dict.donor.promised|intcomma}}</td></tr>
+          <tr><td>Promised:</td><td>${{ dict.donor.promised|intcomma }}</td></tr>
         {% else %}
           <tr><td colspan="2">Declined to donate.</td></tr>
         {% endif %}
-        <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
+        <tr><td>Original estimation:</td><td>${{ dict.donor.estimated|intcomma }}</td></tr>
       {% else %}
         {% if dict.donor.asked %}
           <tr><td colspan="2">Asked; awaiting response.</td></tr>
         {% endif %}
         {% if dict.donor.amount %}
-          <tr><td>Amount to ask:</td><td>${{dict.donor.amount|intcomma}}</td></tr>
-          <tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
+          <tr><td>Amount to ask:</td><td>${{ dict.donor.amount|intcomma }}</td></tr>
+          <tr><td>Likelihood:</td><td>{{ dict.donor.likelihood }}%</td></tr>
         {% endif %}
       {% endif %}
       <tr><!-- basic fields -->
         <td>{% if dict.donor.email or dict.donor.phone %}Contact info:</td>
-        <td>{{dict.donor.email|default:""}} {{dict.donor.phone|default:""}}{%endif%}</td>
+        <td>{{ dict.donor.email|default:""}} {{ dict.donor.phone|default:""}}{% endif %}</td>
       </tr>
       <tr>
         <td>Notes:</td>
-        <td>{{dict.donor.notes|default:"<i>None entered.</i>"}}<br><br></td>
+        <td>{{ dict.donor.notes|default:"<i>None entered.</i>"}}<br><br></td>
       </tr>
       {% if dict.complete_steps %}<!-- list of complete steps -->
         <tr>
-          <td>Completed steps:{% if dict.donor.promised != None and not dict.next_step %}<br>[<a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">add step</a>]{% endif %}</td>
-          <td>{% for step in dict.complete_steps %}{{step.date|date:"n/d/y"}}: {{step.description}}<br>{% endfor %}</td>
+          <td>Completed steps:{% if dict.donor.promised != None and not dict.next_step %}<br>[<a onclick="loadView('/fund/{{ dict.donor.pk }}/step', '{{ dict.donor.pk }}-addstep')">add step</a>]{% endif %}</td>
+          <td>{% for step in dict.complete_steps %}{{ step.date|date:"n/d/y"}}: {{ step.description }}<br>{% endfor %}</td>
         </tr>
       {% endif %}
     </table>
     <br>
-    <div class="donor_delete" id="delete-{{dict.donor.pk}}"><!-- delete/edit -->
-      [<a onclick="loadView('/fund/{{dict.donor.pk}}/edit', 'donor-{{dict.donor.pk}}')">edit contact</a>] [<a onclick="loadView('/fund/{{dict.donor.pk}}/delete', 'delete-{{dict.donor.pk}}')">remove contact</a>]
+    <div class="donor_delete" id="delete-{{ dict.donor.pk }}"><!-- delete/edit -->
+      [<a onclick="loadView('/fund/{{ dict.donor.pk }}/edit', 'donor-{{ dict.donor.pk }}')">edit contact</a>] [<a onclick="loadView('/fund/{{ dict.donor.pk }}/delete', 'delete-{{ dict.donor.pk }}')">remove contact</a>]
     </div>
   </div> <!-- ends donor_details -->
 </div> <!-- ends donor -->
