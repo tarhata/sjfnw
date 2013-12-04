@@ -18,7 +18,7 @@ class GuideA(admin.ModelAdmin):
 
   def display_contents(self, obj):
     if obj.pk: # safety check
-      return mark_safe(obj.contents.replace('\n', '<br>'))
+      return mark_safe(obj.contents)
 
 admin.site.register(Guide, GuideA)
 
