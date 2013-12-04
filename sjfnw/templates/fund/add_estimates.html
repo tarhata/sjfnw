@@ -1,3 +1,5 @@
+{% extends request.is_ajax|yesno:"base_ajax.html,fund/base_personal.html" %}
+{% block content %}
 <div class="indent" id="estimates">
   <p>Enter a donation amount to ask each contact and the estimated likelihood that the person will say yes to your ask.  Your fundraising goal is automatically calculated based on the amount multiplied by the likelihood.</p>
   <p>Example: You want to ask Jill for $500 and you think it's pretty likely they will give: Ask ($500) x Likelihood (75%) = Fundraising Goal ($375)</p>
@@ -28,3 +30,5 @@
     <button onclick="Submit('/fund/add-estimates', '#add_estimates', 'estimates')">Save</button><button onclick="location.href='/fund/'">Cancel</button>
   </div>
 </div>
+{% endblock %}
+
