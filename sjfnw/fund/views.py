@@ -31,7 +31,17 @@ logger = logging.getLogger('sjfnw')
 # MAIN VIEWS
 
 def get_block_content(membership, get_steps=True):
-  """ Provide upper block content for the 3 main views """
+  """ Provide upper block content for the 3 main views
+  
+  Args:
+    membership: current Membership
+    get_steps: include list of upcoming steps or not (default True)
+    
+  Returns:
+    steps: 2 closest upcoming steps
+    news: news items, sorted by date descending
+    grants: ProjectApps ordered by org name
+  """
 
   bks = []
   # upcoming steps
@@ -71,10 +81,11 @@ def home(request):
 
   """
 
-  #member/ship info
   membership = request.membership
-  donors = list(membership.donor_set.all())
-  if not donors: # empty list; no contacts entered yet
+
+  # check if they have contacts
+  donors = membership.donor_set.all()
+  if not donors:
     return redirect(add_mult)
 
   #querydict for pre-loading forms
@@ -94,27 +105,22 @@ def home(request):
     load = ''
     loadto = ''
 
+    # check whether to redirect to add estimates
+    if (membership.giving_project.require_estimates() and 
+        donors.filter(amount__isnull=True)):
+      return redirect(add_estimates)
+
+  # from here we know we're not redirecting
 
   #top content
   news, grants = get_block_content(membership, get_steps=False)
   header = membership.giving_project.title
 
-  #donors
+  # collect & organize contact data
   prog = {'contacts':len(donors), 'estimated':0, 'talked':0, 'asked':0,
           'promised':0, 'received':0}
   donor_data = {}
   empty_date = datetime.date(2500, 1, 1)
-
-  #checking for direct links from emails & whether estmates are required
-  est_req = membership.giving_project.require_estimates()
-  add_est = est_req # we'll need original est value later
-  if load != '':
-    add_est = False #override, don't check if following link from email
-  else:
-    amount_entered, amount_missing = False, False
-    need_est, initiale = [], []
-
-  # go through contacts, tally progress & see which need estimates
   for donor in donors:
     donor_data[donor.pk] = {'donor':donor, 'complete_steps':[],
                             'next_step':False, 'next_date':empty_date,
@@ -131,15 +137,8 @@ def home(request):
     elif donor.promised:
       prog['promised'] += donor.promised
       donor_data[donor.pk]['next_date'] = datetime.date(2700, 1, 1)
-    if add_est:
-      if donor.amount is not None:
-        amount_entered = True
-      else:
-        amount_missing = True
-        initiale.append({'donor': donor})
-        need_est.append(donor)
 
-  #progress charts
+  # progress chart calculations
   if prog['contacts'] > 0:
     prog['bar'] = 100*prog['asked']/prog['contacts']
     prog['contactsremaining'] = (prog['contacts'] - prog['talked'] -
@@ -152,75 +151,43 @@ def home(request):
       prog['header'] = ('$' + intcomma(prog['promised'] + prog['received']) +
                         ' raised')
   else:
+    logger.error('No contacts but no redirect to add_mult')
     prog['contactsremaining'] = 0
-  logger.debug(prog)
 
-  notif = membership.notifications
+  notif = membership.notifications #TODO replace with messages
   if notif and not settings.DEBUG: #on live, only show a notification once
     logger.info('Displaying notification to ' + str(membership) + ': ' + notif)
     membership.notifications = ''
     membership.save(skip=True)
 
-  #show/handle estimates form TODO move the POST to its own view
-  if add_est and amount_missing:
-    if amount_entered:
-      #should not happen!
-      logger.warning(str(membership) + ' has some with est & some without.')
-    est_formset = formset_factory(forms.DonorEstimates, extra=0)
-    if request.method == 'POST':
-      formset = est_formset(request.POST)
-      logger.debug('Adding estimates - posted: ' + str(request.POST))
-      if formset.is_valid():
-        logger.debug('Adding estimates - is_valid passed, cycling through forms')
-        for form in formset.cleaned_data:
-          if form:
-            current = form['donor']
-            current.amount = form['amount']
-            current.likelihood = form['likelihood']
-            current.save()
-            logger.debug('Amount & likelihood entered for ' + str(current))
-        return HttpResponse("success")
+  # get all steps
+  step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
+  #split into complete/not, attach to donors
+  upcoming_steps = []
+  ctz = timezone.get_current_timezone()
+  today = ctz.normalize(timezone.now()).date()
+  for step in step_list:
+    if step.completed:
+      donor_data[step.donor_id]['complete_steps'].append(step)
     else:
-      formset = est_formset(initial=initiale)
-      logger.info('Adding estimates - loading initial formset: ' +str(need_est))
-    fd = zip(formset, need_est)
+      upcoming_steps.append(step)
+      donor_data[step.donor_id]['next_step'] = step
+      donor_data[step.donor_id]['next_date'] = step.date
+      if step.date < today:
+        donor_data[step.donor_id]['overdue'] = True
+  upcoming_steps.sort(key = lambda step: step.date)
+  donor_list = donor_data.values() #convert outer dict to list and sort it
+  donor_list.sort(key = lambda donor: donor['next_date'])
 
-    #basic version for blocks
-    step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
-    return render(request, 'fund/page_personal.html',
-      {'1active':'true', 'header':header, 'progress':prog,
-      'news':news, 'grants':grants, 'steps':step_list, 'membership':membership,
-      'notif':notif, 'formset':formset, 'fd': fd, 'load':load, 'loadto':loadto})
+  # suggested steps for step forms
+  suggested = membership.giving_project.suggested_steps.splitlines()
+  suggested = [sug for sug in suggested if sug] #filter out empty lines
 
-  # show regular contacts view (don't need to show estimates form)
-  else:
-    # get all steps
-    step_list = list(models.Step.objects.filter(donor__membership=membership).order_by('date'))
-    #split into complete/not, attach to donors
-    upcoming_steps = []
-    ctz = timezone.get_current_timezone()
-    today = ctz.normalize(timezone.now()).date()
-    for step in step_list:
-      if step.completed:
-        donor_data[step.donor_id]['complete_steps'].append(step)
-      else:
-        upcoming_steps.append(step)
-        donor_data[step.donor_id]['next_step'] = step
-        donor_data[step.donor_id]['next_date'] = step.date
-        if step.date < today:
-          donor_data[step.donor_id]['overdue'] = True
-    upcoming_steps.sort(key = lambda step: step.date)
-    donor_list = donor_data.values() #convert outer dict to list and sort it
-    donor_list.sort(key = lambda donor: donor['next_date'])
-
-    suggested = membership.giving_project.suggested_steps.splitlines()
-    suggested = [sug for sug in suggested if sug] #filter out empty lines
-
-    return render(request, 'fund/page_personal.html', {
-      '1active':'true', 'header':header, 'donor_list': donor_list, 'progress':prog,
-      'news':news, 'grants':grants, 'steps':upcoming_steps,
-      'membership':membership, 'notif':notif, 'suggested':suggested,
-      'load':load, 'loadto':loadto})
+  return render(request, 'fund/page_personal.html', {
+    '1active':'true', 'header':header, 'news':news, 'grants':grants, 
+    'steps':upcoming_steps, 'donor_list': donor_list, 'progress':prog,
+    'membership':membership, 'notif':notif, 'suggested':suggested,
+    'load':load, 'loadto':loadto})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -527,7 +494,7 @@ def add_mult(request):
 
   else: #GET
     formset = contact_formset()
-    news, grants, steps = get_block_content(membership)
+    steps, news, grants = get_block_content(membership)
     header = membership.giving_project.title
 
     return render(request, 'fund/add_mult_flex.html', {
@@ -542,12 +509,15 @@ def add_estimates(request):
   initiald = [] #list of dicts for form initial
   dlist = [] #list of donors for zipping to formset
   membership = request.membership
-
+  
+  # get all donors without estimates
   for donor in membership.donor_set.all():
     if not donor.amount:
       initiald.append({'donor': donor})
       dlist.append(donor)
+  # create formset
   est_formset = formset_factory(forms.DonorEstimates, extra=0)
+
   if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save(skip=True)
@@ -562,13 +532,21 @@ def add_estimates(request):
           current.likelihood = form['likelihood']
           current.save()
       return HttpResponse("success")
-  else:
+    else: #invalid form
+      fd = zip(formset, dlist)
+      return render(request, 'fund/add_estimates.html',
+                {'formset':formset, 'fd':fd})
+  else: #GET
     formset = est_formset(initial=initiald)
     logger.info('Adding estimates - loading initial formset, size ' +
                  str(len(dlist)))
-  fd = zip(formset, dlist)
-  return render(request, 'fund/add_estimates.html',
-                {'formset':formset, 'fd':fd})
+    # get vars for base templates
+    steps, news, grants = get_block_content(membership)
+
+    fd = zip(formset, dlist)
+    return render(request, 'fund/add_estimates.html',
+        {'news': news, 'grants': grants, 'steps': steps,
+         '1active': 'true', 'formset':formset, 'fd':fd})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
