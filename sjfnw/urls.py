@@ -15,7 +15,8 @@ urlpatterns = patterns('',
   (r'^/?$', TemplateView.as_view(template_name='home.html')),
 
   # project central
-  (r'^fund/?', include('sjfnw.fund.urls')),
+  (r'^fund$', 'sjfnw.fund.views.home'),
+  (r'^fund/', include('sjfnw.fund.urls')),
   (r'^fund/logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/fund'}),
 
   # grants
