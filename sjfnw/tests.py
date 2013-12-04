@@ -8,8 +8,8 @@ import logging
 
 
 # Sets root & sjfnw loggers level. Comment out for less output.
-logging.getLogger().setLevel(1)
-logging.getLogger('sjfnw').setLevel(1)
+#logging.getLogger().setLevel(1)
+#logging.getLogger('sjfnw').setLevel(1)
 
 class BaseTestCase(TestCase):
 
