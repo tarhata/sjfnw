@@ -22,7 +22,7 @@ from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRollo
 from sjfnw.grants.modelforms import GrantApplicationModelForm, OrgProfile
 from sjfnw.grants.utils import local_date_str, FindBlobKey, FindBlob, ServeBlob, DeleteBlob
 from sjfnw.grants import models
-import logging, json
+import datetime, logging, json
 logger = logging.getLogger('sjfnw')
 
 # CONSTANTS
