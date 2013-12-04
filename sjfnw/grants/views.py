@@ -757,6 +757,8 @@ def get_app_results(options):
           convert = dict(models.GrantApplication.SCREENING_CHOICES)
           val = convert[val]
         row.append(val)
+      elif field=='submission_time':
+        row.append(utils.local_date_str(getattr(app, field))) 
       else:
         row.append(getattr(app, field))
 
