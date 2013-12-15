@@ -1,4 +1,5 @@
 ﻿div#top_help_text {
+  /* used at top of some model pages (e.g. Org) */
   margin-top:10px;
   margin-bottom:10px;
   color:#333;
@@ -7,31 +8,33 @@
 }
 
 p.help {
+  /* make help text readable */
   font-size:12px !important;
   font-weight:normal;
 }
 
 form .aligned p.help {
+  /* align help text better */
   padding-left:0px !important;
   margin-left:0px !important;
 }
 
-.inline-group .tabular tr.has_original td {
+.has_original td {
+  /* reduce extra padding before first row in inline */
   padding-top: .5em !important;
 }
 
-#grantapplication_form #grantapplicationlog_set-2-group th:first-child, #grantapplication_form #grantapplicationlog_set-2-group td.original, #grantapplicationlog_set-2-group td.field-organization {
-  display:none;
-}
-
 .module h2, .module caption, .inline-group h2 {
+  /* home page sidebar */
   font-size:12px;
 }
 
 select#id_permissions {
+  /* user permissions box */
     height: 400px;
 }
 
 .grants-grantapplication .add-another, .grants-organization .add-another {
+  /* block the + button next to a dropdown in an inline */
   display:none;
 }

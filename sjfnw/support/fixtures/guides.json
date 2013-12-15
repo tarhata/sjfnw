@@ -1,0 +1,62 @@
+[
+{
+  "pk": 2, 
+  "model": "support.guide", 
+  "fields": {
+    "updated": "2013-12-04T21:52:49Z", 
+    "updated_by": "sjfnwads@gmail.com", 
+    "title": "---- How to use ----", 
+    "created": "2013-12-04T19:33:41Z", 
+    "created_by": "", 
+    "contents": "This is for frequently asked questions, guides to complicated tasks, and anything else that would be a useful reference for staff.  Anyone can add or update entries.\r\n<br><br>\r\nThe contents are treated like html to allow for more formatting.  To insert line breaks, use &lt;br&gt;\r\n<br><br>\r\n<b>If you have a question or problem that's not addressed here</b>, you can get help by using the <a href=\"https://docs.google.com/forms/d/1ssR9lwBO-8Z0qygh89Wu5XK6YwxSmjIFUtOwlJOjLWw/viewform\">online form</a> or sending an email to <a href=\"mailto:techsupport@socialjusticefund.org\">techsupport@socialjusticefund.org</a>"
+  }
+},
+{
+  "pk": 4, 
+  "model": "support.guide", 
+  "fields": {
+    "updated": "2013-12-04T21:39:41Z", 
+    "updated_by": "sjfnwads@gmail.com", 
+    "title": "Accounts", 
+    "created": "2013-12-04T19:46:58Z", 
+    "created_by": "", 
+    "contents": "<b>User</b> objects store the email and password used to log in to Project Central, the online grant app, and/or the admin site.  Users are not tied to one app in particular.  A User may be tied to a Member (Project Central) or an Organization (grant app).\r\n<br><br>\r\nSee subsections for information on handling admin, project member and organization accounts."
+  }
+},
+{
+  "pk": 5, 
+  "model": "support.guide", 
+  "fields": {
+    "updated": "2013-12-04T21:53:49Z", 
+    "updated_by": "sjfnwads@gmail.com", 
+    "title": "Accounts - organizations", 
+    "created": "2013-12-04T19:46:58Z", 
+    "created_by": "", 
+    "contents": "All organizations should register at <a href=\"/apply/register\" target=\"_blank\">/apply/register</a>.\r\n<br><br>\r\n<b>To reset an org's password:</b>\r\n<ul>\r\n  <li>An org can reset their password on <a href=\"/apply/reset\" target=\"_blank\">this page</a> OR</li>\r\n  <li>You can reset their password by finding their User (search by org name or email), selecting it and then using the link at the top.</li>\r\n</ul>\r\n<b>To change the login email for an org:</b>\r\n<ol>\r\n  <li>Find the User associated with that org and change the email.</li>\r\n  <li>Find the Organization, and change the \"login\" field to match the User</li>\r\n</ol>\r\n<b>To approve an account:</b><br>\r\nIf an organization registers and there is already data on that org in the system (from a sponsored grant or imported grants data), they will need admin approval before they can use the grant application.\r\n<ol>\r\n  <li>Select the associated User (search by org name or email)</li>\r\n  <li>Check the \"active\" checkbox and hit Save</li>\r\n</ol>"
+  }
+},
+{
+  "pk": 6, 
+  "model": "support.guide", 
+  "fields": {
+    "updated": "2013-12-04T21:39:21Z", 
+    "updated_by": "sjfnwads@gmail.com", 
+    "title": "Accounts - admin", 
+    "created": "2013-12-04T19:56:17Z", 
+    "created_by": "", 
+    "contents": "<b>Accessing the admin site</b>:<br>\r\nThis admin site is accessed by having a User account with superuser privileges.\r\n<br><br>\r\n<b>Creating an admin account</b><br>\r\nIf the user will want to access Project Central at all\r\n<p>They should <a href=\"/fund/apply\" target=\"_blank\">register there</a> to create their account.  Then, someone who already has admin site access should find their User (search by name or email) and edit it so that superuser is checked.</p>\r\nIf only admin site access is needed\r\n<p>Go to the Users section of the admin site and create a new User for them, making sure superuser is checked.</p>\r\n"
+  }
+},
+{
+  "pk": 7, 
+  "model": "support.guide", 
+  "fields": {
+    "updated": "2013-12-04T21:53:31Z", 
+    "updated_by": "sjfnwads@gmail.com", 
+    "title": "Accounts - Project Central", 
+    "created": "2013-12-04T19:56:17Z", 
+    "created_by": "", 
+    "contents": "First-time users should register at <a href=\"/fund/register\" target=\"_blank\">/fund/register</a>. \r\n<br><br>\r\nFor each giving project that a user is part of, they will have a <b>Membership</b>. <br><br>\r\n\r\n<b>Approving accounts</b><br>\r\nIf a user was on a giving project's pre-approved list when they registered, their membership will automatically be approved. <br>\r\nOtherwise, an admin will need to approve it. You can filter memberships to show only those that have not been approved, <br>\r\nand you can select several and use the dropdown menu at the top to approve all of them)."
+  }
+}
+]

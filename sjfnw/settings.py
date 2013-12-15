@@ -39,6 +39,7 @@ INSTALLED_APPS = (
   'sjfnw',
   'sjfnw.grants',
   'sjfnw.fund',
+  'sjfnw.support',
   'pytz',
 )
 
