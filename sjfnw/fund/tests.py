@@ -3,7 +3,7 @@ from django.test.utils import override_settings
 from django.utils import timezone
 
 from sjfnw.constants import TEST_MIDDLEWARE
-from sjfnw.fund import models
+from sjfnw.fund import models, forms
 from sjfnw.tests import BaseTestCase
 
 from datetime import timedelta
@@ -416,19 +416,21 @@ class Home(BaseFundTestCase):
 
     membership = models.Membership.objects.get(pk=2) # pre
 
-    response = self.client.get(self.url)
-    self.assertTemplateUsed(response, 'fund/add_mult_pre.html')
-    self.assertEqual(response.context['membership'], membership)
+    response = self.client.get(self.url, follow=True)
+    self.assertTemplateUsed(response, 'fund/add_mult_flex.html')
+    self.assertEqual(response.context['request'].membership, membership)
+    self.assertNotContains(response, 'likelihood')
 
     member = membership.member
     member.current = 6 # post
     member.save()
 
-    response = self.client.get(self.url)
+    response = self.client.get(self.url, follow=True)
 
     membership = models.Membership.objects.get(pk=6)
-    self.assertTemplateUsed(response, 'fund/add_mult.html')
-    self.assertEqual(response.context['membership'], membership)
+    self.assertTemplateUsed(response, 'fund/add_mult_flex.html')
+    self.assertEqual(response.context['request'].membership, membership)
+    self.assertContains(response, 'likelihood')
 
   def test_contacts_without_est(self):
 
