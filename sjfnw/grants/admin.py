@@ -4,6 +4,7 @@ from django.contrib.admin.helpers import InlineAdminFormSet
 from django.http import HttpResponse
 from django.forms import ValidationError, ModelForm
 from django.forms.models import BaseInlineFormSet
+from django.utils.safestring import mark_safe
 
 from sjfnw.admin import advanced_admin
 from sjfnw.forms import IntegerCommaField
@@ -116,19 +117,28 @@ class DraftInline(BaseShowInline): #Adv only
     return '<a href="/admin-advanced/grants/draftgrantapplication/' + str(obj.pk) + '/" target="_blank">View</a>'
   adv_viewdraft.allow_tags = True
 
-class ProjectAppI(BaseShowInline):
+class ProjectAppI(admin.TabularInline):
   model = ProjectApp
+  extra = 1
   fields = ('giving_project', 'screening_status', 'granted')
   readonly_fields = ('granted',)
+  verbose_name = 'Giving project'
   verbose_name_plural = 'Giving projects'
 
   def granted(self, obj):
+    """ For existing projectapps, shows grant amount or link to add a grant """
+    output = ''
     if obj.pk:
+      logger.info(obj.pk)
       try:
         award = obj.givingprojectgrant
-        return award.amount
+        logger.info('grant does exist')
+        output = award.amount
       except GivingProjectGrant.DoesNotExist:
-        return ''
+        output = mark_safe(
+            '<a href="/admin/grants/givingprojectgrant/add/?project_app=' +
+            str(obj.pk) + '" target="_blank">Enter an award</a>')
+    return output
 
 
 # ModelAdmin
