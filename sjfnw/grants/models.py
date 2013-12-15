@@ -488,7 +488,7 @@ class ProjectApp(models.Model):
                                          null=True)
 
   def __unicode__(self):
-    return 'Giving project - grant application connection'
+    return '%s - %s' % (self.giving_project.title, self.application)
 
 
 class GrantApplicationLog(models.Model):
