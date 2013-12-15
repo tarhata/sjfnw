@@ -1,9 +1,11 @@
 ﻿{% extends 'fund/base_blocks.html' %}
 {% block title %}Project progress {{block.super}}{% endblock %}
 {% block script %}
+{% with giving_project=request.membership.giving_project %}
 <script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
+
 var textProgress = false;
 if (Modernizr.inlinesvg) { 
   
@@ -31,7 +33,7 @@ if (Modernizr.inlinesvg) {
     // Instantiate and draw our chart, passing in some options.
     var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
     chart.draw(data, options);
-    if ({{membership.giving_project.fund_goal}} > 0) {
+    if ({{ giving_project.fund_goal }} > 0) {
       drawChart2();    
     }
   }
@@ -67,22 +69,24 @@ $(document).ready(function() {
 	if (textProgress) {
 		console.log('textProgress');
 		document.getElementById('chart_div').innerHTML = "<br><br>Haven't contacted: {{project_progress.contactsremaining}}<br>Talked to: {{project_progress.talked}}<br>Asked: {{project_progress.asked}}";
-		if ({{membership.giving_project.fund_goal}} > 0) {
+		if ({{ giving_project.fund_goal }} > 0) {
 			document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{project_progress.togo|default:'0'}}<br>Promised: ${{project_progress.promised}}<br>Received: ${{project_progress.received}}";
 		}
 	}
 });
 </script>
+{% endwith %}
 {% endblock %}
 
 {% block content %}
+{% with giving_project=request.membership.giving_project %}
 {% load humanize %}
 <b>PROJECT PROGRESS</b>
 <table style="width:90%;margin-left:8%;margin-top:10px;margin-bottom:15px;text-align:center;">
 <tr>
   <td><div align="center">{{project_progress.contacts}} contacts</div><div align="center" id ="chart_div" style="width:260px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
-  {% if membership.giving_project.fund_goal > 0 %}
-  <td><div align="center" title="Fundraising goal as set by the group">${{membership.giving_project.fund_goal|intcomma}} fundraising goal</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
+  {% if giving_project.fund_goal > 0 %}
+  <td><div align="center" title="Fundraising goal as set by the group">${{ giving_project.fund_goal|intcomma }} fundraising goal</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
   {% endif %}
 </tr>
 </table>
@@ -97,10 +101,10 @@ No news yet!
 {% endfor %}
 </div>
 
-{% if membership.giving_project.calendar %}
+{% if giving_project.calendar %}
 <b>SCHEDULE</b>
 <div class="indent">
-  <iframe src="https://www.google.com/calendar/embed?showTitle=0&amp;showCalendars=0&amp;showTz=0&amp;height=400&amp;wkst=2&amp;bgcolor=%23FFFFFF&amp;src={{membership.giving_project.calendar}}&amp;color=%232F6309&amp;ctz=America%2FLos_Angeles" style=" border-width:0; font-family:Verdana;" width="550" height="400" frameborder="0" scrolling="no"></iframe>
+  <iframe src="https://www.google.com/calendar/embed?showTitle=0&amp;showCalendars=0&amp;showTz=0&amp;height=400&amp;wkst=2&amp;bgcolor=%23FFFFFF&amp;src={{ giving_project.calendar }}&amp;color=%232F6309&amp;ctz=America%2FLos_Angeles" style=" border-width:0; font-family:Verdana;" width="550" height="400" frameborder="0" scrolling="no"></iframe>
 </div>
 {% endif %}
 
@@ -113,4 +117,5 @@ No news yet!
 {% endfor %}
 </div>
 {% endif %}
+{% endwith %}
 {% endblock %}

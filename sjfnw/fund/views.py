@@ -186,8 +186,7 @@ def home(request):
   return render(request, 'fund/page_personal.html', {
     '1active':'true', 'header':header, 'news':news, 'grants':grants,
     'steps':upcoming_steps, 'donor_list': donor_list, 'progress':prog,
-    'membership':membership, 'notif':notif, 'suggested':suggested,
-    'load':load, 'loadto':loadto})
+    'notif':notif, 'suggested':suggested, 'load':load, 'loadto':loadto})
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -230,7 +229,6 @@ def project_page(request):
   'news':news,
   'grants':grants,
   'steps':steps,
-  'membership':membership,
   'project_progress':project_progress,
   'resources':resources})
 

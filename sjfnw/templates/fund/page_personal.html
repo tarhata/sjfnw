@@ -245,8 +245,8 @@
   //log errors
   function logError(msg, url, line) {
     var dict = {msg: msg, script: url, line: line, url: window.location};
-    if ('{{ membership }}') {
-      dict['membership'] = '{{ membership }}'
+    if ('{{ request.membership }}') {
+      dict['membership'] = '{{ request.membership }}'
     } else {
       dict['membership'] = 'no membership'
     }
