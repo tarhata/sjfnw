@@ -32,11 +32,11 @@ logger = logging.getLogger('sjfnw')
 
 def get_block_content(membership, get_steps=True):
   """ Provide upper block content for the 3 main views
-  
+
   Args:
     membership: current Membership
     get_steps: include list of upcoming steps or not (default True)
-    
+
   Returns:
     steps: 2 closest upcoming steps
     news: news items, sorted by date descending
@@ -73,7 +73,7 @@ def home(request):
     no contacts -> add_mult
     contacts without estimates + post-training + no url params -> add_estimates
 
-  Basic display:
+  Handles display of
     Top blocks
     Charts of personal progress
     List of donors, with details and associated steps
@@ -106,7 +106,7 @@ def home(request):
     loadto = ''
 
     # check whether to redirect to add estimates
-    if (membership.giving_project.require_estimates() and 
+    if (membership.giving_project.require_estimates() and
         donors.filter(amount__isnull=True)):
       return redirect(add_estimates)
 
@@ -184,7 +184,7 @@ def home(request):
   suggested = [sug for sug in suggested if sug] #filter out empty lines
 
   return render(request, 'fund/page_personal.html', {
-    '1active':'true', 'header':header, 'news':news, 'grants':grants, 
+    '1active':'true', 'header':header, 'news':news, 'grants':grants,
     'steps':upcoming_steps, 'donor_list': donor_list, 'progress':prog,
     'membership':membership, 'notif':notif, 'suggested':suggested,
     'load':load, 'loadto':loadto})
@@ -331,9 +331,9 @@ def fund_register(request):
 @login_required(login_url='/fund/login/')
 def registered(request):
   """ Sets up a member after registration TODO could this be a func instead of view?
-  
+
   If they have no memberships, send them to projects page
-  
+
   Checks membership for pre-approval status
   """
 
@@ -509,7 +509,7 @@ def add_estimates(request):
   initiald = [] #list of dicts for form initial
   dlist = [] #list of donors for zipping to formset
   membership = request.membership
-  
+
   # get all donors without estimates
   for donor in membership.donor_set.all():
     if not donor.amount:
