@@ -714,13 +714,15 @@ def get_app_results(options):
   #TODO screening status
   if options.get('pre_screening_status'): 
     apps = apps.filter(pre_screening_status__in=options.get('pre_screening_status'))
+  if options.get('screening_status'):
+    apps = apps.filter(projectapp__screening_status__in=options.get('screening_status'))
   if options.get('poc_bonus'):
     apps = apps.filter(scoring_bonus_poc=True)
   if options.get('geo_bonus'):
     apps = apps.filter(scoring_bonus_geo=True)
   if options.get('grant_cycle'):
     apps = apps.filter(grant_cycle__title__in=options.get('grant_cycle'))
-  if options.get('giving_projects'): #TODO any of app's GPs is in given GP selection
+  if options.get('giving_projects'): #TODO test this
     apps = apps.prefetch_related('giving_projects')
     apps = apps.filter(giving_projects__title__in=options.get('giving_projects'))
 
@@ -743,10 +745,16 @@ def get_app_results(options):
   # format headers
   field_names = [f.capitalize().replace('_', ' ') for f in fields]
 
-  # grant awards
+  # gp screening, grant awards
+  get_gp_ss = False
+  get_awards = False
+  if options['report_gp_screening']:
+    field_names.append('GP screening status')
+    get_gp_ss = True
   if options['report_award']:
     #apps = apps.prefetch_related('grantaward_set') #TODO any replacement?
     field_names.append('Awarded')
+    get_awards = True
 
   # execute queryset, populate results
   results = []
@@ -765,18 +773,26 @@ def get_app_results(options):
       else:
         row.append(getattr(app, field))
 
-    # awards
-    if field_names[-1] == 'Awarded':
+    # gp screening status, awards
+    if get_awards or get_gp_ss:
       award_row = ''
+      ss_row = ''
       papps = app.projectapp_set.all()
       if papps:
         for papp in papps:
-          try:
-            award = papp.givingprojectgrant
-            award_row += '%s %s' % (award.amount, papp.giving_project)
-          except models.GivingProjectGrant.DoesNotExist:
-            pass
-      row.append(award_row)
+          if get_awards:
+            try:
+              award = papp.givingprojectgrant
+              award_row += '%s %s' % (award.amount, papp.giving_project)
+            except models.GivingProjectGrant.DoesNotExist:
+              pass
+          if get_gp_ss:
+            ss_row += '%s (%s)' % (dict(models.SCREENING)[papp.screening_status],
+                papp.giving_project.title)
+      if get_gp_ss:
+        row.append(ss_row)
+      if get_awards:
+        row.append(award_row)
 
     results.append(row)
 

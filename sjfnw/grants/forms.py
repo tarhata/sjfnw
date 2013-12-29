@@ -177,7 +177,7 @@ class AppReportForm(BaseOrgAppReport):
   pre_screening_status = forms.MultipleChoiceField(
       choices = PRE_SCREENING,
       widget = forms.CheckboxSelectMultiple, required = False)
-  screening_status = forms.MultipleChoiceField(
+  screening_status = forms.MultipleChoiceField(label='Giving project screening status',
       choices = SCREENING,
       widget = forms.CheckboxSelectMultiple, required = False)
   giving_projects = forms.MultipleChoiceField(
@@ -196,7 +196,7 @@ class AppReportForm(BaseOrgAppReport):
       widget = CheckMultiple, choices = [
         ('id', 'Unique id number'),
         ('giving_projects', 'Giving projects'),
-        ('screening_status', 'Screening status')
+        ('pre_screening_status', 'Pre-screening status')
       ])
   report_proposal = forms.MultipleChoiceField(
       label='Grant request and project', required=False,
@@ -221,6 +221,7 @@ class AppReportForm(BaseOrgAppReport):
   report_racial_ref = forms.BooleanField(label='Racial justice references',
       required=False)
   report_bonuses = forms.BooleanField(label='Scoring bonuses', required=False)
+  report_gp_screening = forms.BooleanField(label='GP screening status', required=False)
   report_award = forms.BooleanField(label='Grant awards', required=False)
 
   def __init__(self, *args, **kwargs):
