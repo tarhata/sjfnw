@@ -26,7 +26,7 @@ class BaseShowInline(admin.TabularInline):
   class Meta:
     abstract = True
 
-class LogReadonlyInline(admin.TabularInline): #Org, Application
+class LogReadonlyI(admin.TabularInline): #Org, Application
   model = GrantApplicationLog
   extra = 0
   max_num = 0
@@ -35,7 +35,7 @@ class LogReadonlyInline(admin.TabularInline): #Org, Application
   verbose_name = 'Log'
   verbose_name_plural = 'Logs'
 
-class LogInline(admin.TabularInline): #Org, Application
+class LogI(admin.TabularInline): #Org, Application
   """ Inline for adding a log to an org or application
   Shows one blank row.  Autofills org or app depending on current page """
   model = GrantApplicationLog
@@ -61,9 +61,9 @@ class LogInline(admin.TabularInline): #Org, Application
     if db_field.name=='application':
       org_pk = int(request.path.split('/')[-2])
       kwargs['queryset'] = GrantApplication.objects.filter(organization_id=org_pk)
-    return super(LogInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    return super(LogI, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-class AwardInline(BaseShowInline): #App, GP
+class AwardI(BaseShowInline): #App, GP
   model = GivingProjectGrant
   fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
   readonly_fields = fields
@@ -77,12 +77,12 @@ class AwardInline(BaseShowInline): #App, GP
       return ''
   edit_award.allow_tags = True
 
-class AppCycleInline(BaseShowInline): #Cycle
+class AppCycleI(BaseShowInline): #Cycle
   model = GrantApplication
   readonly_fields = ('organization', 'submission_time', 'pre_screening_status')
   fields = ('organization', 'submission_time', 'pre_screening_status')
 
-class GrantApplicationInline(BaseShowInline): #Org
+class GrantApplicationI(BaseShowInline): #Org
   model = GrantApplication
   readonly_fields = ('submission_time', 'grant_cycle', 'pre_screening_status',
                      'edit_application', 'view_link')
@@ -94,7 +94,7 @@ class GrantApplicationInline(BaseShowInline): #Org
             '/" target="_blank">Edit</a>')
   edit_application.allow_tags = True
 
-class SponsoredProgramInline(BaseShowInline): # Org
+class SponsoredProgramI(BaseShowInline): # Org
   model = SponsoredProgramGrant
   fields = ('amount', 'check_mailed', 'approved', 'edit')
   readonly_fields = fields
@@ -108,7 +108,7 @@ class SponsoredProgramInline(BaseShowInline): # Org
       return ''
   edit.allow_tags = True
 
-class DraftInline(BaseShowInline): #Adv only
+class DraftI(BaseShowInline): #Adv only
   model = DraftGrantApplication
   fields = ('grant_cycle', 'modified', 'overdue', 'extended_deadline', 'adv_viewdraft')
   readonly_fields = ('grant_cycle', 'modified', 'overdue', 'extended_deadline', 'adv_viewdraft')
@@ -117,7 +117,7 @@ class DraftInline(BaseShowInline): #Adv only
     return '<a href="/admin-advanced/grants/draftgrantapplication/' + str(obj.pk) + '/" target="_blank">View</a>'
   adv_viewdraft.allow_tags = True
 
-class ProjectAppI(admin.TabularInline):
+class ProjectAppI(admin.TabularInline): # GrantApplication
   model = ProjectApp
   extra = 1
   fields = ('giving_project', 'screening_status', 'granted')
@@ -150,7 +150,7 @@ class GrantCycleA(admin.ModelAdmin):
     'extra_question',
     'conflicts',
   )
-  inlines = (AppCycleInline,)
+  inlines = (AppCycleI,)
 
 class OrganizationA(admin.ModelAdmin):
   list_display = ('name', 'email',)
@@ -176,8 +176,8 @@ class OrganizationA(admin.ModelAdmin):
   inlines = ()
 
   def change_view(self, request, object_id, form_url='', extra_context=None):
-    self.inlines = (GrantApplicationInline, SponsoredProgramInline,
-                    LogReadonlyInline, LogInline)
+    self.inlines = (GrantApplicationI, SponsoredProgramI,
+                    LogReadonlyI, LogI)
     self.readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number',
         'fax_number', 'email_address', 'website', 'status', 'ein', 'founded',
         'mission', 'fiscal_org', 'fiscal_person', 'fiscal_telephone',
@@ -185,8 +185,8 @@ class OrganizationA(admin.ModelAdmin):
     return super(OrganizationA, self).change_view(request, object_id)
 
 class OrganizationAdvA(OrganizationA):
-  inlines = [GrantApplicationInline, DraftInline, LogReadonlyInline,
-             LogInline]
+  inlines = [GrantApplicationI, DraftI, LogReadonlyI,
+             LogI]
 
 class GrantApplicationA(admin.ModelAdmin):
   fieldsets = (
@@ -205,7 +205,7 @@ class GrantApplicationA(admin.ModelAdmin):
                   'view_link')
   list_filter = ('grant_cycle',)
   search_fields = ('organization__name',)
-  inlines = [ProjectAppI, LogReadonlyInline, LogInline] # AwardInline
+  inlines = [ProjectAppI, LogReadonlyI, LogI] # AwardI
 
   def has_add_permission(self, request):
     return False
