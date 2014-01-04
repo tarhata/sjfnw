@@ -16,7 +16,8 @@ import unicodecsv as csv
 import logging, re
 logger = logging.getLogger('sjfnw')
 
-# Inlines
+
+# INLINES
 
 class BaseShowInline(admin.TabularInline):
   extra = 0
@@ -141,7 +142,8 @@ class ProjectAppI(admin.TabularInline): # GrantApplication
     return output
 
 
-# ModelAdmin
+# MODELADMIN
+
 class GrantCycleA(admin.ModelAdmin):
   list_display = ('title', 'open', 'close')
   fields = (
@@ -251,7 +253,9 @@ class DraftAdv(admin.ModelAdmin): #Advanced
                      'budget1', 'budget2', 'budget3', 'project_budget_file')
 
 class GivingProjectGrantA(admin.ModelAdmin):
-  list_display = ('project_app', 'amount', 'check_mailed', 'year_end_report_due')
+  list_display = ('organization_name', 'grant_cycle',
+                  'giving_project', 'amount', 'check_mailed',
+                  'year_end_report_due')
   list_filter = ('agreement_mailed',)
   exclude = ('created',)
   fields = (
@@ -261,10 +265,21 @@ class GivingProjectGrantA(admin.ModelAdmin):
       'approved',
       'year_end_report_due',
     )
-  readonly_fields = ('year_end_report_due',)
+  readonly_fields = ('year_end_report_due', 'grant_cycle',
+                     'organization_name', 'giving_project')
 
   def year_end_report_due(self, obj):
     return obj.yearend_due()
+
+  def organization_name(self, obj):
+    return obj.project_app.application.organization.name
+
+  def grant_cycle(self, obj):
+    return '%s %s' % (obj.project_app.application.grant_cycle.title,
+                      obj.project_app.application.grant_cycle.close.year)
+
+  def giving_project(self, obj):
+    return unicode(obj.project_app.giving_project)
 
 class SponsoredProgramGrantA(admin.ModelAdmin):
   list_display = ('organization', 'amount', 'check_mailed')
@@ -277,7 +292,7 @@ class SponsoredProgramGrantA(admin.ModelAdmin):
   )
   #readonly_fields = ()
 
-# Register
+# REGISTER
 
 admin.site.register(GrantCycle, GrantCycleA)
 admin.site.register(Organization, OrganizationA)
