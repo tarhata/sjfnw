@@ -446,7 +446,7 @@ class Home(BaseFundTestCase):
     contact2.save()
 
     response = self.client.get(self.url)
-    self.assertEqual(response.context['membership'], membership)
+    self.assertEqual(response.context['request'].membership, membership)
     self.assertTemplateNotUsed('fund/add_estimates.html')
 
     member = membership.member
@@ -461,7 +461,7 @@ class Home(BaseFundTestCase):
     contact2.save()
 
     response = self.client.get(self.url)
-    self.assertEqual(response.context['membership'], membership)
+    self.assertEqual(response.context['request'].membership, membership)
     self.assertTemplateUsed('fund/add_estimates.html')
 
   def test_estimates(self):
