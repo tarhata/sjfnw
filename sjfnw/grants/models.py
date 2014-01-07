@@ -487,6 +487,16 @@ class ProjectApp(models.Model):
   screening_status = models.IntegerField(choices=SCREENING, blank=True,
                                          null=True)
 
+  """
+  def clean(self):
+    Make sure pre-screening status is valid
+    app = self.application
+    if app and app.pre_screening_status < 50:
+        raise ValidationError('An application be pre-screened in before it can '
+                              'be assigned to a giving project. Please correct '
+                              'the pre-screening status and try again.')
+  """
+
   def __unicode__(self):
     return '%s - %s' % (self.giving_project.title, self.application)
 
