@@ -623,6 +623,10 @@ def grants_report(request):
   app_form = AppReportForm()
   org_form = OrgReportForm()
   award_form = AwardReportForm()
+  
+  context = {'app_form': app_form,
+             'org_form': org_form,
+             'award_form': award_form}
 
   if request.method == 'POST':
 
@@ -630,14 +634,20 @@ def grants_report(request):
     if 'run-application' in request.POST:
       logger.info('App report')
       form = AppReportForm(request.POST)
+      context['app_form'] = form
+      context['active_form'] = '#application-form'
       results_func = get_app_results
     elif 'run-organization' in request.POST:
       logger.info('Org report')
       form = OrgReportForm(request.POST)
+      context['org_form'] = form
+      context['active_form'] = '#organization-form'
       results_func = get_org_results
     elif 'run-award' in request.POST:
       logger.info('Award report')
       form = AwardReportForm(request.POST)
+      context['award_form'] = form
+      context['active_form'] = '#award-form'
       results_func = get_award_results
     else:
       logger.error('Unknown report type')
@@ -664,11 +674,12 @@ def grants_report(request):
         return response
     else:
       logger.warning('Invalid form!' + str(form.errors))
-  return render(request, 'grants/reporting.html',
-      {'app_form': app_form, 'org_form': org_form, 'award_form': award_form,
-        'app_base': 'submission time, organization name, grant cycle',
-        'award_base': 'organization name, amount, date check mailed',
-        'org_base':'name'})
+
+  context['app_base'] = 'submission time, organization name, grant cycle'
+  context['award_base'] = 'organization name, amount, date check mailed'
+  context['org_base'] = 'name'
+  return render(request, 'grants/reporting.html', context)
+                 
 
 def get_app_results(options):
   """ Fetches application report results
@@ -803,8 +814,8 @@ def get_award_results(options):
   sponsored = sponsored.filter(entered__gte=min_year, entered__lte=max_year)
 
   if options.get('organization_name'):
-    gp_awards = gp_awards.filter(application__organization__contains=options['organization_name'])
-    sponsored = sponsored.filter(organization__contains=options['organization_name'])
+    gp_awards = gp_awards.filter(application__organization__name__contains=options['organization_name'])
+    sponsored = sponsored.filter(organization__name__contains=options['organization_name'])
   if options.get('city'):
     gp_awards = gp_awards.filter(application__organization__city=options['city'])
     sponsored = sponsored.filter(organization__city=options['city'])

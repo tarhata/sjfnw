@@ -6,7 +6,7 @@ requires:
 {% endcomment %}
 
 <div id="{{ report_type }}-form" style="display:none;">
-  {{ form.errors }}
+  <div class="non-field-errors">{{ form.non_field_errors }}</div>
   <form id="report-{{ report_type }}" method="POST">
 
     <div class="reporting-section">
@@ -19,10 +19,10 @@ requires:
             field, checked includes only items that match (e.g., only organizations
             that have a fiscal sponsor)</li>
       </ul>
-
         {% for field in form %}
           {% if not 'report' in field.name and field.name != 'format' %}
           <div class="reporting-field">
+            {{ field.errors }}
             <h4>{{ field.label }}</h4>{{ field }}
           </div>
           {% endif %}
