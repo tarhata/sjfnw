@@ -257,6 +257,8 @@ class AwardReportForm(BaseOrgAppReport):
       [(n, n) for n in range(timezone.now().year, 1990, -1)])
 
   # fields (always: org name, amount, check_mailed)
+  report_id = forms.BooleanField(required=False, label='ID number',
+      help_text='Only applies to sponsored program grants')
   report_check_number = forms.BooleanField(required=False, label='Check number')
   report_date_approved = forms.BooleanField(required=False,
       label='Date approved by E.D.')
@@ -265,7 +267,7 @@ class AwardReportForm(BaseOrgAppReport):
       help_text='Only applies to giving project grants')
   report_year_end_report_due = forms.BooleanField(required=False,
       label='Date year end report due',
-      help_text='Only applied to giving project grants')
+      help_text='Only applies to giving project grants')
 
   def clean(self):
     cleaned_data = super(AwardReportForm, self).clean()

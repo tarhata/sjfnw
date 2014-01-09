@@ -23,7 +23,7 @@ requires:
           {% if not 'report' in field.name and field.name != 'format' %}
           <div class="reporting-field">
             {{ field.errors }}
-            <h4>{{ field.label }}</h4>{{ field }}
+            <h4 title="{{ field.help_text }}" {% if field.help_text %}class="has-help-text"{% endif %}>{{ field.label }}</h4>{{ field }}
           </div>
           {% endif %}
         {% endfor %}
@@ -36,7 +36,7 @@ requires:
     {% for field in form %}
     {% if 'report' in field.name and field.name != 'format' %}
     <div class="reporting-field">
-      <h4>{{ field.label }}</h4>{{ field }}
+      <h4 title="{{ field.help_text }}" {% if field.help_text %}class="has-help-text"{% endif %}>{{ field.label }}</h4>{{ field }}
     </div>
     {% endif %}
     {% endfor %}
