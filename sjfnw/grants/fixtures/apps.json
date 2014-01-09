@@ -72,6 +72,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 5, 
     "contact_person": "Anna Luisa Pati\u00f1o West", 
+    "pre_screening_status": 10, 
     "ein": "98765432"
   }
 },
@@ -148,6 +149,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 5, 
     "contact_person": "Krista Perry", 
+    "pre_screening_status": 10, 
     "ein": "82-0490848"
   }
 },
@@ -224,6 +226,7 @@
     "racial_justice_ref1_org": "Eastern Shosnone Tribe", 
     "organization": 92, 
     "contact_person": "Kevin F. Lind", 
+    "pre_screening_status": 50, 
     "ein": "74-2183158"
   }
 },
@@ -300,6 +303,7 @@
     "racial_justice_ref1_org": "CHARLA", 
     "organization": 43, 
     "contact_person": "Terry Ann Rogers", 
+    "pre_screening_status": 50, 
     "ein": "93-1314273"
   }
 },
@@ -376,6 +380,7 @@
     "racial_justice_ref1_org": "Montana Indian Education", 
     "organization": 32, 
     "contact_person": "Heidi Wallace", 
+    "pre_screening_status": 50, 
     "ein": "81-0526099"
   }
 },
@@ -452,6 +457,7 @@
     "racial_justice_ref1_org": "CHARLA", 
     "organization": 43, 
     "contact_person": "Terry Ann Rogers", 
+    "pre_screening_status": 45, 
     "ein": "93-1314273"
   }
 },
@@ -528,6 +534,7 @@
     "racial_justice_ref1_org": "Western Native Voice", 
     "organization": 119, 
     "contact_person": "Breland Draper", 
+    "pre_screening_status": 50, 
     "ein": "841123481"
   }
 },
@@ -604,6 +611,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 106, 
     "contact_person": "Kent Lebsock", 
+    "pre_screening_status": 40, 
     "ein": "27-33-45847"
   }
 },
@@ -680,6 +688,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 61, 
     "contact_person": "Josie Silverman", 
+    "pre_screening_status": 50, 
     "ein": "61-1590160"
   }
 },
@@ -756,6 +765,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 80, 
     "contact_person": "Patricia Jordan", 
+    "pre_screening_status": 40, 
     "ein": "208341064"
   }
 },
@@ -832,6 +842,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 80, 
     "contact_person": "Patricia Jordan", 
+    "pre_screening_status": 50, 
     "ein": "208341064"
   }
 },
@@ -908,6 +919,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 133, 
     "contact_person": "Ramon Ramirez", 
+    "pre_screening_status": 50, 
     "ein": "93-0939941"
   }
 },
@@ -984,6 +996,7 @@
     "racial_justice_ref1_org": "Western Native Voice", 
     "organization": 114, 
     "contact_person": "Sarah Howell", 
+    "pre_screening_status": 50, 
     "ein": "81-0472423"
   }
 },
@@ -1060,6 +1073,7 @@
     "racial_justice_ref1_org": "Nimiipuu Health", 
     "organization": 73, 
     "contact_person": "Chris Bidiman", 
+    "pre_screening_status": 40, 
     "ein": "11-3727953"
   }
 },
@@ -1136,6 +1150,7 @@
     "racial_justice_ref1_org": "PCUN", 
     "organization": 103, 
     "contact_person": "Terri Sterling", 
+    "pre_screening_status": 50, 
     "ein": "82-0357348"
   }
 },
@@ -1212,6 +1227,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 143, 
     "contact_person": "Michaelynn Hawk", 
+    "pre_screening_status": 50, 
     "ein": "91-1635554"
   }
 },
@@ -1288,6 +1304,7 @@
     "racial_justice_ref1_org": "RezVote", 
     "organization": 97, 
     "contact_person": "Dan Neal", 
+    "pre_screening_status": 50, 
     "ein": "83-0305144"
   }
 },
@@ -1364,6 +1381,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 48, 
     "contact_person": "Susan Balbas", 
+    "pre_screening_status": 50, 
     "ein": "05-0630992"
   }
 },
@@ -1440,6 +1458,7 @@
     "racial_justice_ref1_org": "Coalition of Communities of Color", 
     "organization": 70, 
     "contact_person": "Sarah Cloud", 
+    "pre_screening_status": 50, 
     "ein": "93-1271399"
   }
 },
@@ -1516,6 +1535,7 @@
     "racial_justice_ref1_org": "Coalition of Communities of Color", 
     "organization": 70, 
     "contact_person": "Sarah Cloud", 
+    "pre_screening_status": 45, 
     "ein": "93-1271399"
   }
 },
@@ -1592,6 +1612,7 @@
     "racial_justice_ref1_org": "Women of Color Alliance", 
     "organization": 137, 
     "contact_person": "Dina M. Flores-Brewer", 
+    "pre_screening_status": 50, 
     "ein": "82-0334493"
   }
 },
@@ -1668,6 +1689,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 154, 
     "contact_person": "Rebeca Velazquez", 
+    "pre_screening_status": 50, 
     "ein": "93-1326961"
   }
 },
@@ -1744,6 +1766,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 39, 
     "contact_person": "Kyle", 
+    "pre_screening_status": 40, 
     "ein": "91-1380583"
   }
 },
@@ -1820,6 +1843,7 @@
     "racial_justice_ref1_org": "El Centro de la Raza", 
     "organization": 140, 
     "contact_person": "Beau Morton", 
+    "pre_screening_status": 50, 
     "ein": "45-4894439"
   }
 },
@@ -1896,6 +1920,7 @@
     "racial_justice_ref1_org": "PCUN Farmworker Union", 
     "organization": 121, 
     "contact_person": "Cara Shufelt", 
+    "pre_screening_status": 50, 
     "ein": "93-1159856"
   }
 },
@@ -1972,6 +1997,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 107, 
     "contact_person": "Kristyn Joy", 
+    "pre_screening_status": 50, 
     "ein": "72-1526567"
   }
 },
@@ -2048,6 +2074,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 107, 
     "contact_person": "Jill Mangaliman", 
+    "pre_screening_status": 50, 
     "ein": "72-1526567"
   }
 },
@@ -2124,6 +2151,7 @@
     "racial_justice_ref1_org": "Entre Hermanos", 
     "organization": 37, 
     "contact_person": "Seth Kirby", 
+    "pre_screening_status": 40, 
     "ein": "91-1385245"
   }
 },
@@ -2200,6 +2228,7 @@
     "racial_justice_ref1_org": "Occupy NE - \"The Black Working Group\"", 
     "organization": 81, 
     "contact_person": "Ibrahim Mubarak", 
+    "pre_screening_status": 50, 
     "ein": "27-0285192"
   }
 },
@@ -2276,6 +2305,7 @@
     "racial_justice_ref1_org": "Queer Youth Space", 
     "organization": 38, 
     "contact_person": "Alice Braverman", 
+    "pre_screening_status": 40, 
     "ein": "91-0848698"
   }
 },
@@ -2352,6 +2382,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 47, 
     "contact_person": "Martha Ramos", 
+    "pre_screening_status": 50, 
     "ein": "91-0914637"
   }
 },
@@ -2428,6 +2459,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 142, 
     "contact_person": "Rose High Bear", 
+    "pre_screening_status": 40, 
     "ein": "93-1164114"
   }
 },
@@ -2504,6 +2536,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 156, 
     "contact_person": "Andrea Valderrama", 
+    "pre_screening_status": 50, 
     "ein": "26-1357376"
   }
 },
@@ -2580,6 +2613,7 @@
     "racial_justice_ref1_org": "CIELO", 
     "organization": 53, 
     "contact_person": "Molly Fischer", 
+    "pre_screening_status": 50, 
     "ein": "94-3202727"
   }
 },
@@ -2656,6 +2690,7 @@
     "racial_justice_ref1_org": "CAUSA", 
     "organization": 130, 
     "contact_person": "Erinne Goodell", 
+    "pre_screening_status": 50, 
     "ein": "93-0748169"
   }
 },
@@ -2732,6 +2767,7 @@
     "racial_justice_ref1_org": "RB Community Empowerment Coalition", 
     "organization": 159, 
     "contact_person": "David West", 
+    "pre_screening_status": 50, 
     "ein": "20-8974030"
   }
 },
@@ -2808,6 +2844,7 @@
     "racial_justice_ref1_org": "Voz", 
     "organization": 67, 
     "contact_person": "Karly Edwards", 
+    "pre_screening_status": 50, 
     "ein": "26-0901792"
   }
 },
@@ -2884,6 +2921,7 @@
     "racial_justice_ref1_org": "Got Green", 
     "organization": 159, 
     "contact_person": "David West", 
+    "pre_screening_status": 50, 
     "ein": "20-8974030"
   }
 },
@@ -2960,6 +2998,7 @@
     "racial_justice_ref1_org": "Moving Forward in Faith and Health", 
     "organization": 128, 
     "contact_person": "Jennifer Crouch", 
+    "pre_screening_status": 40, 
     "ein": "94-32616971"
   }
 },
@@ -3036,6 +3075,7 @@
     "racial_justice_ref1_org": " Casa Latina", 
     "organization": 149, 
     "contact_person": "Joe Chrastil", 
+    "pre_screening_status": 50, 
     "ein": "91-1499816"
   }
 },
@@ -3112,6 +3152,7 @@
     "racial_justice_ref1_org": "N/A", 
     "organization": 145, 
     "contact_person": "Sandra Hernandes", 
+    "pre_screening_status": 50, 
     "ein": "77-0661661"
   }
 },
@@ -3188,6 +3229,7 @@
     "racial_justice_ref1_org": "Tacoma Urban League", 
     "organization": 98, 
     "contact_person": "Victoria Woodards", 
+    "pre_screening_status": 40, 
     "ein": "91-0826302"
   }
 },
@@ -3264,6 +3306,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 132, 
     "contact_person": "Joseph Santos-Lyons", 
+    "pre_screening_status": 50, 
     "ein": "80-025-2850"
   }
 },
@@ -3340,6 +3383,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 136, 
     "contact_person": "Bryan Baker", 
+    "pre_screening_status": 50, 
     "ein": "91-1921191"
   }
 },
@@ -3416,6 +3460,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 87, 
     "contact_person": "Kawa Kuller", 
+    "pre_screening_status": 50, 
     "ein": "93-1266613"
   }
 },
@@ -3492,6 +3537,7 @@
     "racial_justice_ref1_org": "Pineros y Campesinos Unidos del Noroeste ", 
     "organization": 148, 
     "contact_person": "Lisa Arkin", 
+    "pre_screening_status": 50, 
     "ein": "93-1294227"
   }
 },
@@ -3568,6 +3614,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 52, 
     "contact_person": "Andrew Jay", 
+    "pre_screening_status": 40, 
     "ein": "91-0482710"
   }
 },
@@ -3644,6 +3691,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 151, 
     "contact_person": "Katy Riker", 
+    "pre_screening_status": 50, 
     "ein": "93\u20101181863"
   }
 },
@@ -3720,6 +3768,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 157, 
     "contact_person": "Judith Panlasigui", 
+    "pre_screening_status": 50, 
     "ein": "91-1674016\u00a0"
   }
 },
@@ -3796,6 +3845,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 124, 
     "contact_person": "Kayse Jama", 
+    "pre_screening_status": 50, 
     "ein": "74-3098100"
   }
 },
@@ -3872,6 +3922,7 @@
     "racial_justice_ref1_org": "MT Two-Spirit Society", 
     "organization": 126, 
     "contact_person": "Kim Abbott", 
+    "pre_screening_status": 50, 
     "ein": "81-0472423"
   }
 },
@@ -3948,6 +3999,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 75, 
     "contact_person": "Julia Delgado", 
+    "pre_screening_status": 50, 
     "ein": "Urban League of Portland"
   }
 },
@@ -4024,6 +4076,7 @@
     "racial_justice_ref1_org": "Latinos United for Community Transformation", 
     "organization": 64, 
     "contact_person": "Rachael DeCruz", 
+    "pre_screening_status": 50, 
     "ein": "91-1259403"
   }
 },
@@ -4100,6 +4153,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 45, 
     "contact_person": "Marcy Bowers", 
+    "pre_screening_status": 50, 
     "ein": "23-7421892"
   }
 },
@@ -4176,6 +4230,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 86, 
     "contact_person": "Krista Perry", 
+    "pre_screening_status": 50, 
     "ein": "82-0490848"
   }
 },
@@ -4252,6 +4307,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 147, 
     "contact_person": "Sophia Kizilbash", 
+    "pre_screening_status": 50, 
     "ein": "27-2503270"
   }
 },
@@ -4328,6 +4384,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 63, 
     "contact_person": "Maria Batayola", 
+    "pre_screening_status": 50, 
     "ein": "91-1656676"
   }
 },
@@ -4404,6 +4461,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 127, 
     "contact_person": "Tony DeFalco", 
+    "pre_screening_status": 50, 
     "ein": "20-3685723"
   }
 },
@@ -4480,6 +4538,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 155, 
     "contact_person": "Dean Jackson", 
+    "pre_screening_status": 50, 
     "ein": "91-1656676"
   }
 },
@@ -4556,6 +4615,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 19, 
     "contact_person": "Emanual Price", 
+    "pre_screening_status": 50, 
     "ein": " 45-4244997"
   }
 },
@@ -4632,6 +4692,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 127, 
     "contact_person": "Tony DeFalco", 
+    "pre_screening_status": 50, 
     "ein": "20-3685723"
   }
 },
@@ -4708,6 +4769,7 @@
     "racial_justice_ref1_org": "El Centro de la Raza", 
     "organization": 140, 
     "contact_person": "Beau Morton", 
+    "pre_screening_status": 50, 
     "ein": "45-4894439"
   }
 },
@@ -4784,6 +4846,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 153, 
     "contact_person": "Marcos Martinez", 
+    "pre_screening_status": 50, 
     "ein": "31-1775429"
   }
 },
@@ -4860,6 +4923,7 @@
     "racial_justice_ref1_org": "Yellowhawk Tribal Health Center", 
     "organization": 25, 
     "contact_person": "Everett Maroon", 
+    "pre_screening_status": 40, 
     "ein": "91-1527239"
   }
 },
@@ -4936,6 +5000,7 @@
     "racial_justice_ref1_org": "CAUSA", 
     "organization": 130, 
     "contact_person": "Erinne Goodell", 
+    "pre_screening_status": 45, 
     "ein": "93-0748169"
   }
 },
@@ -5012,6 +5077,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 22, 
     "contact_person": "Cristina Orbe", 
+    "pre_screening_status": 50, 
     "ein": "91-2138554"
   }
 },
@@ -5088,6 +5154,7 @@
     "racial_justice_ref1_org": "PCUN", 
     "organization": 103, 
     "contact_person": "Terri Sterling", 
+    "pre_screening_status": 50, 
     "ein": "82-0357348"
   }
 },
@@ -5164,6 +5231,7 @@
     "racial_justice_ref1_org": "People of Color Against AIDS Network", 
     "organization": 102, 
     "contact_person": "Danielle Askini", 
+    "pre_screening_status": 50, 
     "ein": "91-1685822"
   }
 },
@@ -5240,6 +5308,7 @@
     "racial_justice_ref1_org": "El Centro de la Raza", 
     "organization": 140, 
     "contact_person": "Beau Morton", 
+    "pre_screening_status": 45, 
     "ein": "45-2751950"
   }
 },
@@ -5316,6 +5385,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 74, 
     "contact_person": "Julia Meier", 
+    "pre_screening_status": 50, 
     "ein": "93-1141536"
   }
 },
@@ -5392,6 +5462,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 161, 
     "contact_person": "Jonathan Ostar", 
+    "pre_screening_status": 50, 
     "ein": "20-2782595"
   }
 },
@@ -5468,6 +5539,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 45, 
     "contact_person": "Marcy Bowers", 
+    "pre_screening_status": 50, 
     "ein": "23-7421892"
   }
 },
@@ -5544,6 +5616,7 @@
     "racial_justice_ref1_org": "CIELO", 
     "organization": 53, 
     "contact_person": "Molly Fischer", 
+    "pre_screening_status": 40, 
     "ein": "94-3202727"
   }
 },
@@ -5620,6 +5693,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 161, 
     "contact_person": "Jonathan Ostar", 
+    "pre_screening_status": 50, 
     "ein": "20-2782595"
   }
 },
@@ -5696,6 +5770,7 @@
     "racial_justice_ref1_org": "MECHA", 
     "organization": 183, 
     "contact_person": "Lupito Flores", 
+    "pre_screening_status": 45, 
     "ein": "20-5354265"
   }
 },
@@ -5772,6 +5847,7 @@
     "racial_justice_ref1_org": "Western Native Voice", 
     "organization": 114, 
     "contact_person": "Sarah Howell", 
+    "pre_screening_status": 50, 
     "ein": "81-0472423"
   }
 },
@@ -5848,6 +5924,7 @@
     "racial_justice_ref1_org": "Western Native Voice", 
     "organization": 114, 
     "contact_person": "Sarah Howell", 
+    "pre_screening_status": 50, 
     "ein": "81-0472423"
   }
 },
@@ -5924,6 +6001,7 @@
     "racial_justice_ref1_org": "Partnership for Safety & Justice", 
     "organization": 88, 
     "contact_person": "Kate Titus", 
+    "pre_screening_status": 45, 
     "ein": "31-1705370"
   }
 },
@@ -6000,6 +6078,7 @@
     "racial_justice_ref1_org": "Kicking Horse Job Corps", 
     "organization": 32, 
     "contact_person": "Melissa Fisher", 
+    "pre_screening_status": 50, 
     "ein": "81-0526099"
   }
 },
@@ -6076,6 +6155,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 69, 
     "contact_person": "Sarah Cantril", 
+    "pre_screening_status": 40, 
     "ein": "04-3765788"
   }
 },
@@ -6152,6 +6232,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 194, 
     "contact_person": "Faaluaina Pritchard", 
+    "pre_screening_status": 40, 
     "ein": "91-1854410"
   }
 },
@@ -6228,6 +6309,7 @@
     "racial_justice_ref1_org": "Women of Color Alliance", 
     "organization": 137, 
     "contact_person": "Dina M. Flores-Brewer", 
+    "pre_screening_status": 45, 
     "ein": "82-0334493"
   }
 },
@@ -6304,6 +6386,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 155, 
     "contact_person": "Dean Jackson", 
+    "pre_screening_status": 50, 
     "ein": "91-1656676"
   }
 },
@@ -6380,6 +6463,7 @@
     "racial_justice_ref1_org": "Portland Parents Union", 
     "organization": 54, 
     "contact_person": "Angela Jarvis Holland ", 
+    "pre_screening_status": 45, 
     "ein": "91-1765165"
   }
 },
@@ -6456,6 +6540,7 @@
     "racial_justice_ref1_org": "'The Village' at Washington Corrections Center for Women", 
     "organization": 199, 
     "contact_person": "Rosa Vissers", 
+    "pre_screening_status": 50, 
     "ein": "20-8867242"
   }
 },
@@ -6532,6 +6617,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 162, 
     "contact_person": "Carol Estes", 
+    "pre_screening_status": 50, 
     "ein": "20-3469787"
   }
 },
@@ -6608,6 +6694,7 @@
     "racial_justice_ref1_org": "n/a", 
     "organization": 132, 
     "contact_person": "Duncan Hwang", 
+    "pre_screening_status": 45, 
     "ein": "80-025-2850"
   }
 },
@@ -6684,6 +6771,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 152, 
     "contact_person": "Ginger Kwan", 
+    "pre_screening_status": 50, 
     "ein": "Open Doors for Multicultural Families"
   }
 },
@@ -6760,6 +6848,7 @@
     "racial_justice_ref1_org": "Columbia River Inter-Tribal Fish Commission", 
     "organization": 35, 
     "contact_person": "Robin Engle", 
+    "pre_screening_status": 45, 
     "ein": "91-1583492"
   }
 },
@@ -6836,6 +6925,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 143, 
     "contact_person": "Michaelynn Hawk", 
+    "pre_screening_status": 50, 
     "ein": "91-1635554"
   }
 },
@@ -6912,6 +7002,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 143, 
     "contact_person": "Michaelynn Hawk", 
+    "pre_screening_status": 50, 
     "ein": "91-1635554"
   }
 },
@@ -6988,6 +7079,7 @@
     "racial_justice_ref1_org": "PCUN Farmworker Union", 
     "organization": 121, 
     "contact_person": "Cara Shufelt", 
+    "pre_screening_status": 50, 
     "ein": "93-1159856"
   }
 },
@@ -7064,6 +7156,7 @@
     "racial_justice_ref1_org": "Indian People's Action", 
     "organization": 209, 
     "contact_person": "Sheena Rice", 
+    "pre_screening_status": 50, 
     "ein": "91-1635554"
   }
 },
@@ -7140,6 +7233,7 @@
     "racial_justice_ref1_org": "Seattle King County NAACP", 
     "organization": 64, 
     "contact_person": "Rachael DeCruz", 
+    "pre_screening_status": 45, 
     "ein": "91-1259403"
   }
 },
@@ -7216,6 +7310,7 @@
     "racial_justice_ref1_org": "Children's Alliance", 
     "organization": 222, 
     "contact_person": "Ashley Miller", 
+    "pre_screening_status": 45, 
     "ein": "20-0661802"
   }
 },
@@ -7292,6 +7387,7 @@
     "racial_justice_ref1_org": "Oregon Dream Activists", 
     "organization": 187, 
     "contact_person": "Mira Conklin", 
+    "pre_screening_status": 45, 
     "ein": "26-3396186"
   }
 },
@@ -7368,6 +7464,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 225, 
     "contact_person": "Rachel Gilmer", 
+    "pre_screening_status": 50, 
     "ein": "931086629"
   }
 },
@@ -7444,6 +7541,7 @@
     "racial_justice_ref1_org": "MT Two-Spirit Society", 
     "organization": 126, 
     "contact_person": "Kim Abbott", 
+    "pre_screening_status": 50, 
     "ein": "81-0472423"
   }
 },
@@ -7520,6 +7618,7 @@
     "racial_justice_ref1_org": "RezVote", 
     "organization": 97, 
     "contact_person": "Dan Neal", 
+    "pre_screening_status": 50, 
     "ein": "83-0305144"
   }
 },
@@ -7596,6 +7695,7 @@
     "racial_justice_ref1_org": "Salish-Kootenai College Prevention Task Force", 
     "organization": 191, 
     "contact_person": "Christa Weathers", 
+    "pre_screening_status": 50, 
     "ein": "36-3652244"
   }
 },
@@ -7672,6 +7772,7 @@
     "racial_justice_ref1_org": "Western States Center", 
     "organization": 36, 
     "contact_person": "Jack MacNichol", 
+    "pre_screening_status": 45, 
     "ein": "93-1266613"
   }
 },
@@ -7748,6 +7849,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 143, 
     "contact_person": "Michaelynn Hawk", 
+    "pre_screening_status": 50, 
     "ein": "91-1635554"
   }
 },
@@ -7824,6 +7926,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 147, 
     "contact_person": "Sophia Kizilbah", 
+    "pre_screening_status": 50, 
     "ein": "27-2503270"
   }
 },
@@ -7900,6 +8003,7 @@
     "racial_justice_ref1_org": "MT Two-Spirit Society", 
     "organization": 126, 
     "contact_person": "Kim Abbott", 
+    "pre_screening_status": 50, 
     "ein": "81-0472423"
   }
 },
@@ -7976,6 +8080,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 17, 
     "contact_person": "David Rogers", 
+    "pre_screening_status": 50, 
     "ein": "93-1277774"
   }
 },
@@ -8052,6 +8157,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 72, 
     "contact_person": "Joshua Farris", 
+    "pre_screening_status": 45, 
     "ein": "46-0553799"
   }
 },
@@ -8128,6 +8234,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 17, 
     "contact_person": "David Rogers", 
+    "pre_screening_status": 50, 
     "ein": "93-1277774"
   }
 },
@@ -8204,6 +8311,7 @@
     "racial_justice_ref1_org": "Salud y Comunidad", 
     "organization": 201, 
     "contact_person": "Shahid Haque-Hausrath or Bethany Letiecq", 
+    "pre_screening_status": 50, 
     "ein": "MIJA 26-3644922"
   }
 },
@@ -8280,6 +8388,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 163, 
     "contact_person": "Zoe Ann Olson", 
+    "pre_screening_status": 50, 
     "ein": "82-0490846"
   }
 },
@@ -8356,6 +8465,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 202, 
     "contact_person": "Julia Ismael", 
+    "pre_screening_status": 45, 
     "ein": "91-1465046"
   }
 },
@@ -8432,6 +8542,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 89, 
     "contact_person": "Collette Bishop 317.361.0975 (please use this contact number)", 
+    "pre_screening_status": 50, 
     "ein": "45-5153408"
   }
 },
@@ -8508,6 +8619,7 @@
     "racial_justice_ref1_org": "Black Child Development Institute", 
     "organization": 214, 
     "contact_person": "Nancy Roberts-Brown", 
+    "pre_screening_status": 45, 
     "ein": "91-0575955"
   }
 },
@@ -8584,6 +8696,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 87, 
     "contact_person": "Carol Taylinh", 
+    "pre_screening_status": 45, 
     "ein": "93-1266613"
   }
 },
@@ -8660,6 +8773,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 147, 
     "contact_person": "Sophia Kizilbash", 
+    "pre_screening_status": 50, 
     "ein": "27-2503270"
   }
 },
@@ -8736,6 +8850,7 @@
     "racial_justice_ref1_org": "N/A", 
     "organization": 145, 
     "contact_person": "Sandra Hernandes", 
+    "pre_screening_status": 45, 
     "ein": "77-0661661"
   }
 },
@@ -8812,6 +8927,7 @@
     "racial_justice_ref1_org": "Oregon Voice", 
     "organization": 193, 
     "contact_person": "Sharon Bernstein", 
+    "pre_screening_status": 45, 
     "ein": "80-0697682"
   }
 },
@@ -8888,6 +9004,7 @@
     "racial_justice_ref1_org": "Causa/PCUN", 
     "organization": 121, 
     "contact_person": "Cara Shufelt", 
+    "pre_screening_status": 50, 
     "ein": "93-1159856"
   }
 },
@@ -8964,6 +9081,7 @@
     "racial_justice_ref1_org": "Executive Director, Latinos for Community Transformation", 
     "organization": 173, 
     "contact_person": "Steve Stapleton", 
+    "pre_screening_status": 40, 
     "ein": "94-3154539"
   }
 },
@@ -9040,6 +9158,7 @@
     "racial_justice_ref1_org": "Center for Intercultural Organizing", 
     "organization": 166, 
     "contact_person": "Stephanie Talbott", 
+    "pre_screening_status": 50, 
     "ein": "93-0691194"
   }
 },
@@ -9116,6 +9235,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 228, 
     "contact_person": "Steve Cape", 
+    "pre_screening_status": 50, 
     "ein": "71-1032816"
   }
 },
@@ -9192,6 +9312,7 @@
     "racial_justice_ref1_org": "Missoula Indian Center", 
     "organization": 51, 
     "contact_person": "Casey Dunning", 
+    "pre_screening_status": 50, 
     "ein": "81-0330540"
   }
 },
@@ -9268,6 +9389,7 @@
     "racial_justice_ref1_org": "Missoula Indian Center", 
     "organization": 51, 
     "contact_person": "Casey Dunning", 
+    "pre_screening_status": 45, 
     "ein": "81-0330540"
   }
 },
@@ -9344,6 +9466,7 @@
     "racial_justice_ref1_org": "New Hope Missionary Baptist", 
     "organization": 125, 
     "contact_person": "Liz Moore", 
+    "pre_screening_status": 50, 
     "ein": "Peace & Justice Action League"
   }
 },
@@ -9420,6 +9543,7 @@
     "racial_justice_ref1_org": "Got Green", 
     "organization": 159, 
     "contact_person": "David West", 
+    "pre_screening_status": 45, 
     "ein": "20-8974030"
   }
 },
@@ -9496,6 +9620,7 @@
     "racial_justice_ref1_org": "VOZ", 
     "organization": 217, 
     "contact_person": "Kevin Nolan", 
+    "pre_screening_status": 50, 
     "ein": "Right 2 Dream Too"
   }
 },
@@ -9572,6 +9697,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 131, 
     "contact_person": "Yecelica Jaime Valdivia", 
+    "pre_screening_status": 50, 
     "ein": "91-1536006"
   }
 },
@@ -9648,6 +9774,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 156, 
     "contact_person": "Andrea Valderrama", 
+    "pre_screening_status": 50, 
     "ein": "26-1357376"
   }
 },
@@ -9724,6 +9851,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 131, 
     "contact_person": "Yecelica J. Valdivia", 
+    "pre_screening_status": 50, 
     "ein": "91-1536006"
   }
 },
@@ -9800,6 +9928,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 204, 
     "contact_person": "Vicky Falcon-Vazquez", 
+    "pre_screening_status": 50, 
     "ein": "93-0992858"
   }
 },
@@ -9876,6 +10005,7 @@
     "racial_justice_ref1_org": "Southwest Interagency Academy", 
     "organization": 129, 
     "contact_person": "David Bestock", 
+    "pre_screening_status": 45, 
     "ein": "91-1741016"
   }
 },
@@ -9952,6 +10082,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 30, 
     "contact_person": "Eduardo Angulo", 
+    "pre_screening_status": 50, 
     "ein": "65-1203900"
   }
 },
@@ -10028,6 +10159,7 @@
     "racial_justice_ref1_org": "PreSERVE Coalition", 
     "organization": 207, 
     "contact_person": "Cassie Cohen", 
+    "pre_screening_status": 45, 
     "ein": "263577378"
   }
 },
@@ -10104,6 +10236,7 @@
     "racial_justice_ref1_org": "African American Reach and Teach Health Ministry", 
     "organization": 123, 
     "contact_person": "Karyn McKelvey", 
+    "pre_screening_status": 50, 
     "ein": "91-0482890"
   }
 },
@@ -10180,6 +10313,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 157, 
     "contact_person": "Judith Panlasigui", 
+    "pre_screening_status": 45, 
     "ein": "91-1674016\u00a0"
   }
 },
@@ -10256,6 +10390,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 230, 
     "contact_person": "Marcelo Bonta", 
+    "pre_screening_status": 45, 
     "ein": "26-3757028"
   }
 },
@@ -10332,6 +10467,7 @@
     "racial_justice_ref1_org": "Oregon Dream Activists", 
     "organization": 200, 
     "contact_person": "Mary Nemmers", 
+    "pre_screening_status": 50, 
     "ein": "93-0894937"
   }
 },
@@ -10408,6 +10544,7 @@
     "racial_justice_ref1_org": "Surge Northwest", 
     "organization": 221, 
     "contact_person": "Lillian Hewko", 
+    "pre_screening_status": 50, 
     "ein": "93-1220473"
   }
 },
@@ -10484,6 +10621,7 @@
     "racial_justice_ref1_org": "African American Reach and Teach Health Ministry", 
     "organization": 123, 
     "contact_person": "Karyn McKelvey", 
+    "pre_screening_status": 40, 
     "ein": "91-0482890"
   }
 },
@@ -10560,6 +10698,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 151, 
     "contact_person": "Katy Riker", 
+    "pre_screening_status": 50, 
     "ein": "93\u20101181863"
   }
 },
@@ -10636,6 +10775,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 19, 
     "contact_person": "Emanual Price", 
+    "pre_screening_status": 50, 
     "ein": " 45-4244997"
   }
 },
@@ -10712,6 +10852,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 212, 
     "contact_person": "LaQuisha Minnieweather", 
+    "pre_screening_status": 50, 
     "ein": "45 4176224"
   }
 },
@@ -10788,6 +10929,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 29, 
     "contact_person": "Dustin Washington", 
+    "pre_screening_status": 50, 
     "ein": "23-1352010"
   }
 },
@@ -10864,6 +11006,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 151, 
     "contact_person": "Katy Riker", 
+    "pre_screening_status": 50, 
     "ein": "93\u20101181863"
   }
 },
@@ -10940,6 +11083,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 80, 
     "contact_person": "Patricia Jordan", 
+    "pre_screening_status": 50, 
     "ein": "208341064"
   }
 },
@@ -11016,6 +11160,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 42, 
     "contact_person": "Abdiasis Mohammed", 
+    "pre_screening_status": 45, 
     "ein": "93-0806295"
   }
 },
@@ -11092,6 +11237,7 @@
     "racial_justice_ref1_org": "Black Child Development Institute", 
     "organization": 214, 
     "contact_person": "Nancy Roberts-Brown", 
+    "pre_screening_status": 50, 
     "ein": "91-0575955"
   }
 },
@@ -11168,6 +11314,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 89, 
     "contact_person": "Collette Bishop 317.361.0975 (please use this contact number)", 
+    "pre_screening_status": 50, 
     "ein": "45-5153408"
   }
 },
@@ -11244,6 +11391,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 234, 
     "contact_person": "Esther Stutzman", 
+    "pre_screening_status": 40, 
     "ein": "77-0603915"
   }
 },
@@ -11320,6 +11468,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 176, 
     "contact_person": "Debbie Green", 
+    "pre_screening_status": 50, 
     "ein": "20-2177173"
   }
 },
@@ -11396,6 +11545,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 197, 
     "contact_person": "Alex Fernandez", 
+    "pre_screening_status": 50, 
     "ein": "601-622-146"
   }
 },
@@ -11472,6 +11622,7 @@
     "racial_justice_ref1_org": "Idaho Community Action Network", 
     "organization": 218, 
     "contact_person": "Dan Prinzing", 
+    "pre_screening_status": 40, 
     "ein": "82-0490848"
   }
 },
@@ -11548,6 +11699,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 227, 
     "contact_person": "Richard Basch", 
+    "pre_screening_status": 50, 
     "ein": "11-1807257"
   }
 },
@@ -11624,6 +11776,7 @@
     "racial_justice_ref1_org": "Health Equity Circle", 
     "organization": 219, 
     "contact_person": "Carol Krawczyk", 
+    "pre_screening_status": 45, 
     "ein": "91-1937810"
   }
 },
@@ -11700,6 +11853,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 99, 
     "contact_person": "Mihae Jung", 
+    "pre_screening_status": 50, 
     "ein": "91-1586900"
   }
 },
@@ -11776,6 +11930,7 @@
     "racial_justice_ref1_org": "Community to Community", 
     "organization": 220, 
     "contact_person": "Scott Holen", 
+    "pre_screening_status": 45, 
     "ein": "75-3253677"
   }
 },
@@ -11852,6 +12007,7 @@
     "racial_justice_ref1_org": "Community to Community", 
     "organization": 220, 
     "contact_person": "Scott Holen", 
+    "pre_screening_status": 50, 
     "ein": "75-3253677"
   }
 },
@@ -11928,6 +12084,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 168, 
     "contact_person": "Ranfis Villatoro", 
+    "pre_screening_status": 50, 
     "ein": "45-2771253"
   }
 },
@@ -12004,6 +12161,7 @@
     "racial_justice_ref1_org": "Pastor of Bethel A.M.E. Church", 
     "organization": 167, 
     "contact_person": "Anne Martin", 
+    "pre_screening_status": 50, 
     "ein": "26-2868934"
   }
 },
@@ -12080,6 +12238,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 179, 
     "contact_person": "Rita Meher", 
+    "pre_screening_status": 40, 
     "ein": "20-0886886"
   }
 },
@@ -12156,6 +12315,7 @@
     "racial_justice_ref1_org": "Seattle Indian Center", 
     "organization": 208, 
     "contact_person": "Scott Morrow", 
+    "pre_screening_status": 50, 
     "ein": "91-1842858"
   }
 },
@@ -12232,6 +12392,7 @@
     "racial_justice_ref1_org": "Office for Civil Rights", 
     "organization": 136, 
     "contact_person": "Bryan Baker", 
+    "pre_screening_status": 40, 
     "ein": "91-1921191"
   }
 },
@@ -12308,6 +12469,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 184, 
     "contact_person": "Sonya Rosario", 
+    "pre_screening_status": 50, 
     "ein": "82-0533975"
   }
 },
@@ -12384,6 +12546,7 @@
     "racial_justice_ref1_org": "Asian Pacific American Network of Oregon", 
     "organization": 188, 
     "contact_person": "Kelli Horvath", 
+    "pre_screening_status": 45, 
     "ein": "93-0683005"
   }
 },
@@ -12460,6 +12623,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 80, 
     "contact_person": "Patricia Jordan", 
+    "pre_screening_status": 40, 
     "ein": "208341064"
   }
 },
@@ -12536,6 +12700,7 @@
     "racial_justice_ref1_org": "Entre Hermanos", 
     "organization": 186, 
     "contact_person": "Douglas Hamilton", 
+    "pre_screening_status": 45, 
     "ein": "32-0146056"
   }
 },
@@ -12612,6 +12777,7 @@
     "racial_justice_ref1_org": "Latino Network", 
     "organization": 116, 
     "contact_person": "Claudia  Arana-Colen", 
+    "pre_screening_status": 40, 
     "ein": "42-1579435"
   }
 },
@@ -12688,6 +12854,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 164, 
     "contact_person": "Fern Renville", 
+    "pre_screening_status": 40, 
     "ein": "91-1862731"
   }
 },
@@ -12764,6 +12931,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 58, 
     "contact_person": "Barbara Phillips", 
+    "pre_screening_status": 40, 
     "ein": "27-3614459"
   }
 },
@@ -12840,6 +13008,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 58, 
     "contact_person": "Barbara Phillips", 
+    "pre_screening_status": 50, 
     "ein": "27-3614459"
   }
 },
@@ -12916,6 +13085,7 @@
     "racial_justice_ref1_org": "Psy Com Clinic/Holy Park Church", 
     "organization": 182, 
     "contact_person": "Mary Hackney", 
+    "pre_screening_status": 50, 
     "ein": "20-0144386"
   }
 },
@@ -12992,6 +13162,7 @@
     "racial_justice_ref1_org": "API Chaya", 
     "organization": 150, 
     "contact_person": "Elizabeth Kau", 
+    "pre_screening_status": 40, 
     "ein": "84-1123082"
   }
 },
@@ -13068,6 +13239,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 72, 
     "contact_person": "Joshua Farris", 
+    "pre_screening_status": 50, 
     "ein": "46-0553799"
   }
 },
@@ -13144,6 +13316,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 41, 
     "contact_person": "Rosalinda Guillen", 
+    "pre_screening_status": 50, 
     "ein": "91-1102688"
   }
 },
@@ -13220,6 +13393,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 236, 
     "contact_person": "Debbie Green", 
+    "pre_screening_status": 50, 
     "ein": "20-2177173"
   }
 },
@@ -13296,6 +13470,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 144, 
     "contact_person": "Jeran Artery", 
+    "pre_screening_status": 40, 
     "ein": "83-0287834"
   }
 },
@@ -13372,6 +13547,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 223, 
     "contact_person": "Voz Hispana Causa Chavista ", 
+    "pre_screening_status": 50, 
     "ein": " 93-1313795"
   }
 },
@@ -13448,6 +13624,7 @@
     "racial_justice_ref1_org": "Black Student Union", 
     "organization": 77, 
     "contact_person": "Alexia Garcia", 
+    "pre_screening_status": 45, 
     "ein": "90-0587681"
   }
 },
@@ -13524,6 +13701,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 178, 
     "contact_person": "Sharif Kaharaba", 
+    "pre_screening_status": 40, 
     "ein": "27-4614383"
   }
 },
@@ -13600,6 +13778,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 58, 
     "contact_person": "Barbara Phillips", 
+    "pre_screening_status": 50, 
     "ein": "27-3613359"
   }
 },
@@ -13676,6 +13855,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 122, 
     "contact_person": "Khalil Edwards", 
+    "pre_screening_status": 50, 
     "ein": "ID 93-0848543. "
   }
 },
@@ -13752,6 +13932,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 122, 
     "contact_person": "Leila Hofstein", 
+    "pre_screening_status": 50, 
     "ein": "ID 93-0848543. "
   }
 },
@@ -13828,6 +14009,7 @@
     "racial_justice_ref1_org": "People of Color Against AIDS Network", 
     "organization": 102, 
     "contact_person": "Danielle Askini", 
+    "pre_screening_status": 50, 
     "ein": "91-1685822"
   }
 },
@@ -13904,6 +14086,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 72, 
     "contact_person": "Joshua Farris", 
+    "pre_screening_status": 50, 
     "ein": "46-0553799"
   }
 },
@@ -13980,6 +14163,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 22, 
     "contact_person": "Cristina Orbe", 
+    "pre_screening_status": 50, 
     "ein": "91-2138554"
   }
 },
@@ -14056,6 +14240,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 161, 
     "contact_person": "Jonathan Ostar", 
+    "pre_screening_status": 50, 
     "ein": "20-2782595"
   }
 },
@@ -14132,6 +14317,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 104, 
     "contact_person": "Deborah Sioux Lee", 
+    "pre_screening_status": 50, 
     "ein": "26-2975919"
   }
 },
@@ -14208,6 +14394,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 205, 
     "contact_person": "K. Wyking Garrett", 
+    "pre_screening_status": 50, 
     "ein": "123456789"
   }
 },
@@ -14284,6 +14471,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 41, 
     "contact_person": "Rosalinda Guillen", 
+    "pre_screening_status": 50, 
     "ein": "91-1102688"
   }
 },
@@ -14360,6 +14548,7 @@
     "racial_justice_ref1_org": "Salud y Comunidad", 
     "organization": 201, 
     "contact_person": "Shahid Haque-Hausrath or Bethany Letiecq", 
+    "pre_screening_status": 50, 
     "ein": "MIJA 26-3644922"
   }
 },
@@ -14436,6 +14625,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 228, 
     "contact_person": "Steve Cape", 
+    "pre_screening_status": 50, 
     "ein": "71-1032816"
   }
 },
@@ -14512,6 +14702,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 244, 
     "contact_person": "Paulina Romo Villasenor", 
+    "pre_screening_status": 40, 
     "ein": "20-0646954"
   }
 },
@@ -14588,6 +14779,7 @@
     "racial_justice_ref1_org": "Salud y Comunidad", 
     "organization": 201, 
     "contact_person": "Shahid Haque-Hausrath or Bethany Letiecq", 
+    "pre_screening_status": 50, 
     "ein": "MIJA 26-3644922"
   }
 },
@@ -14664,6 +14856,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 242, 
     "contact_person": "Jaime Hansen", 
+    "pre_screening_status": 40, 
     "ein": "820467428"
   }
 },
@@ -14740,6 +14933,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 153, 
     "contact_person": "Marcos Martinez", 
+    "pre_screening_status": 50, 
     "ein": "31-1775429"
   }
 },
@@ -14816,6 +15010,7 @@
     "racial_justice_ref1_org": "Ramirez", 
     "organization": 103, 
     "contact_person": "Fernando Mejia-Ledesma", 
+    "pre_screening_status": 50, 
     "ein": "82-0357348"
   }
 },
@@ -14892,6 +15087,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 151, 
     "contact_person": "Abigail Singer", 
+    "pre_screening_status": 50, 
     "ein": "93\u20101181863"
   }
 },
@@ -14968,6 +15164,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 256, 
     "contact_person": "Araceli Hernandez", 
+    "pre_screening_status": 50, 
     "ein": "91-1689251"
   }
 },
@@ -15044,6 +15241,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 249, 
     "contact_person": "Ramon Garrido ", 
+    "pre_screening_status": 40, 
     "ein": "75-3182528"
   }
 },
@@ -15120,6 +15318,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 260, 
     "contact_person": "Dagoberto Morales", 
+    "pre_screening_status": 50, 
     "ein": "26-1810916"
   }
 },
@@ -15196,6 +15395,7 @@
     "racial_justice_ref1_org": "Arapaho Health Department", 
     "organization": 265, 
     "contact_person": "Chesie Lee", 
+    "pre_screening_status": 40, 
     "ein": "83-0230691"
   }
 },
@@ -15272,6 +15472,7 @@
     "racial_justice_ref1_org": "PCUN", 
     "organization": 263, 
     "contact_person": "Virginia Camberos", 
+    "pre_screening_status": 50, 
     "ein": "93-0760750"
   }
 },
@@ -15348,6 +15549,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 41, 
     "contact_person": "Malora Christensen", 
+    "pre_screening_status": 50, 
     "ein": "91-1102688"
   }
 },
@@ -15424,6 +15626,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 246, 
     "contact_person": "Carlos Padilla", 
+    "pre_screening_status": 50, 
     "ein": "91-1049157"
   }
 },
@@ -15500,6 +15703,7 @@
     "racial_justice_ref1_org": "N/A", 
     "organization": 145, 
     "contact_person": "Sandra Hernandes", 
+    "pre_screening_status": 50, 
     "ein": "77-0661661"
   }
 },
@@ -15576,6 +15780,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 133, 
     "contact_person": "Larry Kleinman", 
+    "pre_screening_status": 50, 
     "ein": "93-0939941"
   }
 },
@@ -15652,6 +15857,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 264, 
     "contact_person": "Ashley Leasure", 
+    "pre_screening_status": 50, 
     "ein": "20-0384893"
   }
 },
@@ -15728,6 +15934,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 245, 
     "contact_person": "Nancy Ramirez Arriaga", 
+    "pre_screening_status": 50, 
     "ein": "73-1675402"
   }
 },
@@ -15804,6 +16011,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 212, 
     "contact_person": "Vanessa Dominguez", 
+    "pre_screening_status": 50, 
     "ein": "45 4176224"
   }
 },
@@ -15880,6 +16088,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 156, 
     "contact_person": "Ranfis Villatoro", 
+    "pre_screening_status": 50, 
     "ein": "26-1357376"
   }
 },
@@ -15956,6 +16165,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 132, 
     "contact_person": "Duncan Hwang", 
+    "pre_screening_status": 50, 
     "ein": "80-025-2850"
   }
 },
@@ -16032,6 +16242,7 @@
     "racial_justice_ref1_org": "South Park Information and Resource Center", 
     "organization": 266, 
     "contact_person": "Linda Haydock", 
+    "pre_screening_status": 50, 
     "ein": "94-3083964"
   }
 },
@@ -16108,6 +16319,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 27, 
     "contact_person": "Rosario Lopez", 
+    "pre_screening_status": 50, 
     "ein": "46-1470709"
   }
 },
@@ -16184,6 +16396,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 168, 
     "contact_person": "Ranfis Villatoro", 
+    "pre_screening_status": 50, 
     "ein": "45-2771253"
   }
 },
@@ -16260,6 +16473,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 227, 
     "contact_person": "Richard Basch", 
+    "pre_screening_status": 50, 
     "ein": "11-1807257"
   }
 },
@@ -16336,6 +16550,7 @@
     "racial_justice_ref1_org": "People of Color Against AIDS Network", 
     "organization": 102, 
     "contact_person": "Danielle Askini", 
+    "pre_screening_status": 50, 
     "ein": "91-1685822"
   }
 },
@@ -16412,6 +16627,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 184, 
     "contact_person": "Sonya Rosario", 
+    "pre_screening_status": 50, 
     "ein": "82-0533975"
   }
 },
@@ -16488,6 +16704,7 @@
     "racial_justice_ref1_org": "PCUN Farmworker Union", 
     "organization": 121, 
     "contact_person": "Cara Shufelt", 
+    "pre_screening_status": 50, 
     "ein": "93-1159856"
   }
 },
@@ -16564,6 +16781,7 @@
     "racial_justice_ref1_org": "", 
     "organization": 212, 
     "contact_person": "LaQuisha Minnieweather", 
+    "pre_screening_status": 50, 
     "ein": "45 4176224"
   }
 }
