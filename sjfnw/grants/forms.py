@@ -170,11 +170,23 @@ class BaseOrgAppReport(forms.Form):
 class AppReportForm(BaseOrgAppReport):
 
   #filters
-  year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
-  year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
-  screening_status = forms.MultipleChoiceField(choices = GrantApplication.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
-  giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
-  grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
+  year_min = forms.ChoiceField(
+      choices = [(n, n) for n in range(timezone.now().year, 1990, -1)],
+      initial = timezone.now().year-1)
+  year_max = forms.ChoiceField(
+      choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
+  screening_status = forms.MultipleChoiceField(
+      choices = GrantApplication.SCREENING_CHOICES,
+      widget = forms.CheckboxSelectMultiple,
+      required = False)
+  giving_project = forms.MultipleChoiceField(
+      choices = [],
+      widget = forms.CheckboxSelectMultiple,
+      required = False)
+  grant_cycle = forms.MultipleChoiceField(
+      choices = [],
+      widget = forms.CheckboxSelectMultiple,
+      required = False) #TODO -- indiv or "type"
   poc_bonus = forms.BooleanField(required=False)
   geo_bonus = forms.BooleanField(required=False)
   #awarded = forms.BooleanField(required=False)
@@ -238,8 +250,9 @@ class AppReportForm(BaseOrgAppReport):
 class AwardReportForm(BaseOrgAppReport):
 
   # filters
-  year_min = forms.ChoiceField(choices =
-      [(n, n) for n in range(timezone.now().year, 1990, -1)])
+  year_min = forms.ChoiceField(
+      choices = [(n, n) for n in range(timezone.now().year, 1990, -1)],
+      initial = timezone.now().year-1)
   year_max = forms.ChoiceField(choices =
       [(n, n) for n in range(timezone.now().year, 1990, -1)])
 
