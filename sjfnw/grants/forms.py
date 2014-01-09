@@ -231,7 +231,7 @@ class AppReportForm(BaseOrgAppReport):
   def clean(self):
     cleaned_data = super(AppReportForm, self).clean()
     if cleaned_data['year_max'] < cleaned_data['year_min']:
-      self._errors['year_min'] = [u'Start year must be less than or equal to end year.']
+      raise ValidationError('Start year must be less than or equal to end year.')
     return cleaned_data
 
 
