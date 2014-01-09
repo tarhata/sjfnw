@@ -782,7 +782,7 @@ def get_app_results(options):
           val = convert[val]
         row.append(val)
       elif field=='submission_time':
-        row.append(utils.local_date_str(getattr(app, field))) 
+        row.append(local_date_str(getattr(app, field))) 
       else:
         row.append(getattr(app, field))
 
@@ -800,8 +800,11 @@ def get_app_results(options):
             except models.GivingProjectGrant.DoesNotExist:
               pass
           if get_gp_ss:
-            ss_row += '%s (%s)' % (dict(models.SCREENING)[papp.screening_status],
+            if papp.screening_status:
+              ss_row += '%s (%s)' % (dict(models.SCREENING)[papp.screening_status],
                 papp.giving_project.title)
+            else:
+              ss_row += papp.giving_project.title
       if get_gp_ss:
         row.append(ss_row)
       if get_awards:
@@ -1038,7 +1041,8 @@ def DraftWarning(request):
       logger.info("Email sent to " + to + "regarding draft application soon to expire")
   return HttpResponse("")
 
-# UTILS (caused import probs in utils.py)
+# UTILS
+# (caused import probs in utils.py)
 def GetFileURLs(app, printing=False):
   """ Get viewing urls for the files in a given draft or app
 
