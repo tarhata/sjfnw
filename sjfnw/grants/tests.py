@@ -23,6 +23,12 @@ logger = logging.getLogger('sjfnw')
   budget.docx      diversity.doc      funding_sources.docx
   budget1.docx     budget2.txt         budget3.png  """
 
+LIVE_FIXTURES = ['sjfnw/fund/fixtures/live_gp_dump.json',
+                 'sjfnw/grants/fixtures/org_live_dump.json',
+                 'sjfnw/grants/fixtures/cycle_live_dump.json',
+                 'sjfnw/grants/fixtures/app_live_dump.json',
+                 'sjfnw/grants/fixtures/award_live_dump.json']
+
 def set_cycle_dates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
       open, open, closed, upcoming, open """
@@ -446,7 +452,7 @@ class ApplyValidation(BaseGrantFilesTestCase):
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">This field is required.</div>')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class StartApplication(BaseGrantTestCase): #MIGHT BE OUT OF DATE
+class StartApplication(BaseGrantTestCase): #TODO MIGHT BE OUT OF DATE
 
   def setUp(self):
     super(StartApplication, self).setUp('none')
@@ -814,16 +820,10 @@ class Reporting(BaseGrantTestCase):
   Fixtures include unicode characters
   """
 
+  fixtures = LIVE_FIXTURES
   url = reverse('sjfnw.grants.views.grants_report')
   template_success = 'grants/report_results.html'
   template_error = 'grants/reporting.html'
-  fixtures = [
-    'sjfnw/fund/fixtures/live_gp_dump.json',
-    'sjfnw/grants/fixtures/org_live_dump.json',
-    'sjfnw/grants/fixtures/cycle_live_dump.json',
-    'sjfnw/grants/fixtures/app_live_dump.json',
-    'sjfnw/grants/fixtures/award_live_dump.json'
-  ]
 
   def setUp(self): #don't super, can't set cycle dates with this fixture
     self.logInAdmin()
@@ -833,6 +833,11 @@ class Reporting(BaseGrantTestCase):
     """ Shared method to create POST data for the given form
 
     Methods need to insert report type key themselves
+    Set up to handle:
+      boolean
+      select fields
+      year min & max
+      organization_name & city (all other chars are blank)
 
     Args:
       form: form instance to populate
@@ -863,16 +868,13 @@ class Reporting(BaseGrantTestCase):
         elif isinstance(field, forms.MultipleChoiceField):
           post_dict[name] = [field.choices[0][0], field.choices[1][0]] if filters else []
         elif name.startswith('year_m'):
-          if filters:
-            if name == 'year_min':
-              post_dict[name] = 1995
-            else:
-              post_dict[name] = 2012
+          if name == 'year_min':
+            post_dict[name] = 1995
           else:
             post_dict[name] = timezone.now().year
         elif isinstance(field, forms.CharField):
           if filters:
-            if name == 'organization':
+            if name == 'organization_name':
               post_dict[name] = 'Foundation'
             elif name == 'city':
               post_dict[name] = 'Seattle'
@@ -1109,4 +1111,14 @@ class Reporting(BaseGrantTestCase):
 
     results = response.context['results']
     self.assertEqual(0, len(results))
+
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class AdminInlines(BaseGrantTestCase):
+  """ Verify basic display of related inlines for grants objects in admin """
+
+  fixtures = [LIVE_FIXTURES]
+
+  def setUp(self):
+    super(AdminInlines, self).setUp()
 
