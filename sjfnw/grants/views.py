@@ -625,6 +625,10 @@ def grants_report(request):
   app_form = AppReportForm()
   org_form = OrgReportForm()
   award_form = AwardReportForm()
+  
+  context = {'app_form': app_form,
+             'org_form': org_form,
+             'award_form': award_form}
 
   if request.method == 'POST':
 
@@ -632,14 +636,20 @@ def grants_report(request):
     if 'run-application' in request.POST:
       logger.info('App report')
       form = AppReportForm(request.POST)
+      context['app_form'] = form
+      context['active_form'] = '#application-form'
       results_func = get_app_results
     elif 'run-organization' in request.POST:
       logger.info('Org report')
       form = OrgReportForm(request.POST)
+      context['org_form'] = form
+      context['active_form'] = '#organization-form'
       results_func = get_org_results
     elif 'run-award' in request.POST:
       logger.info('Award report')
       form = AwardReportForm(request.POST)
+      context['award_form'] = form
+      context['active_form'] = '#award-form'
       results_func = get_award_results
     else:
       logger.error('Unknown report type')
@@ -666,11 +676,12 @@ def grants_report(request):
         return response
     else:
       logger.warning('Invalid form!' + str(form.errors))
-  return render(request, 'grants/reporting.html',
-      {'app_form': app_form, 'org_form': org_form, 'award_form': award_form,
-        'app_base': 'submission time, organization name, grant cycle',
-        'award_base': 'organization name, amount, date check mailed',
-        'org_base':'name'})
+
+  context['app_base'] = 'submission time, organization name, grant cycle'
+  context['award_base'] = 'organization name, amount, date check mailed'
+  context['org_base'] = 'name'
+  return render(request, 'grants/reporting.html', context)
+                 
 
 def get_app_results(options):
   """ Fetches application report results
@@ -703,7 +714,7 @@ def get_app_results(options):
   apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
 
   if options.get('organization_name'):
-    apps = apps.filter(organization__contains=options['organization_name'])
+    apps = apps.filter(organization__name__contains=options['organization_name'])
   if options.get('city'):
     apps = apps.filter(city=options['city'])
   if options.get('state'):
@@ -770,6 +781,8 @@ def get_app_results(options):
           convert = dict(models.PRE_SCREENING)
           val = convert[val]
         row.append(val)
+      elif field=='submission_time':
+        row.append(utils.local_date_str(getattr(app, field))) 
       else:
         row.append(getattr(app, field))
 
@@ -830,8 +843,8 @@ def get_award_results(options):
   sponsored = sponsored.filter(entered__gte=min_year, entered__lte=max_year)
 
   if options.get('organization_name'):
-    gp_awards = gp_awards.filter(project_app__application__organization__contains=options['organization_name'])
-    sponsored = sponsored.filter(organization__contains=options['organization_name'])
+    gp_awards = gp_awards.filter(project_app__application__organization__name__contains=options['organization_name'])
+    sponsored = sponsored.filter(organization__name__contains=options['organization_name'])
   if options.get('city'):
     gp_awards = gp_awards.filter(project_app__application__organization__city=options['city'])
     sponsored = sponsored.filter(organization__city=options['city'])
@@ -844,6 +857,8 @@ def get_award_results(options):
 
   # fields
   fields = ['check_mailed', 'amount', 'organization', 'grant_type']
+  if options.get('report_id'):
+    fields.append('id')
   if options.get('report_check_number'):
     fields.append('check_number')
   if options.get('report_date_approved'):
@@ -870,6 +885,8 @@ def get_award_results(options):
         row.append('Giving project')
       elif field == 'year_end_report_due':
         row.append(award.yearend_due())
+      elif field == 'id':
+        row.append('') # only for sponsored
       else:
         row.append(getattr(award, field))
     for field in org_fields:
@@ -948,6 +965,7 @@ def get_org_results(options):
     orgs = orgs.prefetch_related('grantapplication_set')
     field_names.append('Grant applications')
   if options.get('report_awards'):
+    orgs = orgs.prefetch_related('grantapplication_set')
     orgs = orgs.prefetch_related('sponsoredprogramgrant_set')
     field_names.append('Grants awarded')
     get_awards = True
@@ -961,11 +979,11 @@ def get_org_results(options):
     for field in fields:
       row.append(getattr(org, field))
     awards_str = ''
-    # applications
-    if get_apps:
+    if get_apps or get_awards:
       apps_str = ''
       for app in org.grantapplication_set.all():
-        apps_str += (app.grant_cycle.title + ' ' +
+        if get_apps:
+          apps_str += (app.grant_cycle.title + ' ' +
             app.submission_time.strftime('%m/%d/%Y') + linebreak)
         # giving project grants
         if get_awards:
@@ -981,7 +999,8 @@ def get_org_results(options):
               awards_str += linebreak
             except models.GivingProjectGrant.DoesNotExist:
               pass
-      row.append(apps_str)
+      if get_apps:
+        row.append(apps_str)
     # sponsored program grants
     if get_awards:
       for award in org.sponsoredprogramgrant_set.all():

@@ -172,8 +172,11 @@ class BaseOrgAppReport(forms.Form):
 class AppReportForm(BaseOrgAppReport):
 
   #filters
-  year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
-  year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
+  year_min = forms.ChoiceField(
+      choices = [(n, n) for n in range(timezone.now().year, 1990, -1)],
+      initial = timezone.now().year-1)
+  year_max = forms.ChoiceField(
+      choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
   pre_screening_status = forms.MultipleChoiceField(
       choices = PRE_SCREENING,
       widget = forms.CheckboxSelectMultiple, required = False)
@@ -242,19 +245,22 @@ class AppReportForm(BaseOrgAppReport):
   def clean(self):
     cleaned_data = super(AppReportForm, self).clean()
     if cleaned_data['year_max'] < cleaned_data['year_min']:
-      self._errors['year_min'] = [u'Start year must be less than or equal to end year.']
+      raise ValidationError('Start year must be less than or equal to end year.')
     return cleaned_data
 
 
 class AwardReportForm(BaseOrgAppReport):
 
   # filters
-  year_min = forms.ChoiceField(choices =
-      [(n, n) for n in range(timezone.now().year, 1990, -1)])
+  year_min = forms.ChoiceField(
+      choices = [(n, n) for n in range(timezone.now().year, 1990, -1)],
+      initial = timezone.now().year-1)
   year_max = forms.ChoiceField(choices =
       [(n, n) for n in range(timezone.now().year, 1990, -1)])
 
   # fields (always: org name, amount, check_mailed)
+  report_id = forms.BooleanField(required=False, label='ID number',
+      help_text='Only applies to sponsored program grants')
   report_check_number = forms.BooleanField(required=False, label='Check number')
   report_date_approved = forms.BooleanField(required=False,
       label='Date approved by E.D.')
@@ -263,7 +269,7 @@ class AwardReportForm(BaseOrgAppReport):
       help_text='Only applies to giving project grants')
   report_year_end_report_due = forms.BooleanField(required=False,
       label='Date year end report due',
-      help_text='Only applied to giving project grants')
+      help_text='Only applies to giving project grants')
 
   def clean(self):
     cleaned_data = super(AwardReportForm, self).clean()
