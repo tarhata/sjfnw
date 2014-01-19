@@ -24,10 +24,11 @@ logger = logging.getLogger('sjfnw')
   budget1.docx     budget2.txt         budget3.png  """
 
 LIVE_FIXTURES = ['sjfnw/fund/fixtures/live_gp_dump.json',
-                 'sjfnw/grants/fixtures/org_live_dump.json',
-                 'sjfnw/grants/fixtures/cycle_live_dump.json',
-                 'sjfnw/grants/fixtures/app_live_dump.json',
-                 'sjfnw/grants/fixtures/award_live_dump.json']
+                 'sjfnw/grants/fixtures/orgs.json',
+                 'sjfnw/grants/fixtures/grant_cycles.json',
+                 'sjfnw/grants/fixtures/apps.json',
+                 'sjfnw/grants/fixtures/project_apps.json',
+                 'sjfnw/grants/fixtures/gp_grants.json']
 
 def set_cycle_dates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
@@ -1129,8 +1130,33 @@ class Reporting(BaseGrantTestCase):
 class AdminInlines(BaseGrantTestCase):
   """ Verify basic display of related inlines for grants objects in admin """
 
-  fixtures = [LIVE_FIXTURES]
+  fixtures = LIVE_FIXTURES
 
-  def setUp(self):
-    super(AdminInlines, self).setUp()
+  def setUp(self): #don't super, can't set cycle dates with this fixture
+    self.logInAdmin()
+    self.printName()
+
+  def test_organization(self):
+    """ Verify that related inlines show existing objs
+
+    Setup:
+      Log in as admin, go to org #
+
+    Asserts:
+      Application inline
+      GP award inline
+      Sponsored program inline
+    """
+    has_app = set(GrantApplication.objects.values_list('organization_id', flat=True))
+    print(has_app)
+    has_draft = set(DraftGrantApplication.objects.values_list('organization_id', flat=True))
+    print(has_draft)
+    has_award = set(GivingProjectGrant.objects.values_list('project_app__application__organization_id', flat=True))
+    print(has_award)
+
+    orgs = has_app.intersection(has_draft)
+    print(orgs)
+    orgs = orgs.intersection(has_award)
+    print(orgs)
+
 
