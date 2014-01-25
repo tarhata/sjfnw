@@ -112,27 +112,27 @@ class DonorInline(admin.TabularInline): #membership
 
 class ProjectAppInline(admin.TabularInline): # GivingProject
   model = ProjectApp
-  """
-  fields = ('giving_project', 'screening_status', 'granted')
-  readonly_fields = ('giving_project', 'granted',)
+  extra = 1
   verbose_name = 'Grant application'
   verbose_name_plural = 'Grant applications'
+  #readonly_fields = ('granted',)
 
   def granted(self, obj):
-    "" For existing projectapps, shows grant amount or link to add a grant ""
+    """ For existing projectapps, shows grant amount or link to add a grant """
     output = ''
     if obj.pk:
       logger.info(obj.pk)
       try:
         award = obj.givingprojectgrant
-        logger.info('grant does exist')
-        output = award.amount
       except GivingProjectGrant.DoesNotExist:
         output = mark_safe(
             '<a href="/admin/grants/givingprojectgrant/add/?project_app=' +
             str(obj.pk) + '" target="_blank">Enter an award</a>')
+      else:
+        logger.info('grant does exist')
+        output = str(award.amount)
+        logger.info(output)
     return output
-  """
 
 # Forms
 class GivingProjectAdminForm(ModelForm):
