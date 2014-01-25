@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from sjfnw.constants import TEST_MIDDLEWARE
 from sjfnw.fund import models, forms
+from sjfnw.grants.models import ProjectApp
 from sjfnw.tests import BaseTestCase
 
 from datetime import timedelta
@@ -23,6 +24,12 @@ def set_project_dates():
   gp.fundraising_deadline = today + timedelta(days=30)
   gp.save()
 
+LIVE_FIXTURES = ['sjfnw/fund/fixtures/live_gp_dump.json',
+                 'sjfnw/fund/fixtures/live_member_dump.json',
+                 'sjfnw/fund/fixtures/live_membership_dump.json',
+                 'sjfnw/fund/fixtures/live_donor_dump.json',
+                 'sjfnw/fund/fixtures/live_step_dump.json']
+
 class BaseFundTestCase(BaseTestCase):
   """ Base test case for fundraising tests
 
@@ -33,11 +40,7 @@ class BaseFundTestCase(BaseTestCase):
       sets project dates
   """
 
-  fixtures = ['sjfnw/fund/fixtures/live_gp_dump.json',
-              'sjfnw/fund/fixtures/live_member_dump.json',
-              'sjfnw/fund/fixtures/live_membership_dump.json',
-              'sjfnw/fund/fixtures/live_donor_dump.json',
-              'sjfnw/fund/fixtures/live_step_dump.json']
+  fixtures = LIVE_FIXTURES
 
   def setUp(self, login):
     super(BaseFundTestCase, self).setUp(login)
@@ -504,6 +507,47 @@ class Home(BaseFundTestCase):
     """ add a gift to donor
         test that notif shows up on next load
         test that notif is gone on next load """
+
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class Grants(BaseFundTestCase):
+  """ Grants listing page """
+
+  fixtures = LIVE_FIXTURES + ['sjfnw/grants/fixtures/orgs.json',
+                              'sjfnw/grants/fixtures/grant_cycles.json',
+                              'sjfnw/grants/fixtures/apps.json'
+                              'sjfnw/grants/fixtures/project_apps.json']
+  url = reverse('sjfnw.fund.views.grant_list')
+
+  def setUp(self):
+    super(Grants, self).setUp('testy')
+    
+  def test_grants_display(self):
+    """ Verify that assigned grants are shown on grants page
+    
+    Setup:
+      Use GP 19, create membership for testy
+    
+    Asserts:
+      Assert that an identifying string for each application appears on page
+    """
+    
+    ship = models.Membership(giving_project_id=19, member_id=1)
+    ship.save()
+    member = models.Member.objects.get(pk=1)
+    member.current = ship.pk
+    member.save()
+
+    response = self.client.get(self.url)
+
+    papps = ProjectApp.objects.filter(giving_project_id=19).select_related(
+        'application', 'application__organization')
+    self.assertNotEqual(papps, [])
+    for papp in papps:
+      self.assertContains(response, str(papp.application.organization))
+
+
+
 
 """ TEST IDEAS
       gift notification & email

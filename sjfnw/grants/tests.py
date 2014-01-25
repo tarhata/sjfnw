@@ -1146,8 +1146,6 @@ class AdminInlines(BaseGrantTestCase):
 
     Asserts:
       Application inline
-      GP award inline
-      Sponsored program inline
     """
     
     organization = Organization.objects.get(pk=41)
@@ -1156,23 +1154,44 @@ class AdminInlines(BaseGrantTestCase):
 
     response = self.client.get('/admin/grants/organization/41/')
 
-    self.assertContains(response, app.submission_time)
-    self.assertContains(response, app.projectapp.givingprojectgrant.amount)
+    self.assertContains(response, app.grant_cycle.title)
+    self.assertContains(response, app.pre_screening_status)
     
-    @unittest.skip('Incomplete')
-    def test_givingproject(self):
-      """ Verify that assigned grant applications (projectapps) are shown as inlines
-      
-      Setup:
-        Find a GP that has projectapps
-      
-      Asserts:
-        ASSERTIONS
-      """
-      
-      pass
+  def test_givingproject(self):
+    """ Verify that assigned grant applications (projectapps) are shown as inlines
     
+    Setup:
+      Find a GP that has projectapps
+    
+    Asserts:
+      Displays one of the assigned apps
+    """
+    
+    apps = ProjectApp.objects.filter(giving_project_id=19)
 
+    response = self.client.get('/admin/fund/givingproject/19/')
+
+    self.assertContains(response, 'selected="selected">' + str(apps[0].application))
+
+  def test_application(self):
+    """ Verify that gp assignment and awards are shown on application page
+    
+    Setup:
+      Use application with GP assignment. App 274, Papp 3
+    
+    Asserts:
+      ASSERTIONS
+    """
+
+    papp = ProjectApp.objects.get(pk=3)
+
+    response = self.client.get('/admin/grants/grantapplication/274/')
+
+    self.assertContains(response, papp.giving_project.title)
+    self.assertContains(response, papp.screening_status)
+
+    
+  
 
     
 

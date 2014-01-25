@@ -158,7 +158,7 @@ class GivingProjectA(admin.ModelAdmin):
     'suggested_steps',
     'pre_approved',
    )
-  inlines = [ProjectAppInline, ProjectResourcesInline, MembershipInline]
+  inlines = [ProjectResourcesInline, MembershipInline, ProjectAppInline]
   form = GivingProjectAdminForm
 
 class MemberAdvanced(admin.ModelAdmin): #advanced only
