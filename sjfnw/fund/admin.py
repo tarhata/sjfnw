@@ -6,6 +6,8 @@ from django.forms import ValidationError
 from sjfnw.admin import advanced_admin
 from sjfnw.fund.models import *
 from sjfnw.fund import forms, utils
+from sjfnw.grants.models import ProjectApp
+
 import unicodecsv, logging
 
 logger = logging.getLogger('sjfnw')
@@ -108,6 +110,30 @@ class DonorInline(admin.TabularInline): #membership
                      'promised')
   fields = ('firstname', 'lastname', 'amount', 'talked', 'asked', 'promised')
 
+class ProjectAppInline(admin.TabularInline): # GivingProject
+  model = ProjectApp
+  """
+  fields = ('giving_project', 'screening_status', 'granted')
+  readonly_fields = ('giving_project', 'granted',)
+  verbose_name = 'Grant application'
+  verbose_name_plural = 'Grant applications'
+
+  def granted(self, obj):
+    "" For existing projectapps, shows grant amount or link to add a grant ""
+    output = ''
+    if obj.pk:
+      logger.info(obj.pk)
+      try:
+        award = obj.givingprojectgrant
+        logger.info('grant does exist')
+        output = award.amount
+      except GivingProjectGrant.DoesNotExist:
+        output = mark_safe(
+            '<a href="/admin/grants/givingprojectgrant/add/?project_app=' +
+            str(obj.pk) + '" target="_blank">Enter an award</a>')
+    return output
+  """
+
 # Forms
 class GivingProjectAdminForm(ModelForm):
   fund_goal = IntegerCommaField(label='Fundraising goal', initial=0,
@@ -132,7 +158,7 @@ class GivingProjectA(admin.ModelAdmin):
     'suggested_steps',
     'pre_approved',
    )
-  inlines = [ProjectResourcesInline, MembershipInline]
+  inlines = [ProjectAppInline, ProjectResourcesInline, MembershipInline]
   form = GivingProjectAdminForm
 
 class MemberAdvanced(admin.ModelAdmin): #advanced only

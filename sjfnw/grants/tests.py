@@ -27,6 +27,7 @@ LIVE_FIXTURES = ['sjfnw/fund/fixtures/live_gp_dump.json',
                  'sjfnw/grants/fixtures/orgs.json',
                  'sjfnw/grants/fixtures/grant_cycles.json',
                  'sjfnw/grants/fixtures/apps.json',
+                 'sjfnw/grants/fixtures/drafts.json',
                  'sjfnw/grants/fixtures/project_apps.json',
                  'sjfnw/grants/fixtures/gp_grants.json']
 
@@ -1141,22 +1142,37 @@ class AdminInlines(BaseGrantTestCase):
 
     Setup:
       Log in as admin, go to org #
+      Orgs 41, 154, 156 have application, draft, gp grant
 
     Asserts:
       Application inline
       GP award inline
       Sponsored program inline
     """
-    has_app = set(GrantApplication.objects.values_list('organization_id', flat=True))
-    print(has_app)
-    has_draft = set(DraftGrantApplication.objects.values_list('organization_id', flat=True))
-    print(has_draft)
-    has_award = set(GivingProjectGrant.objects.values_list('project_app__application__organization_id', flat=True))
-    print(has_award)
+    
+    organization = Organization.objects.get(pk=41)
+    
+    app = organization.grantapplication_set.all()[0]
 
-    orgs = has_app.intersection(has_draft)
-    print(orgs)
-    orgs = orgs.intersection(has_award)
-    print(orgs)
+    response = self.client.get('/admin/grants/organization/41/')
 
+    self.assertContains(response, app.submission_time)
+    self.assertContains(response, app.projectapp.givingprojectgrant.amount)
+    
+    @unittest.skip('Incomplete')
+    def test_givingproject(self):
+      """ Verify that assigned grant applications (projectapps) are shown as inlines
+      
+      Setup:
+        Find a GP that has projectapps
+      
+      Asserts:
+        ASSERTIONS
+      """
+      
+      pass
+    
+
+
+    
 
