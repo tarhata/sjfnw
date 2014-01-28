@@ -70,7 +70,7 @@
   "fields": {
     "emailed": null, 
     "notifications": "", 
-    "giving_project": 3, 
+    "giving_project": 1, 
     "leader": true, 
     "member": 2, 
     "last_activity": null, 
@@ -997,19 +997,6 @@
     "leader": false, 
     "member": 74, 
     "last_activity": "2013-07-17", 
-    "approved": true
-  }
-},
-{
-  "pk": 96, 
-  "model": "fund.membership", 
-  "fields": {
-    "emailed": "2013-06-01", 
-    "notifications": "", 
-    "giving_project": 11, 
-    "leader": false, 
-    "member": 75, 
-    "last_activity": "2013-07-13", 
     "approved": true
   }
 },
@@ -2561,7 +2548,7 @@
   }
 },
 {
-  "pk": 228, 
+  "pk": 96, 
   "model": "fund.membership", 
   "fields": {
     "emailed": null, 

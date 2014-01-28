@@ -3,10 +3,9 @@
 {% block title %}Reports{% endblock %}
 {% block style %}<link rel="stylesheet" type="text/css" href="/static/css/reporting.css">{% endblock %}
 {% block script %}
-  <!-- reporting javascript -->
 <script type="text/javascript">
 
-  var active_form = '#app-form';
+  var active_form = '' // to detect when it has been changed
 
   function check(name, checked){
     console.log(name + ' ' + checked);
@@ -25,7 +24,7 @@
 
   function typeSelected(){
     console.log('type selected');
-    var new_val = $('#report_type_selector').val();
+    var new_val = $('#report-type-selector').val();
     if (new_val != active_form){
       console.log('hiding ' + active_form);
       $(active_form).hide();
@@ -37,6 +36,10 @@
   }
 
   $(document).ready(function() {
+      if ('{{ active_form }}' != ''){
+      console.log('active form exists onload: {{ active_form }}');
+      $('#report-type-selector').val('{{ active_form }}');
+    };
     typeSelected(); // make sure form matches selection, in case of back button
   });
 
@@ -51,7 +54,7 @@
   <h1>Grant Database Reports</h1>
 
   <div class="report-type">Report type: 
-    <select id="report_type_selector" onchange="typeSelected();">
+    <select id="report-type-selector" onchange="typeSelected();">
       <option value="#application-form">Applications</option>
       <option value="#organization-form">Organizations</option>
       <option value="#award-form">Awards</option>
@@ -104,6 +107,8 @@
   multiple times in your results: once per award they've received.  If you run
   a similar report on organizations, each organization will only appear once,
   but the award information will be more condensed.</p>
+  <h2>Help</h2>
+  Report a problem or suggest a change <a href="https://docs.google.com/forms/d/1SKjXMmDgXeM0IFp0yiJTJgLt6smP8b3P3dbOb4AWTck/viewform?entry.804197744={{ request.user.username }}" target="_blank">here</a>.
 </div>
 {% endblock %}
 

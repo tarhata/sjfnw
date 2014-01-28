@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from sjfnw.fund.models import GivingProject
-from sjfnw.grants.models import Organization, GrantCycle, GrantApplication, DraftGrantApplication, STATE_CHOICES
+from sjfnw.grants.models import Organization, GrantCycle, GrantApplication, DraftGrantApplication, STATE_CHOICES, SCREENING, PRE_SCREENING
 
 import datetime, logging
 
@@ -66,10 +66,12 @@ class CheckMultiple(forms.widgets.CheckboxSelectMultiple):
 
 
 class RolloverForm(forms.Form): #used by org
-  """Fields created on init:
-  application - any of org's submitted apps
-  draft - any of org's drafts
-  cycle - any open cycle that does not have a submission or draft
+  """ Used by organizations to copy a draft or app into another grant cycle
+  
+  Fields (created on init):
+    application - any of org's submitted apps
+    draft - any of org's drafts
+    cycle - any open cycle that does not have a submission or draft
   """
 
   def __init__(self, organization, *args, **kwargs):
@@ -170,11 +172,22 @@ class BaseOrgAppReport(forms.Form):
 class AppReportForm(BaseOrgAppReport):
 
   #filters
-  year_min = forms.ChoiceField(choices = [(n, n) for n in range(timezone.now().year, 1990, -1)])
-  year_max = forms.ChoiceField(choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
-  screening_status = forms.MultipleChoiceField(choices = GrantApplication.SCREENING_CHOICES, widget = forms.CheckboxSelectMultiple, required = False)
-  giving_project = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO
-  grant_cycle = forms.MultipleChoiceField(choices = [], widget = forms.CheckboxSelectMultiple, required = False) #TODO -- indiv or "type"
+  year_min = forms.ChoiceField(
+      choices = [(n, n) for n in range(timezone.now().year, 1990, -1)],
+      initial = timezone.now().year-1)
+  year_max = forms.ChoiceField(
+      choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
+  pre_screening_status = forms.MultipleChoiceField(
+      choices = PRE_SCREENING,
+      widget = forms.CheckboxSelectMultiple, required = False)
+  screening_status = forms.MultipleChoiceField(label='Giving project screening status',
+      choices = SCREENING,
+      widget = forms.CheckboxSelectMultiple, required = False)
+  giving_projects = forms.MultipleChoiceField(
+      choices = [], widget = forms.CheckboxSelectMultiple, required = False)
+  grant_cycle = forms.MultipleChoiceField(choices = [],
+                                          widget = forms.CheckboxSelectMultiple,
+                                          required = False)
   poc_bonus = forms.BooleanField(required=False)
   geo_bonus = forms.BooleanField(required=False)
   #awarded = forms.BooleanField(required=False)
@@ -185,8 +198,8 @@ class AppReportForm(BaseOrgAppReport):
       label='Basics', required=False,
       widget = CheckMultiple, choices = [
         ('id', 'Unique id number'),
-        ('giving_project', 'Giving project'),
-        ('screening_status', 'Screening status')
+        ('giving_projects', 'Giving projects'),
+        ('pre_screening_status', 'Pre-screening status')
       ])
   report_proposal = forms.MultipleChoiceField(
       label='Grant request and project', required=False,
@@ -211,6 +224,7 @@ class AppReportForm(BaseOrgAppReport):
   report_racial_ref = forms.BooleanField(label='Racial justice references',
       required=False)
   report_bonuses = forms.BooleanField(label='Scoring bonuses', required=False)
+  report_gp_screening = forms.BooleanField(label='GP screening status', required=False)
   report_award = forms.BooleanField(label='Grant awards', required=False)
 
   def __init__(self, *args, **kwargs):
@@ -220,7 +234,7 @@ class AppReportForm(BaseOrgAppReport):
     choices = GivingProject.objects.values_list('title', flat = True)
     choices = set(choices)
     choices = [(g, g) for g in choices]
-    self.fields['giving_project'].choices = choices
+    self.fields['giving_projects'].choices = choices
 
     #get cycles
     choices = GrantCycle.objects.values_list('title', flat = True)
@@ -231,19 +245,22 @@ class AppReportForm(BaseOrgAppReport):
   def clean(self):
     cleaned_data = super(AppReportForm, self).clean()
     if cleaned_data['year_max'] < cleaned_data['year_min']:
-      self._errors['year_min'] = [u'Start year must be less than or equal to end year.']
+      raise ValidationError('Start year must be less than or equal to end year.')
     return cleaned_data
 
 
 class AwardReportForm(BaseOrgAppReport):
 
   # filters
-  year_min = forms.ChoiceField(choices =
-      [(n, n) for n in range(timezone.now().year, 1990, -1)])
+  year_min = forms.ChoiceField(
+      choices = [(n, n) for n in range(timezone.now().year, 1990, -1)],
+      initial = timezone.now().year-1)
   year_max = forms.ChoiceField(choices =
       [(n, n) for n in range(timezone.now().year, 1990, -1)])
 
   # fields (always: org name, amount, check_mailed)
+  report_id = forms.BooleanField(required=False, label='ID number',
+      help_text='Only applies to sponsored program grants')
   report_check_number = forms.BooleanField(required=False, label='Check number')
   report_date_approved = forms.BooleanField(required=False,
       label='Date approved by E.D.')
@@ -252,7 +269,7 @@ class AwardReportForm(BaseOrgAppReport):
       help_text='Only applies to giving project grants')
   report_year_end_report_due = forms.BooleanField(required=False,
       label='Date year end report due',
-      help_text='Only applied to giving project grants')
+      help_text='Only applies to giving project grants')
 
   def clean(self):
     cleaned_data = super(AwardReportForm, self).clean()

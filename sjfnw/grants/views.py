@@ -17,10 +17,11 @@ import unicodecsv
 
 from sjfnw import constants
 from sjfnw.fund.models import Member
-from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
 from sjfnw.grants.decorators import registered_org
-from sjfnw.grants import models, utils
-
+from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
+from sjfnw.grants.modelforms import GrantApplicationModelForm, OrgProfile
+from sjfnw.grants.utils import local_date_str, FindBlobKey, FindBlob, ServeBlob, DeleteBlob
+from sjfnw.grants import models
 import datetime, logging, json
 logger = logging.getLogger('sjfnw')
 
@@ -113,9 +114,10 @@ def cycle_info(request, cycle_id):
 def org_home(request, organization):
 
   saved = models.DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
-  submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time')
+  submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time').select_related('giving_projects')
   cycles = models.GrantCycle.objects.filter(close__gt=timezone.now()-datetime.timedelta(days=180)).order_by('open')
   submitted_cycles = submitted.values_list('grant_cycle', flat=True)
+  #TODO could this be changed so the template is less messy when finding awards
 
   closed, open, applied, upcoming = [], [], [], []
   for cycle in cycles:
@@ -185,7 +187,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     draft_data['grant_cycle'] = cycle.pk
 
     #create & submit modelform
-    form = models.GrantApplicationModelForm(cycle, draft_data, files_data)
+    form = GrantApplicationModelForm(cycle, draft_data, files_data)
 
     if form.is_valid(): #VALID SUBMISSION
       logger.info('========= Application form valid')
@@ -194,7 +196,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       new_app = form.save()
 
       #update org profile
-      form2 = models.OrgProfile(draft_data, instance=organization)
+      form2 = OrgProfile(draft_data, instance=organization)
       if form2.is_valid():
         form2.save()
         if files_data.get('fiscal_letter'):
@@ -263,7 +265,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       profiled = True
 
     #create form
-    form = models.GrantApplicationModelForm(cycle, initial=dict)
+    form = GrantApplicationModelForm(cycle, initial=dict)
 
   #get draft files
   file_urls = GetFileURLs(draft)
@@ -336,7 +338,7 @@ def AddFile(request, draft_id):
         """ delete previous file
         old = getattr(draft, key)
         if old:
-        deferred.defer(utils.DeleteBlob, old) """
+        deferred.defer(DeleteBlob, old) """
         # set new file
         setattr(draft, key, blob_file)
         field_name = key
@@ -361,7 +363,7 @@ def RemoveFile(request, draft_id, file_field):
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   if hasattr(draft, file_field):
     old = getattr(draft, file_field)
-    deferred.defer(utils.DeleteBlob, old)
+    deferred.defer(DeleteBlob, old)
     setattr(draft, file_field, '')
     draft.modified = timezone.now()
     draft.save()
@@ -403,7 +405,8 @@ def CopyApp(request, organization):
         return render(request, 'grants/copy_app_error.html')
 
       #make sure the combo does not exist already
-      new_draft, cr = models.DraftGrantApplication.objects.get_or_create(organization=organization, grant_cycle=cycle)
+      new_draft, cr = models.DraftGrantApplication.objects.get_or_create(
+          organization=organization, grant_cycle=cycle)
       if not cr:
         logger.error("CopyApp the combo already exists!?")
         return render(request, 'grants/copy_app_error.html')
@@ -415,14 +418,15 @@ def CopyApp(request, organization):
           content = model_to_dict(application,
                                   exclude = application.file_fields() + [
                                     'organization', 'grant_cycle',
-                                    'submission_time', 'screening_status',
-                                    'giving_project', 'scoring_bonus_poc',
+                                    'submission_time', 'pre_screening_status',
+                                    'giving_projects', 'scoring_bonus_poc',
                                     'scoring_bonus_geo', 'cycle_question',
                                     'timeline'
                                   ])
-          content.update(dict(zip(['timeline_' + str(i) for i in range(15)],
-                                  json.loads(application.timeline))
-                             ))
+          content.update(dict(zip(
+              ['timeline_' + str(i) for i in range(15)],
+              json.loads(application.timeline)
+              )))
           content = json.dumps(content)
         except models.GrantApplication.DoesNotExist:
           logger.error('CopyApp - submitted app ' + app + ' not found')
@@ -452,13 +456,15 @@ def CopyApp(request, organization):
     else: #INVALID FORM
       logger.warning('form invalid')
       logger.info(form.errors)
-      cycle_count = str(form['cycle']).count('<option value')
-      apps_count = str(form['application']).count('<option value') + str(form['draft']).count('<option value')
+      cycle_count = str(form['cycle']).count('<option value') - 1
+      apps_count = (str(form['application']).count('<option value') +
+                    str(form['draft']).count('<option value') - 2)
 
   else: #GET
     form = RolloverForm(organization)
-    cycle_count = str(form['cycle']).count('<option value')
-    apps_count = str(form['application']).count('<option value') + str(form['draft']).count('<option value')
+    cycle_count = str(form['cycle']).count('<option value') - 1
+    apps_count = (str(form['application']).count('<option value') +
+                  str(form['draft']).count('<option value') -2)
     logger.info(cycle_count)
     logger.info(apps_count)
 
@@ -505,10 +511,7 @@ def view_permission(user, application):
     try:
       member = Member.objects.select_related().get(email=user.email)
       for ship in member.membership_set.all():
-        if ship.giving_project == application.giving_project:
-          return 1
-        #hack for PDX/NGGP
-        if ship.giving_project.pk == 14 and application.giving_project.pk == 12:
+        if ship.giving_project in application.giving_projects.all():
           return 1
       return 0
     except Member.DoesNotExist:
@@ -523,7 +526,7 @@ def ReadApplication(request, app_id):
     perm = view_permission(request.user, app)
   logger.info('perm is ' + str(perm))
 
-  form = models.GrantApplicationModelForm(app.grant_cycle)
+  form = GrantApplicationModelForm(app.grant_cycle)
 
   form_only = request.GET.get('form')
   if form_only:
@@ -537,11 +540,11 @@ def ReadApplication(request, app_id):
 
 def ViewFile(request, app_id, file_type):
   application =  get_object_or_404(models.GrantApplication, pk = app_id)
-  return utils.ServeBlob(application, file_type)
+  return ServeBlob(application, file_type)
 
 def ViewDraftFile(request, draft_id, file_type):
   application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
-  return utils.ServeBlob(application, file_type)
+  return ServeBlob(application, file_type)
 
 # ADMIN
 def RedirToApply(request):
@@ -559,8 +562,8 @@ def AppToDraft(request, app_id):
     content = model_to_dict(submitted_app,
                             exclude = submitted_app.file_fields() + [
                                 'organization', 'grant_cycle',
-                                'submission_time', 'screening_status',
-                                'giving_project', 'scoring_bonus_poc',
+                                'submission_time', 'pre_screening_status',
+                                'giving_projects', 'scoring_bonus_poc',
                                 'scoring_bonus_geo', 'timeline'])
     content.update(dict(zip(['timeline_' + str(i) for i in range(15)],
                             json.loads(submitted_app.timeline))
@@ -590,10 +593,9 @@ def AdminRollover(request, app_id):
       logger.info('Success rollover of ' + unicode(application) +
                    ' to ' + str(cycle))
       application.pk = None
-      application.screening_status = 10
+      application.pre_screening_status = 10
       application.submission_time = timezone.now()
       application.grant_cycle = cycle
-      application.giving_project = None
       application.save()
       return redirect('/admin/grants/grantapplication/'+str(application.pk)+'/')
   else:
@@ -623,6 +625,10 @@ def grants_report(request):
   app_form = AppReportForm()
   org_form = OrgReportForm()
   award_form = AwardReportForm()
+  
+  context = {'app_form': app_form,
+             'org_form': org_form,
+             'award_form': award_form}
 
   if request.method == 'POST':
 
@@ -630,14 +636,20 @@ def grants_report(request):
     if 'run-application' in request.POST:
       logger.info('App report')
       form = AppReportForm(request.POST)
+      context['app_form'] = form
+      context['active_form'] = '#application-form'
       results_func = get_app_results
     elif 'run-organization' in request.POST:
       logger.info('Org report')
       form = OrgReportForm(request.POST)
+      context['org_form'] = form
+      context['active_form'] = '#organization-form'
       results_func = get_org_results
     elif 'run-award' in request.POST:
       logger.info('Award report')
       form = AwardReportForm(request.POST)
+      context['award_form'] = form
+      context['active_form'] = '#award-form'
       results_func = get_award_results
     else:
       logger.error('Unknown report type')
@@ -664,11 +676,12 @@ def grants_report(request):
         return response
     else:
       logger.warning('Invalid form!' + str(form.errors))
-  return render(request, 'grants/reporting.html',
-      {'app_form': app_form, 'org_form': org_form, 'award_form': award_form,
-        'app_base': 'submission time, organization name, grant cycle',
-        'award_base': 'organization name, amount, date check mailed',
-        'org_base':'name'})
+
+  context['app_base'] = 'submission time, organization name, grant cycle'
+  context['award_base'] = 'organization name, amount, date check mailed'
+  context['org_base'] = 'name'
+  return render(request, 'grants/reporting.html', context)
+                 
 
 def get_app_results(options):
   """ Fetches application report results
@@ -691,7 +704,7 @@ def get_app_results(options):
 
   #initial queryset
   apps = models.GrantApplication.objects.order_by('-submission_time').select_related(
-      'giving_project', 'grant_cycle')
+      'organization', 'grant_cycle')
 
   #filters
   min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S')
@@ -701,7 +714,7 @@ def get_app_results(options):
   apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
 
   if options.get('organization_name'):
-    apps = apps.filter(organization__contains=options['organization_name'])
+    apps = apps.filter(organization__name__contains=options['organization_name'])
   if options.get('city'):
     apps = apps.filter(city=options['city'])
   if options.get('state'):
@@ -709,16 +722,20 @@ def get_app_results(options):
   if options.get('has_fiscal_sponsor'):
     apps = apps.exclude(fiscal_org='')
 
+  #TODO screening status
+  if options.get('pre_screening_status'): 
+    apps = apps.filter(pre_screening_status__in=options.get('pre_screening_status'))
   if options.get('screening_status'):
-    apps = apps.filter(screening_status__in=options.get('screening_status'))
+    apps = apps.filter(projectapp__screening_status__in=options.get('screening_status'))
   if options.get('poc_bonus'):
     apps = apps.filter(scoring_bonus_poc=True)
   if options.get('geo_bonus'):
     apps = apps.filter(scoring_bonus_geo=True)
-  if options.get('giving_project'):
-    apps = apps.filter(giving_project__title__in=options.get('giving_project'))
   if options.get('grant_cycle'):
     apps = apps.filter(grant_cycle__title__in=options.get('grant_cycle'))
+  if options.get('giving_projects'): #TODO test this
+    apps = apps.prefetch_related('giving_projects')
+    apps = apps.filter(giving_projects__title__in=options.get('giving_projects'))
 
   #fields
   fields = (['submission_time', 'organization', 'grant_cycle'] +
@@ -739,32 +756,60 @@ def get_app_results(options):
   # format headers
   field_names = [f.capitalize().replace('_', ' ') for f in fields]
 
-  # grant awards
+  # gp screening, grant awards
+  get_gp_ss = False
+  get_awards = False
+  if options['report_gp_screening']:
+    field_names.append('GP screening status')
+    get_gp_ss = True
   if options['report_award']:
-    apps = apps.prefetch_related('grantaward_set')
+    #apps = apps.prefetch_related('grantaward_set') #TODO any replacement?
     field_names.append('Awarded')
+    get_awards = True
 
   # execute queryset, populate results
   results = []
   for app in apps:
     row = []
-
+    
+    # application fields
     for field in fields:
-      if field == 'screening_status':
+      if field == 'pre_screening_status': #TODO
         # convert screening status to human-readable version
         val = getattr(app, field)
         if val:
-          convert = dict(models.GrantApplication.SCREENING_CHOICES)
+          convert = dict(models.PRE_SCREENING)
           val = convert[val]
         row.append(val)
+      elif field=='submission_time':
+        row.append(local_date_str(getattr(app, field))) 
       else:
         row.append(getattr(app, field))
 
-    if field_names[-1] == 'Awarded':
-      if app.grantaward_set.all(): #TODO update once there are mult GP per app
-        row.append(app.grantaward_set.all()[0].amount)
-      else:
-        row.append('-')
+    # gp screening status, awards
+    if get_awards or get_gp_ss:
+      award_row = ''
+      ss_row = ''
+      papps = app.projectapp_set.all()
+      if papps:
+        for papp in papps:
+          if get_awards:
+            try:
+              award = papp.givingprojectgrant
+              award_row += '%s %s' % (award.amount, papp.giving_project)
+            except models.GivingProjectGrant.DoesNotExist:
+              pass
+          if get_gp_ss:
+            if papp.screening_status:
+              ss_row += '%s (%s)' % (dict(models.SCREENING)[papp.screening_status],
+                papp.giving_project.title)
+            else:
+              ss_row += papp.giving_project.title
+      if get_gp_ss:
+        row.append(ss_row)
+      if get_awards:
+        row.append(award_row)
+
     results.append(row)
 
   return field_names, results
@@ -788,8 +833,8 @@ def get_award_results(options):
   """
 
   # initial querysets
-  gp_awards = models.GivingProjectGrant.objects.all().select_related('application',
-      'application__organization')
+  gp_awards = models.GivingProjectGrant.objects.all().select_related('project_app',
+      'project_app__application', 'project_app__application__organization')
   sponsored = models.SponsoredProgramGrant.objects.all().select_related('organization')
 
   # filters
@@ -801,20 +846,22 @@ def get_award_results(options):
   sponsored = sponsored.filter(entered__gte=min_year, entered__lte=max_year)
 
   if options.get('organization_name'):
-    gp_awards = gp_awards.filter(application__organization__contains=options['organization_name'])
-    sponsored = sponsored.filter(organization__contains=options['organization_name'])
+    gp_awards = gp_awards.filter(project_app__application__organization__name__contains=options['organization_name'])
+    sponsored = sponsored.filter(organization__name__contains=options['organization_name'])
   if options.get('city'):
-    gp_awards = gp_awards.filter(application__organization__city=options['city'])
+    gp_awards = gp_awards.filter(project_app__application__organization__city=options['city'])
     sponsored = sponsored.filter(organization__city=options['city'])
   if options.get('state'):
-    gp_awards = gp_awards.filter(application__organization__state__in=options['state'])
+    gp_awards = gp_awards.filter(project_app__application__organization__state__in=options['state'])
     sponsored = sponsored.filter(organization__state__in=options['state'])
   if options.get('has_fiscal_sponsor'):
-    gp_awards = gp_awards.exclude(application__organization__fiscal_org='')
+    gp_awards = gp_awards.exclude(project_app__application__organization__fiscal_org='')
     sponsored = sponsored.exclude(organization__fiscal_org='')
 
   # fields
   fields = ['check_mailed', 'amount', 'organization', 'grant_type']
+  if options.get('report_id'):
+    fields.append('id')
   if options.get('report_check_number'):
     fields.append('check_number')
   if options.get('report_date_approved'):
@@ -836,15 +883,17 @@ def get_award_results(options):
     row = []
     for field in fields:
       if field == 'organization':
-        row.append(award.application.organization.name)
+        row.append(award.project_app.application.organization.name)
       elif field == 'grant_type':
         row.append('Giving project')
       elif field == 'year_end_report_due':
         row.append(award.yearend_due())
+      elif field == 'id':
+        row.append('') # only for sponsored
       else:
         row.append(getattr(award, field))
     for field in org_fields:
-      row.append(getattr(award.application.organization, field))
+      row.append(getattr(award.project_app.application.organization, field))
     results.append(row)
   for award in sponsored:
     row = []
@@ -912,45 +961,54 @@ def get_org_results(options):
   field_names = [f.capitalize().replace('_', ' ') for f in fields] #for display
 
   # related objects
-  apps = False
-  awards = False
+  get_apps = False
+  get_awards = False
   if options.get('report_applications'):
-    apps = True
+    get_apps = True
     orgs = orgs.prefetch_related('grantapplication_set')
     field_names.append('Grant applications')
   if options.get('report_awards'):
+    orgs = orgs.prefetch_related('grantapplication_set')
     orgs = orgs.prefetch_related('sponsoredprogramgrant_set')
     field_names.append('Grants awarded')
-    awards = True
+    get_awards = True
 
   # execute queryset, build results
   results = []
   linebreak = '\n' if options['format'] == 'csv' else '<br>'
   for org in orgs:
     row = []
+    # org fields
     for field in fields:
       row.append(getattr(org, field))
     awards_str = ''
-    if apps:
+    if get_apps or get_awards:
       apps_str = ''
       for app in org.grantapplication_set.all():
-        apps_str += (app.grant_cycle.title + ' ' +
+        if get_apps:
+          apps_str += (app.grant_cycle.title + ' ' +
             app.submission_time.strftime('%m/%d/%Y') + linebreak)
-        if awards:
-          for award in app.grantaward_set.all():
-            timestamp = award.check_mailed or award.created
-            if timestamp:
-              timestamp = timestamp.strftime('%m/%d/%Y')
-            else:
-              timestamp = 'No timestamp'
-            #TODO change to GP title once we're sure it's not null
-            awards_str += '$%s %s %s' % (award.amount, app.giving_project, timestamp)
-            awards_str += linebreak
-      row.append(apps_str)
-    if awards:
+        # giving project grants
+        if get_awards:
+          for papp in app.projectapp_set.all():
+            try:
+              award = papp.givingprojectgrant
+              timestamp = award.check_mailed or award.created
+              if timestamp:
+                timestamp = timestamp.strftime('%m/%d/%Y')
+              else:
+                timestamp = 'No timestamp'
+              awards_str += '$%s %s %s' % (award.amount, award.project_app.giving_project.title, timestamp)
+              awards_str += linebreak
+            except models.GivingProjectGrant.DoesNotExist:
+              pass
+      if get_apps:
+        row.append(apps_str)
+    # sponsored program grants
+    if get_awards:
       for award in org.sponsoredprogramgrant_set.all():
         awards_str += '$%s %s %s' % (award.amount, ' sponsored program grant ',
-            award.check_mailed.strftime('%m/%d/%Y'))
+            (award.check_mailed or award.entered).strftime('%m/%d/%Y'))
         awards_str += linebreak
       row.append(awards_str)
 
@@ -983,7 +1041,8 @@ def DraftWarning(request):
       logger.info("Email sent to " + to + "regarding draft application soon to expire")
   return HttpResponse("")
 
-# UTILS (caused import probs in utils.py)
+# UTILS
+# (caused import probs in utils.py)
 def GetFileURLs(app, printing=False):
   """ Get viewing urls for the files in a given draft or app
 

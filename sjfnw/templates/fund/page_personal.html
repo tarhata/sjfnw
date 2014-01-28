@@ -1,6 +1,6 @@
-﻿{% extends 'fund/blocks.html' %}
-{% block title %}My fundraising {{ block.super }}{% endblock %}
+﻿{% extends 'fund/base_personal.html' %}
 {% block script %}
+{{ block.super }}
 <script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript"><!-- charts -->
@@ -10,7 +10,7 @@
     var options = {chartArea: {left:0, top:8, width:'100%', height:'85%'},
                     legend: {alignment:'center', textStyle: {fontSize:11}},
                     tooltip: {showColorCode: false, textStyle: {fontSize:14}},
-                    slices: [{color: 'green'}, {color:'#D18316'}, {color: '#8B0E04'}],
+                    slices: [{color: '#8B0E04'}, {color:'#D18316'}, {color: 'green'}],
                     pieSliceText: 'none',
                     pieSliceTextStyle: {fontSize:14},
                     reverseCategories: true,
@@ -83,32 +83,6 @@
   }
 </script>
 <script type="text/javascript">
-  //constants
-  var status_texts = { //for ajax error messages
-    400: '400 Bad request',
-    401: '401 Unauthorized',
-    403: '403 Forbidden',
-    404: '404 Not found',
-    408: '408 Request timeout',
-    500: '500 Internal server error',
-    503: '503 Service unavailable',
-    504: '504 Gateway timeout'
-  };
-
-  var submitted_messages = { //maps sub_url to a success message to display after reload
-  };
-
-  //general display
-  function datepicker() { //date input fields
-    $.datepicker.setDefaults({
-      dateFormat: 'mm/dd/yy',
-      minDate: 0,
-      hideIfNoPrevNext: true,
-      constrainInput: false
-    });
-    $( ".datePicker" ).datepicker();
-  }
-
   function toggle(a, b) { //donor info
     //toggles a, border on b if a is shown
     var e=document.getElementById(a);
@@ -126,25 +100,6 @@
     return true;
   }
 
-  //ajax - general
-  var request_processing = false;
-  function startProcessing() {
-    request_processing = true;
-    //console.log('Request processing');
-    var loader = document.getElementById('ajax_loading');
-    if (loader) {
-      loader.style.display = "";
-    }
-  }
-
-  function endProcessing() {
-    request_processing = false;
-    //console.log('Request complete');
-    var loader = document.getElementById('ajax_loading');
-    if (loader) {
-      loader.style.display = "none";
-    }
-  }
 
   function loadView(get_url, div_id, dasked, dpromised) {
     if (request_processing) {
@@ -190,96 +145,7 @@
     });
   }
 
-  function Submit(sub_url, form_id, div_id, date, dasked, dpromised){
-    if (request_processing) {
-      console.log('Request processing; submit denied');
-      return false;
-    }
-    startProcessing();
-		console.log('Submission to ' + sub_url + ' requested');
-    $.ajax({
-      url:sub_url,
-      type:"POST",
-      data:$(form_id).serialize(),
-      timeout: 10000,
-      success:function(data, textStatus, jqXHR){
-        trackEvents(sub_url, div_id, 'POST');
-        if (jqXHR.responseText=="success") {
-					console.log('Submission to ' + sub_url + ' returned success; redirecting');
-          setTimeout(function() {location.href='/fund/';}, 200);
-        } else {
-					console.log('Submission to ' + sub_url + ' returned text');
-          document.getElementById(div_id).innerHTML=jqXHR.responseText;
-          if (sub_url.match('done')) {
-            var pks = sub_url.match(/\d+/g);
-            if (pks && pks[1]) {
-              completeLoaded(pks[1], dasked, dpromised, 'True');
-            }
-          }
-        }
-        if (date) { datepicker();}
-        endProcessing();
-      },
-      error:function(jqXHR, textStatus, errorThrown){
-        endProcessing();
-        var errortext = ''
-        if (status_texts[jqXHR.status]) {
-          errortext = status_texts[jqXHR.status]
-        } else if (textStatus=='timeout') {
-          errortext = 'Request timeout'
-        } else {
-          errortext = (jqXHR.status || '') + ' Unknown error';
-        }
-        document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: POST ' + sub_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
-        console.log('Error submitting to ' + sub_url + ': ' + errortext);
-				if (date) {
-          datepicker();
-        }
-      }
-    });
-  }
-
-  //add mult contacts
-  function SubmitMult() { //add contacts
-    if (request_processing) {
-      console.log('Submitmult rejected; request in progress');
-      return false;
-    }
-		console.log('Submit mult pressed');
-    startProcessing();
-    $.ajax({
-      url:'/fund/addmult',
-      type:"POST",
-      data:$('#addcontacts').serialize(),
-      timeout: 10000,
-      success:function(data, textStatus, jqXHR){
-        trackEvents('/fund/addmult',' addmult', 'POST');
-				if (jqXHR.responseText=="success") {
-					console.log('Submitmult successful; redirecting');
-          setTimeout(function() {location.href= '/fund/?load=stepmult#your-contacts';}, 200);
-        } else {
-					console.log('Submitmult returned form errors' );
-          document.getElementById('addmult').innerHTML=jqXHR.responseText;
-          endProcessing();
-        }
-      },
-      error:function(jqXHR, textStatus, errorThrown){
-        var errortext = '';
-        if (status_texts[jqXHR.status]) {
-          errortext = status_texts[jqXHR.status];
-        } else if (textStatus=='timeout') {
-          errortext = 'Request timeout';
-        } else {
-          errortext = (jqXHR.status || '') + ' Unknown error';
-        }
-        document.getElementById('addmult').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: /fund/addmult<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
-				console.log('Error submitting add mult: ' + errortext);
-				endProcessing();
-      }
-    });
-  }
-
-  function cloneMore(selector, type) { //add row to form
+  function addRow(selector, type) { //add row to form
     console.log('Adding a row to form');
     var newElement = $(selector).clone(true);
     var total = $('#id_' + type + '-TOTAL_FORMS').val();
@@ -297,72 +163,6 @@
     $(selector).after(newElement); // only copies last row, not incl error row. but error row will load when form reloads
   }
 
-  //analytics events
-  function trackEvents(url, div_id, request_type) { //analytics events
-    //console.log('trackEvents', url, div_id, request_type);
-    var category;
-    var action;
-    if (div_id.search('addmult') > -1) {
-     // console.log('addmult');
-      if (request_type == 'POST') {
-        action = 'Add multiple - submit';
-      } else {
-        action = 'Add multiple - load';
-      }
-      if (url.search('addmult') > -1) {
-        category = 'Contacts';
-      } else if (url.search('stepmult') > -1) {
-        category = 'Steps';
-      }
-    } else if (div_id.search('nextstep') > -1) {
-      //console.log('nextstep');
-      category = 'Steps';
-      if (url.search(/\d+$/) > -1 && request_type == 'POST') {
-        action = 'Edit';
-      } else if (url.search(/done$/) > -1) {
-        if (request_type == 'POST') {
-          action = 'Complete step - submit';
-        } else {
-          action = 'Complete step - load';
-        }
-      }
-    } else if (request_type == 'POST') {
-      //console.log('POST');
-      if (url.search(/step$/) > -1) {
-        category = 'Steps';
-        action = 'Add';
-      } else if (url.search(/delete$/) > -1) {
-          category = 'Contacts';
-          action = 'Delete';
-      } else if (url.search(/edit$/) > -1) {
-        category = 'Contacts';
-        action = 'Edit';
-      }
-    }
-    console.log('trackEvents', category, action)
-    if (category && action) {
-      _gaq.push(['_trackEvent', category, action]);
-    }
-  }
-
-  //suggested steps
-  var sug_div;
-  function showSuggestions(inp) { //shows suggested steps
-    if (sug_div) { sug_div.style.display="none"; } //hides prior set
-    var patt = new RegExp('\\d+');
-    var num = patt.exec(inp);
-    sug_div = document.getElementById('suggest_'+num);
-    sug_div.style.display="block";
-  }
-
-  function suggestFill(source, target) { //fills input with selected step
-    var text = source.innerHTML;
-    if (target) {
-      document.getElementById(target).value=text;
-    } else {
-      document.getElementById('id_description').value=text;
-    }
-  }
 
   //complete step form
   function completeLoaded(pk, dasked, dpromised, submitted) { //loaded
@@ -445,8 +245,8 @@
   //log errors
   function logError(msg, url, line) {
     var dict = {msg: msg, script: url, line: line, url: window.location};
-    if ('{{ membership }}') {
-      dict['membership'] = '{{ membership }}'
+    if ('{{ request.membership }}') {
+      dict['membership'] = '{{ request.membership }}'
     } else {
       dict['membership'] = 'no membership'
     }

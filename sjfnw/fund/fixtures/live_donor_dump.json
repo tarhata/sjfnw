@@ -37814,9 +37814,9 @@
     "phone": "",
     "membership": 1,
     "talked": true,
-    "promised": 0,
+    "promised": null,
     "likelihood": 50,
-    "asked": true
+    "asked": false
   }
 },
 {
@@ -74753,26 +74753,6 @@
     "email": "",
     "phone": "",
     "membership": 68,
-    "talked": false,
-    "promised": null,
-    "likelihood": 100,
-    "asked": false
-  }
-},
-{
-  "pk": 5131,
-  "model": "fund.donor",
-  "fields": {
-    "gift_notified": true,
-    "received": 500,
-    "added": "2013-08-08T04:07:38Z",
-    "firstname": "Anna",
-    "lastname": "Goren",
-    "notes": "I think this is prospect fundraising that Elsa did.",
-    "amount": 500,
-    "email": "",
-    "phone": "",
-    "membership": 2,
     "talked": false,
     "promised": null,
     "likelihood": 100,
