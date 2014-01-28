@@ -266,7 +266,6 @@ admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
 admin.site.register(GrantAward, GivingProjectGrantA)
 admin.site.register(SponsoredProgramGrant, SponsoredProgramGrantA)
-admin.site.register(GrantAward)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)

@@ -29,7 +29,10 @@ class Command(BaseCommand):
     self.stdout.write('Checking screening status and gp assignment match..')
     wrong = 0
     for papp in papps:
-      if papp.screening_status != papp.application.screening_status:
+      app_status = papp.application.screening_status
+      if app_status > 50 and (papp.screening_status != app_status):
+        wrong += 1
+      elif app_status <= 50 and papp.screening_status is not None:
         wrong += 1
       if papp.giving_project != papp.application.giving_project:
         wrong += 1
