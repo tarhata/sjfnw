@@ -268,7 +268,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     form = GrantApplicationModelForm(cycle, initial=dict)
 
   #get draft files
-  file_urls = GetFileURLs(draft)
+  file_urls = GetFileURLs(request, draft)
   for field, url in file_urls.iteritems():
     if url:
       name = getattr(draft, field).name.split('/')[-1]
@@ -351,7 +351,7 @@ def AddFile(request, draft_id):
   if not (blob_file and field_name):
     return HttpResponse("ERRORRRRRR")
 
-  file_urls = GetFileURLs(draft)
+  file_urls = GetFileURLs(request, draft)
   content = (field_name + u'~~<a href="' + file_urls[field_name] +
              u'" target="_blank" title="' + unicode(blob_file) + u'">' +
              unicode(blob_file) + u'</a> [<a onclick="removeFile(\'' +
@@ -532,8 +532,8 @@ def ReadApplication(request, app_id):
   if form_only:
     return render(request, 'grants/reading.html',
                   {'app':app, 'form':form, 'perm':perm})
-  file_urls = GetFileURLs(app)
-  print_urls = GetFileURLs(app, printing=True)
+  file_urls = GetFileURLs(request, app)
+  print_urls = GetFileURLs(request, app, printing=True)
 
   return render(request, 'grants/reading_sidebar.html',
                 {'app':app, 'form':form, 'file_urls':file_urls, 'print_urls':print_urls, 'perm':perm})
@@ -1043,7 +1043,7 @@ def DraftWarning(request):
 
 # UTILS
 # (caused import probs in utils.py)
-def GetFileURLs(app, printing=False):
+def GetFileURLs(request, app, printing=False):
   """ Get viewing urls for the files in a given draft or app
 
     Args:
@@ -1058,10 +1058,11 @@ def GetFileURLs(app, printing=False):
   """
 
   #determine whether draft or submitted
+  base_url = request.build_absolute_uri('/')
   if isinstance(app, models.GrantApplication):
-    mid_url = 'grants/view-file/'
+    base_url += 'grants/view-file/'
   elif isinstance(app, models.DraftGrantApplication):
-    mid_url = 'grants/draft-file/'
+    base_url += 'grants/draft-file/'
   else:
     logger.error("GetFileURLs received invalid object")
     return {}
@@ -1074,7 +1075,7 @@ def GetFileURLs(app, printing=False):
     value = getattr(app, field)
     if value:
       ext = value.name.lower().split(".")[-1]
-      file_urls[field] += settings.APP_BASE_URL + mid_url + str(app.pk) + u'-' + field + u'.' + ext
+      file_urls[field] +=  base_url + str(app.pk) + u'-' + field + u'.' + ext
       if not settings.DEBUG and ext in constants.VIEWER_FORMATS: #doc viewer
         if not (printing and (ext == 'xls' or ext == 'xlsx')):
           file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field]

@@ -15,7 +15,6 @@ if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.geten
     }
   }
   DEBUG = False
-  APP_BASE_URL = 'https://4-dot-sjf-nw.appspot.com/' #until i learn how to do this
 else:
   DATABASES = {
     'default': {
@@ -27,7 +26,8 @@ else:
     }
   }
   DEBUG = True
-  APP_BASE_URL = 'http://localhost:8080/'
+
+APP_BASE_URL = 'https://sjf-nw.appspot.com/' # used by cron jobs
 
 INSTALLED_APPS = (
   'django.contrib.auth',
