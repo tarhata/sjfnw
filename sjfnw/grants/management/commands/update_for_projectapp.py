@@ -20,11 +20,11 @@ class Command(BaseCommand):
         return
 
     # 1 syncdb to create the new tables
-    self.stdout.write('Creating new tables...')
-    call_command('syncdb')
+    # self.stdout.write('Creating new tables...')
+    # call_command('syncdb')
 
-    self.stdout.write('Deleting projectapps from previous fails..')
-    ProjectApp.objects.all().delete()
+    # self.stdout.write('Deleting projectapps from previous fails..')
+    # ProjectApp.objects.all().delete()
 
     # for each app that's assigned to a gp, create a projectapp and copy
     # relevant fields there
@@ -37,8 +37,9 @@ class Command(BaseCommand):
       app.save()
       if app.giving_project:
         project_app = ProjectApp(application = app,
-                                 giving_project = app.giving_project,
-                                 screening_status = app.screening_status)
+                                 giving_project = app.giving_project)
+        if app.screening_status > 50:
+          project_app.screening_status = app.screening_status
         project_app.save()
         count_pa += 1
 
