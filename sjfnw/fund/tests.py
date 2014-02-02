@@ -547,7 +547,25 @@ class Grants(BaseFundTestCase):
       self.assertContains(response, str(papp.application.organization))
 
 
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class CopyContacts(BaseFundTestCase):
+  """ Test copy_contacts view """
 
+  fixtures = [FIXTURE]
+  url = reverse('sjfnw.fund.views.copy_contacts')
+
+  def setUp(self):
+    super(CopyContacts, self).setUp()
+
+""" want to test scenarios: 
+      cs from different gps
+      no contacts (make sure this page isn't triggered)
+      duplicates
+        matching on last, phone or email
+        both blank
+        newest blank, older has info
+        both have info
+"""
 
 """ TEST IDEAS
       gift notification & email
