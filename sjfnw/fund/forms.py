@@ -12,6 +12,7 @@ class LoginForm(forms.Form):
   email = forms.EmailField(max_length=100)
   password = forms.CharField(widget=forms.PasswordInput())
 
+
 class RegistrationForm(forms.Form):
   first_name = forms.CharField(max_length=100)
   last_name = forms.CharField(max_length=100)
@@ -35,11 +36,21 @@ class RegistrationForm(forms.Form):
       del cleaned_data["passwordtwo"]
     return cleaned_data
 
+
 class AddProjectForm(forms.Form):
   giving_project = forms.ModelChoiceField(
       empty_label="Select a giving project",
       queryset=models.GivingProject.objects.filter(
           fundraising_deadline__gte=timezone.now().date(), public=True))
+
+class CopyContacts(forms.Form):
+  """ For copying contacts from other memberships into current new one """
+  select = forms.BooleanField(required=False)
+  firstname = forms.CharField(widget=forms.TextInput(attrs={'readonly': True}))
+  lastname = forms.CharField(widget=forms.TextInput(attrs={'readonly': True}))
+  phone = forms.CharField(widget=forms.HiddenInput)
+  email = forms.CharField(widget=forms.HiddenInput)
+  notes = forms.CharField(widget=forms.HiddenInput)
 
 class MassDonor(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
@@ -50,9 +61,11 @@ class MassDonor(forms.Form):
                                   validators=[validators.MaxValueValidator(100)],
                                   widget=forms.TextInput(attrs={'class':'half'}))
 
+
 class MassDonorPre(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
   lastname = forms.CharField(max_length=100, required=False, label='Last name')
+
 
 class DonorEstimates(forms.Form):
   donor = forms.ModelChoiceField(queryset=models.Donor.objects.all(),
@@ -62,6 +75,7 @@ class DonorEstimates(forms.Form):
   likelihood = forms.IntegerField(label='*Estimated likelihood (%)',
                                   validators=[validators.MaxValueValidator(100)],
                                   widget=forms.TextInput(attrs={'class':'half'}))
+
 
 class MassStep(forms.Form):
   date = forms.DateField(
@@ -87,6 +101,7 @@ class MassStep(forms.Form):
     else: #neither - valid, but not wanted in data
       cleaned_data = []
     return cleaned_data
+
 
 class StepDoneForm(forms.Form):
   asked = forms.BooleanField(
@@ -145,6 +160,7 @@ class StepDoneForm(forms.Form):
       self._errors["next_step"] = self.error_class(["Enter a description."])
       del cleaned_data["next_step_date"]
     return cleaned_data
+
 
 class MembershipInlineFormset(forms.models.BaseInlineFormSet):
   def clean(self):
