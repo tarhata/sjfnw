@@ -98,6 +98,10 @@ label {
   display:inline;
 }
 
+#file-uploads ul.errorlist {
+  display: block;
+}
+
 div.form_error {
   font-style:italic;
 	color:red;
@@ -113,6 +117,35 @@ div.form_error {
   margin-right:15px;
 }
 
+.has-more-info {
+  background: url("/static/images/info.png") no-repeat right;
+  background-size: 10px 10px;
+  padding-right: 12px;
+}
+
+.has-more-info:hover {
+  cursor: help;
+  text-decoration: underline;
+}
+
+.more-info {
+  position: absolute;
+  z-index:2;
+  padding: 8px;
+  margin: -80px 0 0 350px;
+  width: 400px;
+  border: 1px solid;
+  background-color: #fff;
+  box-shadow: 2px 2px 1px;
+}
+
+.more-info-hide {
+  font-style: italic;
+  float: right;
+  margin: 3px 0 0 5px;
+  color: #333;
+}
+
 /** specific field/input types **/
 
 textarea {
@@ -121,6 +154,10 @@ textarea {
   resize:vertical;
   font-size:inherit;
   overflow:hidden;
+}
+
+#file-uploads tr {
+  height: 2em;
 }
 
 div.formwrapper input[type="text"] {
