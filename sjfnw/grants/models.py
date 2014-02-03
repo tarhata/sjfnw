@@ -458,14 +458,28 @@ class GrantApplication(models.Model):
                                                 max_length=100, blank=True)
 
   #files
-  budget = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)
-  demographics = models.FileField(verbose_name = 'Diversity chart', upload_to='/', max_length=255, validators=[validate_file_extension])
-  funding_sources = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension])
-  budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement', validators=[validate_file_extension], blank=True)
-  budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating budget', validators=[validate_file_extension], blank=True)
-  budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet (if available)', validators=[validate_file_extension], blank=True)
-  project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget (if applicable)', validators=[validate_file_extension], blank=True)
-  fiscal_letter = models.FileField(upload_to='/', blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', max_length=255, validators=[validate_file_extension])
+  budget = models.FileField( #no longer in use
+      upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)
+  demographics = models.FileField(
+      verbose_name = 'Diversity chart', upload_to='/', max_length=255,
+      validators=[validate_file_extension])
+  funding_sources = models.FileField(
+      upload_to='/', max_length=255, validators=[validate_file_extension])
+  budget1 = models.FileField(
+      verbose_name = 'Annual statement', upload_to='/', max_length=255,
+      validators=[validate_file_extension])
+  budget2 = models.FileField(
+      verbose_name = 'Annual operating budget', upload_to='/', max_length=255,
+      validators=[validate_file_extension])
+  budget3 = models.FileField(
+      verbose_name = 'Balance sheet', upload_to='/', max_length=255,
+      validators=[validate_file_extension])
+  project_budget_file = models.FileField(
+      verbose_name = 'Project budget (if applicable)', upload_to='/',
+      max_length=255, validators=[validate_file_extension], blank=True)
+  fiscal_letter = models.FileField(
+      upload_to='/', blank=True, verbose_name = 'Fiscal sponsor letter',
+      help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', max_length=255, validators=[validate_file_extension])
 
   # admin fields
   pre_screening_status = models.IntegerField(choices = PRE_SCREENING,

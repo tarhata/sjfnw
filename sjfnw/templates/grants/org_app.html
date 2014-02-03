@@ -238,6 +238,7 @@
         }
     });
     $('.more-info').each(function(i) {
+        this.innerHTML = this.innerHTML + '<div class="more-info-hide">click to hide</div>';
         this.onclick = function() { hide(this.id); };
     });
   };
@@ -526,57 +527,51 @@
 
 	<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="iframeUpdated(this);"></iframe><!--hidden iframe for file submissions -->
 
-		<h4>File uploads</h4><!-- Files -->
+		<h4>File uploads</h4><!--- Files --->
 		<p><a href="/apply/info/{{cycle.pk}}" target="_blank">Download templates here.</a><br><br>
 		Templates for budgets, funding sources and diversity chart can be downloaded above.  For budget documents, you may use your own format if preferred.</p>
-		<p><b>Note:</b> There is a <a href="http://support.microsoft.com/kb/2601307" target="_blank">known bug</a> in Internet Explorer 9 that may prevent you from uploading files.  They suggest a <a href="http://update.microsoft.com" target="_blank">security update</a>.  You can also try using <a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">Chrome</a> or <a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">Firefox</a>.</p>
-		<table id="file_upload_table" style="width:100%;">
+    <!--<p><b>Note:</b> There is a <a href="http://support.microsoft.com/kb/2601307"
+    target="_blank">known bug</a> in Internet Explorer 9 that may prevent you from uploading files.
+    They suggest a <a href="http://update.microsoft.com" target="_blank">security update</a>.
+    You can also try using <a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">Chrome</a>
+    or <a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">Firefox</a>.</p>-->
+		<table id="file-uploads" style="width:100%;">
 			<tr>
-				<td colspan="4">{{form.budget.errors}}</td>
-			</tr>
-			<tr>
-				<td style="width:150px;vertical-align:top;">1. Budget</td>
-				<td style="width:175px;">All in one file</td>
-				<td style="width:100px;"><form class="files_form" id="budget_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.budget}}<span class="upload_button">Choose file</span></span><input id="budget_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
-				<td style="width:350px;"><span id="budget_uploaded">{{file_urls.budget}}</span></td>
-			</tr><tr style="line-height:2em;">
+				<td>1. Budget documents</td>
 				<td></td>
-				<td></td>
-				<td><div align="center">OR</div></td>
 				<td></td>
 			</tr><tr>
-				<td>{{form.budget1.errors}}</td>
-				<td>{{form.budget1.label}}</td>
+				<td style="padding-left:30px;">{{form.budget1.label}}{{form.budget1.errors}}</td>
 				<td><form class="files_form" id="budget1_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.budget1}}<span class="upload_button">Choose file</span></span><input id="budget1_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="budget1_uploaded">{{file_urls.budget1}}</span></td>
 			</tr><tr>
-				<td>{{form.budget2.errors}}</td>
-				<td>{{form.budget2.label}}</td>
+				<td style="padding-left:30px;">{{form.budget2.label}}{{form.budget2.errors}}</td>
 				<td><form class="files_form" id="budget2_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.budget2}}<span class="upload_button">Choose file</span></span><input id="budget2_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="budget2_uploaded">{{file_urls.budget2}}</span></td>
 			</tr><tr>
-				<td>{{form.budget3.errors}}</td>
-				<td>{{form.budget3.label}}</td>
+				<td style="padding-left:30px;">{{form.budget3.label}}{{form.budget3.errors}}</td>
 				<td><form class="files_form" id="budget3_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.budget3}}<span class="upload_button">Choose file</span></span><input id="budget3_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="budget3_uploaded">{{file_urls.budget3}}</span></td>
 			</tr><tr>
-				<td>{{form.project_budget_file.errors}}</td>
-				<td>{{form.project_budget_file.label}}</td>
+				<td style="padding-left:30px;">{{form.project_budget_file.label}}{{form.project_budget_file.errors}}</td>
 				<td><form class="files_form" id="project_budget_file_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.project_budget_file}}<span class="upload_button">Choose file</span></span><input id="project_budget_file_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="project_budget_file_uploaded">{{file_urls.project_budget_file}}</span></td>
 			</tr><tr>
-				<td>2. Diversity chart</td>
-				<td>{{form.demographics.errors}}</td>
+				<td>2. Diversity chart
+          {{form.demographics.errors}}</td>
 				<td><form class="files_form" id="demographics_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.demographics}}<span class="upload_button">Choose file</span></span><input id="demographics_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
 			</tr><tr>
-				<td>3. Funding sources</td>
-				<td>{{form.funding_sources.errors}}</td>
+				<td>3. Funding sources
+          {{form.funding_sources.errors}}</td>
 				<td><form class="files_form" id="funding_sources_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.funding_sources}}<span class="upload_button">Choose file</span></span><input id="funding_sources_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
 			</tr><tr>
-				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}" alt="{{form.fiscal_letter.help_text}}"></td>
-				<td>{{form.fiscal_letter.errors}}</td>
+				<td>4. Fiscal letter
+          <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"
+          alt="{{form.fiscal_letter.help_text}}">
+          {{form.fiscal_letter.errors}}
+        </td>
 				<td><form class="files_form" id="fiscal_letter_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.fiscal_letter}}<span class="upload_button">Choose file</span></span><input id="fiscal_letter_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
 			</tr>
