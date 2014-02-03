@@ -23,7 +23,7 @@ logger = logging.getLogger('sjfnw')
   budget.docx      diversity.doc      funding_sources.docx
   budget1.docx     budget2.txt         budget3.png  """
 
-LIVE_FIXTURES = ['sjfnw/fund/fixtures/live_gp_dump.json',
+LIVE_FIXTURES = ['sjfnw/fund/fixtures/live_gp_dump.json', #not using these yet in most
                  'sjfnw/grants/fixtures/orgs.json',
                  'sjfnw/grants/fixtures/grant_cycles.json',
                  'sjfnw/grants/fixtures/apps.json',
@@ -254,32 +254,6 @@ class ApplySuccessful(BaseGrantFilesTestCase):
   def setUp(self):
     super(ApplySuccessful, self).setUp('testy')
 
-
-  def test_post_valid_app(self):
-    """ scenario: start with a complete draft, post to apply
-                  general, no fiscal, all-in-one budget
-
-      verify: response is success page
-              grantapplication created
-              draft deleted
-              email sent
-              org profile updated """
-
-    org = Organization.objects.get(pk = 2)
-    self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
-    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    self.assertEqual(org.mission, 'Some crap')
-
-    response = self.client.post('/apply/3/', follow=True)
-
-    #form = response.context['form']
-    #print(form.errors)
-    org = Organization.objects.get(pk = 2)
-    self.assertTemplateUsed(response, 'grants/submitted.html')
-    self.assertEqual(org.mission, u'Our mission is to boldly go where no database has gone before.')
-    self.assertEqual(1, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
-    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
-
   def test_saved_timeline1(self):
     """ Verify that a timeline with just a complete first row is accepted
 
@@ -334,13 +308,13 @@ class ApplySuccessful(BaseGrantFilesTestCase):
     self.assertEqual(app.timeline, json.dumps(answers))
 
   def test_mult_budget(self):
-    """ scenario: budget1, budget2
+    """ scenario: budget1, budget2, budget3
 
         verify: successful submission
                 files match  """
 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    files = ['', 'funding_sources.docx', 'diversity.doc', 'budget1.docx', 'budget2.txt', '', '', '']
+    files = ['', 'funding_sources.docx', 'diversity.doc', 'budget1.docx', 'budget2.txt', 'budget3.png', '', '']
     alter_draft_files(draft, files)
 
     response = self.client.post('/apply/3/', follow=True)
@@ -389,25 +363,6 @@ class ApplyValidation(BaseGrantFilesTestCase):
 
   def setUp(self):
     super(ApplyValidation, self).setUp('testy')
-
-  @override_settings(MEDIA_ROOT = 'media/')
-  def test_file_validation_budget(self):
-    """ scenario: budget + some other budget files
-                  no funding sources
-
-        verify: no submission
-                error response  """
-
-    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    files = ['budget.docx', 'diversity.doc', '', 'budget1.docx', 'budget2.txt', 'budget3.png', '', '']
-    alter_draft_files(draft, files)
-    response = self.client.post('/apply/3/', follow=True)
-
-    self.assertTemplateUsed(response, 'grants/org_app.html')
-    self.assertEqual(0, GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
-    self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
-    self.assertFormError(response, 'form', 'funding_sources', "This field is required.")
-    self.assertFormError(response, 'form', 'budget', '<div class="form_error">Budget documents are required. You may upload them as one file or as multuple files.</div>')
 
   def test_project_requirements(self):
     """ scenario: support type = project, b1 & b2, no other project info given
