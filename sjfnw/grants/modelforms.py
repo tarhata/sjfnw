@@ -57,10 +57,10 @@ class TimelineWidget(forms.widgets.MultiWidget):
     """
 
     html = ('<table id="timeline_form"><tr class="heading"><td></td>'
-            '<th>date range</th><th>activities</th>'
-            '<th>goals/objectives</th></tr>')
+            '<th>Date range</th><th>Activities<br><i>(What will you be doing?)</i></th>'
+            '<th>Goals/objectives<br><i>(What do you hope to achieve?)</i></th></tr>')
     for i in range(0, len(rendered_widgets), 3):
-      html += ('<tr><th class="left">q' + str((i+3)/3) + '</th><td>' +
+      html += ('<tr><th class="left">Quarter ' + str((i+3)/3) + '</th><td>' +
               rendered_widgets[i] + '</td><td>' + rendered_widgets[i+1] +
               '</td><td>' + rendered_widgets[i+2] +'</td></tr>')
     html += '</table>'
