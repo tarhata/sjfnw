@@ -327,7 +327,14 @@ class GrantApplication(models.Model):
      'communities most directly impacted by the issues your organization '
      'addresses?</li><li>How are those communities involved in the leadership '
      'of your organization, and how does your organization remain accountable '
-     'to those communities?</li></ul>'), #2
+     'to those communities?</li><li>What is your organization\'s <span class="'
+     'has-more-info" title="Your organization\'s leadership body is the group '
+     'of people who together make strategic decisions about the organization\'s '
+     'direction, provide oversight and guidance, and are ultimately responsible '
+     'for the organization\'s mission and ability to carry out its mission. In '
+     'most cases, this will be a Board of Directors, but it might also be a '
+     'steering committee, collective, or other leadership structure.">'
+     'leadership body?</span><li></ul>'), #2
     ('Social Justice Fund prioritizes groups that understand and address the '
     'underlying, or root causes of the issues, and that bring people together '
     'to build collective power.<ul><li>What problems, needs or issues does '
@@ -337,9 +344,9 @@ class GrantApplication(models.Model):
     'identified problems, needs or issues?</li></ul>'), #3
     ('Please describe your workplan, covering at least the next 12 months. '
      '(You will list the activities and objectives in the timeline form below '
-     'the narrative.)<ul><li>What are your overall goals and strategies for '
-     'the coming year?</li><li>How will you assess whether you have met your '
-     'objectives and goals?</li></ul>'), #4
+     'the narrative.)<ul><li>What are your overall goals, objectives and '
+     'strategies for the coming year?</li><li>How will you assess whether you '
+     'have met your objectives and goals?</li></ul>'), #4
     ('Social Justice Fund prioritizes groups that see themselves as part of a '
      'larger movement for social change, and work towards strengthening that '
      'movement.<ul><li>Describe at least two coalitions, collaborations, '
@@ -375,7 +382,22 @@ class GrantApplication(models.Model):
   cycle_question = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[7])],
                                     blank=True)
 
-  timeline = models.TextField()
+  timeline = models.TextField(
+      verbose_name='Please fill in this timeline to describe your activities '
+                   'over the next five quarters. This will not exactly match '
+                   'up with the time period funded by this grant. We are '
+                   'asking for this information to give us an idea of what your '
+                   'work looks like: what you are doing and how those '
+                   'activities intersect and build on each other and move you '
+                   'towards your goals. Because our grants are usually general '
+                   'operating funds, we want to get a sense of what your '
+                   'organizing work looks like over time. Note: We understand '
+                   'that this timeline is based only on what you know right '
+                   'now and that circumstances change. If you receive this '
+                   'grant, you will submit a brief report one year later, which '
+                   'will ask you what progress you\'ve made on the goals '
+                   'outlined in this application or, if you changed direction, '
+                   'why.')
 
   #collab references (after narrative 5)
   collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people '
