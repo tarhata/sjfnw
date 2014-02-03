@@ -113,6 +113,16 @@ div.form_error {
   margin-right:15px;
 }
 
+.has-more-info {
+  background: url("/static/images/info.png") no-repeat right;
+  background-size: 8px 8px;
+  padding-right: 10px;
+}
+.has-more-info:hover {
+  cursor: help;
+  text-decoration: underline;
+}
+
 /** specific field/input types **/
 
 textarea {
