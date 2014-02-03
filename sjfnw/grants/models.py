@@ -327,14 +327,8 @@ class GrantApplication(models.Model):
      'communities most directly impacted by the issues your organization '
      'addresses?</li><li>How are those communities involved in the leadership '
      'of your organization, and how does your organization remain accountable '
-     'to those communities?</li><li>What is your organization\'s <span class="'
-     'has-more-info" title="Your organization\'s leadership body is the group '
-     'of people who together make strategic decisions about the organization\'s '
-     'direction, provide oversight and guidance, and are ultimately responsible '
-     'for the organization\'s mission and ability to carry out its mission. In '
-     'most cases, this will be a Board of Directors, but it might also be a '
-     'steering committee, collective, or other leadership structure.">'
-     'leadership body?</span><li></ul>'), #2
+     'to those communities?</li><li>What is your organization\'s <span '
+     'class="has-more-info" id="nar-2">leadership body?</span></li></ul>'), #2
     ('Social Justice Fund prioritizes groups that understand and address the '
     'underlying, or root causes of the issues, and that bring people together '
     'to build collective power.<ul><li>What problems, needs or issues does '
@@ -343,10 +337,11 @@ class GrantApplication(models.Model):
     'your work change the root causes and underlying power dynamics of the '
     'identified problems, needs or issues?</li></ul>'), #3
     ('Please describe your workplan, covering at least the next 12 months. '
-     '(You will list the activities and objectives in the timeline form below '
-     'the narrative.)<ul><li>What are your overall goals, objectives and '
-     'strategies for the coming year?</li><li>How will you assess whether you '
-     'have met your objectives and goals?</li></ul>'), #4
+     '(You will list the activities and objectives in the timeline form below,)'
+     '<ul><li>What are your overall <span class="has-more-info" id="nar-4">'
+     'goals, objectives and strategies</span> for the coming year?</li>'
+     '<li>How will you assess whether you have met your goals and objectives?'
+     '</li></ul>'), #4
     ('Social Justice Fund prioritizes groups that see themselves as part of a '
      'larger movement for social change, and work towards strengthening that '
      'movement.<ul><li>Describe at least two coalitions, collaborations, '
@@ -363,22 +358,47 @@ class GrantApplication(models.Model):
      'economic injustice, homophobia, and other forms of oppression. <i>While '
      'we believe people of color must lead the struggle for racial justice, '
      'we also realize that the demographics of our region make the work of '
-     'white anti-racist allies critical to achieving racial justice.</i> If '
-     'you are a primarily white-led organization, also describe how you work '
-     'as an ally to communities of color.') #6
+     'white anti-racist allies critical to achieving racial justice.</i>'
+     'If your organization\'s <span class="has-more-info" id="nar-6">'
+     'leadership body</span> is majority white, also describe how you work as '
+     'an ally to communities of color. Be as specific as possible, and list at '
+     'least one organization led by people of color that we can contact as a '
+     'reference for your racial justice work. Include their name, '
+     'organization, phone number and email.') #6
   ]
+  HELP_TEXTS = {
+    'leadership': ('Your organization\'s leadership body is the group of '
+        'people who together make strategic decisions about the '
+        'organization\'s direction, provide oversight and guidance, and are '
+        'ultimately responsible for the organization\'s mission and ability '
+        'to carry out its mission. In most cases, this will be a Board of '
+        'Directors, but it might also be a steering committee, collective, '
+        'or other leadership structure.'),
+    'goals': ('<ul><li>A goal is what your organization wants to achieve or '
+        'accomplish. You may have both internal goals (how this work will '
+        'impact your organization) and external goals (how this work will '
+        'impact your broader community).</li><li>An objective is generally '
+        'narrower and more specific than a goal, like a stepping stone along '
+        'the way.</li><li>A strategy is a road map for achieving your goal. '
+        'How will you get there? A strategy will generally encompass '
+        'multiple activities or tactics.</li></ul>'),
+  }
+
   narrative1 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[1])],
                                 verbose_name = NARRATIVE_TEXTS[1])
   narrative2 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[2])],
-                                verbose_name = NARRATIVE_TEXTS[2])
+                                verbose_name = NARRATIVE_TEXTS[2],
+                                help_text=HELP_TEXTS['leadership'])
   narrative3 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[3])],
                                 verbose_name = NARRATIVE_TEXTS[3])
   narrative4 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[4])],
-                                verbose_name = NARRATIVE_TEXTS[4])
+                                verbose_name = NARRATIVE_TEXTS[4],
+                                help_text = HELP_TEXTS['goals'])
   narrative5 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[5])],
                                 verbose_name = NARRATIVE_TEXTS[5])
   narrative6 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[6])],
-                                verbose_name = NARRATIVE_TEXTS[6])
+                                verbose_name = NARRATIVE_TEXTS[6],
+                                help_text = HELP_TEXTS['leadership'])
   cycle_question = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[7])],
                                     blank=True)
 
@@ -420,7 +440,7 @@ class GrantApplication(models.Model):
                                         blank=True)
 
   #racial justice references (after narrative 6)
-  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, please list at least one organization led by people of color that we can contact as a reference for your racial justice work.', verbose_name='Name', max_length=150, blank=True)
+  racial_justice_ref1_name = models.CharField(verbose_name='Name', max_length=150, blank=True)
   racial_justice_ref1_org = models.CharField(verbose_name='Organization',
                                              max_length=150, blank=True)
   racial_justice_ref1_phone = models.CharField(verbose_name='Phone number',
