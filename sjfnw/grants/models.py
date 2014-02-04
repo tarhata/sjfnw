@@ -197,12 +197,12 @@ class DraftGrantApplication(models.Model):
   funding_sources = models.FileField(upload_to='/', max_length=255)
   budget1 = models.FileField(upload_to='/', max_length=255,
                              verbose_name = 'Annual statement')
-  budget2 = models.FileField(upload_to='/', max_length=255,
-                             verbose_name = 'Annual operating')
-  budget3 = models.FileField(upload_to='/', max_length=255,
-                             verbose_name = 'Balance sheet')
-  project_budget_file = models.FileField(upload_to='/', max_length=255,
-                                         verbose_name = 'Project budget')
+  budget2 = models.FileField(
+      upload_to='/', max_length=255, verbose_name = 'Annual operating budget')
+  budget3 = models.FileField(
+      upload_to='/', max_length=255, verbose_name = 'Balance sheet')
+  project_budget_file = models.FileField(
+      upload_to='/', max_length=255, verbose_name = 'Project budget')
   fiscal_letter = models.FileField(upload_to='/', max_length=255)
 
   extended_deadline = models.DateTimeField(help_text = ('Allows this draft to'
@@ -467,19 +467,38 @@ class GrantApplication(models.Model):
       upload_to='/', max_length=255, validators=[validate_file_extension])
   budget1 = models.FileField(
       verbose_name = 'Annual statement', upload_to='/', max_length=255,
-      validators=[validate_file_extension])
+      validators=[validate_file_extension],
+      help_text = ('This is the statement of actual income and expenses for '
+                   'the most recent completed fiscal year. Upload in your own '
+                   'format, but do not send your annual report, tax returns, '
+                   'or entire audited financial statement.'))
   budget2 = models.FileField(
       verbose_name = 'Annual operating budget', upload_to='/', max_length=255,
-      validators=[validate_file_extension])
+      validators=[validate_file_extension],
+      help_text = ('This is a projection of all known and estimated income and '
+                   'expenses for the current fiscal year. You may upload in '
+                   'your own format or use our budget form. NOTE: If your '
+                   'fiscal year will end within three months of this grant '
+                   'application deadline, please also attach your operating '
+                   'budget for the next fiscal year, so that we can get a more '
+                   'accurate sense of your organization\'s situation.'))
   budget3 = models.FileField(
       verbose_name = 'Balance sheet', upload_to='/', max_length=255,
-      validators=[validate_file_extension])
+      validators=[validate_file_extension],
+      help_text = ('This is a snapshot of your financial status at the moment: '
+                   'a brief, current statement of your assets, liabilities, '
+                   'and cash on hand. Upload in your own format.'))
   project_budget_file = models.FileField(
       verbose_name = 'Project budget (if applicable)', upload_to='/',
-      max_length=255, validators=[validate_file_extension], blank=True)
+      max_length=255, validators=[validate_file_extension], blank=True,
+      help_text = ('This is required only if you are requesting '
+                   'project-specific funds. Otherwise, it is optional. You '
+                   'may upload in your own format or use our budget form.'))
   fiscal_letter = models.FileField(
       upload_to='/', blank=True, verbose_name = 'Fiscal sponsor letter',
-      help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', max_length=255, validators=[validate_file_extension])
+      help_text=('Letter from the sponsor stating that it agrees to act as your '
+                 'fiscal sponsor and supports Social Justice Fund\'s mission.'),
+      max_length=255, validators=[validate_file_extension])
 
   # admin fields
   pre_screening_status = models.IntegerField(choices = PRE_SCREENING,

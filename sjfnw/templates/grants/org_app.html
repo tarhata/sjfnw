@@ -540,20 +540,28 @@
 				<td>1. Budget documents</td>
 				<td></td>
 				<td></td>
-			</tr><tr>
-				<td style="padding-left:30px;">{{form.budget1.label}}{{form.budget1.errors}}</td>
+      </tr><tr><!--- budget1 -->
+				<td style="padding-left:30px;"><span class="has-more-info" id="budget1">{{form.budget1.label}}</span>
+          <div class="more-info" id="budget1-info" style="display:none;">{{form.budget1.help_text}}</div>
+          {{form.budget1.errors}}</td>
 				<td><form class="files_form" id="budget1_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.budget1}}<span class="upload_button">Choose file</span></span><input id="budget1_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="budget1_uploaded">{{file_urls.budget1}}</span></td>
-			</tr><tr>
-				<td style="padding-left:30px;">{{form.budget2.label}}{{form.budget2.errors}}</td>
+      </tr><tr><!--- budget2 -->
+        <td style="padding-left:30px;"><span class="has-more-info" id="budget2">{{form.budget2.label}}</span>
+          <div class="more-info" id="budget2-info" style="display:none;">{{form.budget2.help_text}}</div>
+          {{form.budget2.errors}}</td>
 				<td><form class="files_form" id="budget2_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.budget2}}<span class="upload_button">Choose file</span></span><input id="budget2_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="budget2_uploaded">{{file_urls.budget2}}</span></td>
-			</tr><tr>
-				<td style="padding-left:30px;">{{form.budget3.label}}{{form.budget3.errors}}</td>
+      </tr><tr><!--- budget3 -->
+        <td style="padding-left:30px;"><span class="has-more-info" id="budget3">{{form.budget3.label}}</span>
+          <div class="more-info" id="budget3-info" style="display:none;">{{form.budget3.help_text}}</div>
+          {{form.budget3.errors}}</td>
 				<td><form class="files_form" id="budget3_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.budget3}}<span class="upload_button">Choose file</span></span><input id="budget3_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="budget3_uploaded">{{file_urls.budget3}}</span></td>
-			</tr><tr>
-				<td style="padding-left:30px;">{{form.project_budget_file.label}}{{form.project_budget_file.errors}}</td>
+      </tr><tr><!--- project budget -->
+        <td style="padding-left:30px;"><span class="has-more-info" id="project-budget">{{form.project_budget_file.label}}</span>
+          <div class="more-info" id="project-budget-info" style="display:none;">{{form.project_budget_file.help_text}}</div>
+          {{form.project_budget_file.errors}}</td>
 				<td><form class="files_form" id="project_budget_file_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.project_budget_file}}<span class="upload_button">Choose file</span></span><input id="project_budget_file_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="project_budget_file_uploaded">{{file_urls.project_budget_file}}</span></td>
 			</tr><tr>
@@ -567,9 +575,8 @@
 				<td><form class="files_form" id="funding_sources_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.funding_sources}}<span class="upload_button">Choose file</span></span><input id="funding_sources_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
 				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
 			</tr><tr>
-				<td>4. Fiscal letter
-          <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}"
-          alt="{{form.fiscal_letter.help_text}}">
+        <td>4. <span class="has-more-info" id="fiscal-letter">Fiscal letter</span>
+          <div class="more-info" id="fiscal-letter-info" style="display:none;">{{form.fiscal_letter.help_text}}</div>
           {{form.fiscal_letter.errors}}
         </td>
 				<td><form class="files_form" id="fiscal_letter_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.fiscal_letter}}<span class="upload_button">Choose file</span></span><input id="fiscal_letter_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
