@@ -78,6 +78,8 @@ class Membership(models.Model): #relationship b/n member and gp
   approved = models.BooleanField(default=False)
   leader = models.BooleanField(default=False)
 
+  copied_contacts = models.BooleanField(default=False)
+
   emailed = models.DateField(blank=True, null=True,
                              help_text=('Last time this member was sent an '
                                        'overdue steps reminder'))

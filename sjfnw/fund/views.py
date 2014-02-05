@@ -87,11 +87,11 @@ def home(request):
   # check if they have contacts
   donors = membership.donor_set.all()
   if not donors:
-    all_donors = models.Donor.objects.filter(membership__member=membership.member)
-    if all_donors:
-      return redirect(copy_contacts)
-    else:
-      return redirect(add_mult)
+    if not membership.copied_contacts:
+      all_donors = models.Donor.objects.filter(membership__member=membership.member)
+      if all_donors:
+        return redirect(copy_contacts)
+    return redirect(add_mult)
 
   #querydict for pre-loading forms
   step = request.GET.get('step')
@@ -449,6 +449,7 @@ def support(request):
 @login_required(login_url = '/fund/login')
 @approved_membership()
 def copy_contacts(request):
+
   all_donors = models.Donor.objects.filter(membership__member=request.membership.member).order_by('firstname', 'lastname', '-added')
 
   # extract name, contact info, notes. handle duplicates
@@ -469,10 +470,20 @@ def copy_contacts(request):
           'firstname': donor.firstname, 'lastname': donor.lastname,
           'phone': donor.phone, 'email': donor.email, 'notes': donor.notes})
 
+  # base formset
   copy_formset = formset_factory(forms.CopyContacts, extra=0)
+
   if request.method == 'POST':
-    formset = copy_formset(request.POST)
-    logger.debug('Copy contracts submitted')
+    logger.info(request.POST)
+    if 'skip' in request.POST:
+      logger.info('User skipping copy contacts')
+      request.membership.copied_contacts = True
+      request.membership.save()
+      return HttpResponse("success")
+    else:
+      formset = copy_formset(request.POST)
+      logger.debug('Copy contracts submitted')
+
   else: #GET
     formset = copy_formset(initial=initial_data)
     logger.debug('Loading copy contacts formset')
