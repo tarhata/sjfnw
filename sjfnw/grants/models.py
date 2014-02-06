@@ -197,12 +197,12 @@ class DraftGrantApplication(models.Model):
   funding_sources = models.FileField(upload_to='/', max_length=255)
   budget1 = models.FileField(upload_to='/', max_length=255,
                              verbose_name = 'Annual statement')
-  budget2 = models.FileField(upload_to='/', max_length=255,
-                             verbose_name = 'Annual operating')
-  budget3 = models.FileField(upload_to='/', max_length=255,
-                             verbose_name = 'Balance sheet')
-  project_budget_file = models.FileField(upload_to='/', max_length=255,
-                                         verbose_name = 'Project budget')
+  budget2 = models.FileField(
+      upload_to='/', max_length=255, verbose_name = 'Annual operating budget')
+  budget3 = models.FileField(
+      upload_to='/', max_length=255, verbose_name = 'Balance sheet')
+  project_budget_file = models.FileField(
+      upload_to='/', max_length=255, verbose_name = 'Project budget')
   fiscal_letter = models.FileField(upload_to='/', max_length=255)
 
   extended_deadline = models.DateTimeField(help_text = ('Allows this draft to'
@@ -327,7 +327,8 @@ class GrantApplication(models.Model):
      'communities most directly impacted by the issues your organization '
      'addresses?</li><li>How are those communities involved in the leadership '
      'of your organization, and how does your organization remain accountable '
-     'to those communities?</li></ul>'), #2
+     'to those communities?</li><li>What is your organization\'s <span '
+     'class="has-more-info" id="nar-2">leadership body?</span></li></ul>'), #2
     ('Social Justice Fund prioritizes groups that understand and address the '
     'underlying, or root causes of the issues, and that bring people together '
     'to build collective power.<ul><li>What problems, needs or issues does '
@@ -336,10 +337,11 @@ class GrantApplication(models.Model):
     'your work change the root causes and underlying power dynamics of the '
     'identified problems, needs or issues?</li></ul>'), #3
     ('Please describe your workplan, covering at least the next 12 months. '
-     '(You will list the activities and objectives in the timeline form below '
-     'the narrative.)<ul><li>What are your overall goals and strategies for '
-     'the coming year?</li><li>How will you assess whether you have met your '
-     'objectives and goals?</li></ul>'), #4
+     '(You will list the activities and objectives in the timeline form below,)'
+     '<ul><li>What are your overall <span class="has-more-info" id="nar-4">'
+     'goals, objectives and strategies</span> for the coming year?</li>'
+     '<li>How will you assess whether you have met your goals and objectives?'
+     '</li></ul>'), #4
     ('Social Justice Fund prioritizes groups that see themselves as part of a '
      'larger movement for social change, and work towards strengthening that '
      'movement.<ul><li>Describe at least two coalitions, collaborations, '
@@ -356,26 +358,66 @@ class GrantApplication(models.Model):
      'economic injustice, homophobia, and other forms of oppression. <i>While '
      'we believe people of color must lead the struggle for racial justice, '
      'we also realize that the demographics of our region make the work of '
-     'white anti-racist allies critical to achieving racial justice.</i> If '
-     'you are a primarily white-led organization, also describe how you work '
-     'as an ally to communities of color.') #6
+     'white anti-racist allies critical to achieving racial justice.</i>'
+     'If your organization\'s <span class="has-more-info" id="nar-6">'
+     'leadership body</span> is majority white, also describe how you work as '
+     'an ally to communities of color. Be as specific as possible, and list at '
+     'least one organization led by people of color that we can contact as a '
+     'reference for your racial justice work. Include their name, '
+     'organization, phone number and email.') #6
   ]
+  HELP_TEXTS = {
+    'leadership': ('Your organization\'s leadership body is the group of '
+        'people who together make strategic decisions about the '
+        'organization\'s direction, provide oversight and guidance, and are '
+        'ultimately responsible for the organization\'s mission and ability '
+        'to carry out its mission. In most cases, this will be a Board of '
+        'Directors, but it might also be a steering committee, collective, '
+        'or other leadership structure.'),
+    'goals': ('<ul><li>A goal is what your organization wants to achieve or '
+        'accomplish. You may have both internal goals (how this work will '
+        'impact your organization) and external goals (how this work will '
+        'impact your broader community).</li><li>An objective is generally '
+        'narrower and more specific than a goal, like a stepping stone along '
+        'the way.</li><li>A strategy is a road map for achieving your goal. '
+        'How will you get there? A strategy will generally encompass '
+        'multiple activities or tactics.</li></ul>'),
+  }
+
   narrative1 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[1])],
                                 verbose_name = NARRATIVE_TEXTS[1])
   narrative2 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[2])],
-                                verbose_name = NARRATIVE_TEXTS[2])
+                                verbose_name = NARRATIVE_TEXTS[2],
+                                help_text=HELP_TEXTS['leadership'])
   narrative3 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[3])],
                                 verbose_name = NARRATIVE_TEXTS[3])
   narrative4 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[4])],
-                                verbose_name = NARRATIVE_TEXTS[4])
+                                verbose_name = NARRATIVE_TEXTS[4],
+                                help_text = HELP_TEXTS['goals'])
   narrative5 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[5])],
                                 verbose_name = NARRATIVE_TEXTS[5])
   narrative6 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[6])],
-                                verbose_name = NARRATIVE_TEXTS[6])
+                                verbose_name = NARRATIVE_TEXTS[6],
+                                help_text = HELP_TEXTS['leadership'])
   cycle_question = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[7])],
                                     blank=True)
 
-  timeline = models.TextField()
+  timeline = models.TextField(
+      verbose_name='Please fill in this timeline to describe your activities '
+                   'over the next five quarters. This will not exactly match '
+                   'up with the time period funded by this grant. We are '
+                   'asking for this information to give us an idea of what your '
+                   'work looks like: what you are doing and how those '
+                   'activities intersect and build on each other and move you '
+                   'towards your goals. Because our grants are usually general '
+                   'operating funds, we want to get a sense of what your '
+                   'organizing work looks like over time. Note: We understand '
+                   'that this timeline is based only on what you know right '
+                   'now and that circumstances change. If you receive this '
+                   'grant, you will submit a brief report one year later, which '
+                   'will ask you what progress you\'ve made on the goals '
+                   'outlined in this application or, if you changed direction, '
+                   'why.')
 
   #collab references (after narrative 5)
   collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people '
@@ -398,7 +440,7 @@ class GrantApplication(models.Model):
                                         blank=True)
 
   #racial justice references (after narrative 6)
-  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, please list at least one organization led by people of color that we can contact as a reference for your racial justice work.', verbose_name='Name', max_length=150, blank=True)
+  racial_justice_ref1_name = models.CharField(verbose_name='Name', max_length=150, blank=True)
   racial_justice_ref1_org = models.CharField(verbose_name='Organization',
                                              max_length=150, blank=True)
   racial_justice_ref1_phone = models.CharField(verbose_name='Phone number',
@@ -416,14 +458,47 @@ class GrantApplication(models.Model):
                                                 max_length=100, blank=True)
 
   #files
-  budget = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)
-  demographics = models.FileField(verbose_name = 'Diversity chart', upload_to='/', max_length=255, validators=[validate_file_extension])
-  funding_sources = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension])
-  budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement', validators=[validate_file_extension], blank=True)
-  budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating budget', validators=[validate_file_extension], blank=True)
-  budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet (if available)', validators=[validate_file_extension], blank=True)
-  project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget (if applicable)', validators=[validate_file_extension], blank=True)
-  fiscal_letter = models.FileField(upload_to='/', blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', max_length=255, validators=[validate_file_extension])
+  budget = models.FileField( #no longer in use
+      upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)
+  demographics = models.FileField(
+      verbose_name = 'Diversity chart', upload_to='/', max_length=255,
+      validators=[validate_file_extension])
+  funding_sources = models.FileField(
+      upload_to='/', max_length=255, validators=[validate_file_extension])
+  budget1 = models.FileField(
+      verbose_name = 'Annual statement', upload_to='/', max_length=255,
+      validators=[validate_file_extension],
+      help_text = ('This is the statement of actual income and expenses for '
+                   'the most recent completed fiscal year. Upload in your own '
+                   'format, but do not send your annual report, tax returns, '
+                   'or entire audited financial statement.'))
+  budget2 = models.FileField(
+      verbose_name = 'Annual operating budget', upload_to='/', max_length=255,
+      validators=[validate_file_extension],
+      help_text = ('This is a projection of all known and estimated income and '
+                   'expenses for the current fiscal year. You may upload in '
+                   'your own format or use our budget form. NOTE: If your '
+                   'fiscal year will end within three months of this grant '
+                   'application deadline, please also attach your operating '
+                   'budget for the next fiscal year, so that we can get a more '
+                   'accurate sense of your organization\'s situation.'))
+  budget3 = models.FileField(
+      verbose_name = 'Balance sheet', upload_to='/', max_length=255,
+      validators=[validate_file_extension],
+      help_text = ('This is a snapshot of your financial status at the moment: '
+                   'a brief, current statement of your assets, liabilities, '
+                   'and cash on hand. Upload in your own format.'))
+  project_budget_file = models.FileField(
+      verbose_name = 'Project budget (if applicable)', upload_to='/',
+      max_length=255, validators=[validate_file_extension], blank=True,
+      help_text = ('This is required only if you are requesting '
+                   'project-specific funds. Otherwise, it is optional. You '
+                   'may upload in your own format or use our budget form.'))
+  fiscal_letter = models.FileField(
+      upload_to='/', blank=True, verbose_name = 'Fiscal sponsor letter',
+      help_text=('Letter from the sponsor stating that it agrees to act as your '
+                 'fiscal sponsor and supports Social Justice Fund\'s mission.'),
+      max_length=255, validators=[validate_file_extension])
 
   # admin fields
   pre_screening_status = models.IntegerField(choices = PRE_SCREENING,

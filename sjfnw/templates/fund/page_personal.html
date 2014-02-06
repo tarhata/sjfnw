@@ -307,7 +307,7 @@
 
 <span class="header" id="your-contacts">YOUR CONTACTS & NEXT STEPS</span><!-- CONTACTS -->
 {% if donor_list.0 %} <!-- add contacts link (only if mass add won't be showing) -->
-  {% if not load %}<div class="edit_done">[<a onclick="loadView('/fund/addmult', 'addmult')">add contacts</a>]</div>{% endif %}
+{% if not load %}<div class="edit_done">[<a onclick="loadView('{% url 'sjfnw.fund.views.add_mult' %}', 'addmult')">add contacts</a>]</div>{% endif %}
   <div class="donor indent" id="addmult"></div><!-- mass forms area #1 -->
 {% endif %}
 {% load humanize %}

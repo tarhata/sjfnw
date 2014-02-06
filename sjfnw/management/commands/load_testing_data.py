@@ -21,22 +21,22 @@ class Command(BaseCommand):
       return
 
     self.stdout.write('Loading grant cycles..')
-    call_command('loaddata', 'sjfnw/grants/fixtures/cycle_live_dump.json')
+    call_command('loaddata', 'sjfnw/grants/fixtures/grant_cycles.json')
 
     self.stdout.write('Loading organizations..')
-    call_command('loaddata', 'sjfnw/grants/fixtures/org_live_dump.json')
+    call_command('loaddata', 'sjfnw/grants/fixtures/orgs.json')
 
     self.stdout.write('Loading giving projects..')
     call_command('loaddata', 'sjfnw/fund/fixtures/live_gp_dump.json')
 
     self.stdout.write('Loading applications..')
-    call_command('loaddata', 'sjfnw/grants/fixtures/app_live_dump.json')
+    call_command('loaddata', 'sjfnw/grants/fixtures/apps.json')
 
     self.stdout.write('Loading awards..')
-    call_command('loaddata', 'sjfnw/grants/fixtures/live_award_dump.json')
+    call_command('loaddata', 'sjfnw/grants/fixtures/gp_grants.json')
 
     self.stdout.write('Loading drafts..')
-    call_command('loaddata', 'sjfnw/grants/fixtures/draft_live_dump.json')
+    call_command('loaddata', 'sjfnw/grants/fixtures/drafts.json')
 
     self.stdout.write('Loading members..')
     call_command('loaddata', 'sjfnw/fund/fixtures/live_member_dump.json')
