@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils import timezone
@@ -409,12 +410,13 @@ class Home(BaseFundTestCase):
     """ Verify that add mult form is shown to new memberships
 
     Setup:
+      Member has no prior contacts
       Login to membership in pre-training with 0 contacts
       Login to membership in post-training with 0 contacts
 
     Asserts:
-      Pre: add_mult_pre.html is used
-      Post: add_mult.html is used
+      Both use add_mult_flex.html
+      'likelihood' is in in the form for Post only
     """
 
     membership = models.Membership.objects.get(pk=2) # pre
@@ -551,21 +553,101 @@ class Grants(BaseFundTestCase):
 class CopyContacts(BaseFundTestCase):
   """ Test copy_contacts view """
 
-  fixtures = [FIXTURE]
-  url = reverse('sjfnw.fund.views.copy_contacts')
+  fixtures = LIVE_FIXTURES
+  url = reverse('sjfnw.fund.views.home')
+  template = 'fund/copy_contacts.html'
 
   def setUp(self):
-    super(CopyContacts, self).setUp()
+    super(CopyContacts, self).setUp('')
 
-""" want to test scenarios: 
-      cs from different gps
-      no contacts (make sure this page isn't triggered)
-      duplicates
-        matching on last, phone or email
-        both blank
-        newest blank, older has info
-        both have info
-"""
+  """ want to test scenarios: 
+        cs from different gps
+        no contacts (make sure this page isn't triggered)
+        duplicates
+          matching on last, phone or email
+          both blank
+          newest blank, older has info
+          both have info
+  """
+  
+  def test_display_no_duplicates(self):
+    """ Verify that form display is correct when user has non-dup contacts
+    
+    Setup:
+      Borrow a membership that has 13 non-dup contacts
+      Assign it to newbie, set active
+      Go to home page
+      
+    Asserts:
+
+    """
+    member = models.Member.objects.get(pk=4)
+    member.current = 132
+    member.save()
+    membership = models.Membership.objects.get(pk=132)
+    membership.member = member
+    membership.save()
+
+    self.logInNewbie()
+
+    response = self.client.get(self.url)
+    
+    print(response.context)
+    initial = response.context['formset'].management_form['form-INITIAL_FORMS']
+    self.assertEqual(initial, str(membership.donor_set.count()))
+
+
+  def test_display_duplicates(self):
+    """ Verify proper merging of display (does not test hidden fields)
+    
+    Setup:
+      Borrow membership 132 which has 13 non-dup contacts
+      Add duplicates in all 3 ways (last, phone, email)
+      
+    Asserts:
+      Only 13 initial forms are shown
+      """
+    member = models.Member.objects.get(pk=4)
+    member.current = 132
+    member.save()
+    membership = models.Membership.objects.get(pk=132)
+    membership.member = member
+    membership.save()
+    unique_donors = membership.donor_set.count()
+
+    copy = models.Donor(membership_id=132, firstname="Gordon", lastname="Gray")
+    copy.save()
+    copy = models.Donor(membership_id=132, firstname="Emily",
+                        email="Emilyagray@gmail.com")
+    copy.save()
+    copy = models.Donor(membership_id=132, firstname="Judy", phone="206-785-9807")
+    copy.save()
+
+    self.logInNewbie()
+
+    response = self.client.get(self.url)
+    
+    print(response.context)
+    initial = response.context['formset'].management_form['form-INITIAL_FORMS']
+    self.assertEqual(initial, str(unique_donors))
+  
+  @unittest.skip('Incomplete')
+  def test_skip(self):
+    """ Verify that skip works """
+    pass
+
+  @unittest.skip('Incomplete')
+  def test_copy_no_duplicates(self):
+    """ Verify that selected contacts are copied """
+    pass
+
+  @unittest.skip('Incomplete')
+  def test_copy_merging(self):
+    """ Verify that duplicate contacts are properly merged """
+    pass
+  
+  
+  
 
 """ TEST IDEAS
       gift notification & email

@@ -89,6 +89,7 @@ def home(request):
   if not donors:
     if not membership.copied_contacts:
       all_donors = models.Donor.objects.filter(membership__member=membership.member)
+      logger.info(all_donors)
       if all_donors:
         return redirect(copy_contacts)
     return redirect(add_mult)
@@ -452,6 +453,7 @@ def copy_contacts(request):
 
   all_donors = models.Donor.objects.filter(membership__member=request.membership.member).order_by('firstname', 'lastname', '-added')
 
+  logger.info(str(all_donors.count()) + ' donors found')
   # extract name, contact info, notes. handle duplicates
   initial_data = []
   for donor in all_donors:
@@ -470,19 +472,36 @@ def copy_contacts(request):
           'firstname': donor.firstname, 'lastname': donor.lastname,
           'phone': donor.phone, 'email': donor.email, 'notes': donor.notes})
 
+  logger.info('initial data list of ' + str(len(initial_data)))
   # base formset
   copy_formset = formset_factory(forms.CopyContacts, extra=0)
 
   if request.method == 'POST':
     logger.info(request.POST)
+
     if 'skip' in request.POST:
       logger.info('User skipping copy contacts')
       request.membership.copied_contacts = True
       request.membership.save()
       return HttpResponse("success")
+    
     else:
       formset = copy_formset(request.POST)
-      logger.debug('Copy contracts submitted')
+      logger.info('Copy contracts submitted')
+      if formset.is_valid():
+        for form in formset.cleaned_data:
+          logger.info(form)
+          if form.select:
+            contact = models.Donor(membership = request.membership,
+                firstname = form.firstname, lastname = form.lastname,
+                phone = form.phone, email = form.email, notes = form.notes)
+            contact.save()
+            logger.debug('Contact created')
+        request.membership.copied_contacts = True
+        request.membership.save()
+        return HttpResponse("success")
+      else: #invalid
+        logger.warning('Copy formset somehow invalid?! ' + str(request.POST))
 
   else: #GET
     formset = copy_formset(initial=initial_data)
