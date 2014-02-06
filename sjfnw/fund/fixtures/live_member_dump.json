@@ -13,10 +13,10 @@
   "pk": 2, 
   "model": "fund.member", 
   "fields": {
-    "current": 2, 
-    "first_name": "Kylie", 
-    "last_name": "Gursky", 
-    "email": "newacct@gmail.com"
+    "current": 17, 
+    "first_name": "Joann", 
+    "last_name": "Ware", 
+    "email": "echin.lee@gmail.com"
   }
 },
 {
@@ -33,10 +33,10 @@
   "pk": 4, 
   "model": "fund.member", 
   "fields": {
-    "current": 4, 
-    "first_name": "Joann", 
-    "last_name": "Ware", 
-    "email": "echin.lee@gmail.com"
+    "current": 2, 
+    "first_name": "Newby",
+    "last_name": "Newface", 
+    "email": "newacct@gmail.com"
   }
 },
 {

@@ -20,7 +20,7 @@
     "notifications": "<table><tr><td>$500 gift or pledge received from Anna Goren!<br></td><td><img src=\"/static/images/odo2.png\"height=86 width=176 alt=\"Odo flying\"></td></tr></table>", 
     "giving_project": 2, 
     "leader": true, 
-    "member": 2, 
+    "member": 4, 
     "last_activity": "2012-11-13", 
     "approved": true
   }
@@ -72,7 +72,7 @@
     "notifications": "", 
     "giving_project": 1, 
     "leader": true, 
-    "member": 2, 
+    "member": 6, 
     "last_activity": null, 
     "approved": true
   }
