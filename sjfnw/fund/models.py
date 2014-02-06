@@ -304,10 +304,6 @@ class Step(models.Model):
   def __unicode__(self):
     return unicode(self.date.strftime('%m/%d/%y')) + u' -  ' + self.description
 
-  def clean(self):
-    if self.completed is None and Step.objects.filter(completed__isnull=True):
-      logger.error('Attempt to add 2nd incomplete step to donor ' + str(self.donor_id))
-      raise ValidationError('You can only have one incomplete step per contact.')
 
 class StepForm(ModelForm): #for adding a step
   formfield_callback = make_custom_datefield #date input
@@ -315,6 +311,7 @@ class StepForm(ModelForm): #for adding a step
   class Meta:
     model = Step
     exclude = ('created', 'donor', 'completed', 'asked', 'promised')
+
 
 class NewsItem(models.Model):
   date = models.DateTimeField(default=timezone.now())

@@ -624,6 +624,10 @@ def add_step(request, donor_id):
     logger.error('Single step - tried to add step to nonexistent donor.')
     raise Http404
 
+  if donor.get_next_step():
+    logger.error('Trying to add step, donor has an incomplete')
+    raise Http404 #TODO better error
+
   action = '/fund/' + donor_id + '/step'
   formid = 'addstep-'+donor_id
   divid = donor_id+'-addstep'
@@ -792,7 +796,7 @@ def done_step(request, donor_id, step_id):
       step.save()
       #call story creator/updater
       if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
-        deferred.defer(membership.update_story(timezone.now()))
+        deferred.defer(membership.update_story, timezone.now())
         logger.info('calling update story')
       next_step = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
