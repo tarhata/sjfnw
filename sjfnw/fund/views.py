@@ -451,28 +451,7 @@ def support(request):
 @approved_membership()
 def copy_contacts(request):
 
-  all_donors = models.Donor.objects.filter(membership__member=request.membership.member).order_by('firstname', 'lastname', '-added')
 
-  logger.info(str(all_donors.count()) + ' donors found')
-  # extract name, contact info, notes. handle duplicates
-  initial_data = []
-  for donor in all_donors:
-    if (initial_data and donor.firstname == initial_data[-1]['firstname'] and 
-       (donor.lastname == initial_data[-1]['lastname'] or
-       donor.phone == initial_data[-1]['phone'] or
-       donor.email == initial_data[-1]['email'])): #duplicate - do not override
-      logger.info('Duplicate found! ' + str(donor))
-      initial_data[-1]['lastname'] = initial_data[-1]['lastname'] or donor.lastname
-      initial_data[-1]['phone'] = initial_data[-1]['phone'] or donor.phone
-      initial_data[-1]['email'] = initial_data[-1]['email'] or donor.email
-      initial_data[-1]['notes'] += donor.notes
-      initial_data[-1]['notes'] = initial_data[-1]['notes'][:253]
-    else: #not duplicate; add a row
-      initial_data.append({
-          'firstname': donor.firstname, 'lastname': donor.lastname,
-          'phone': donor.phone, 'email': donor.email, 'notes': donor.notes})
-
-  logger.info('initial data list of ' + str(len(initial_data)))
   # base formset
   copy_formset = formset_factory(forms.CopyContacts, extra=0)
 
@@ -490,11 +469,10 @@ def copy_contacts(request):
       logger.info('Copy contracts submitted')
       if formset.is_valid():
         for form in formset.cleaned_data:
-          logger.info(form)
-          if form.select:
+          if form['select']:
             contact = models.Donor(membership = request.membership,
-                firstname = form.firstname, lastname = form.lastname,
-                phone = form.phone, email = form.email, notes = form.notes)
+                firstname = form['firstname'], lastname = form['lastname'],
+                phone = form['phone'], email = form['email'], notes = form['notes'])
             contact.save()
             logger.debug('Contact created')
         request.membership.copied_contacts = True
@@ -502,8 +480,29 @@ def copy_contacts(request):
         return HttpResponse("success")
       else: #invalid
         logger.warning('Copy formset somehow invalid?! ' + str(request.POST))
+        logger.warning(formset.errors)
 
   else: #GET
+    all_donors = models.Donor.objects.filter(membership__member=request.membership.member).order_by('firstname', 'lastname', '-added')
+    # extract name, contact info, notes. handle duplicates
+    initial_data = []
+    for donor in all_donors:
+      if (initial_data and donor.firstname == initial_data[-1]['firstname'] and 
+             (donor.lastname and donor.lastname == initial_data[-1]['lastname'] or
+                 donor.phone and donor.phone == initial_data[-1]['phone'] or
+                 donor.email and donor.email == initial_data[-1]['email'])): #duplicate - do not override
+        logger.info('Duplicate found! ' + str(donor))
+        initial_data[-1]['lastname'] = initial_data[-1]['lastname'] or donor.lastname
+        initial_data[-1]['phone'] = initial_data[-1]['phone'] or donor.phone
+        initial_data[-1]['email'] = initial_data[-1]['email'] or donor.email
+        initial_data[-1]['notes'] += donor.notes
+        initial_data[-1]['notes'] = initial_data[-1]['notes'][:253]
+      else: #not duplicate; add a row
+        initial_data.append({
+            'firstname': donor.firstname, 'lastname': donor.lastname,
+            'phone': donor.phone, 'email': donor.email, 'notes': donor.notes})
+
+    logger.info('initial data list of ' + str(len(initial_data)))
     formset = copy_formset(initial=initial_data)
     logger.debug('Loading copy contacts formset')
 
