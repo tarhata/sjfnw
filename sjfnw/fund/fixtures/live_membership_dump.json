@@ -44,7 +44,7 @@
   "fields": {
     "emailed": null, 
     "notifications": "", 
-    "giving_project": 2, 
+    "giving_project": 1, 
     "leader": false, 
     "member": 4, 
     "last_activity": null, 
