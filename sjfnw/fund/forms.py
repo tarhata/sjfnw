@@ -47,10 +47,10 @@ class CopyContacts(forms.Form):
   """ For copying contacts from other memberships into current new one """
   select = forms.BooleanField(required=False)
   firstname = forms.CharField(widget=forms.TextInput(attrs={'readonly': True}))
-  lastname = forms.CharField(widget=forms.TextInput(attrs={'readonly': True}))
-  phone = forms.CharField(widget=forms.HiddenInput)
-  email = forms.CharField(widget=forms.HiddenInput)
-  notes = forms.CharField(widget=forms.HiddenInput)
+  lastname = forms.CharField(widget=forms.TextInput(attrs={'readonly': True}), required=False)
+  phone = forms.CharField(widget=forms.HiddenInput, required=False)
+  email = forms.CharField(widget=forms.HiddenInput, required=False)
+  notes = forms.CharField(widget=forms.HiddenInput, required=False)
 
 class MassDonor(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
