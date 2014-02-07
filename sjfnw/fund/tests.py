@@ -53,7 +53,8 @@ class BaseFundTestCase(BaseTestCase):
       self.logInAdmin()
     set_project_dates()
 
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
 class StepComplete(BaseFundTestCase):
   """ Tests various scenarios of test completion
 
@@ -398,7 +399,8 @@ class StepComplete(BaseFundTestCase):
     step1 = models.Step.objects.get(pk=self.step_id)
     self.assertIsNone(step1.completed)
 
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
 class Home(BaseFundTestCase):
 
   url = reverse('sjfnw.fund.views.home')
@@ -427,12 +429,12 @@ class Home(BaseFundTestCase):
     self.assertNotContains(response, 'likelihood')
 
     member = membership.member
-    member.current = 6 # post
+    member.current = 4 # post
     member.save()
 
     response = self.client.get(self.url, follow=True)
 
-    membership = models.Membership.objects.get(pk=6)
+    membership = models.Membership.objects.get(pk=4)
     self.assertTemplateUsed(response, 'fund/add_mult_flex.html')
     self.assertEqual(response.context['request'].membership, membership)
     self.assertContains(response, 'likelihood')
@@ -455,19 +457,19 @@ class Home(BaseFundTestCase):
     self.assertTemplateNotUsed('fund/add_estimates.html')
 
     member = membership.member
-    member.current = 6 # post
+    member.current = 4 # post
     member.save()
 
-    membership = models.Membership.objects.get(pk=6)
+    membership = models.Membership.objects.get(pk=4)
 
     contact1.membership = membership
     contact1.save()
     contact2.membership = membership
     contact2.save()
 
-    response = self.client.get(self.url)
-    self.assertEqual(response.context['request'].membership, membership)
+    response = self.client.get(self.url, follow=True)
     self.assertTemplateUsed('fund/add_estimates.html')
+    self.assertEqual(response.context['request'].membership, membership)
 
   def test_estimates(self):
 
@@ -483,7 +485,9 @@ class Home(BaseFundTestCase):
 
     response = self.client.get(self.url)
     self.assertTemplateNotUsed('fund/add_estimates.html')
+    self.assertEqual(response.context['request'].membership, membership)
 
+  @unittest.skip('Incomplete')
   def test_contacts_list(self):
     """ Verify correct display of a long contact list with steps, history
 
@@ -500,7 +504,6 @@ class Home(BaseFundTestCase):
     member.save()
 
     response = self.client.get(self.url)
-    print(response.context['donor_list'])
 
   @unittest.skip('Incomplete')
   def test_gift_notification(self):
@@ -511,7 +514,8 @@ class Home(BaseFundTestCase):
         test that notif is gone on next load """
 
 
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
 class Grants(BaseFundTestCase):
   """ Grants listing page """
 
@@ -549,29 +553,21 @@ class Grants(BaseFundTestCase):
       self.assertContains(response, str(papp.application.organization))
 
 
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
 class CopyContacts(BaseFundTestCase):
   """ Test copy_contacts view """
 
   fixtures = LIVE_FIXTURES
-  url = reverse('sjfnw.fund.views.home')
+  get_url = reverse('sjfnw.fund.views.home')
+  post_url = reverse('sjfnw.fund.views.copy_contacts')
   template = 'fund/copy_contacts.html'
 
   def setUp(self):
     super(CopyContacts, self).setUp('')
 
-  """ want to test scenarios: 
-        cs from different gps
-        no contacts (make sure this page isn't triggered)
-        duplicates
-          matching on last, phone or email
-          both blank
-          newest blank, older has info
-          both have info
-  """
-  
-  def test_display_no_duplicates(self):
-    """ Verify that form display is correct when user has non-dup contacts
+  def test_no_duplicates(self):
+    """ Verify that form display & submits properly without dup contacts
     
     Setup:
       Borrow a membership that has 13 non-dup contacts
@@ -579,77 +575,115 @@ class CopyContacts(BaseFundTestCase):
       Go to home page
       
     Asserts:
-
+      After post, number of donors associated with membership = number in form
     """
-    member = models.Member.objects.get(pk=4)
-    member.current = 132
-    member.save()
     membership = models.Membership.objects.get(pk=132)
-    membership.member = member
+    membership.member_id = 4
     membership.save()
 
     self.logInNewbie()
 
-    response = self.client.get(self.url)
+    response = self.client.get(self.get_url, follow=True)
     
-    print(response.context)
-    initial = response.context['formset'].management_form['form-INITIAL_FORMS']
-    self.assertEqual(initial, str(membership.donor_set.count()))
+    self.assertTemplateUsed(response, self.template)
+    formset = response.context['formset']
+    self.assertEqual(formset.initial_form_count(), membership.donor_set.count())
+
+    self.assertEqual(0, models.Donor.objects.filter(membership_id=2).count())
+
+    post_data = {'form-MAX_NUM_FORMS': 1000}
+    post_data['form-INITIAL_FORMS'] = formset.initial_form_count()
+    post_data['form-TOTAL_FORMS'] = formset.initial_form_count()
+    index = 0
+    for contact in formset.initial:
+      post_data['form-%d-email' % index] = contact['email']
+      post_data['form-%d-firstname' % index] = contact['firstname']
+      post_data['form-%d-lastname' % index] = contact['lastname']
+      post_data['form-%d-email' % index] = contact['email']
+      post_data['form-%d-notes' % index] = contact['notes']
+      post_data['form-%d-select' % index] = 'on'
+      index += 1
+    
+    response = self.client.post(self.post_url, post_data)
+
+    self.assertEqual(formset.initial_form_count(),
+                     models.Donor.objects.filter(membership_id=2).count())
 
 
-  def test_display_duplicates(self):
-    """ Verify proper merging of display (does not test hidden fields)
+  def test_merge_duplicates(self):
+    """ Verify proper merging of contacts 
     
     Setup:
       Borrow membership 132 which has 13 non-dup contacts
-      Add duplicates in all 3 ways (last, phone, email)
+      Add duplicates in all 3 ways (last, phone, email). Each adds/contradicts
+      Get copy contacts view and see how it has handled merge
       
     Asserts:
       Only 13 initial forms are shown
-      """
-    member = models.Member.objects.get(pk=4)
-    member.current = 132
-    member.save()
+      For the 3 modified ones, asserts fields have the intended values
+    """
     membership = models.Membership.objects.get(pk=132)
-    membership.member = member
+    membership.member_id = 4
     membership.save()
     unique_donors = membership.donor_set.count()
 
-    copy = models.Donor(membership_id=132, firstname="Gordon", lastname="Gray")
+    copy = models.Donor(membership_id=132, firstname="Gordon", lastname="Gray",
+                        notes="An alliterative fellow.")
     copy.save()
     copy = models.Donor(membership_id=132, firstname="Emily",
                         email="Emilyagray@gmail.com")
     copy.save()
-    copy = models.Donor(membership_id=132, firstname="Judy", phone="206-785-9807")
+    copy = models.Donor(membership_id=132, firstname="Judy", lastname="Garland",
+                        phone="206-785-9807")
     copy.save()
 
     self.logInNewbie()
 
-    response = self.client.get(self.url)
+    response = self.client.get(self.get_url, follow=True)
     
-    print(response.context)
-    initial = response.context['formset'].management_form['form-INITIAL_FORMS']
-    self.assertEqual(initial, str(unique_donors))
+    self.assertTemplateUsed(response, self.template)
+    formset = response.context['formset']
+    self.assertEqual(formset.initial_form_count(), unique_donors)
+
+    self.assertContains(response, 'An alliterative fellow')
+    self.assertContains(response, 'Garland')
+
+    print('TO DO - test submit')
+
   
-  @unittest.skip('Incomplete')
   def test_skip(self):
-    """ Verify that skip works """
-    pass
+    """ Verify that skip works
+    
+    Setup:
+      Use a member with past contacts, new membership
+      Enter skip in form
+      
+    Asserts:
+      Response shows home page
+      membership.copied_contacts is set to true
+      Reload home page - copy not shown
+    """
+   
+    ship = models.Membership.objects.get(pk=132)
+    ship.member_id = 4
+    ship.save()
 
-  @unittest.skip('Incomplete')
-  def test_copy_no_duplicates(self):
-    """ Verify that selected contacts are copied """
-    pass
-
-  @unittest.skip('Incomplete')
-  def test_copy_merging(self):
-    """ Verify that duplicate contacts are properly merged """
-    pass
+    self.logInNewbie()
+  
+    membership = models.Membership.objects.get(pk=2)
+    
+    # show that copy contacts shows up
+    self.assertFalse(membership.copied_contacts)
+    response = self.client.get(self.get_url, follow=True)
+    self.assertTemplateUsed(self.template)
+    
+    # post a skip 
+    response = self.client.post(self.post_url, {'skip': 'True'})
+    
+    # show that it was marked on membership and the form is not triggered
+    membership = models.Membership.objects.get(pk=2)
+    self.assertTrue(membership.copied_contacts)
+    response = self.client.get(self.get_url, follow=True)
+    self.assertTemplateNotUsed(self.template)
   
   
-  
-
-""" TEST IDEAS
-      gift notification & email
-      update story (deferred) """
-
