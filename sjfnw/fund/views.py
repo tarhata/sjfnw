@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.mail import EmailMultiAlternatives
+from django.core.urlresolvers import reverse
 from django.forms.formsets import formset_factory
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
@@ -70,7 +71,7 @@ def home(request):
   """ Handles display of the home/personal page
 
   Redirects:
-    no contacts -> add_mult
+    no contacts -> copy_contacts or add_mult
     contacts without estimates + post-training + no url params -> add_estimates
 
   Handles display of
@@ -86,6 +87,11 @@ def home(request):
   # check if they have contacts
   donors = membership.donor_set.all()
   if not donors:
+    if not membership.copied_contacts:
+      all_donors = models.Donor.objects.filter(membership__member=membership.member)
+      logger.info(all_donors)
+      if all_donors:
+        return redirect(copy_contacts)
     return redirect(add_mult)
 
   #querydict for pre-loading forms
@@ -440,6 +446,69 @@ def support(request):
                 {'member':member, 'support_email': constants.SUPPORT_EMAIL, 'support_form':constants.FUND_SUPPORT_FORM})
 
 # CONTACTS
+
+@login_required(login_url = '/fund/login')
+@approved_membership()
+def copy_contacts(request):
+
+  all_donors = models.Donor.objects.filter(membership__member=request.membership.member).order_by('firstname', 'lastname', '-added')
+
+  logger.info(str(all_donors.count()) + ' donors found')
+  # extract name, contact info, notes. handle duplicates
+  initial_data = []
+  for donor in all_donors:
+    if (initial_data and donor.firstname == initial_data[-1]['firstname'] and 
+       (donor.lastname == initial_data[-1]['lastname'] or
+       donor.phone == initial_data[-1]['phone'] or
+       donor.email == initial_data[-1]['email'])): #duplicate - do not override
+      logger.info('Duplicate found! ' + str(donor))
+      initial_data[-1]['lastname'] = initial_data[-1]['lastname'] or donor.lastname
+      initial_data[-1]['phone'] = initial_data[-1]['phone'] or donor.phone
+      initial_data[-1]['email'] = initial_data[-1]['email'] or donor.email
+      initial_data[-1]['notes'] += donor.notes
+      initial_data[-1]['notes'] = initial_data[-1]['notes'][:253]
+    else: #not duplicate; add a row
+      initial_data.append({
+          'firstname': donor.firstname, 'lastname': donor.lastname,
+          'phone': donor.phone, 'email': donor.email, 'notes': donor.notes})
+
+  logger.info('initial data list of ' + str(len(initial_data)))
+  # base formset
+  copy_formset = formset_factory(forms.CopyContacts, extra=0)
+
+  if request.method == 'POST':
+    logger.info(request.POST)
+
+    if 'skip' in request.POST:
+      logger.info('User skipping copy contacts')
+      request.membership.copied_contacts = True
+      request.membership.save()
+      return HttpResponse("success")
+    
+    else:
+      formset = copy_formset(request.POST)
+      logger.info('Copy contracts submitted')
+      if formset.is_valid():
+        for form in formset.cleaned_data:
+          logger.info(form)
+          if form.select:
+            contact = models.Donor(membership = request.membership,
+                firstname = form.firstname, lastname = form.lastname,
+                phone = form.phone, email = form.email, notes = form.notes)
+            contact.save()
+            logger.debug('Contact created')
+        request.membership.copied_contacts = True
+        request.membership.save()
+        return HttpResponse("success")
+      else: #invalid
+        logger.warning('Copy formset somehow invalid?! ' + str(request.POST))
+
+  else: #GET
+    formset = copy_formset(initial=initial_data)
+    logger.debug('Loading copy contacts formset')
+
+  return render(request, 'fund/copy_contacts.html', {'formset': formset})
+
 
 @login_required(login_url='/fund/login/')
 @approved_membership()

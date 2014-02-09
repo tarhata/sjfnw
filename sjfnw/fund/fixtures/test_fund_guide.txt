@@ -1,6 +1,5 @@
 -- SUMMARY --
   16 giving projects
-
   193 members
   231 memberships
   4154 donors
@@ -14,10 +13,10 @@ GIVING PROJECTS
   1 is always set to be post-training
   2 is always set to be pre-training
 
-MEMBERs
+MEMBERS
 
-  1 testacct@gmail.com - current 1
-  2 newacct@gmail.com - current 2
+  1 testacct@gmail.com SJF Account - current 1
+  4 newacct@gmail.com Newby Newface Gursky - current 2
 
 MEMBERSHIPS
 

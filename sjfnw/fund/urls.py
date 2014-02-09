@@ -22,6 +22,7 @@ urlpatterns = patterns('sjfnw.fund.views',
   (r'^(?P<donor_id>\d+)/edit','edit_donor'),
   (r'^(?P<donor_id>\d+)/delete', 'delete_donor'),
   (r'^add-estimates', 'add_estimates'),
+  (r'^copy', 'copy_contacts'),
 
   #forms - steps
   (r'^(?P<donor_id>\d+)/step$','add_step'),
