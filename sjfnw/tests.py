@@ -58,7 +58,7 @@ class ColorTestSuiteRunner(DjangoTestSuiteRunner):
 
 class ColorTextResult(TextTestResult):
   """Copied and modified from py2.7
-  
+
   A test result class that can print formatted text results to a stream.
 
   Used by TextTestRunner.
@@ -102,7 +102,7 @@ class ColorTextResult(TextTestResult):
   def addFailure(self, test, err):
     super(TextTestResult, self).addFailure(test, err)
     if self.showAll:
-      self.stream.writeln("    \033[00;31mFAIL[00m")
+      self.stream.writeln("    \033[00;31mFAIL\033[00m")
     elif self.dots:
       self.stream.write('F')
       self.stream.flush()
@@ -134,13 +134,13 @@ class ColorTextResult(TextTestResult):
   def printErrors(self):
     if self.dots or self.showAll:
       self.stream.writeln()
-      self.printErrorList('ERROR', self.errors)
-      self.printErrorList('FAIL', self.failures)
+      self.printErrorList('\033[00;31mERROR\033[00m', self.errors)
+      self.printErrorList('\033[00;31mFAIL\033[00m', self.failures)
 
   def printErrorList(self, flavour, errors):
     for test, err in errors:
       self.stream.writeln(self.separator1)
-      self.stream.writeln("%s: %s" % (flavour, str(test)))
+      self.stream.writeln("%s: \033[1m%s\033[00m" % (flavour, str(test)))
       self.stream.writeln(self.separator2)
       self.stream.writeln("%s" % err)
 
@@ -154,7 +154,7 @@ class ColorTestRunner(TextTestRunner):
     super(ColorTestRunner, self).__init__(stream, descriptions, verbosity,
                                           failfast, buffer, resultclass)
     self.resultclass=ColorTextResult
-  
+
   def run(self, test):
     """ Copied and modified from TextTestRunner
 
@@ -180,7 +180,7 @@ class ColorTestRunner(TextTestRunner):
     if hasattr(result, 'separator2'):
       self.stream.writeln(result.separator1)
     run = result.testsRun
-    self.stream.writeln("\033[1mRan %d test%s in %.3fs" %
+    self.stream.writeln(" \033[1mRan %d test%s in %.3fs" %
         (run, run != 1 and "s" or "", timeTaken))
     self.stream.writeln()
 
@@ -196,14 +196,14 @@ class ColorTestRunner(TextTestRunner):
 
     infos = []
     if not result.wasSuccessful():
-      self.stream.write("\033[1;31mFAILED\033[00m")
+      self.stream.write(" \033[1;31mFAILED\033[00m")
       failed, errored = map(len, (result.failures, result.errors))
       if failed:
         infos.append("failures = \033[00;31m%d\033[00m" % failed)
       if errored:
         infos.append("errors = \033[00;31m%d\033[00m" % errored)
     else:
-      self.stream.write("\033[1;32mOK\033[00m")
+      self.stream.write(" \033[1;32mOK\033[00m")
     if skipped:
       infos.append("skipped = \033[00;33m%d\033[00m" % skipped)
     if expectedFails:
@@ -212,7 +212,7 @@ class ColorTestRunner(TextTestRunner):
       infos.append("unexpected successes=%d" % unexpectedSuccesses)
     if infos:
       self.stream.writeln(" (%s)" % (", ".join(infos),))
-    self.stream.write("\n")
+    self.stream.write('\n')
     return result
-  
+
 
