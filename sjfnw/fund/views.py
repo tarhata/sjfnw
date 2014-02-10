@@ -59,6 +59,7 @@ def get_block_content(membership, get_steps=True):
   p_apps = p_apps.select_related('giving_project', 'application',
       'application__organization')
   if membership.giving_project.site_visits == 1:
+    logger.info('Filtering grants for site visits')
     p_apps = p_apps.filter(screening_status__gte=70)
   p_apps = p_apps.order_by('application__organization__name')
   bks.append(p_apps)
@@ -450,7 +451,6 @@ def support(request):
 @login_required(login_url = '/fund/login')
 @approved_membership()
 def copy_contacts(request):
-
 
   # base formset
   copy_formset = formset_factory(forms.CopyContacts, extra=0)
