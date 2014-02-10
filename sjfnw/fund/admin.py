@@ -5,7 +5,7 @@ from django.forms import ValidationError
 
 from sjfnw.admin import advanced_admin
 from sjfnw.fund.models import *
-from sjfnw.fund import forms, utils
+from sjfnw.fund import forms, utils, modelforms
 from sjfnw.grants.models import ProjectApp
 
 import unicodecsv, logging
@@ -135,16 +135,6 @@ class ProjectAppInline(admin.TabularInline): # GivingProject
     return output
 
 # Forms
-class GivingProjectAdminForm(ModelForm):
-  fund_goal = IntegerCommaField(label='Fundraising goal', initial=0,
-                                help_text=('Fundraising goal agreed upon by '
-                                'the group. If 0, it will not be displayed to '
-                                'members and they won\'t see a group progress '
-                                'chart for money raised.'))
-
-  class Meta:
-    model = GivingProject
-
 # ModelAdmin
 class GivingProjectA(admin.ModelAdmin):
   list_display = ('title', gp_year, 'estimated')
@@ -159,7 +149,7 @@ class GivingProjectA(admin.ModelAdmin):
     'pre_approved',
    )
   inlines = [ProjectResourcesInline, MembershipInline, ProjectAppInline]
-  form = GivingProjectAdminForm
+  form = modelforms.GivingProjectAdminForm
 
 class MemberAdvanced(admin.ModelAdmin): #advanced only
   list_display = ('first_name', 'last_name', 'email')
@@ -196,11 +186,22 @@ class StepAdv(admin.ModelAdmin): #adv only
                  ReceivedBooleanFilter)
 
 
+class GPSurveyA(admin.ModelAdmin):
+  list_display = ('title', 'created_for', 'updated')
+  readonly_fields = ('updated',)
+  form = modelforms.CreateGPSurvey
+  
+  def save_model(self, request, obj, form, change):
+    obj.updated = timezone.now()
+    obj.updated_by = request.user.username
+    obj.save()
+
 admin.site.register(GivingProject, GivingProjectA)
 admin.site.register(Membership, MembershipA)
 admin.site.register(NewsItem, NewsA)
 admin.site.register(Donor, DonorA)
 admin.site.register(Resource)
+admin.site.register(GPSurvey, GPSurveyA)
 
 advanced_admin.register(Member, MemberAdvanced)
 advanced_admin.register(Donor, DonorA)

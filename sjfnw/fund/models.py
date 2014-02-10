@@ -34,8 +34,8 @@ class GivingProject(models.Model):
   fund_goal = models.PositiveIntegerField(
       verbose_name='Fundraising goal', default=0, 
       help_text=('Fundraising goal agreed upon by the group. If 0, it will not '
-        'be displayed to members and they won\'t see a group progress chart 
-        for money raised.'))
+        'be displayed to members and they won\'t see a group progress chart '
+        'for money raised.'))
   suggested_steps = models.TextField(
       default=('Talk to about project\nInvite to SJF event\nSet up time to '
                'meet for the ask\nAsk\nFollow up\nThank'),
@@ -43,7 +43,7 @@ class GivingProject(models.Model):
                  'a new line'))
 
   site_visits = models.BooleanField(default=False,
-      help_text='If checked, members will only see grants with a screening '
+      help_text=('If checked, members will only see grants with a screening '
                 'status of at least "site visit awarded"'))
   calendar = models.CharField(max_length=255, blank=True,
                               help_text= ('Calendar ID of a google calendar - '
@@ -276,20 +276,6 @@ class Donor(models.Model):
     else:
       return None
 
-def make_custom_datefield(f):
-  """
-  date selector implementation from
-  http://strattonbrazil.blogspot.com/2011/03/using-jquery-uis-date-picker-on-all.html
-  """
-  formfield = f.formfield()
-  if isinstance(f, models.DateField):
-    formfield.error_messages['invalid'] = 'Please enter a date in mm/dd/yyyy format.'
-    formfield.widget.format = '%m/%d/%Y'
-    formfield.widget.input_formats = ['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y',
-                                      '%n-%j-%Y']
-    formfield.widget.attrs.update({'class':'datePicker'})
-  return formfield
-
 class Step(models.Model):
   created = models.DateTimeField(default=timezone.now())
   date = models.DateField(verbose_name='Date')
@@ -332,8 +318,8 @@ class ProjectResource(models.Model): #ties resource to project
 class GPSurvey(models.Model):
 
   created = models.DateTimeField(default=timezone.now())
-  updated = models.DateTimeField()
-  updated_by = models.CharField(max_length=100)
+  updated = models.DateTimeField(blank=True)
+  updated_by = models.CharField(max_length=100, blank=True)
 
   title = models.CharField(max_length=255, help_text=
       ('Descriptive summary to aid in sharing survey templates between '
@@ -341,11 +327,14 @@ class GPSurvey(models.Model):
        'evaluation\', etc.'))
   created_for = models.CharField(max_length=255, help_text=
       'No one else should modify this survey; create a new one instead.')
-  questions = models.TextField() #json encoded list of questions
+  questions = models.TextField( #json encoded list of questions
+      help_text='Leave choices blank if you want a write-in response')
 
   def __unicode__(self):
     return self.title
 
+  
+"""
 class GPSurveyResponse(models.Model):
 
   date = models.DateTimeField(default=timezone.now())
@@ -356,3 +345,4 @@ class GPSurveyResponse(models.Model):
   def __unicode__(self):
     return 'Response to %s %s survey' % (self.giving_project.title,
         self.date.strftime('%m/%d/%y'))
+"""

@@ -38,3 +38,8 @@ select#id_permissions {
   /* block the + button next to a dropdown in an inline */
   display:none;
 }
+
+.survey-choice {
+  display: block;
+}
+
