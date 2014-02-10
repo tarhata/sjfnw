@@ -13,23 +13,14 @@ import unittest, logging
 logger = logging.getLogger('sjfnw')
 
 
-def set_project_dates():
-  """ Sets giving project training and deadline dates """
-  today = timezone.now()
-  gp = models.GivingProject.objects.get(pk=1) #post
-  gp.fundraising_training = today - timedelta(days=10)
-  gp.fundraising_deadline = today + timedelta(days=80)
-  gp.save()
-  gp = models.GivingProject.objects.get(pk=2) #pre
-  gp.fundraising_training = today + timedelta(days=10)
-  gp.fundraising_deadline = today + timedelta(days=30)
-  gp.save()
-
-LIVE_FIXTURES = ['sjfnw/fund/fixtures/live_gp_dump.json',
+BASE_FIXTURES = ['sjfnw/fund/fixtures/live_gp_dump.json',
                  'sjfnw/fund/fixtures/live_member_dump.json',
                  'sjfnw/fund/fixtures/live_membership_dump.json',
-                 'sjfnw/fund/fixtures/live_donor_dump.json',
-                 'sjfnw/fund/fixtures/live_step_dump.json']
+                 'sjfnw/fund/fixtures/live_donor_dump.json']
+STEPS_FIXTURE = ['sjfnw/fund/fixtures/live_step_dump.json']
+
+TEST_FIXTURE = ['sjfnw/fund/fixtures/testy.json']
+
 
 class BaseFundTestCase(BaseTestCase):
   """ Base test case for fundraising tests
@@ -41,34 +32,199 @@ class BaseFundTestCase(BaseTestCase):
       sets project dates
   """
 
-  fixtures = LIVE_FIXTURES
-
   def setUp(self, login):
     super(BaseFundTestCase, self).setUp(login)
+    
+    self.create_projects()
+
     if login == 'testy':
+      self.create_test()
       self.logInTesty()
     elif login == 'newbie':
+      self.create_new()
       self.logInNewbie()
     elif login == 'admin':
       self.logInAdmin()
-    set_project_dates()
+
+  def create_projects(self):
+    """ Creates pre- and post-training giving projects """
+    today = timezone.now()
+    gp = models.GivingProject(title="Post training", fund_goal=5000,
+        fundraising_training = today - timedelta(days=10),
+        fundraising_deadline = today + timedelta(days=80))
+    gp.save()
+    gp = models.GivingProject(title = "Pre training", fund_goal=10000,
+        fundraising_training = today + timedelta(days=10),
+        fundraising_deadline = today + timedelta(days=30))
+    gp.save()
+
+  def create_test(self):
+    """ Creates testy membership in Post. Should be run after loading fixtures """
+    post = models.GivingProject.objects.get(title="Post training")
+    ship = models.Membership(giving_project=post, member_id=1, approved=True)
+    ship.save()
+    self.ship_id = ship.pk
+    member = models.Member.objects.get(email='testacct@gmail.com')
+    member.current = ship.pk
+    member.save()
+    self.member_id = member.pk
+    donor = models.Donor(membership=ship, firstname='Anna', amount=500,
+                         talked=True, likelihood=50)
+    donor.save()
+    self.donor_id = donor.pk
+    step = models.Step(donor=donor, description='Talk to about project',
+                       created=timezone.now(), date='2013-04-06')
+    step.save()
+    self.step_id = step.pk
+
+  def create_new(self):
+    """ Creates newbie member and associated objs """
+    mem = models.Member(first_name='New', last_name='Account',
+                        email='newacct@gmail.com')
+    mem.save()
+    self.member_id = mem.pk
+    post = models.GivingProject.objects.get(title="Post training")
+    ship = models.Membership(giving_project=post, member = mem, approved=True)
+    ship.save()
+    self.post_id = ship.pk
+    pre = models.GivingProject.objects.get(title='Pre training')
+    ship = models.Membership(giving_project=pre, member = mem, approved=True)
+    ship.save()
+    self.pre_id = ship.pk
+    mem.current = ship.pk
+    mem.save()
+    
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
+class Home(BaseFundTestCase):
+
+  url = reverse('sjfnw.fund.views.home')
+
+  fixtures = TEST_FIXTURE
+
+  def setUp(self):
+    super(Home, self).setUp('newbie')
+
+  def test_new(self):
+    """ Verify that add mult form is shown to new memberships
+
+    Setup:
+      Member has no prior contacts
+      Login to membership in pre-training with 0 contacts
+      Login to membership in post-training with 0 contacts
+
+    Asserts:
+      Both use add_mult_flex.html
+      'likelihood' is in in the form for Post only
+    """
+
+    membership = models.Membership.objects.get(pk=self.pre_id)
+
+    print(membership)
+    response = self.client.get(self.url, follow=True)
+    self.assertTemplateUsed(response, 'fund/add_mult_flex.html')
+    self.assertEqual(response.context['request'].membership, membership)
+    self.assertNotContains(response, 'likelihood')
+
+    member = models.Member.objects.get(pk=self.member_id)
+    member.current = self.post_id
+    member.save()
+
+    response = self.client.get(self.url, follow=True)
+
+    membership = models.Membership.objects.get(pk=self.post_id)
+    self.assertTemplateUsed(response, 'fund/add_mult_flex.html')
+    self.assertEqual(response.context['request'].membership, membership)
+    self.assertContains(response, 'likelihood')
+
+  def test_contacts_without_est(self):
+
+    """ 2 contacts w/o est
+        logs into post training, gets estimates form
+        logs into pre, does not """
+
+    membership = models.Membership.objects.get(pk=self.pre_id)
+
+    contact1 = models.Donor(firstname='Anna', membership=membership)
+    contact1.save()
+    contact2 = models.Donor(firstname='Banana', membership=membership)
+    contact2.save()
+
+    response = self.client.get(self.url)
+    self.assertEqual(response.context['request'].membership, membership)
+    self.assertTemplateNotUsed('fund/add_estimates.html')
+
+    member = membership.member
+    member.current = self.post_id
+    member.save()
+
+    membership = models.Membership.objects.get(pk=self.post_id)
+
+    contact1.membership = membership
+    contact1.save()
+    contact2.membership = membership
+    contact2.save()
+
+    response = self.client.get(self.url, follow=True)
+    self.assertTemplateUsed('fund/add_estimates.html')
+    self.assertEqual(response.context['request'].membership, membership)
+
+  def test_estimates(self):
+
+    """ 2 contacts w/est
+        logs into post training, gets reg list """
+
+    membership = models.Membership.objects.get(pk=self.pre_id)
+
+    contact = models.Donor(firstname='Anna', membership=membership, amount=0, likelihood=0)
+    contact.save()
+    contact = models.Donor(firstname='Banana', membership=membership, amount=567, likelihood=34)
+    contact.save()
+
+    response = self.client.get(self.url)
+    self.assertTemplateNotUsed('fund/add_estimates.html')
+    self.assertEqual(response.context['request'].membership, membership)
+
+  @unittest.skip('Incomplete')
+  def test_contacts_list(self):
+    """ Verify correct display of a long contact list with steps, history
+
+    Setup:
+      Use membership 96 (test & gp 10) which has 29 contacts
+
+    Asserts:
+      ASSERTIONS
+    """
+
+    self.logInTesty()
+    member = models.Member.objects.get(pk=1)
+    member.current = 96
+    member.save()
+
+    response = self.client.get(self.url)
+
+  @unittest.skip('Incomplete')
+  def test_gift_notification(self):
+    pass
+
+    """ add a gift to donor
+        test that notif shows up on next load
+        test that notif is gone on next load """
+
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
     PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
 class StepComplete(BaseFundTestCase):
-  """ Tests various scenarios of test completion
+  """ Tests various scenarios of step completion """
 
-  Uses step 3270, belonging to donor 2900, belonging to membership 1
-  (testacct & post-training)
-  """
+  fixtures = TEST_FIXTURE
 
-  donor_id = 2900
-  step_id = 3270
-  url = reverse('sjfnw.fund.views.done_step', kwargs = {
-    'donor_id': donor_id, 'step_id': step_id })
 
-  def setUp(self, *args):
+  def setUp(self):
     super(StepComplete, self).setUp('testy')
+    self.url = reverse('sjfnw.fund.views.done_step', kwargs = {
+      'donor_id': self.donor_id, 'step_id': self.step_id })
 
   def test_valid_asked(self):
     """ Verify that an ask can be entered without any other info
@@ -91,23 +247,24 @@ class StepComplete(BaseFundTestCase):
         'notes': '',
         'next_step': '',
         'next_step_date': ''}
+    
 
-    step1 = models.Step.objects.get(pk=self.step_id)
-    donor1 = models.Donor.objects.get(pk=self.donor_id)
+    donor = models.Donor.objects.get(pk=self.donor_id)
+    step = models.Step.objects.get(pk=self.step_id)
 
-    self.assertIsNone(step1.completed)
-    self.assertFalse(step1.asked)
-    self.assertFalse(donor1.asked)
+    self.assertIsNone(step.completed)
+    self.assertFalse(step.asked)
+    self.assertFalse(donor.asked)
 
     response = self.client.post(self.url, form_data)
     self.assertEqual(response.content, "success")
 
-    step1 = models.Step.objects.get(pk=self.step_id)
-    donor1 = models.Donor.objects.get(pk=self.donor_id)
+    step = models.Step.objects.get(pk=self.step_id)
+    donor = models.Donor.objects.get(pk=self.donor_id)
 
-    self.assertIsNotNone(step1.completed)
-    self.assertTrue(step1.asked)
-    self.assertTrue(donor1.asked)
+    self.assertIsNotNone(step.completed)
+    self.assertTrue(step.asked)
+    self.assertTrue(donor.asked)
 
   def test_valid_next(self):
     """ Verify success of blank form with a next step
@@ -399,148 +556,35 @@ class StepComplete(BaseFundTestCase):
     step1 = models.Step.objects.get(pk=self.step_id)
     self.assertIsNone(step1.completed)
 
-@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
-    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
-class Home(BaseFundTestCase):
-
-  url = reverse('sjfnw.fund.views.home')
-
-  def setUp(self):
-    super(Home, self).setUp('newbie')
-
-  def test_new(self):
-    """ Verify that add mult form is shown to new memberships
-
-    Setup:
-      Member has no prior contacts
-      Login to membership in pre-training with 0 contacts
-      Login to membership in post-training with 0 contacts
-
-    Asserts:
-      Both use add_mult_flex.html
-      'likelihood' is in in the form for Post only
-    """
-
-    membership = models.Membership.objects.get(pk=2) # pre
-
-    response = self.client.get(self.url, follow=True)
-    self.assertTemplateUsed(response, 'fund/add_mult_flex.html')
-    self.assertEqual(response.context['request'].membership, membership)
-    self.assertNotContains(response, 'likelihood')
-
-    member = membership.member
-    member.current = 4 # post
-    member.save()
-
-    response = self.client.get(self.url, follow=True)
-
-    membership = models.Membership.objects.get(pk=4)
-    self.assertTemplateUsed(response, 'fund/add_mult_flex.html')
-    self.assertEqual(response.context['request'].membership, membership)
-    self.assertContains(response, 'likelihood')
-
-  def test_contacts_without_est(self):
-
-    """ 2 contacts w/o est
-        logs into post training, gets estimates form
-        logs into pre, does not """
-
-    membership = models.Membership.objects.get(pk=2) #pre
-
-    contact1 = models.Donor(firstname='Anna', membership=membership)
-    contact1.save()
-    contact2 = models.Donor(firstname='Banana', membership=membership)
-    contact2.save()
-
-    response = self.client.get(self.url)
-    self.assertEqual(response.context['request'].membership, membership)
-    self.assertTemplateNotUsed('fund/add_estimates.html')
-
-    member = membership.member
-    member.current = 4 # post
-    member.save()
-
-    membership = models.Membership.objects.get(pk=4)
-
-    contact1.membership = membership
-    contact1.save()
-    contact2.membership = membership
-    contact2.save()
-
-    response = self.client.get(self.url, follow=True)
-    self.assertTemplateUsed('fund/add_estimates.html')
-    self.assertEqual(response.context['request'].membership, membership)
-
-  def test_estimates(self):
-
-    """ 2 contacts w/est
-        logs into post training, gets reg list """
-
-    membership = models.Membership.objects.get(pk=2)
-
-    contact = models.Donor(firstname='Anna', membership=membership, amount=0, likelihood=0)
-    contact.save()
-    contact = models.Donor(firstname='Banana', membership=membership, amount=567, likelihood=34)
-    contact.save()
-
-    response = self.client.get(self.url)
-    self.assertTemplateNotUsed('fund/add_estimates.html')
-    self.assertEqual(response.context['request'].membership, membership)
-
-  @unittest.skip('Incomplete')
-  def test_contacts_list(self):
-    """ Verify correct display of a long contact list with steps, history
-
-    Setup:
-      Use membership 96 (test & gp 10) which has 29 contacts
-
-    Asserts:
-      ASSERTIONS
-    """
-
-    self.logInTesty()
-    member = models.Member.objects.get(pk=1)
-    member.current = 96
-    member.save()
-
-    response = self.client.get(self.url)
-
-  @unittest.skip('Incomplete')
-  def test_gift_notification(self):
-    pass
-
-    """ add a gift to donor
-        test that notif shows up on next load
-        test that notif is gone on next load """
-
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
     PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
 class Grants(BaseFundTestCase):
   """ Grants listing page """
 
-  fixtures = LIVE_FIXTURES + ['sjfnw/grants/fixtures/orgs.json',
-                              'sjfnw/grants/fixtures/grant_cycles.json',
-                              'sjfnw/grants/fixtures/apps.json'
-                              'sjfnw/grants/fixtures/project_apps.json']
+  fixtures = TEST_FIXTURE + ['sjfnw/fund/fixtures/live_gp_dump.json',
+                             'sjfnw/grants/fixtures/orgs.json',
+                             'sjfnw/grants/fixtures/grant_cycles.json',
+                             'sjfnw/grants/fixtures/apps.json',
+                             'sjfnw/grants/fixtures/project_apps.json']
   url = reverse('sjfnw.fund.views.grant_list')
 
   def setUp(self):
     super(Grants, self).setUp('testy')
-    
+
   def test_grants_display(self):
     """ Verify that assigned grants are shown on grants page
-    
+
     Setup:
       Use GP 19, create membership for testy
-    
+
     Asserts:
       Assert that an identifying string for each application appears on page
     """
-    
-    ship = models.Membership(giving_project_id=19, member_id=1)
+
+    member = models.Member.objects.get(email='testacct@gmail.com')
+    ship = models.Membership(giving_project_id=19, member=member, approved=True)
     ship.save()
-    member = models.Member.objects.get(pk=1)
     member.current = ship.pk
     member.save()
 
@@ -548,7 +592,7 @@ class Grants(BaseFundTestCase):
 
     papps = ProjectApp.objects.filter(giving_project_id=19).select_related(
         'application', 'application__organization')
-    self.assertNotEqual(papps, [])
+    self.assertNotEqual(papps.count(), 0)
     for papp in papps:
       self.assertContains(response, str(papp.application.organization))
 
@@ -558,38 +602,49 @@ class Grants(BaseFundTestCase):
 class CopyContacts(BaseFundTestCase):
   """ Test copy_contacts view """
 
-  fixtures = LIVE_FIXTURES
+  fixtures = TEST_FIXTURE
+
   get_url = reverse('sjfnw.fund.views.home')
   post_url = reverse('sjfnw.fund.views.copy_contacts')
   template = 'fund/copy_contacts.html'
 
   def setUp(self):
-    super(CopyContacts, self).setUp('')
+    super(CopyContacts, self).setUp('testy')
+
+    # create a new empty membership for testy, set as current
+    pre = models.GivingProject.objects.get(title='Pre training')
+    membership = models.Membership(giving_project=pre, member_id=self.member_id,
+                                   approved=True)
+    membership.save()
+    self.membership = membership
+    member = models.Member.objects.get(email='testacct@gmail.com')
+    member.current = membership.pk
+    member.save()
+    #print(['%s %s' % (gp.pk, gp.title) for gp in models.GivingProject.objects.all()])
+    #print(models.Membership.objects.all())
 
   def test_no_duplicates(self):
     """ Verify that form display & submits properly without dup contacts
-    
+
     Setup:
-      Borrow a membership that has 13 non-dup contacts
-      Assign it to newbie, set active
+      Use a member that has existing contacts
+      Create fresh membership
       Go to home page
-      
+
     Asserts:
       After post, number of donors associated with membership = number in form
     """
-    membership = models.Membership.objects.get(pk=132)
-    membership.member_id = 4
-    membership.save()
 
-    self.logInNewbie()
-
-    response = self.client.get(self.get_url, follow=True)
+    member = models.Member.objects.get(email='testacct@gmail.com')
     
+    response = self.client.get(self.get_url, follow=True)
+
     self.assertTemplateUsed(response, self.template)
     formset = response.context['formset']
-    self.assertEqual(formset.initial_form_count(), membership.donor_set.count())
+    self.assertEqual(formset.initial_form_count(),
+                     models.Donor.objects.filter(membership__member=member).count())
 
-    self.assertEqual(0, models.Donor.objects.filter(membership_id=2).count())
+    self.assertEqual(0, models.Donor.objects.filter(membership=self.membership).count())
 
     post_data = {'form-MAX_NUM_FORMS': 1000}
     post_data['form-INITIAL_FORMS'] = formset.initial_form_count()
@@ -603,87 +658,74 @@ class CopyContacts(BaseFundTestCase):
       post_data['form-%d-notes' % index] = contact['notes']
       post_data['form-%d-select' % index] = 'on'
       index += 1
-    
+
     response = self.client.post(self.post_url, post_data)
 
     self.assertEqual(formset.initial_form_count(),
-                     models.Donor.objects.filter(membership_id=2).count())
+                     models.Donor.objects.filter(membership=self.membership).count())
 
 
   def test_merge_duplicates(self):
-    """ Verify proper merging of contacts 
-    
+    """ Verify proper merging of contacts
+
     Setup:
-      Borrow membership 132 which has 13 non-dup contacts
       Add duplicates in all 3 ways (last, phone, email). Each adds/contradicts
       Get copy contacts view and see how it has handled merge
-      
+
     Asserts:
       Only 13 initial forms are shown
       For the 3 modified ones, asserts fields have the intended values
     """
-    membership = models.Membership.objects.get(pk=132)
-    membership.member_id = 4
-    membership.save()
-    unique_donors = membership.donor_set.count()
+    member = models.Member.objects.get(email='testacct@gmail.com')
+    unique_donors = models.Donor.objects.filter(membership__member=member).count()
 
-    copy = models.Donor(membership_id=132, firstname="Gordon", lastname="Gray",
+    copy = models.Donor(membership_id=1, firstname="Lynielle", lastname="Long",
                         notes="An alliterative fellow.")
     copy.save()
-    copy = models.Donor(membership_id=132, firstname="Emily",
-                        email="Emilyagray@gmail.com")
+    copy = models.Donor(membership_id=1, firstname="Natalie",
+                        email="nat78blan@yahoo.com")
     copy.save()
-    copy = models.Donor(membership_id=132, firstname="Judy", lastname="Garland",
-                        phone="206-785-9807")
+    copy = models.Donor(membership_id=1, firstname="Patrice", lastname="Attison",
+                        phone="206-568-8956")
     copy.save()
-
-    self.logInNewbie()
 
     response = self.client.get(self.get_url, follow=True)
-    
+
     self.assertTemplateUsed(response, self.template)
     formset = response.context['formset']
     self.assertEqual(formset.initial_form_count(), unique_donors)
 
     self.assertContains(response, 'An alliterative fellow')
-    self.assertContains(response, 'Garland')
+    self.assertContains(response, 'Attison')
 
     print('TO DO - test submit')
 
-  
+
   def test_skip(self):
     """ Verify that skip works
-    
+
     Setup:
       Use a member with past contacts, new membership
       Enter skip in form
-      
+
     Asserts:
       Response shows home page
       membership.copied_contacts is set to true
       Reload home page - copy not shown
     """
-   
-    ship = models.Membership.objects.get(pk=132)
-    ship.member_id = 4
-    ship.save()
 
-    self.logInNewbie()
-  
-    membership = models.Membership.objects.get(pk=2)
-    
     # show that copy contacts shows up
-    self.assertFalse(membership.copied_contacts)
+    self.assertFalse(self.membership.copied_contacts)
     response = self.client.get(self.get_url, follow=True)
     self.assertTemplateUsed(self.template)
-    
-    # post a skip 
+
+    # post a skip
     response = self.client.post(self.post_url, {'skip': 'True'})
-    
+
     # show that it was marked on membership and the form is not triggered
-    membership = models.Membership.objects.get(pk=2)
+    membership = models.Membership.objects.get(pk=self.membership.pk)
     self.assertTrue(membership.copied_contacts)
     response = self.client.get(self.get_url, follow=True)
     self.assertTemplateNotUsed(self.template)
-  
-  
+
+
