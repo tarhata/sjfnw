@@ -1,33 +1,6 @@
 [
 {
-  "pk": 1, 
-  "model": "grants.projectapp", 
-  "fields": {
-    "application": 280, 
-    "giving_project": 19, 
-    "screening_status": null
-  }
-},
-{
   "pk": 2, 
-  "model": "grants.projectapp", 
-  "fields": {
-    "application": 280, 
-    "giving_project": 19, 
-    "screening_status": null
-  }
-},
-{
-  "pk": 3, 
-  "model": "grants.projectapp", 
-  "fields": {
-    "application": 274, 
-    "giving_project": 12, 
-    "screening_status": 90
-  }
-},
-{
-  "pk": 4, 
   "model": "grants.projectapp", 
   "fields": {
     "application": 280, 
