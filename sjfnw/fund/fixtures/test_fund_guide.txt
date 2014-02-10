@@ -1,39 +1,28 @@
--- SUMMARY --
-  16 giving projects
-  193 members
-  231 memberships
-  4154 donors
-  4111 steps
-  1 news item
+PROGRAMATICALLY CREATED
 
--- USED IN TESTS --
+  * COMMON - created in Base setUp:
+      Post-training GP
+      Pre-training GP
 
-GIVING PROJECTS
+  * NEWBIE - in Base create_new
+      Member newacct@gmail.com
+      Membership in Post
+      Membership in Pre (current)
 
-  1 is always set to be post-training
-  2 is always set to be pre-training
+  * TESTY - in Base create_test
+    (also see fixtures)
+    Membership in Post (current)
+      Donor Anna
+        Step
 
-MEMBERS
+FIXTURES
 
-  1 testacct@gmail.com SJF Account - current 1
-  4 newacct@gmail.com Newby Newface Gursky - current 2
+  * TESTY.JSON
+      Member 1 testacct@gmail.com 
+      GivingProject 1 LGBTQ Giving Project
+      Membership 1 test-lgbtq
+        Donors 1-8
 
-MEMBERSHIPS
-
-  1 testacct@gmail.com & Post - approved true
-
-      2900 asked=False
-        3 complete steps, one incomplete (3270)
-      2901 asked=True, promised=50, received=0
-        1 complete step (2598)
-
-  96 testacct & GP 10
-
-    Twenty nine donors
-
-  2 newacct@gmail.com & Pre - approved true
-    no donors
-
-  6 newacct@gmail.com & Post - approved true
-    no donors
+  * LIVE_GP_DUMP.JSON
+      GPs 2-19
 

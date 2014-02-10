@@ -83,6 +83,7 @@
   }
 </script>
 <script type="text/javascript">
+
   function toggle(a, b) { //donor info
     //toggles a, border on b if a is shown
     var e=document.getElementById(a);
@@ -112,7 +113,7 @@
       url:get_url,
       type:"GET",
       timeout: 10000,
-      success:function(data, textStatus, jqXHR){
+      success: function(data, textStatus, jqXHR){
         console.log(get_url + ' loaded');
         document.getElementById(div_id).innerHTML=jqXHR.responseText; //fill the div
         var pks = get_url.match(/\d+/g);
@@ -129,7 +130,7 @@
         trackEvents(get_url, div_id, 'GET');
         endProcessing();
       },
-      error:function(jqXHR, textStatus, errorThrown){
+      error: function(jqXHR, textStatus, errorThrown){
         endProcessing();
         var errortext = ''
         if (status_texts[jqXHR.status]) {
