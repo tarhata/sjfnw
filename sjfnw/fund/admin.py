@@ -134,7 +134,13 @@ class ProjectAppInline(admin.TabularInline): # GivingProject
         logger.info(output)
     return output
 
-# Forms
+
+class SurveyI(admin.TabularInline):
+
+  model = GPSurvey
+  extra = 1
+
+
 # ModelAdmin
 class GivingProjectA(admin.ModelAdmin):
   list_display = ('title', gp_year, 'estimated')
@@ -148,7 +154,7 @@ class GivingProjectA(admin.ModelAdmin):
     'suggested_steps',
     'pre_approved',
    )
-  inlines = [ProjectResourcesInline, MembershipInline, ProjectAppInline]
+  inlines = [SurveyI, ProjectResourcesInline, MembershipInline, ProjectAppInline]
   form = modelforms.GivingProjectAdminForm
 
 class MemberAdvanced(admin.ModelAdmin): #advanced only
@@ -186,10 +192,10 @@ class StepAdv(admin.ModelAdmin): #adv only
                  ReceivedBooleanFilter)
 
 
-class GPSurveyA(admin.ModelAdmin):
-  list_display = ('title', 'created_for', 'updated')
+class SurveyA(admin.ModelAdmin):
+  list_display = ('title', 'updated')
   readonly_fields = ('updated',)
-  form = modelforms.CreateGPSurvey
+  form = modelforms.CreateSurvey
   
   def save_model(self, request, obj, form, change):
     obj.updated = timezone.now()
@@ -201,7 +207,7 @@ admin.site.register(Membership, MembershipA)
 admin.site.register(NewsItem, NewsA)
 admin.site.register(Donor, DonorA)
 admin.site.register(Resource)
-admin.site.register(GPSurvey, GPSurveyA)
+admin.site.register(Survey, SurveyA)
 
 advanced_admin.register(Member, MemberAdvanced)
 advanced_admin.register(Donor, DonorA)

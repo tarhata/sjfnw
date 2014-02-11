@@ -1,5 +1,4 @@
 ﻿from django.contrib.humanize.templatetags.humanize import intcomma
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.utils import timezone
@@ -50,6 +49,8 @@ class GivingProject(models.Model):
                               'format: ____@group.calendar.google.com'))
   resources = models.ManyToManyField('Resource', through = 'ProjectResource',
                                      null=True, blank=True)
+  surveys = models.ManyToManyField('Survey', through = 'GPSurvey',
+                                   null=True, blank=True)
 
   def __unicode__(self):
     return self.title+u' '+unicode(self.fundraising_deadline.year)
@@ -89,13 +90,15 @@ class Membership(models.Model): #relationship b/n member and gp
   leader = models.BooleanField(default=False)
 
   copied_contacts = models.BooleanField(default=False)
+  #json encoded list of gp eval surveys completed
+  completed_surveys = models.CharField(max_length=255, default='[]')
 
-  emailed = models.DateField(blank=True, null=True,
-                             help_text=('Last time this member was sent an '
-                                       'overdue steps reminder'))
-  last_activity = models.DateField(blank=True, null=True,
-                                   help_text=('Last activity by this user on '
-                                              'this membership.'))
+  emailed = models.DateField(
+      blank=True, null=True,
+      help_text=('Last time this member was sent an overdue steps reminder'))
+  last_activity = models.DateField(
+      blank=True, null=True,
+      help_text=('Last activity by this user on this membership.'))
 
   notifications = models.TextField(default='', blank=True)
 
@@ -315,7 +318,7 @@ class ProjectResource(models.Model): #ties resource to project
   def __unicode__(self):
     return "%s - %s - %s" % (self.giving_project, self.session, self.resource)
 
-class GPSurvey(models.Model):
+class Survey(models.Model):
 
   created = models.DateTimeField(default=timezone.now())
   updated = models.DateTimeField(blank=True)
@@ -323,26 +326,34 @@ class GPSurvey(models.Model):
 
   title = models.CharField(max_length=255, help_text=
       ('Descriptive summary to aid in sharing survey templates between '
-       'projects. E.g. \'GP session evaluation\', \'Race workshop '
-       'evaluation\', etc.'))
-  created_for = models.CharField(max_length=255, help_text=
-      'No one else should modify this survey; create a new one instead.')
+       'projects. For admin site only. E.g. \'GP session evaluation\', '
+       '\'Race workshop evaluation\', etc.'))
+  intro = models.TextField(help_text=('Introductory text to display before the '
+      'questions when form is shown to GP members.'))
   questions = models.TextField( #json encoded list of questions
       help_text='Leave choices blank if you want a write-in response')
 
   def __unicode__(self):
     return self.title
 
+  def save(self, *args, **kwargs):
+    super(Survey, self).save(*args, **kwargs)
+    logger.info('Survey saved. Questions are: ' + self.questions)
+
+
+class GPSurvey(models.Model):
+  survey = models.ForeignKey(Survey)
+  giving_project = models.ForeignKey(GivingProject)
+  date = models.DateTimeField() 
+
   
-"""
 class GPSurveyResponse(models.Model):
 
   date = models.DateTimeField(default=timezone.now())
-  giving_project = models.ForeignKey(GivingProject)
-  survey_date = models.DateTimeField()
+  gp_survey = models.ForeignKey(GPSurvey)
   responses = models.TextField() #json encoded question-answer pairs
 
   def __unicode__(self):
     return 'Response to %s %s survey' % (self.giving_project.title,
         self.date.strftime('%m/%d/%y'))
-"""
+

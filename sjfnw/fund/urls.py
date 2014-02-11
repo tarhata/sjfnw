@@ -17,6 +17,9 @@ urlpatterns = patterns('sjfnw.fund.views',
   (r'^projects/?', 'manage_account'),
   (r'^set-current/(?P<ship_id>\d+)/?', 'set_current'),
 
+  #surveys
+  (r'^survey/(?P<gp_survey>\d+)$', 'gp_survey'),
+
   #forms - contacts
   (r'^add-contacts', 'add_mult'),
   (r'^(?P<donor_id>\d+)/edit','edit_donor'),

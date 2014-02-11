@@ -18,11 +18,9 @@ from sjfnw import constants
 from sjfnw.grants.models import Organization, GrantApplication, ProjectApp
 
 from sjfnw.fund.decorators import approved_membership
-from sjfnw.fund import forms
-from sjfnw.fund import models, utils
+from sjfnw.fund import forms, modelforms, models, utils
 
-import datetime, logging
-import os
+import datetime, logging, os, json
 
 if not settings.DEBUG:
   ereporter.register_logger()
@@ -84,6 +82,14 @@ def home(request):
   """
 
   membership = request.membership
+
+  # check if there's a survey to fill out
+  surveys = models.GPSurvey.objects.filter(giving_project=membership.giving_project).exclude(
+      survey_id__in=json.loads(membership.completed_surveys)).order_by('date')
+  if surveys:
+    logger.info('Needs to fill out survey; redirecting')
+    return redirect(reverse('sjfnw.fund.views.gp_survey', kwargs = {'gp_survey': surveys[0].pk}))
+
 
   # check if they have contacts
   donors = membership.donor_set.all()
@@ -446,6 +452,31 @@ def support(request):
   return render(request, 'fund/support.html',
                 {'member':member, 'support_email': constants.SUPPORT_EMAIL, 'support_form':constants.FUND_SUPPORT_FORM})
 
+
+# ALTERNATIVE HOME PAGES
+
+
+@login_required(login_url = '/fund/login')
+@approved_membership()
+def gp_survey(request, gp_survey):
+  
+  try:
+    gp_survey = models.GPSurvey.objects.get(pk = gp_survey)
+  except models.GPSurvey.DoesNotExist:
+    logger.error('GP Survey does not exist ' + str(gp_survey))
+    raise Http404('survey not found')
+                                  
+  
+  if request.method == 'POST':
+    pass
+
+  else: #GET
+    form = modelforms.GPSurveyResponseForm(gp_survey.survey, initial={'gp_survey': gp_survey})
+
+  return render(request, 'fund/fill_gp_survey.html', {'form': form})
+
+
+
 # CONTACTS
 
 @login_required(login_url = '/fund/login')
@@ -463,7 +494,7 @@ def copy_contacts(request):
       request.membership.copied_contacts = True
       request.membership.save()
       return HttpResponse("success")
-    
+
     else:
       formset = copy_formset(request.POST)
       logger.info('Copy contracts submitted')
@@ -487,7 +518,7 @@ def copy_contacts(request):
     # extract name, contact info, notes. handle duplicates
     initial_data = []
     for donor in all_donors:
-      if (initial_data and donor.firstname == initial_data[-1]['firstname'] and 
+      if (initial_data and donor.firstname == initial_data[-1]['firstname'] and
              (donor.lastname and donor.lastname == initial_data[-1]['lastname'] or
                  donor.phone and donor.phone == initial_data[-1]['phone'] or
                  donor.email and donor.email == initial_data[-1]['email'])): #duplicate - do not override
