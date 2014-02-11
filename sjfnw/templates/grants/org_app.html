@@ -297,7 +297,7 @@
 		<div align="center">
 			<h1>{{cycle}} Application</h1>
 			{% if user_override %}<h1>Applying as {{org}}</h1>{% endif %}
-			{% if cycle.info_page %}<a href="/apply/info/{{cycle.pk}}" target="_blank">application instructions</a><br><br>{% endif %}
+      {% if cycle.info_page %}<a href="{{ cycle.info_page }}" target="_blank">application instructions</a><br><br>{% endif %}
 			<span id="last_saved" title="The form is automatically saved every 30 seconds">Last saved: <span id="autosaved">{{draft.modified|date:"F j, g:ia"}}</span></span>
 		</div>
 		{% if form.errors %}
