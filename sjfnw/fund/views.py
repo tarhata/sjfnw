@@ -85,7 +85,7 @@ def home(request):
 
   # check if there's a survey to fill out
   surveys = models.GPSurvey.objects.filter(giving_project=membership.giving_project).exclude(
-      survey_id__in=json.loads(membership.completed_surveys)).order_by('date')
+      id__in=json.loads(membership.completed_surveys)).order_by('date')
   if surveys:
     logger.info('Needs to fill out survey; redirecting')
     return redirect(reverse('sjfnw.fund.views.gp_survey', kwargs = {'gp_survey': surveys[0].pk}))
@@ -459,21 +459,31 @@ def support(request):
 @login_required(login_url = '/fund/login')
 @approved_membership()
 def gp_survey(request, gp_survey):
-  
+
   try:
     gp_survey = models.GPSurvey.objects.get(pk = gp_survey)
   except models.GPSurvey.DoesNotExist:
     logger.error('GP Survey does not exist ' + str(gp_survey))
     raise Http404('survey not found')
-                                  
-  
+
+
   if request.method == 'POST':
-    pass
+    logger.info(request.POST)
+    form = modelforms.GPSurveyResponseForm(gp_survey.survey, request.POST)
+    if form.is_valid():
+      resp = form.save()
+      logger.info('survey response saved')
+      completed = json.loads(request.membership.completed_surveys)
+      completed.append(gp_survey.pk)
+      request.membership.completed_surveys = json.dumps(completed)
+      request.membership.save()
+      return HttpResponse('success')
 
   else: #GET
     form = modelforms.GPSurveyResponseForm(gp_survey.survey, initial={'gp_survey': gp_survey})
 
-  return render(request, 'fund/fill_gp_survey.html', {'form': form})
+  return render(request, 'fund/fill_gp_survey.html', {
+      'form': form, 'survey': gp_survey.survey})
 
 
 

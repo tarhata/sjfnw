@@ -354,6 +354,6 @@ class GPSurveyResponse(models.Model):
   responses = models.TextField() #json encoded question-answer pairs
 
   def __unicode__(self):
-    return 'Response to %s %s survey' % (self.giving_project.title,
+    return 'Response to %s %s survey' % (self.gp_survey.giving_project.title,
         self.date.strftime('%m/%d/%y'))
 

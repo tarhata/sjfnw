@@ -1,5 +1,5 @@
 from django.db import models
-from django.forms import ModelForm, widgets
+from django.forms import ModelForm, widgets, ValidationError
 from django.utils import timezone
 
 from sjfnw.forms import IntegerCommaField
@@ -148,34 +148,39 @@ class DisplayQuestionsWidget(widgets.MultiWidget):
 
   def __init__(self, survey, attrs=None):
     logger.info('DisplayQuestionsWidget __init__')
-    questions = json.loads(survey.questions)
-    logger.info(questions)
+    self.questions = json.loads(survey.questions)
     _widgets = []
-    for question in questions:
-      _widgets.append(widgets.Textarea(attrs = {'class': 'survey-q'}))
+    for question in self.questions:
       if question['choices']:
-        _widgets.append(widgets.Select(choices = [(i, choice) for i, choice in enumerate(question['choices'])]))
+        _widgets.append(widgets.RadioSelect(choices =
+            [(choice, choice) for i, choice in enumerate(question['choices'])]))
       else:
-        _widgets.append(widgets.Textarea())
+        _widgets.append(widgets.Textarea(attrs={'class':'survey-text'}))
 
     super(DisplayQuestionsWidget, self).__init__(_widgets, attrs)
 
 
   def decompress(self, value):
     """ Takes single DB value, breaks it up for widget display """
+    logger.info('DisplayQuestionsWidget decompress' + str(value))
     if value:
-      return json.loads(value)
+      val_list = json.loads(value)
+      return_list = []
+      for i in range(1, len(val_list), 2):
+        return_list.append(val_list[i])
+      return return_list
     else:
       return [None for widget in self.widgets]
 
   def format_output(self, rendered_widgets):
     """ Formats widgets for display.
     Returns HTML """
-    html = ('<table id="survey-questions">'
-            '<tr><th>#</th><th>Title</th><th>Choices</th></tr>')
-    for i in range(0, len(rendered_widgets), 2):
-      html += ('<tr><th>' + str((i+2)/2) + '</th><td>' +
-              rendered_widgets[i] + rendered_widgets[i+1] + '</td></tr>')
+    html = '<table id="survey-questions">'
+    i = 0
+    for q in self.questions:
+      html += ('<tr><th>' + str(i+1) + '.</th><td>' + q['question'] + 
+               rendered_widgets[i] + '</td></tr>')
+      i += 1
     html += '</table>'
     return html
 
@@ -186,8 +191,8 @@ class DisplayQuestionsWidget(widgets.MultiWidget):
 
     val_list = []
     for i, widget in enumerate(self.widgets):
-      val_list.append(
-          widget.value_from_datadict(data, files, name + '_%s' % i))
+      val_list.append(self.questions[i]['question'])
+      val_list.append(widget.value_from_datadict(data, files, name + '_%s' % i))
     return json.dumps(val_list)
 
 class GPSurveyResponseForm(ModelForm):
@@ -202,6 +207,12 @@ class GPSurveyResponseForm(ModelForm):
     super(GPSurveyResponseForm, self).__init__(*args, **kwargs)
     self.fields['responses'].widget = DisplayQuestionsWidget(survey)
 
+  def clean_responses(self):
+    data = json.loads(self.cleaned_data['responses'])
+    for response in data:
+      if response is None or response == '':
+        raise ValidationError('Please answer every question.')
+    return data
 
 class GivingProjectAdminForm(ModelForm):
   fund_goal = IntegerCommaField(label='Fundraising goal', initial=0,

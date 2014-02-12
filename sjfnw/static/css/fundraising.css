@@ -272,6 +272,21 @@ input[readonly="True"] {
   text-align: inherit;
 }
 
+/* gp surveys */
+#gpsurvey ul {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
+#survey-questions tr {
+  vertical-align: top;
+}
+
+.survey-text {
+  display: block;
+  margin-top: .5em;
+}
+
 /* gp */
 table.padded td{
 	padding:5px;
