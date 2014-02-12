@@ -67,16 +67,15 @@ class CreateQuestionsWidget(widgets.MultiWidget):
 
   def __init__(self, attrs=None):
     _widgets = []
-    for i in range(1, 10):
-      _widgets += [widgets.Textarea(attrs = {'rows': 2}), 
-                   widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'}),
+    for i in range(1, 6):
+      _widgets += [widgets.Textarea(attrs = {'rows': 2}),
                    widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'}),
                    widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'}),
                    widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'}),
                    widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'}),
                    widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'})]
     super(CreateQuestionsWidget, self).__init__(_widgets, attrs)
-    
+
 
   def decompress(self, value):
     """ Takes single DB value, breaks it up for widget display """
@@ -89,7 +88,7 @@ class CreateQuestionsWidget(widgets.MultiWidget):
         for choice in q['choices']:
           val_list.append(choice)
           count += 1
-        for i in range(count, 7):
+        for i in range(count, 6):
           val_list.append(None)
       return val_list
     else:
@@ -100,12 +99,11 @@ class CreateQuestionsWidget(widgets.MultiWidget):
     Returns HTML """
     html = ('<table id="survey-questions">'
             '<tr><th></th><th>Title</th><th>Choices</th></tr>')
-    for i in range(0, len(rendered_widgets), 7):
-      html += ('<tr><td>' + str((i+7)/7) + '</td><td>' + 
+    for i in range(0, len(rendered_widgets), 6):
+      html += ('<tr><td>' + str((i+6)/6) + '</td><td>' +
               rendered_widgets[i] + '</td><td>' + rendered_widgets[i+1] +
               rendered_widgets[i+2] + rendered_widgets[i+3] +
-              rendered_widgets[i+4] + rendered_widgets[i+5] +
-              rendered_widgets[i+6] + '</td></tr>')
+              rendered_widgets[i+4] + rendered_widgets[i+5] + '</td></tr>')
     html += '</table>'
     return html
 
@@ -114,10 +112,10 @@ class CreateQuestionsWidget(widgets.MultiWidget):
     """ Consolidates widget data into a single value for storage
     Returns json encoded string for questions field
     [{'question': 'Rate the session', 'options': ['1', '2', '3', '4', '5']}]"""
-    
+
 
     value = []
-    for i in range(0, len(self.widgets), 7):
+    for i in range(0, len(self.widgets), 6):
       val = self.widgets[i].value_from_datadict(data, files, name + '_%s' % i)
       if val:
         dic = {'question': val, 'choices': []}
@@ -154,17 +152,14 @@ class DisplayQuestionsWidget(widgets.MultiWidget):
     logger.info(questions)
     _widgets = []
     for question in questions:
+      _widgets.append(widgets.Textarea(attrs = {'class': 'survey-q'}))
+      if question['choices']:
+        _widgets.append(widgets.Select(choices = [(i, choice) for i, choice in enumerate(question['choices'])]))
+      else:
+        _widgets.append(widgets.Textarea())
 
-    for i in range(1, 10):
-      _widgets += [widgets.Textarea(attrs = {'rows': 2}), 
-                   widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'}),
-                   widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'}),
-                   widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'}),
-                   widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'}),
-                   widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'}),
-                   widgets.Textarea(attrs = {'rows': 1, 'class': 'survey-choice'})]
     super(DisplayQuestionsWidget, self).__init__(_widgets, attrs)
-    
+
 
   def decompress(self, value):
     """ Takes single DB value, breaks it up for widget display """
@@ -178,12 +173,9 @@ class DisplayQuestionsWidget(widgets.MultiWidget):
     Returns HTML """
     html = ('<table id="survey-questions">'
             '<tr><th>#</th><th>Title</th><th>Choices</th></tr>')
-    for i in range(0, len(rendered_widgets), 7):
-      html += ('<tr><th>' + str((i+7/7)) + '</th><td>' + 
-              rendered_widgets[i] + '</td><td>' + rendered_widgets[i+1] +
-              rendered_widgets[i+2] + rendered_widgets[i+3] +
-              rendered_widgets[i+4] + rendered_widgets[i+5] +
-              rendered_widgets[i+6] + '</td></tr>')
+    for i in range(0, len(rendered_widgets), 2):
+      html += ('<tr><th>' + str((i+2)/2) + '</th><td>' +
+              rendered_widgets[i] + rendered_widgets[i+1] + '</td></tr>')
     html += '</table>'
     return html
 
