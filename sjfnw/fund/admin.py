@@ -8,7 +8,7 @@ from sjfnw.fund.models import *
 from sjfnw.fund import forms, utils, modelforms
 from sjfnw.grants.models import ProjectApp
 
-import unicodecsv, logging
+import unicodecsv, logging, json
 
 logger = logging.getLogger('sjfnw')
 
@@ -57,6 +57,38 @@ def export_donors(modeladmin, request, queryset):
   logger.info(str(count) + ' donors exported')
   return response
 
+def export_responses(modeladmin, request, queryset):
+
+  logger.info('Export survey responses called by ' + request.user.email)
+  response = HttpResponse(mimetype='text/csv')
+  response['Content-Disposition'] = 'attachment; filename=survey_responses %s.csv' % (timezone.now().strftime('%Y-%m-%d'),)
+  writer = unicodecsv.writer(response)
+
+  header = ['Date', 'Survey ID', 'Giving Project', 'Survey'] #base
+  questions = 0
+  response_rows = []
+  for sr in queryset:
+    fields = [sr.date, sr.gp_survey_id,
+              sr.gp_survey.giving_project.title,
+              sr.gp_survey.survey.title]
+    logger.info(isinstance(sr.responses, str))
+    qa = json.loads(sr.responses)
+    for i in range(0, len(qa), 2):
+      fields.append(qa[i])
+      fields.append(qa[i+1])
+      questions = max(questions, (i+2)/2)
+    response_rows.append(fields)
+
+  logger.info('Max %d questions' % questions)
+  for i in range(0, questions):
+    header.append('Question')
+    header.append('Answer')
+  writer.writerow(header)
+  for row in response_rows:
+    writer.writerow(row)
+
+  return response
+
 # Filters
 class PromisedBooleanFilter(SimpleListFilter): #donors & steps
   title = 'promised'
@@ -86,6 +118,15 @@ class ReceivedBooleanFilter(SimpleListFilter): #donors & steps
       return queryset.filter(received__gt=0)
     if self.value() == 'False':
       return queryset.filter(received=0)
+
+"""
+class SurveyResponseGPFilter(SimpleListFilter):
+  title = 'Giving project'
+  parameter_name = 'gp'
+
+  def lookups(self, request, model_admin):
+    return 
+"""
 
 # Inlines
 class MembershipInline(admin.TabularInline): #GP
@@ -192,7 +233,6 @@ class StepAdv(admin.ModelAdmin): #adv only
   list_filter = ('donor__membership', PromisedBooleanFilter,
                  ReceivedBooleanFilter)
 
-
 class SurveyA(admin.ModelAdmin):
   list_display = ('title', 'updated')
   readonly_fields = ('updated',)
@@ -204,12 +244,20 @@ class SurveyA(admin.ModelAdmin):
     obj.updated_by = request.user.username
     obj.save()
 
+class SurveyResponseA(admin.ModelAdmin):
+  list_display = ('gp_survey', 'date')
+  list_filter = ('gp_survey__giving_project',)
+  readonly_fields = ('gp_survey', 'date', 'responses')
+  actions = [export_responses]
+
+
 admin.site.register(GivingProject, GivingProjectA)
 admin.site.register(Membership, MembershipA)
 admin.site.register(NewsItem, NewsA)
 admin.site.register(Donor, DonorA)
 admin.site.register(Resource)
 admin.site.register(Survey, SurveyA)
+admin.site.register(SurveyResponse, SurveyResponseA)
 
 advanced_admin.register(Member, MemberAdvanced)
 advanced_admin.register(Donor, DonorA)
