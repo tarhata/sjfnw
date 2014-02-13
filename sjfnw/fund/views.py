@@ -469,7 +469,7 @@ def gp_survey(request, gp_survey):
 
   if request.method == 'POST':
     logger.info(request.POST)
-    form = modelforms.GPSurveyResponseForm(gp_survey.survey, request.POST)
+    form = modelforms.SurveyResponseForm(gp_survey.survey, request.POST)
     if form.is_valid():
       resp = form.save()
       logger.info('survey response saved')
@@ -480,7 +480,7 @@ def gp_survey(request, gp_survey):
       return HttpResponse('success')
 
   else: #GET
-    form = modelforms.GPSurveyResponseForm(gp_survey.survey, initial={'gp_survey': gp_survey})
+    form = modelforms.SurveyResponseForm(gp_survey.survey, initial={'gp_survey': gp_survey})
 
   return render(request, 'fund/fill_gp_survey.html', {
       'form': form, 'survey': gp_survey.survey})

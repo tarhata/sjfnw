@@ -3,7 +3,7 @@ from django.forms import ModelForm, widgets, ValidationError
 from django.utils import timezone
 
 from sjfnw.forms import IntegerCommaField
-from sjfnw.fund.models import Donor, Step, Survey, GPSurvey, GivingProject, GPSurveyResponse
+from sjfnw.fund.models import Donor, Step, Survey, GPSurvey, GivingProject, SurveyResponse
 
 import json
 
@@ -201,16 +201,16 @@ class DisplayQuestionsWidget(widgets.MultiWidget):
       val_list.append(widget.value_from_datadict(data, files, name + '_%s' % i))
     return json.dumps(val_list)
 
-class GPSurveyResponseForm(ModelForm):
+class SurveyResponseForm(ModelForm):
 
   class Meta:
-    model = GPSurveyResponse
+    model = SurveyResponse
     widgets = {'date': widgets.HiddenInput(),
                'gp_survey': widgets.HiddenInput() }
 
   def __init__(self, survey, *args, **kwargs):
-    #logger.info('GPSurveyResponseForm __init__')
-    super(GPSurveyResponseForm, self).__init__(*args, **kwargs)
+    #logger.info('SurveyResponseForm __init__')
+    super(SurveyResponseForm, self).__init__(*args, **kwargs)
     self.fields['responses'].widget = DisplayQuestionsWidget(survey)
 
   def clean_responses(self):
@@ -218,7 +218,7 @@ class GPSurveyResponseForm(ModelForm):
     for response in data:
       if response is None or response == '':
         raise ValidationError('Please answer every question.')
-    return data
+    return self.cleaned_data['responses']
 
 class GivingProjectAdminForm(ModelForm):
   fund_goal = IntegerCommaField(label='Fundraising goal', initial=0,

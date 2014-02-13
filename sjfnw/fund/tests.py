@@ -815,7 +815,7 @@ class GPSurveys(BaseFundTestCase):
     response = self.client.get(self.url, follow=True)
     self.assertTemplateUsed(response, self.template)
     
-    self.assertEqual(models.GPSurveyResponse.objects.count(), 0)
+    self.assertEqual(models.SurveyResponse.objects.count(), 0)
 
     form_data = {'responses_0': '2',
                  'responses_1': 'No comments.' }
@@ -824,5 +824,5 @@ class GPSurveys(BaseFundTestCase):
     response = self.client.post(post_url, form_data)
 
     self.assertEqual(response.content, 'success')
-    new_response = models.GPSurveyResponse.objects.get(gp_survey=gp_survey)
+    new_response = models.SurveyResponse.objects.get(gp_survey=gp_survey)
 

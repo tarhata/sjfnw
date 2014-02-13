@@ -31,7 +31,7 @@ class GivingProject(models.Model):
   fundraising_deadline = models.DateField(
       help_text='Members will stop receiving reminder emails at this date.')
   fund_goal = models.PositiveIntegerField(
-      verbose_name='Fundraising goal', default=0, 
+      verbose_name='Fundraising goal', default=0,
       help_text=('Fundraising goal agreed upon by the group. If 0, it will not '
         'be displayed to members and they won\'t see a group progress chart '
         'for money raised.'))
@@ -51,6 +51,9 @@ class GivingProject(models.Model):
                                      null=True, blank=True)
   surveys = models.ManyToManyField('Survey', through = 'GPSurvey',
                                    null=True, blank=True)
+
+  class Meta:
+    ordering = ['-fundraising_training']
 
   def __unicode__(self):
     return self.title+u' '+unicode(self.fundraising_deadline.year)
@@ -351,10 +354,12 @@ class Survey(models.Model):
 class GPSurvey(models.Model):
   survey = models.ForeignKey(Survey)
   giving_project = models.ForeignKey(GivingProject)
-  date = models.DateTimeField() 
+  date = models.DateTimeField()
 
-  
-class GPSurveyResponse(models.Model):
+  def __unicode__(self):
+    return '%s - %s' % (self.giving_project.title, self.survey.title)
+
+class SurveyResponse(models.Model):
 
   date = models.DateTimeField(default=timezone.now())
   gp_survey = models.ForeignKey(GPSurvey)
