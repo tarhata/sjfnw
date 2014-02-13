@@ -331,7 +331,7 @@ class Survey(models.Model):
   intro = models.TextField(help_text=('Introductory text to display before the '
       'questions when form is shown to GP members.'))
   questions = models.TextField( #json encoded list of questions
-      help_text='Leave choices blank if you want a write-in response')
+      help_text='Leave all of a question\' choices blank if you want a write-in response instead of multiple choice')
 
   def __unicode__(self):
     return self.title
