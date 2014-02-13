@@ -729,3 +729,100 @@ class CopyContacts(BaseFundTestCase):
     self.assertTemplateNotUsed(self.template)
 
 
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
+    PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
+class GPSurveys(BaseFundTestCase):
+  """ Test creation, display and completion of GP eval surveys """
+
+  fixtures = TEST_FIXTURE
+  url = reverse('sjfnw.fund.views.home')
+  template = 'fund/fill_gp_survey.html'
+
+  def setUp(self):
+    super(GPSurveys, self).setUp('')
+
+  def test_creation(self):
+    """ Create a survey, verify basic display 
+  
+    Setup:
+      Log in to admin site
+      Submit form data for survey creation in basic querydict format
+  
+    """
+
+    # Create form through admin site
+    self.logInAdmin()
+    form_data = {
+     'title': 'Another Survey',
+     'intro': 'Please fill this out!',
+     'questions_0': 'What is love?',
+     'questions_1': 'Baby don\'t',
+     'questions_2': 'No more',
+     'questions_3': '',
+     'questions_4': '',
+     'questions_5': '',
+     'questions_6': 'What\'s love got to do with it?',
+     'questions_7': '',
+     'questions_8': '',
+     'questions_9': '',
+     'questions_10': '',
+     'questions_11': '' }
+    response = self.client.post('/admin/fund/survey/add/', form_data)
+
+    # Verify it was created
+    survey = models.Survey.objects.get(title='Another Survey')
+    self.assertEqual(survey.intro, 'Please fill this out!')
+
+    # Connect it to GP1, log into PC and verify it is displaying as expected
+    gp_survey = models.GPSurvey(survey=survey, giving_project_id=1, date=timezone.now())
+    gp_survey.save()
+  
+    self.logInTesty()
+  
+    response = self.client.get(self.url, follow=True)
+  
+    self.assertTemplateUsed(response, self.template)
+    self.assertContains(response, form_data['intro'])
+    self.assertContains(response, '<textarea', count=1)
+    self.assertContains(response, '<li><label for', count=2)
+
+  def test_fill(self):
+    """ Verify that a filled out survey is properly stored
+  
+    Setup:
+      Programatically create survey/GPSurvey
+      Log into PC and verify that it is showing
+      Post and check the resulting object
+  
+    """
+  
+    self.logInTesty()
+
+    survey = models.Survey(
+        title='Basic Survey',
+        intro=('Please fill out this quick survey evaluating our last meeting.'
+               ' Once you have completed it, you\'ll be taken to your regular '
+               'home page.'),
+        questions = (
+          '{"question": "How well did we meet our goals? (1 = did not meet, 5 = met all our goals)",'
+          '"choices": [1, 2, 3, 4, 5]}, '
+          '{"question": "Any other comments for us?", "choices": []}'))
+    survey.save()
+    gp_survey = models.GPSurvey(survey=survey, giving_project_id=1, date=timezone.now())
+    gp_survey.save()
+
+    # Make sure survey shows up from home page
+    response = self.client.get(self.url, follow=True)
+    self.assertTemplateUsed(response, self.template)
+    
+    self.assertEqual(models.GPSurveyResponse.objects.count(), 0)
+
+    form_data = {'responses_0': '2',
+                 'responses_1': 'No comments.' }
+    post_url = reverse('sjfnw.fund.views.gp_survey', 
+                       kwargs = {'gp_survey': gp_survey.pk})
+    response = self.client.post(post_url, form_data)
+
+    self.assertEqual(response.content, 'success')
+    new_response = models.GPSurveyResponse.objects.get(gp_survey=gp_survey)
+
