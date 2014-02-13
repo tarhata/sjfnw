@@ -328,10 +328,17 @@ class Survey(models.Model):
       ('Descriptive summary to aid in sharing survey templates between '
        'projects. For admin site only. E.g. \'GP session evaluation\', '
        '\'Race workshop evaluation\', etc.'))
-  intro = models.TextField(help_text=('Introductory text to display before the '
-      'questions when form is shown to GP members.'))
+  intro = models.TextField(
+      help_text=('Introductory text to display before the questions when form '
+                 'is shown to GP members.'),
+      default=('Please fill out this quick survey to let us know how the last '
+               'meeting went.  Responses are anonymous, and once you fill out '
+               'the survey you\'ll be taken to your regular home page.'))
   questions = models.TextField( #json encoded list of questions
-      help_text='Leave all of a question\' choices blank if you want a write-in response instead of multiple choice')
+      help_text=('Leave all of a question\' choices blank if you want a '
+                 'write-in response instead of multiple choice'),
+      default=('[{"question": "Did we meet our goals? (1=not at all, '
+               '5=completely)", "choices": ["1", "2", "3", "4", "5"]}]'))
 
   def __unicode__(self):
     return self.title
