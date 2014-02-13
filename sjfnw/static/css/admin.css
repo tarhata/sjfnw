@@ -1,4 +1,8 @@
-﻿div#top_help_text {
+﻿div#changelist-filter { /*redundantly specific to override admin rule */
+  width: 200px;
+}
+
+div#top_help_text {
   /* used at top of some model pages (e.g. Org) */
   margin-top:10px;
   margin-bottom:10px;
