@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.http import HttpResponse
 from django.forms import ValidationError
+from django.utils.safestring import mark_safe
 
 from sjfnw.admin import advanced_admin
 from sjfnw.fund.models import *
@@ -247,8 +248,20 @@ class SurveyA(admin.ModelAdmin):
 class SurveyResponseA(admin.ModelAdmin):
   list_display = ('gp_survey', 'date')
   list_filter = ('gp_survey__giving_project',)
-  readonly_fields = ('gp_survey', 'date', 'responses')
+  fields = ('gp_survey', 'date', 'display_responses')
+  readonly_fields = ('gp_survey', 'date', 'display_responses')
   actions = [export_responses]
+
+  def display_responses(self, obj):
+    if obj and obj.responses:
+      resp_list = json.loads(obj.responses)
+      disp = '<table><tr><th>Question</th><th>Answer</th></tr>'
+      for i in range(0, len(resp_list), 2):
+        disp += ('<tr><td>' + str(resp_list[i]) + '</td><td>' +
+                 str(resp_list[i+1]) + '</td></tr>')
+      disp += '</table>'
+      return mark_safe(disp)
+  display_responses.short_description = 'Responses'
 
 
 admin.site.register(GivingProject, GivingProjectA)
