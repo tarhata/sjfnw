@@ -3,7 +3,7 @@
   "pk": 1,
   "model": "fund.member",
   "fields": {
-    "current": 0,
+    "current": 1,
     "first_name": "Test",
     "last_name": "Account",
     "email": "testacct@gmail.com"
