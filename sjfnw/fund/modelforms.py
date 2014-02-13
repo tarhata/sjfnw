@@ -112,7 +112,7 @@ class CreateQuestionsWidget(widgets.MultiWidget):
     """ Consolidates widget data into a single value for storage
     Returns json encoded string for questions field
     [{'question': 'Rate the session', 'options': ['1', '2', '3', '4', '5']}]"""
-
+    #logger.info('value_from_datadict, data: ' + str(data))
 
     value = []
     for i in range(0, len(self.widgets), 6):
@@ -130,7 +130,7 @@ class CreateQuestionsWidget(widgets.MultiWidget):
       else: #blank question
         break
 
-    logger.info('Saving survey: ' + json.dumps(value))
+    #logger.info('Returning ' + json.dumps(value))
     return json.dumps(value)
 
 
@@ -142,12 +142,18 @@ class CreateSurvey(ModelForm):
     include = ['title', 'created_for', 'questions']
     widgets = {'questions': CreateQuestionsWidget()}
 
+  def clean_questions(self):
+    questions = self.cleaned_data['questions']
+    if questions == '[]':
+      raise ValidationError('Enter at least one question')
+    return questions
+
 
 class DisplayQuestionsWidget(widgets.MultiWidget):
   """ Displays a Survey's questions to GP members """
 
   def __init__(self, survey, attrs=None):
-    logger.info('DisplayQuestionsWidget __init__')
+    #logger.info('DisplayQuestionsWidget __init__')
     self.questions = json.loads(survey.questions)
     _widgets = []
     for question in self.questions:
@@ -162,7 +168,7 @@ class DisplayQuestionsWidget(widgets.MultiWidget):
 
   def decompress(self, value):
     """ Takes single DB value, breaks it up for widget display """
-    logger.info('DisplayQuestionsWidget decompress' + str(value))
+    #logger.info('DisplayQuestionsWidget decompress' + str(value))
     if value:
       val_list = json.loads(value)
       return_list = []
@@ -203,7 +209,7 @@ class GPSurveyResponseForm(ModelForm):
                'gp_survey': widgets.HiddenInput() }
 
   def __init__(self, survey, *args, **kwargs):
-    logger.info('GPSurveyResponseForm __init__')
+    #logger.info('GPSurveyResponseForm __init__')
     super(GPSurveyResponseForm, self).__init__(*args, **kwargs)
     self.fields['responses'].widget = DisplayQuestionsWidget(survey)
 
