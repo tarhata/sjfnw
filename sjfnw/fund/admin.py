@@ -139,7 +139,8 @@ class SurveyI(admin.TabularInline):
 
   model = GPSurvey
   extra = 1
-
+  verbose_name = 'Survey'
+  verbose_name_plural = 'Surveys'
 
 # ModelAdmin
 class GivingProjectA(admin.ModelAdmin):
@@ -196,7 +197,8 @@ class SurveyA(admin.ModelAdmin):
   list_display = ('title', 'updated')
   readonly_fields = ('updated',)
   form = modelforms.CreateSurvey
-  
+  fields = ('title', 'intro', 'questions')
+
   def save_model(self, request, obj, form, change):
     obj.updated = timezone.now()
     obj.updated_by = request.user.username
