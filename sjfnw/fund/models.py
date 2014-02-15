@@ -324,7 +324,7 @@ class ProjectResource(models.Model): #ties resource to project
 class Survey(models.Model):
 
   created = models.DateTimeField(default=timezone.now())
-  updated = models.DateTimeField(blank=True)
+  updated = models.DateTimeField(default=timezone.now())
   updated_by = models.CharField(max_length=100, blank=True)
 
   title = models.CharField(max_length=255, help_text=
