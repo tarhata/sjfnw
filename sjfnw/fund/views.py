@@ -84,8 +84,11 @@ def home(request):
   membership = request.membership
 
   # check if there's a survey to fill out
-  surveys = models.GPSurvey.objects.filter(giving_project=membership.giving_project).exclude(
-      id__in=json.loads(membership.completed_surveys)).order_by('date')
+  surveys = models.GPSurvey.objects.filter(
+      giving_project=membership.giving_project, date__lte=timezone.now()
+  ).exclude(
+      id__in=json.loads(membership.completed_surveys)
+  ).order_by('date')
   if surveys:
     logger.info('Needs to fill out survey; redirecting')
     return redirect(reverse('sjfnw.fund.views.gp_survey', kwargs = {'gp_survey': surveys[0].pk}))
@@ -674,10 +677,10 @@ def edit_donor(request, donor_id):
     request.membership.last_activity = timezone.now()
     request.membership.save(skip=True)
     if est:
-      form = models.DonorForm(request.POST, instance=donor,
+      form = modelforms.DonorForm(request.POST, instance=donor,
                               auto_id = str(donor.pk) + '_id_%s')
     else:
-      form = models.DonorPreForm(request.POST, instance=donor,
+      form = modelforms.DonorPreForm(request.POST, instance=donor,
                                  auto_id = str(donor.pk) + '_id_%s')
     if form.is_valid():
       logger.info('Edit donor success')
@@ -685,10 +688,10 @@ def edit_donor(request, donor_id):
       return HttpResponse("success")
   else:
     if est:
-      form = models.DonorForm(instance=donor, auto_id = str(donor.pk) +
+      form = modelforms.DonorForm(instance=donor, auto_id = str(donor.pk) +
                               '_id_%s')
     else:
-      form = models.DonorPreForm(instance=donor, auto_id = str(donor.pk) +
+      form = modelforms.DonorPreForm(instance=donor, auto_id = str(donor.pk) +
                                  '_id_%s')
   return render(request, 'fund/edit_contact.html',
                 {'form': form, 'pk': donor.pk,
@@ -744,7 +747,7 @@ def add_step(request, donor_id):
   if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save(skip=True)
-    form = models.StepForm(request.POST, auto_id = str(donor.pk) + '_id_%s')
+    form = modelforms.StepForm(request.POST, auto_id = str(donor.pk) + '_id_%s')
     logger.info('Single step - POST: ' + str(request.POST))
     if form.is_valid():
       step = form.save(commit = False)
@@ -753,7 +756,7 @@ def add_step(request, donor_id):
       logger.info('Single step - form valid, step saved')
       return HttpResponse("success")
   else:
-    form = models.StepForm(auto_id = str(donor.pk) + '_id_%s')
+    form = modelforms.StepForm(auto_id = str(donor.pk) + '_id_%s')
 
   return render(request, 'fund/add_step.html',
                 {'donor': donor, 'form': form, 'action':action, 'divid':divid,
@@ -831,14 +834,14 @@ def edit_step(request, donor_id, step_id):
   if request.method == 'POST':
     request.membership.last_activity = timezone.now()
     request.membership.save(skip=True)
-    form = models.StepForm(request.POST, instance=step, auto_id = str(step.pk) +
+    form = modelforms.StepForm(request.POST, instance=step, auto_id = str(step.pk) +
                            '_id_%s')
     if form.is_valid():
       logger.debug('Edit step success')
       form.save()
       return HttpResponse("success")
   else:
-    form = models.StepForm(instance=step, auto_id = str(step.pk) + '_id_%s')
+    form = modelforms.StepForm(instance=step, auto_id = str(step.pk) + '_id_%s')
 
   return render(request, 'fund/edit_step.html',
                 {'donor': donor, 'form': form, 'action':action, 'divid':divid,
@@ -910,7 +913,7 @@ def done_step(request, donor_id, step_id):
       next_step = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
       if next_step != '' and next_date != None:
-        form2 = models.StepForm().save(commit=False)
+        form2 = modelforms.StepForm().save(commit=False)
         form2.date = next_date
         form2.description = next_step
         form2.donor = donor
