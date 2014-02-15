@@ -2,11 +2,32 @@
 {% block title %}Grant cycle information | {{block.super}}{% endblock %}
 {% block script %}
 <script type="text/javascript">
+
+function loadInfoPage(){
+  console.log('loadInfoPage called');
+  $.ajax({
+    url: '{{ cycle.info_page }}',
+    type: "GET",
+    async: false, //cross-domain can't be async
+    success: function(data, textStatus, jqXHR){
+      console.log(jqXHR.status);
+      console.log(textStatus);
+      console.log(data);
+    },
+    error: function(jqXHR, textStatus, errorThrown){
+      console.log(jqXHR.status);
+      console.log(textStatus);
+      console.log(errorThrown);
+    }
+  });
+}
+
 $(document).ready(function() {
    //$("#ifr").load(function() {
    //   $("#loading").hide();
    //   this.style.visibility = '';
    //});
+   loadInfoPage();
 });
 </script>
 {% endblock %}
