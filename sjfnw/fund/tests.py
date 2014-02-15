@@ -9,7 +9,7 @@ from sjfnw.grants.models import ProjectApp
 from sjfnw.tests import BaseTestCase
 
 from datetime import timedelta
-import unittest, logging
+import unittest, logging, json
 logger = logging.getLogger('sjfnw')
 
 
@@ -34,7 +34,7 @@ class BaseFundTestCase(BaseTestCase):
 
   def setUp(self, login):
     super(BaseFundTestCase, self).setUp(login)
-    
+
     self.create_projects()
 
     if login == 'testy':
@@ -93,7 +93,7 @@ class BaseFundTestCase(BaseTestCase):
     self.pre_id = ship.pk
     mem.current = ship.pk
     mem.save()
-    
+
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
     PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
@@ -247,7 +247,7 @@ class StepComplete(BaseFundTestCase):
         'notes': '',
         'next_step': '',
         'next_step_date': ''}
-    
+
 
     donor = models.Donor.objects.get(pk=self.donor_id)
     step = models.Step.objects.get(pk=self.step_id)
@@ -636,7 +636,7 @@ class CopyContacts(BaseFundTestCase):
     """
 
     member = models.Member.objects.get(email='testacct@gmail.com')
-    
+
     response = self.client.get(self.get_url, follow=True)
 
     self.assertTemplateUsed(response, self.template)
@@ -732,7 +732,7 @@ class CopyContacts(BaseFundTestCase):
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
     PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
 class GPSurveys(BaseFundTestCase):
-  """ Test creation, display and completion of GP eval surveys """
+  """ Test GP eval surveys creation, display, responses """
 
   fixtures = TEST_FIXTURE
   url = reverse('sjfnw.fund.views.home')
@@ -742,12 +742,11 @@ class GPSurveys(BaseFundTestCase):
     super(GPSurveys, self).setUp('')
 
   def test_creation(self):
-    """ Create a survey, verify basic display 
-  
+    """ Create a survey, verify basic display
+
     Setup:
-      Log in to admin site
+      Logged in to admin site
       Submit form data for survey creation in basic querydict format
-  
     """
 
     # Create form through admin site
@@ -776,53 +775,95 @@ class GPSurveys(BaseFundTestCase):
     # Connect it to GP1, log into PC and verify it is displaying as expected
     gp_survey = models.GPSurvey(survey=survey, giving_project_id=1, date=timezone.now())
     gp_survey.save()
-  
+
     self.logInTesty()
-  
+
     response = self.client.get(self.url, follow=True)
-  
+
     self.assertTemplateUsed(response, self.template)
     self.assertContains(response, form_data['intro'])
     self.assertContains(response, '<textarea', count=1)
     self.assertContains(response, '<li><label for', count=2)
 
-  def test_fill(self):
-    """ Verify that a filled out survey is properly stored
-  
-    Setup:
-      Programatically create survey/GPSurvey
-      Log into PC and verify that it is showing
-      Post and check the resulting object
-  
-    """
-  
-    self.logInTesty()
-
+  def pre_create_survey(self):
+    # Create survey and connect it to GP 1
     survey = models.Survey(
         title='Basic Survey',
         intro=('Please fill out this quick survey evaluating our last meeting.'
-               ' Once you have completed it, you\'ll be taken to your regular '
-               'home page.'),
+               ' Responses are completely anonymous. Once you have completed '
+               'it, you\'ll be taken to your regular home page.'),
         questions = (
-          '{"question": "How well did we meet our goals? (1 = did not meet, 5 = met all our goals)",'
-          '"choices": [1, 2, 3, 4, 5]}, '
-          '{"question": "Any other comments for us?", "choices": []}'))
+          '[{"question": "How well did we meet our goals? (1 = did not meet, 5 = met all our goals)",'
+          ' "choices": [1, 2, 3, 4, 5]}, '
+          '{"question": "Any other comments for us?", "choices": []}]'))
     survey.save()
     gp_survey = models.GPSurvey(survey=survey, giving_project_id=1, date=timezone.now())
     gp_survey.save()
+    self.gps_pk = gp_survey.pk
 
+  def test_fill(self):
+    """ Verify that a filled out survey is properly stored
+
+    Setup:
+      Log into PC and verify that survey is showing
+      Post and check the resulting object
+    """
+    self.pre_create_survey()
+    self.logInTesty()
+
+    membership = models.Membership.objects.get(pk=1)
+    self.assertEqual(membership.completed_surveys, '[]')
     # Make sure survey shows up from home page
     response = self.client.get(self.url, follow=True)
     self.assertTemplateUsed(response, self.template)
-    
+
+    # Verify no responses in DB yet
     self.assertEqual(models.SurveyResponse.objects.count(), 0)
 
+    # Post a survey response
     form_data = {'responses_0': '2',
-                 'responses_1': 'No comments.' }
-    post_url = reverse('sjfnw.fund.views.gp_survey', 
-                       kwargs = {'gp_survey': gp_survey.pk})
+                 'responses_1': 'No comments.',
+                 'date': str(timezone.now()).split('+')[0],
+                 'gp_survey': self.gps_pk}
+    post_url = reverse('sjfnw.fund.views.gp_survey',
+                       kwargs = {'gp_survey': self.gps_pk})
     response = self.client.post(post_url, form_data)
 
     self.assertEqual(response.content, 'success')
-    new_response = models.SurveyResponse.objects.get(gp_survey=gp_survey)
+    new_response = models.SurveyResponse.objects.get(gp_survey_id=self.gps_pk)
+    self.assertEqual(new_response.responses, json.dumps(
+      ["How well did we meet our goals? (1 = did not meet, 5 = met all our goals)", "2",
+       "Any other comments for us?", "No comments."]))
+
+  def test_future_survey(self):
+    """ Verify that survey doesn't show if the date has not been reached """
+
+    self.pre_create_survey()
+    self.logInTesty()
+
+    # Change survey date to future
+    gp_survey = models.GPSurvey.objects.get(giving_project_id=1)
+    gp_survey.date = timezone.now() + timedelta(days=20)
+    gp_survey.save()
+
+    gp_survey = models.GPSurvey.objects.get(giving_project_id=1)
+    # Make sure survey shows up from home page
+    response = self.client.get(self.url, follow=True)
+    self.assertTemplateNotUsed(response, self.template)
+
+  def test_completed_survey(self):
+    """ Verify that survey doesn't show if it has been completed """
+
+    self.pre_create_survey()
+    self.logInTesty()
+
+    # Mark completed
+    membership = models.Membership.objects.get(pk=1)
+    membership.completed_surveys = '[1]'
+    membership.save()
+
+    # Check home page
+    response = self.client.get(self.url, follow=True)
+    self.assertTemplateNotUsed(self.template)
+
 
