@@ -12,7 +12,7 @@ function loadInfoPage(){
     success: function(data, textStatus, jqXHR){
       console.log(jqXHR.status);
       console.log(textStatus);
-      console.log(data);
+      document.getElementById('cycle-info').innerHTML = data;
     },
     error: function(jqXHR, textStatus, errorThrown){
       console.log(jqXHR.status);
@@ -34,6 +34,7 @@ $(document).ready(function() {
 {% block content %}
 <br><br>
 <h2>Please review <a href="{{ cycle.info_page }}" target="_blank">grant cycle information</a> before beginning the application</h2>
+<div id="cycle-info" class="info_frame"></div>
 <!--<img id="loading" src="/static/images/ajaxloader.gif" alt="Loading..." style="margin:100px 0 0 50%;">
 <iframe id="ifr" class="info_frame" src="{{cycle.info_page}}" style="visibility:hidden;"></iframe> -->
 {% if cycle.is_open %}
