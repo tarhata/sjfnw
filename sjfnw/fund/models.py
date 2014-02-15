@@ -1,23 +1,13 @@
 ﻿from django.contrib.humanize.templatetags.humanize import intcomma
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.forms import ModelForm
-from django.forms.widgets import Textarea
 from django.utils import timezone
 
-from sjfnw.forms import IntegerCommaField
 from sjfnw.fund.utils import NotifyApproval
 
 import datetime, logging
 
 logger = logging.getLogger('sjfnw')
-
-def custom_integer_field(f, **kwargs):
-  if f.verbose_name == '*Amount to ask ($)':
-    return IntegerCommaField(**kwargs)
-  else:
-    return f.formfield()
 
 class GivingProject(models.Model):
   title = models.CharField(max_length=255)
@@ -26,20 +16,44 @@ class GivingProject(models.Model):
                                ' the dropdown menu for members registering or '
                                'adding a project to their account.'))
 
-  pre_approved = models.TextField(blank=True, help_text='List of member emails, separated by commas.  Anyone who registers using an email on this list will have their account automatically approved.  IMPORTANT: Any syntax error can make this feature stop working; in that case memberships will default to requiring manual approval by an administrator.')
+  pre_approved = models.TextField(blank=True,
+      help_text=('List of member emails, separated by commas.  Anyone who '
+      'registers using an email on this list will have their account '
+      'automatically approved.  IMPORTANT: Any syntax error can make this '
+      'feature stop working; in that case memberships will default to '
+      'requiring manual approval by an administrator.'))
 
   #fundraising
-  fundraising_training = models.DateTimeField(help_text='Date & time of fundraising training.  At this point the app will require members to enter an ask amount & estimated likelihood for each contact.')
-  fundraising_deadline = models.DateField(help_text='Members will stop receiving reminder emails at this date.')
-  fund_goal = models.PositiveIntegerField(verbose_name='Fundraising goal', default=0, help_text='Fundraising goal agreed upon by the group. If 0, it will not be displayed to members and they won\'t see a group progress chart for money raised.')
-  suggested_steps = models.TextField(default='Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank', help_text='Displayed to users when they add a step.  Put each step on a new line')
+  fundraising_training = models.DateTimeField(
+      help_text=('Date & time of fundraising training.  At this point the app '
+      'will require members to enter an ask amount & estimated likelihood for '
+      'each contact.'))
+  fundraising_deadline = models.DateField(
+      help_text='Members will stop receiving reminder emails at this date.')
+  fund_goal = models.PositiveIntegerField(
+      verbose_name='Fundraising goal', default=0,
+      help_text=('Fundraising goal agreed upon by the group. If 0, it will not '
+        'be displayed to members and they won\'t see a group progress chart '
+        'for money raised.'))
+  suggested_steps = models.TextField(
+      default=('Talk to about project\nInvite to SJF event\nSet up time to '
+               'meet for the ask\nAsk\nFollow up\nThank'),
+      help_text=('Displayed to users when they add a step.  Put each step on '
+                 'a new line'))
 
-  site_visits = models.BooleanField(default=False, help_text='If checked, members will only see grants with a screening status of at least "site visit awarded"')
+  site_visits = models.BooleanField(default=False,
+      help_text=('If checked, members will only see grants with a screening '
+                'status of at least "site visit awarded"'))
   calendar = models.CharField(max_length=255, blank=True,
                               help_text= ('Calendar ID of a google calendar - '
                               'format: ____@group.calendar.google.com'))
   resources = models.ManyToManyField('Resource', through = 'ProjectResource',
                                      null=True, blank=True)
+  surveys = models.ManyToManyField('Survey', through = 'GPSurvey',
+                                   null=True, blank=True)
+
+  class Meta:
+    ordering = ['-fundraising_training']
 
   def __unicode__(self):
     return self.title+u' '+unicode(self.fundraising_deadline.year)
@@ -78,12 +92,16 @@ class Membership(models.Model): #relationship b/n member and gp
   approved = models.BooleanField(default=False)
   leader = models.BooleanField(default=False)
 
-  emailed = models.DateField(blank=True, null=True,
-                             help_text=('Last time this member was sent an '
-                                       'overdue steps reminder'))
-  last_activity = models.DateField(blank=True, null=True,
-                                   help_text=('Last activity by this user on '
-                                              'this membership.'))
+  copied_contacts = models.BooleanField(default=False)
+  #json encoded list of gp eval surveys completed
+  completed_surveys = models.CharField(max_length=255, default='[]')
+
+  emailed = models.DateField(
+      blank=True, null=True,
+      help_text=('Last time this member was sent an overdue steps reminder'))
+  last_activity = models.DateField(
+      blank=True, null=True,
+      help_text=('Last activity by this user on this membership.'))
 
   notifications = models.TextField(default='', blank=True)
 
@@ -264,34 +282,6 @@ class Donor(models.Model):
     else:
       return None
 
-def make_custom_datefield(f):
-  """
-  date selector implementation from
-  http://strattonbrazil.blogspot.com/2011/03/using-jquery-uis-date-picker-on-all.html
-  """
-  formfield = f.formfield()
-  if isinstance(f, models.DateField):
-    formfield.error_messages['invalid'] = 'Please enter a date in mm/dd/yyyy format.'
-    formfield.widget.format = '%m/%d/%Y'
-    formfield.widget.input_formats = ['%m/%d/%Y', '%m-%d-%Y', '%n/%j/%Y',
-                                      '%n-%j-%Y']
-    formfield.widget.attrs.update({'class':'datePicker'})
-  return formfield
-
-class DonorForm(ModelForm): #used to edit, creation uses custom form
-  formfield_callback = custom_integer_field
-  class Meta:
-    model = Donor
-    fields = ('firstname', 'lastname', 'amount', 'likelihood', 'phone',
-              'email', 'notes')
-    widgets = {'notes': Textarea(attrs={'cols': 25, 'rows': 4})}
-
-class DonorPreForm(ModelForm): #for editing prior to fund training
-  class Meta:
-    model = Donor
-    fields = ('firstname', 'lastname', 'phone', 'email', 'notes')
-    widgets = {'notes': Textarea(attrs={'cols': 25, 'rows': 4})}
-
 class Step(models.Model):
   created = models.DateTimeField(default=timezone.now())
   date = models.DateField(verbose_name='Date')
@@ -303,14 +293,6 @@ class Step(models.Model):
 
   def __unicode__(self):
     return unicode(self.date.strftime('%m/%d/%y')) + u' -  ' + self.description
-
-
-class StepForm(ModelForm): #for adding a step
-  formfield_callback = make_custom_datefield #date input
-
-  class Meta:
-    model = Step
-    exclude = ('created', 'donor', 'completed', 'asked', 'promised')
 
 
 class NewsItem(models.Model):
@@ -338,4 +320,52 @@ class ProjectResource(models.Model): #ties resource to project
 
   def __unicode__(self):
     return "%s - %s - %s" % (self.giving_project, self.session, self.resource)
+
+class Survey(models.Model):
+
+  created = models.DateTimeField(default=timezone.now())
+  updated = models.DateTimeField(default=timezone.now())
+  updated_by = models.CharField(max_length=100, blank=True)
+
+  title = models.CharField(max_length=255, help_text=
+      ('Descriptive summary to aid in sharing survey templates between '
+       'projects. For admin site only. E.g. \'GP session evaluation\', '
+       '\'Race workshop evaluation\', etc.'))
+  intro = models.TextField(
+      help_text=('Introductory text to display before the questions when form '
+                 'is shown to GP members.'),
+      default=('Please fill out this quick survey to let us know how the last '
+               'meeting went.  Responses are anonymous, and once you fill out '
+               'the survey you\'ll be taken to your regular home page.'))
+  questions = models.TextField( #json encoded list of questions
+      help_text=('Leave all of a question\' choices blank if you want a '
+                 'write-in response instead of multiple choice'),
+      default=('[{"question": "Did we meet our goals? (1=not at all, '
+               '5=completely)", "choices": ["1", "2", "3", "4", "5"]}]'))
+
+  def __unicode__(self):
+    return self.title
+
+  def save(self, *args, **kwargs):
+    super(Survey, self).save(*args, **kwargs)
+    logger.info('Survey saved. Questions are: ' + self.questions)
+
+
+class GPSurvey(models.Model):
+  survey = models.ForeignKey(Survey)
+  giving_project = models.ForeignKey(GivingProject)
+  date = models.DateTimeField()
+
+  def __unicode__(self):
+    return '%s - %s' % (self.giving_project.title, self.survey.title)
+
+class SurveyResponse(models.Model):
+
+  date = models.DateTimeField(default=timezone.now())
+  gp_survey = models.ForeignKey(GPSurvey)
+  responses = models.TextField() #json encoded question-answer pairs
+
+  def __unicode__(self):
+    return 'Response to %s %s survey' % (self.gp_survey.giving_project.title,
+        self.date.strftime('%m/%d/%y'))
 

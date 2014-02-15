@@ -1,0 +1,31 @@
+{% extends request.is_ajax|yesno:"base_ajax.html,fund/base_personal.html" %}
+{% block content %}
+<div id="copy-contacts-wrapper">
+  <p>Welcome! You're not tracking any contacts for this giving project yet.  If you'd like to 
+  start off by copying contacts from other giving projects you have been in, select them 
+  below. Name, contact info and notes will be copied.</p>
+  <form id="skip-contacts" method="post" action="">
+    <input id="skip" name="skip" type="hidden" value="1">
+  </form>
+  <form id="copy-contacts" method="post" action="" accept-charset="UTF-8">
+    <table class="form center">
+      <tr>
+        <td>{{ formset.management_form }}</td>
+      </tr>
+      {% for form in formset %}
+      <tr>
+      {% for field in form %}
+        <td>{{ field }}</td>
+      {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  </form>
+  <div align="center">
+    <img id = "ajax_loading" src="/static/images/ajaxloader.gif" style="display:none;" alt="Loading..."><br>
+    <button onclick="Submit('{{ request.path }}', '#copy-contacts', 'copy-contacts-wrapper')">Copy</button>
+    <button onclick="Submit('{{ request.path }}', '#skip-contacts', 'copy-contacts-wrapper')">Skip</button>
+  </div>
+</div>
+{% endblock content %}
+

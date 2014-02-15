@@ -31,6 +31,48 @@ LIVE_FIXTURES = ['sjfnw/fund/fixtures/live_gp_dump.json', #not using these yet i
                  'sjfnw/grants/fixtures/project_apps.json',
                  'sjfnw/grants/fixtures/gp_grants.json']
 
+
+class BaseGrantTestCase(BaseTestCase):
+  """ Base for grants tests. Provides fixture and basic setUp
+      as well as several helper functions """
+
+  fixtures = ['sjfnw/grants/fixtures/test_grants.json']
+
+  def logInNeworg(self):
+    user = User.objects.create_user('neworg@gmail.com', 'neworg@gmail.com', 'noob')
+    self.client.login(username = 'neworg@gmail.com', password = 'noob')
+
+  def logInTestorg(self):
+    user = User.objects.create_user('testorg@gmail.com', 'testorg@gmail.com', 'noob')
+    self.client.login(username = 'testorg@gmail.com', password = 'noob')
+
+  def setUp(self, login):
+    super(BaseGrantTestCase, self).setUp(login)
+    if login == 'testy':
+      self.logInTestorg()
+    elif login == 'newbie':
+      self.logInNeworg()
+    elif login == 'admin':
+      self.logInAdmin()
+    set_cycle_dates()
+
+  class Meta:
+    abstract = True
+
+
+class BaseGrantFilesTestCase(BaseGrantTestCase):
+  """ Can handle file uploads too """
+
+  def setUp(self, login):
+    super(BaseGrantFilesTestCase, self).setUp(login)
+    self.testbed = testbed.Testbed()
+    self.testbed.activate()
+    self.testbed.init_datastore_v3_stub()
+
+  class Meta:
+    abstract = True
+
+
 def set_cycle_dates():
   """ Updates grant cycle dates to make sure they have the expected statuses:
       open, open, closed, upcoming, open """
@@ -64,24 +106,6 @@ def set_cycle_dates():
   cycle.close = now + ten_days
   cycle.save()
 
-class BaseGrantTestCase(BaseTestCase):
-  """ Base for grants tests. Provides fixture and basic setUp
-      as well as several helper functions """
-
-  fixtures = ['sjfnw/grants/fixtures/test_grants.json']
-
-  def setUp(self, login):
-    super(BaseGrantTestCase, self).setUp(login)
-    if login == 'testy':
-      self.logInTestorg()
-    elif login == 'newbie':
-      self.logInNeworg()
-    elif login == 'admin':
-      self.logInAdmin()
-    set_cycle_dates()
-
-  class Meta:
-    abstract = True
 
 def alter_draft_timeline(draft, values):
   """ values: list of timeline widget values (0-14) """
@@ -91,6 +115,7 @@ def alter_draft_timeline(draft, values):
   draft.contents = json.dumps(contents_dict)
   draft.save()
 
+
 def alter_draft_files(draft, files_dict):
   """ File list should match this order:
       ['budget', 'demographics', 'funding_sources', 'budget1', 'budget2',
@@ -99,6 +124,7 @@ def alter_draft_files(draft, files_dict):
   for key, val in files.iteritems():
     setattr(draft, key, val)
   draft.save()
+
 
 def assert_app_matches_draft(self, draft, app, exclude_cycle): #only checks fields in draft
   """ Timeline formats:
@@ -117,17 +143,6 @@ def assert_app_matches_draft(self, draft, app, exclude_cycle): #only checks fiel
   if exclude_cycle:
     self.assertNotIn('cycle_question', draft_contents)
 
-class BaseGrantFilesTestCase(BaseGrantTestCase):
-  """ Can handle file uploads too """
-
-  def setUp(self, login):
-    super(BaseGrantFilesTestCase, self).setUp(login)
-    self.testbed = testbed.Testbed()
-    self.testbed.activate()
-    self.testbed.init_datastore_v3_stub()
-
-  class Meta:
-    abstract = True
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class Register(BaseGrantTestCase):
@@ -137,7 +152,7 @@ class Register(BaseGrantTestCase):
   template_error = 'grants/org_login_register.html'
 
   def setUp(self):
-    self.printName()
+    super(Register, self).setUp('')
 
   def test_valid_registration(self):
     """ All fields provided, neither email nor name match an org in db """
@@ -692,7 +707,6 @@ class ViewGrantPermissions(BaseGrantTestCase):
   fixtures = ['sjfnw/grants/fixtures/test_grants.json', 'sjfnw/fund/fixtures/test_fund.json']
 
   def setUp(self):
-    self.printName()
     pa = ProjectApp(application_id = 1, giving_project_id = 2)
     pa.save()
 
@@ -796,7 +810,6 @@ class Reporting(BaseGrantTestCase):
 
   def setUp(self): #don't super, can't set cycle dates with this fixture
     self.logInAdmin()
-    self.printName()
 
   def fill_report_form(self, form, filters=False, fields=False, fmt='browse'):
     """ Shared method to create POST data for the given form
@@ -1090,7 +1103,6 @@ class AdminInlines(BaseGrantTestCase):
 
   def setUp(self): #don't super, can't set cycle dates with this fixture
     self.logInAdmin()
-    self.printName()
 
   def test_organization(self):
     """ Verify that related inlines show existing objs
@@ -1102,26 +1114,26 @@ class AdminInlines(BaseGrantTestCase):
     Asserts:
       Application inline
     """
-    
+
     organization = Organization.objects.get(pk=41)
-    
+
     app = organization.grantapplication_set.all()[0]
 
     response = self.client.get('/admin/grants/organization/41/')
 
     self.assertContains(response, app.grant_cycle.title)
     self.assertContains(response, app.pre_screening_status)
-    
+
   def test_givingproject(self):
     """ Verify that assigned grant applications (projectapps) are shown as inlines
-    
+
     Setup:
       Find a GP that has projectapps
-    
+
     Asserts:
       Displays one of the assigned apps
     """
-    
+
     apps = ProjectApp.objects.filter(giving_project_id=19)
 
     response = self.client.get('/admin/fund/givingproject/19/')
@@ -1130,10 +1142,10 @@ class AdminInlines(BaseGrantTestCase):
 
   def test_application(self):
     """ Verify that gp assignment and awards are shown on application page
-    
+
     Setup:
       Use application with GP assignment. App 274, Papp 3
-    
+
     Asserts:
       ASSERTIONS
     """
@@ -1144,9 +1156,4 @@ class AdminInlines(BaseGrantTestCase):
 
     self.assertContains(response, papp.giving_project.title)
     self.assertContains(response, papp.screening_status)
-
-    
-  
-
-    
 

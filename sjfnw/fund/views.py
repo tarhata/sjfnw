@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.core.mail import EmailMultiAlternatives
+from django.core.urlresolvers import reverse
 from django.forms.formsets import formset_factory
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
@@ -17,11 +18,9 @@ from sjfnw import constants
 from sjfnw.grants.models import Organization, GrantApplication, ProjectApp
 
 from sjfnw.fund.decorators import approved_membership
-from sjfnw.fund import forms
-from sjfnw.fund import models, utils
+from sjfnw.fund import forms, modelforms, models, utils
 
-import datetime, logging
-import os
+import datetime, logging, os, json
 
 if not settings.DEBUG:
   ereporter.register_logger()
@@ -58,6 +57,7 @@ def get_block_content(membership, get_steps=True):
   p_apps = p_apps.select_related('giving_project', 'application',
       'application__organization')
   if membership.giving_project.site_visits == 1:
+    logger.info('Filtering grants for site visits')
     p_apps = p_apps.filter(screening_status__gte=70)
   p_apps = p_apps.order_by('application__organization__name')
   bks.append(p_apps)
@@ -70,7 +70,7 @@ def home(request):
   """ Handles display of the home/personal page
 
   Redirects:
-    no contacts -> add_mult
+    no contacts -> copy_contacts or add_mult
     contacts without estimates + post-training + no url params -> add_estimates
 
   Handles display of
@@ -83,9 +83,25 @@ def home(request):
 
   membership = request.membership
 
+  # check if there's a survey to fill out
+  surveys = models.GPSurvey.objects.filter(
+      giving_project=membership.giving_project, date__lte=timezone.now()
+  ).exclude(
+      id__in=json.loads(membership.completed_surveys)
+  ).order_by('date')
+  if surveys:
+    logger.info('Needs to fill out survey; redirecting')
+    return redirect(reverse('sjfnw.fund.views.gp_survey', kwargs = {'gp_survey': surveys[0].pk}))
+
+
   # check if they have contacts
   donors = membership.donor_set.all()
   if not donors:
+    if not membership.copied_contacts:
+      all_donors = models.Donor.objects.filter(membership__member=membership.member)
+      logger.info(all_donors)
+      if all_donors:
+        return redirect(copy_contacts)
     return redirect(add_mult)
 
   #querydict for pre-loading forms
@@ -439,7 +455,103 @@ def support(request):
   return render(request, 'fund/support.html',
                 {'member':member, 'support_email': constants.SUPPORT_EMAIL, 'support_form':constants.FUND_SUPPORT_FORM})
 
+
+# ALTERNATIVE HOME PAGES
+
+
+@login_required(login_url = '/fund/login')
+@approved_membership()
+def gp_survey(request, gp_survey):
+
+  try:
+    gp_survey = models.GPSurvey.objects.get(pk = gp_survey)
+  except models.GPSurvey.DoesNotExist:
+    logger.error('GP Survey does not exist ' + str(gp_survey))
+    raise Http404('survey not found')
+
+
+  if request.method == 'POST':
+    logger.info(request.POST)
+    form = modelforms.SurveyResponseForm(gp_survey.survey, request.POST)
+    if form.is_valid():
+      resp = form.save()
+      logger.info('survey response saved')
+      completed = json.loads(request.membership.completed_surveys)
+      completed.append(gp_survey.pk)
+      request.membership.completed_surveys = json.dumps(completed)
+      request.membership.save()
+      return HttpResponse('success')
+
+  else: #GET
+    form = modelforms.SurveyResponseForm(gp_survey.survey, initial={'gp_survey': gp_survey})
+
+  return render(request, 'fund/fill_gp_survey.html', {
+      'form': form, 'survey': gp_survey.survey})
+
+
+
 # CONTACTS
+
+@login_required(login_url = '/fund/login')
+@approved_membership()
+def copy_contacts(request):
+
+  # base formset
+  copy_formset = formset_factory(forms.CopyContacts, extra=0)
+
+  if request.method == 'POST':
+    logger.info(request.POST)
+
+    if 'skip' in request.POST:
+      logger.info('User skipping copy contacts')
+      request.membership.copied_contacts = True
+      request.membership.save()
+      return HttpResponse("success")
+
+    else:
+      formset = copy_formset(request.POST)
+      logger.info('Copy contracts submitted')
+      if formset.is_valid():
+        for form in formset.cleaned_data:
+          if form['select']:
+            contact = models.Donor(membership = request.membership,
+                firstname = form['firstname'], lastname = form['lastname'],
+                phone = form['phone'], email = form['email'], notes = form['notes'])
+            contact.save()
+            logger.debug('Contact created')
+        request.membership.copied_contacts = True
+        request.membership.save()
+        return HttpResponse("success")
+      else: #invalid
+        logger.warning('Copy formset somehow invalid?! ' + str(request.POST))
+        logger.warning(formset.errors)
+
+  else: #GET
+    all_donors = models.Donor.objects.filter(membership__member=request.membership.member).order_by('firstname', 'lastname', '-added')
+    # extract name, contact info, notes. handle duplicates
+    initial_data = []
+    for donor in all_donors:
+      if (initial_data and donor.firstname == initial_data[-1]['firstname'] and
+             (donor.lastname and donor.lastname == initial_data[-1]['lastname'] or
+                 donor.phone and donor.phone == initial_data[-1]['phone'] or
+                 donor.email and donor.email == initial_data[-1]['email'])): #duplicate - do not override
+        logger.info('Duplicate found! ' + str(donor))
+        initial_data[-1]['lastname'] = initial_data[-1]['lastname'] or donor.lastname
+        initial_data[-1]['phone'] = initial_data[-1]['phone'] or donor.phone
+        initial_data[-1]['email'] = initial_data[-1]['email'] or donor.email
+        initial_data[-1]['notes'] += donor.notes
+        initial_data[-1]['notes'] = initial_data[-1]['notes'][:253]
+      else: #not duplicate; add a row
+        initial_data.append({
+            'firstname': donor.firstname, 'lastname': donor.lastname,
+            'phone': donor.phone, 'email': donor.email, 'notes': donor.notes})
+
+    logger.info('initial data list of ' + str(len(initial_data)))
+    formset = copy_formset(initial=initial_data)
+    logger.debug('Loading copy contacts formset')
+
+  return render(request, 'fund/copy_contacts.html', {'formset': formset})
+
 
 @login_required(login_url='/fund/login/')
 @approved_membership()
@@ -565,10 +677,10 @@ def edit_donor(request, donor_id):
     request.membership.last_activity = timezone.now()
     request.membership.save(skip=True)
     if est:
-      form = models.DonorForm(request.POST, instance=donor,
+      form = modelforms.DonorForm(request.POST, instance=donor,
                               auto_id = str(donor.pk) + '_id_%s')
     else:
-      form = models.DonorPreForm(request.POST, instance=donor,
+      form = modelforms.DonorPreForm(request.POST, instance=donor,
                                  auto_id = str(donor.pk) + '_id_%s')
     if form.is_valid():
       logger.info('Edit donor success')
@@ -576,10 +688,10 @@ def edit_donor(request, donor_id):
       return HttpResponse("success")
   else:
     if est:
-      form = models.DonorForm(instance=donor, auto_id = str(donor.pk) +
+      form = modelforms.DonorForm(instance=donor, auto_id = str(donor.pk) +
                               '_id_%s')
     else:
-      form = models.DonorPreForm(instance=donor, auto_id = str(donor.pk) +
+      form = modelforms.DonorPreForm(instance=donor, auto_id = str(donor.pk) +
                                  '_id_%s')
   return render(request, 'fund/edit_contact.html',
                 {'form': form, 'pk': donor.pk,
@@ -635,7 +747,7 @@ def add_step(request, donor_id):
   if request.method == 'POST':
     membership.last_activity = timezone.now()
     membership.save(skip=True)
-    form = models.StepForm(request.POST, auto_id = str(donor.pk) + '_id_%s')
+    form = modelforms.StepForm(request.POST, auto_id = str(donor.pk) + '_id_%s')
     logger.info('Single step - POST: ' + str(request.POST))
     if form.is_valid():
       step = form.save(commit = False)
@@ -644,7 +756,7 @@ def add_step(request, donor_id):
       logger.info('Single step - form valid, step saved')
       return HttpResponse("success")
   else:
-    form = models.StepForm(auto_id = str(donor.pk) + '_id_%s')
+    form = modelforms.StepForm(auto_id = str(donor.pk) + '_id_%s')
 
   return render(request, 'fund/add_step.html',
                 {'donor': donor, 'form': form, 'action':action, 'divid':divid,
@@ -722,14 +834,14 @@ def edit_step(request, donor_id, step_id):
   if request.method == 'POST':
     request.membership.last_activity = timezone.now()
     request.membership.save(skip=True)
-    form = models.StepForm(request.POST, instance=step, auto_id = str(step.pk) +
+    form = modelforms.StepForm(request.POST, instance=step, auto_id = str(step.pk) +
                            '_id_%s')
     if form.is_valid():
       logger.debug('Edit step success')
       form.save()
       return HttpResponse("success")
   else:
-    form = models.StepForm(instance=step, auto_id = str(step.pk) + '_id_%s')
+    form = modelforms.StepForm(instance=step, auto_id = str(step.pk) + '_id_%s')
 
   return render(request, 'fund/edit_step.html',
                 {'donor': donor, 'form': form, 'action':action, 'divid':divid,
@@ -801,7 +913,7 @@ def done_step(request, donor_id, step_id):
       next_step = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
       if next_step != '' and next_date != None:
-        form2 = models.StepForm().save(commit=False)
+        form2 = modelforms.StepForm().save(commit=False)
         form2.date = next_date
         form2.description = next_step
         form2.donor = donor

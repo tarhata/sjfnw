@@ -43,6 +43,7 @@ class MembershipMiddleware(object):
           membership = models.Membership.objects.select_related().get(member = member, pk=member.current) #q4
           request.membership_status = 3
           request.membership = membership
+          logger.debug(membership)
         except models.Membership.DoesNotExist: #current is wrong
           all = member.membership_set.all()
           if all: #if 1+ memberships, update current & set ship var
@@ -60,6 +61,7 @@ class MembershipMiddleware(object):
 
         #membership exists, status is 3
         if membership.approved == False: #current not approved
+          logger.warning('Current membership not approved')
           ships = member.membership_set.filter(approved=True)
           if ships: #switch default to their first approved gp
             request.membership_status = 3

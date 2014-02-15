@@ -17,11 +17,15 @@ urlpatterns = patterns('sjfnw.fund.views',
   (r'^projects/?', 'manage_account'),
   (r'^set-current/(?P<ship_id>\d+)/?', 'set_current'),
 
+  #surveys
+  (r'^survey/(?P<gp_survey>\d+)$', 'gp_survey'),
+
   #forms - contacts
   (r'^add-contacts', 'add_mult'),
   (r'^(?P<donor_id>\d+)/edit','edit_donor'),
   (r'^(?P<donor_id>\d+)/delete', 'delete_donor'),
   (r'^add-estimates', 'add_estimates'),
+  (r'^copy', 'copy_contacts'),
 
   #forms - steps
   (r'^(?P<donor_id>\d+)/step$','add_step'),

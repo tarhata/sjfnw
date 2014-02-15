@@ -76,3 +76,5 @@ DEFAULT_FILE_STORAGE = 'sjfnw.grants.storage.BlobstoreStorage'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024
 FILE_UPLOAD_HANDLERS = ('sjfnw.grants.storage.BlobstoreFileUploadHandler',)
 
+TEST_RUNNER = 'sjfnw.tests.ColorTestSuiteRunner'
+

@@ -20,6 +20,12 @@ div.content_area {
   font-size:inherit;
 }
 
+.center {
+  margin-left:auto;
+  margin-right: auto;
+  text-align: center;
+}
+
 /* header & bar */
 
 table.header {
@@ -258,6 +264,27 @@ div#stepmult {
 div#stepmult input {
 	margin-left:auto;
 	margin-right:auto;
+}
+
+/* copy contacts */
+input[readonly="True"] {
+  border: none;
+  text-align: inherit;
+}
+
+/* gp surveys */
+#gpsurvey ul {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
+#survey-questions tr {
+  vertical-align: top;
+}
+
+.survey-text {
+  display: block;
+  margin-top: .5em;
 }
 
 /* gp */
