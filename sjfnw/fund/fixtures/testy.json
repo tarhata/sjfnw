@@ -42,7 +42,7 @@
   "model": "fund.donor",
   "fields": {
     "gift_notified": true,
-    "received": 100,
+    "received_this": 100,
     "added": "2013-01-01T00:01:44Z",
     "firstname": "Stacey",
     "lastname": "Wedlake",
@@ -62,7 +62,7 @@
   "model": "fund.donor",
   "fields": {
     "gift_notified": true,
-    "received": 250,
+    "received_this": 250,
     "added": "2013-01-01T00:01:44Z",
     "firstname": "Suman",
     "lastname": "Bhat-Kincaid",
@@ -82,7 +82,7 @@
   "model": "fund.donor",
   "fields": {
     "gift_notified": false,
-    "received": 0,
+    "received_this": 0,
     "added": "2013-01-01T00:01:44Z",
     "firstname": "Patrice",
     "lastname": "Carroll",
@@ -102,7 +102,7 @@
   "model": "fund.donor",
   "fields": {
     "gift_notified": true,
-    "received": 25,
+    "received_this": 25,
     "added": "2013-01-01T00:01:44Z",
     "firstname": "Vorada",
     "lastname": "Savengseuksa",
@@ -122,7 +122,7 @@
   "model": "fund.donor",
   "fields": {
     "gift_notified": true,
-    "received": 100,
+    "received_this": 100,
     "added": "2013-01-01T00:01:44Z",
     "firstname": "Natalie",
     "lastname": "Blanchard",
@@ -142,7 +142,7 @@
   "model": "fund.donor",
   "fields": {
     "gift_notified": true,
-    "received": 150,
+    "received_this": 150,
     "added": "2013-01-01T00:01:44Z",
     "firstname": "Walter",
     "lastname": "Biggins",
@@ -162,7 +162,7 @@
   "model": "fund.donor",
   "fields": {
     "gift_notified": false,
-    "received": 0,
+    "received_this": 0,
     "added": "2013-01-01T00:01:44Z",
     "firstname": "Lynielle",
     "lastname": "Long",
@@ -182,7 +182,7 @@
   "model": "fund.donor",
   "fields": {
     "gift_notified": true,
-    "received": 50,
+    "received_this": 50,
     "added": "2013-01-01T00:01:44Z",
     "firstname": "Roseanne",
     "lastname": "Rostock",

@@ -56,9 +56,11 @@ class ReceivedBooleanFilter(SimpleListFilter): #donors & steps
 
   def queryset(self, request, queryset):
     if self.value() == 'True':
-      return queryset.filter(received__gt=0)
+      return queryset.exclude(
+          received_this=0, received_next=0, received_afternext=0)
     if self.value() == 'False':
-      return queryset.filter(received=0)
+      return queryset.filter(
+          received_this=0, received_next=0, received_afternext=0)
 
 
 # Inlines
@@ -156,30 +158,35 @@ class MembershipA(admin.ModelAdmin):
 
 class DonorA(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked',
-                  'promised', 'received')
+                  'promised', 'received_this', 'received_next', 'received_afternext')
   list_filter = ('membership__giving_project', 'asked', PromisedBooleanFilter,
                  ReceivedBooleanFilter)
-  list_editable = ('received',)
+  list_editable = ('received_this', 'received_next', 'received_afternext')
   exclude = ('added',)
   search_fields = ['firstname', 'lastname', 'membership__member__first_name',
                    'membership__member__last_name']
-  actions = [export_donors]
+  actions = ['export_donors']
 
   def export_donors(self, request, queryset):
     logger.info('Export donors called by ' + request.user.email)
+
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=prospects.csv'
     writer = unicodecsv.writer(response)
 
     writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member',
                      'Giving Project', 'Amount to ask', 'Asked', 'Promised',
-                     'Received', 'Notes'])
+                     'Received - TOTAL', 'Received - Year', 'Received - Amount',
+                     'Received - Year', 'Received - Amount',
+                     'Received - Year', 'Received - Amount', 'Notes'])
     count = 0
     for donor in queryset:
+      year = donor.membership.giving_project.fundraising_deadline.year
       fields = [donor.firstname, donor.lastname, donor.phone, donor.email,
                 donor.membership.member, donor.membership.giving_project,
-                donor.amount, donor.asked, donor.promised, donor.received,
-                donor.notes]
+                donor.amount, donor.asked, donor.promised, donor.received(),
+                year, donor.received_this, year+1, donor.received_next, year+2,
+                donor.received_afternext, donor.notes]
       writer.writerow(fields)
       count += 1
     logger.info(str(count) + ' donors exported')

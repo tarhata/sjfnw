@@ -336,7 +336,7 @@
 
   <div class="donor_details indent" id="details-{{ dict.donor.pk }}" style="display:none;"><!-- donor details (hidden) -->
     <table>
-      {% if dict.donor.received %}<!-- received, promised, asked, etc. -->
+      {% if dict.donor.received > 0 %}<!-- received, promised, asked, etc. -->
         <tr><td>Received by SJF:</td><td>${{ dict.donor.received|intcomma }}</td></tr>
         <tr><td>Original estimation:</td><td>${{ dict.donor.estimated|intcomma }}</td></tr>
       {% elif dict.donor.promised != None %}

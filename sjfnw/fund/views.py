@@ -147,8 +147,8 @@ def home(request):
       donor_data[donor.pk]['next_date'] = datetime.date(2600, 1, 1)
     elif donor.talked:
       prog['talked'] += 1
-    if donor.received:
-      prog['received'] += donor.received
+    if donor.received() > 0:
+      prog['received'] += donor.received()
       donor_data[donor.pk]['next_date'] = datetime.date(2800, 1, 1)
     elif donor.promised:
       prog['promised'] += donor.promised
@@ -224,8 +224,8 @@ def project_page(request):
       project_progress['asked'] += 1
     elif donor.talked:
       project_progress['talked'] += 1
-    if donor.received:
-      project_progress['received'] += donor.received
+    if donor.received() > 0:
+      project_progress['received'] += donor.received()
     elif donor.promised:
       project_progress['promised'] += donor.promised
 
@@ -773,7 +773,7 @@ def add_mult_step(request):
   suggested = membership.giving_project.suggested_steps.splitlines()
 
   for donor in membership.donor_set.order_by('-added'): #sort by added
-    if (donor.received == 0 and donor.promised is None and donor.get_next_step() is None):
+    if (donor.received() == 0 and donor.promised is None and donor.get_next_step() is None):
       initiald.append({'donor': donor})
       dlist.append(donor)
       size = size +1
@@ -1011,8 +1011,8 @@ def gift_notify(request):
   for ship, dlist in memberships.iteritems():
     gift_str = ''
     for d in dlist:
-      gift_str += ('$' + str(d.received) + ' gift or pledge received from ' +
-                  d.firstname)
+      gift_str += ('$' + str(d.received() + ' gift or pledge received from ' +
+                  d.firstname))
       if d.lastname:
         gift_str += ' '+d.lastname
       gift_str += '!<br>'

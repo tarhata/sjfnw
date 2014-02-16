@@ -150,7 +150,7 @@ class Membership(models.Model): #relationship b/n member and gp
     donors = self.donor_set.all()
     amt = 0
     for donor in donors:
-      amt = amt + donor.received
+      amt = amt + donor.received()
     return amt
 
   def estimated(self): #remove
@@ -243,7 +243,9 @@ class Donor(models.Model):
   talked = models.BooleanField(default=False)
   asked = models.BooleanField(default=False)
   promised = models.PositiveIntegerField(blank=True, null=True)
-  received = models.PositiveIntegerField(default=0)
+  received_this = models.PositiveIntegerField(default=0)
+  received_next = models.PositiveIntegerField(default=0)
+  received_afternext = models.PositiveIntegerField(default=0)
   gift_notified = models.BooleanField(default=False)
 
   phone = models.CharField(max_length=15, blank=True)
@@ -264,6 +266,9 @@ class Donor(models.Model):
       return int(self.amount*self.likelihood*.01)
     else:
       return 0
+
+  def received(self):
+    return self.received_this + self.received_next + self.received_afternext
 
   def get_steps(self): #used in expanded view
     return Step.objects.filter(donor=self).filter(completed__isnull=False).order_by('date')
