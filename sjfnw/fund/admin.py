@@ -139,12 +139,20 @@ class MemberAdvanced(admin.ModelAdmin): #advanced only
   search_fields = ['first_name', 'last_name', 'email']
 
 class MembershipA(admin.ModelAdmin):
+
+  actions = ['approve']
   list_display = ('member', 'giving_project', ship_progress, 'overdue_steps',
                   'last_activity', 'approved', 'leader')
-  readonly_list = (ship_progress, 'overdue_steps',)
-  actions = ['approve']
   list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
   search_fields = ['member__first_name', 'member__last_name']
+  readonly_list = (ship_progress, 'overdue_steps',)
+
+  fields = (('member', 'giving_project', 'approved'),
+      ('leader', 'last_activity', 'emailed'),
+      ('estimated', 'asked', 'promised', 'received'),
+      'notifications'
+  )
+  readonly_fields = ('last_activity', 'emailed', 'estimated', 'asked', 'promised', 'received')
   inlines = [DonorInline]
 
   def approve(self, request, queryset): #Membership action
