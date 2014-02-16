@@ -29,66 +29,6 @@ def ship_progress(obj):
 ship_progress.short_description = 'Estimated, promised, received'
 ship_progress.allow_tags = True
 
-# actions
-def approve(modeladmin, request, queryset): #Membership action
-  logger.info('Approval button pressed; looking through queryset')
-  for memship in queryset:
-    if memship.approved == False:
-      utils.NotifyApproval(memship)
-  queryset.update(approved=True)
-  logger.info('Approval queryset updated')
-
-def export_donors(modeladmin, request, queryset):
-  logger.info('Export donors called by ' + request.user.email)
-  response = HttpResponse(mimetype='text/csv')
-  response['Content-Disposition'] = 'attachment; filename=prospects.csv'
-  writer = unicodecsv.writer(response)
-
-  writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member',
-                   'Giving Project', 'Amount to ask', 'Asked', 'Promised',
-                   'Received', 'Notes'])
-  count = 0
-  for donor in queryset:
-    fields = [donor.firstname, donor.lastname, donor.phone, donor.email,
-              donor.membership.member, donor.membership.giving_project,
-              donor.amount, donor.asked, donor.promised, donor.received,
-              donor.notes]
-    writer.writerow(fields)
-    count += 1
-  logger.info(str(count) + ' donors exported')
-  return response
-
-def export_responses(modeladmin, request, queryset):
-
-  logger.info('Export survey responses called by ' + request.user.email)
-  response = HttpResponse(mimetype='text/csv')
-  response['Content-Disposition'] = 'attachment; filename=survey_responses %s.csv' % (timezone.now().strftime('%Y-%m-%d'),)
-  writer = unicodecsv.writer(response)
-
-  header = ['Date', 'Survey ID', 'Giving Project', 'Survey'] #base
-  questions = 0
-  response_rows = []
-  for sr in queryset:
-    fields = [sr.date, sr.gp_survey_id,
-              sr.gp_survey.giving_project.title,
-              sr.gp_survey.survey.title]
-    logger.info(isinstance(sr.responses, str))
-    qa = json.loads(sr.responses)
-    for i in range(0, len(qa), 2):
-      fields.append(qa[i])
-      fields.append(qa[i+1])
-      questions = max(questions, (i+2)/2)
-    response_rows.append(fields)
-
-  logger.info('Max %d questions' % questions)
-  for i in range(0, questions):
-    header.append('Question')
-    header.append('Answer')
-  writer.writerow(header)
-  for row in response_rows:
-    writer.writerow(row)
-
-  return response
 
 # Filters
 class PromisedBooleanFilter(SimpleListFilter): #donors & steps
@@ -120,14 +60,6 @@ class ReceivedBooleanFilter(SimpleListFilter): #donors & steps
     if self.value() == 'False':
       return queryset.filter(received=0)
 
-"""
-class SurveyResponseGPFilter(SimpleListFilter):
-  title = 'Giving project'
-  parameter_name = 'gp'
-
-  def lookups(self, request, model_admin):
-    return 
-"""
 
 # Inlines
 class MembershipInline(admin.TabularInline): #GP
@@ -208,10 +140,19 @@ class MembershipA(admin.ModelAdmin):
   list_display = ('member', 'giving_project', ship_progress, 'overdue_steps',
                   'last_activity', 'approved', 'leader')
   readonly_list = (ship_progress, 'overdue_steps',)
-  actions = [approve]
+  actions = ['approve']
   list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
   search_fields = ['member__first_name', 'member__last_name']
   inlines = [DonorInline]
+
+  def approve(self, request, queryset): #Membership action
+    logger.info('Approval button pressed; looking through queryset')
+    for memship in queryset:
+      if memship.approved == False:
+        utils.NotifyApproval(memship)
+    queryset.update(approved=True)
+    logger.info('Approval queryset updated')
+
 
 class DonorA(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked',
@@ -223,6 +164,27 @@ class DonorA(admin.ModelAdmin):
   search_fields = ['firstname', 'lastname', 'membership__member__first_name',
                    'membership__member__last_name']
   actions = [export_donors]
+
+  def export_donors(self, request, queryset):
+    logger.info('Export donors called by ' + request.user.email)
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=prospects.csv'
+    writer = unicodecsv.writer(response)
+
+    writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member',
+                     'Giving Project', 'Amount to ask', 'Asked', 'Promised',
+                     'Received', 'Notes'])
+    count = 0
+    for donor in queryset:
+      fields = [donor.firstname, donor.lastname, donor.phone, donor.email,
+                donor.membership.member, donor.membership.giving_project,
+                donor.amount, donor.asked, donor.promised, donor.received,
+                donor.notes]
+      writer.writerow(fields)
+      count += 1
+    logger.info(str(count) + ' donors exported')
+    return response
+
 
 class NewsA(admin.ModelAdmin):
   list_display = ('summary', 'date', 'membership')
@@ -250,7 +212,7 @@ class SurveyResponseA(admin.ModelAdmin):
   list_filter = ('gp_survey__giving_project',)
   fields = ('gp_survey', 'date', 'display_responses')
   readonly_fields = ('gp_survey', 'date', 'display_responses')
-  actions = [export_responses]
+  actions = ['export_responses']
 
   def display_responses(self, obj):
     if obj and obj.responses:
@@ -263,6 +225,37 @@ class SurveyResponseA(admin.ModelAdmin):
       return mark_safe(disp)
   display_responses.short_description = 'Responses'
 
+  def export_responses(self, request, queryset):
+
+    logger.info('Export survey responses called by ' + request.user.email)
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=survey_responses %s.csv' % (timezone.now().strftime('%Y-%m-%d'),)
+    writer = unicodecsv.writer(response)
+
+    header = ['Date', 'Survey ID', 'Giving Project', 'Survey'] #base
+    questions = 0
+    response_rows = []
+    for sr in queryset:
+      fields = [sr.date, sr.gp_survey_id,
+                sr.gp_survey.giving_project.title,
+                sr.gp_survey.survey.title]
+      logger.info(isinstance(sr.responses, str))
+      qa = json.loads(sr.responses)
+      for i in range(0, len(qa), 2):
+        fields.append(qa[i])
+        fields.append(qa[i+1])
+        questions = max(questions, (i+2)/2)
+      response_rows.append(fields)
+
+    logger.info('Max %d questions' % questions)
+    for i in range(0, questions):
+      header.append('Question')
+      header.append('Answer')
+    writer.writerow(header)
+    for row in response_rows:
+      writer.writerow(row)
+
+    return response
 
 admin.site.register(GivingProject, GivingProjectA)
 admin.site.register(Membership, MembershipA)
