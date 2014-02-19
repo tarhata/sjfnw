@@ -1000,8 +1000,11 @@ def gift_notify(request):
   Put details in membership notif
   """
 
-  donors = (models.Donor.objects.filter(received__gt=0, gift_notified=False)
-                                .select_related('membership__member'))
+  donors = models.Donor.objects.filter(
+      gift_notified=False
+  ).exclude(
+      received_this=0, received_next=0, received_afternext=0
+  ).select_related('membership__member')
   memberships = {}
   for donor in donors: #group donors by membership
     if not donor.membership in memberships:
