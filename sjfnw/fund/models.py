@@ -243,9 +243,9 @@ class Donor(models.Model):
   talked = models.BooleanField(default=False)
   asked = models.BooleanField(default=False)
   promised = models.PositiveIntegerField(blank=True, null=True)
-  received_this = models.PositiveIntegerField(default=0)
-  received_next = models.PositiveIntegerField(default=0)
-  received_afternext = models.PositiveIntegerField(default=0)
+  received_this = models.PositiveIntegerField(default=0, verbose_name='Received - current year')
+  received_next = models.PositiveIntegerField(default=0, verbose_name='Received - next year')
+  received_afternext = models.PositiveIntegerField(default=0, verbose_name='Received - year after next')
   gift_notified = models.BooleanField(default=False)
 
   phone = models.CharField(max_length=15, blank=True)
