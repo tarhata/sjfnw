@@ -15,7 +15,7 @@ from sjfnw.grants.utils import FindBlobKey
 
 logger = logging.getLogger('sjfnw')
 
-# MODIFIED VERSION OF DJANGOAPPENGINE'S STORAGE.PY FILE
+# MODIFIED VERSION OF DJANGOAPPENGINES STORAGE FILE
 # SEE LICENSE AT BOTTOM
 
 class BlobstoreStorage(Storage):
