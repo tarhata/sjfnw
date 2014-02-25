@@ -262,7 +262,7 @@ span.char_counter_over {
 
 span.file_wrapper {
   cursor: pointer;
-  display: inline-block;
+  //display: inline-block;
   overflow: hidden;
   position: relative;
   margin:0 1em;
