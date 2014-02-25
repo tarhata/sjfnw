@@ -18,10 +18,10 @@ def local_date_str(timestamp):
 
 def FindBlobKey(body):
   """ Extract blobkey from request.body """
-  #if settings.DEBUG: #on dev server, has quotes around it
-  key = re.search('blob-key="([^"\s]*)"', body)
-  #else:
-  #  key = re.search('blob-key=(\S*)', body)
+  if settings.DEBUG: #on dev server, has quotes around it
+    key = re.search('blob-key="([^"\s]*)"', body)
+  else:
+    key = re.search('blob-key=(\S*)', body)
   logger.debug(key)
   if key:
     key = key.group(1)
