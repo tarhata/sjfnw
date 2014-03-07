@@ -51,6 +51,7 @@ class LogI(admin.TabularInline): #Org, Application
 
   def formfield_for_foreignkey(self, db_field, request, **kwargs):
     """ give initial values for staff and/or org """
+    logger.info('LogI.formfield_for_foreignkey called')
     if db_field.name == 'staff':
       kwargs['initial'] = request.user.id
       return db_field.formfield(**kwargs)
@@ -178,6 +179,7 @@ class OrganizationA(admin.ModelAdmin):
   inlines = ()
 
   def change_view(self, request, object_id, form_url='', extra_context=None):
+    logger.info('OrganizationA.change_view()')
     self.inlines = (GrantApplicationI, SponsoredProgramI,
                     LogReadonlyI, LogI)
     self.readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number',
