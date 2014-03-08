@@ -51,8 +51,9 @@ class LogI(admin.TabularInline): #Org, Application
 
   def formfield_for_foreignkey(self, db_field, request, **kwargs):
     """ give initial values for staff and/or org """
-    logger.info('LogI.formfield_for_foreignkey called')
-    if db_field.name == 'staff':
+    if '/add' in request.path:
+      logger.info('LogI.formfield_for_foreignkey called on add view')
+    elif db_field.name == 'staff':
       kwargs['initial'] = request.user.id
       return db_field.formfield(**kwargs)
     elif 'grantapplication' in request.path and db_field.name == 'organization':
