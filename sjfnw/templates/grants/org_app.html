@@ -271,7 +271,8 @@
 
 {% block content %}
 {% load tz %}
-<!-- override dialog when opening an app -->
+<!--- OVERRIDE DIALOGS -->
+<!-- when opening an app -->
 <div id="override_dialog1" style="display:none;">
   <input type="hidden" autofocus="autofocus" />
   You may be seeing this message because:
@@ -283,7 +284,7 @@
   Only one person should work on an application at a time.  If you proceed, your saves will overwrite any other changes that are being made from other sources.
 </div>
 
-<!-- override dialog when autosave reports a conflict -->
+<!-- when autosave reports a conflict -->
 <div id="override_dialog2" style="display:none;">
   <input type="hidden" autofocus="autofocus" />
   The last autosave did not complete due to a potential conflict.  You may be seeing this if:
@@ -294,14 +295,14 @@
   Only one person should work on an application at a time.  If you proceed, your changes will be saved and will overwrite concurrent changes from other sources.
 </div>
 
-<!-- form wrapper -->
+<!--- FORM WRAPPER -->
 <div class="formwrapper">
 	<form id="non_file" action="/apply/{{ cycle.pk }}/{{ user_override|default:''}}" method="POST" accept-charset="UTF-8">
 
 		<div align="center">
 			<h1>{{cycle}} Application</h1>
 			{% if user_override %}<h1>Applying as {{ org }}</h1>{% endif %}
-      {% if cycle.info_page %}<a href="{{ cycle.info_page }}" target="_blank">application instructions</a><br><br>{% endif %}
+      {% if cycle.info_page %}<a href="/apply/info/{{ cycle.pk }}" target="_blank">application instructions</a><br><br>{% endif %}
 			<span id="last_saved" title="The form is automatically saved every 30 seconds">Last saved: <span id="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span></span>
 		</div>
 		{% if form.errors %}
@@ -544,7 +545,7 @@
 	<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="iframeUpdated(this);"></iframe>
 
 		<h4>File uploads</h4><!--- Files --->
-		<p><a href="{{ cycle.info_page }}" target="_blank">Download templates here.</a><br><br>
+		<p><a href="/apply/info/{{ cycle.pk }}" target="_blank">Download templates here.</a><br><br>
 		Templates for budgets, funding sources and diversity chart can be downloaded above.  For budget documents, you may use your own format if preferred.</p>
     <!--<p><b>Note:</b> There is a <a href="http://support.microsoft.com/kb/2601307"
     target="_blank">known bug</a> in Internet Explorer 9 that may prevent you from uploading files.
