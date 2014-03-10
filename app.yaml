@@ -18,7 +18,7 @@ handlers:
   login: admin
 
 - url: /_ah/queue/deferred
-  script: $PYTHON_LIB/google/appengine/ext/deferred/handler.py
+  script: google.appengine.ext.deferred.handler
   login: admin
 
 - url: /mail
