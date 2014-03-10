@@ -9,13 +9,15 @@ $(document).ready(function() {
 
   console.log('loading info page');
 
+  $.support.cors = true; // for IE
+
   $.ajax({
     url: '{{ cycle.info_page }}',
     type: "GET",
     async: false, //cross-domain can't be async
 
     success: function(data, textStatus, jqXHR){
-      console.log(jqXHR.status);
+      console.log('success: ' + jqXHR.status);
       console.log(textStatus);
       var content = data.match(/<div id="content"(.|\n|\r)+<!-- \/\.section, \/#content -->/);
       console.log(content);
@@ -27,7 +29,7 @@ $(document).ready(function() {
     },
 
     error: function(jqXHR, textStatus, errorThrown){
-      console.log(jqXHR.status);
+      console.log('error: ' + jqXHR.status);
       console.log(textStatus);
       console.log(errorThrown);
     }
