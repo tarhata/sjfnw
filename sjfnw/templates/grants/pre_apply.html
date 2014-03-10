@@ -29,9 +29,9 @@ $(document).ready(function() {
     },
 
     error: function(jqXHR, textStatus, errorThrown){
-      console.log('error: ' + jqXHR.status);
-      console.log(textStatus);
+      console.log('error: ' + jqXHR.status + textStatus);
       console.log(errorThrown);
+      console.log(errorThrown.name + ' ' + errorThrown.message + ' '  + errorThrown.stack);
     }
   });
 });

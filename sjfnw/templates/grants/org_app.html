@@ -13,7 +13,7 @@
     408: '408 Request timeout',
     500: '500 Internal server error',
     503: '503 Service unavailable',
-    504: '504 Gateway timeout',
+    504: '504 Gateway timeout'
   }
 
   function getCurrentTime(){
@@ -542,7 +542,7 @@
   </form><!--- end of main form -->
 
   <!---hidden iframe for file submissions -->
-	<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="iframeUpdated(this);"></iframe>
+	<iframe class="upload" id="id_upload_frame" name="upload_frame" onload="iframeUpdated(this);"></iframe>
 
 		<h4>File uploads</h4><!--- Files --->
 		<p><a href="/apply/info/{{ cycle.pk }}" target="_blank">Download templates here.</a><br><br>
