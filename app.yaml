@@ -19,10 +19,6 @@ handlers:
   script: google.appengine.ext.ereporter.report_generator.application
   login: admin
 
-- url: /_ah/queue/deferred
-  script: djangoappengine.deferred.handler.application
-  login: admin
-
 - url: /mail
   script: sjfnw.wsgi.application
   login: admin
