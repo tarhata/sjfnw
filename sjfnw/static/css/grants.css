@@ -251,7 +251,6 @@ span.file_wrapper { //outermost element
   cursor: pointer;
   overflow: hidden;
   position: relative;
-  margin:0 1em;
   width: 100px;
 }
 
@@ -265,8 +264,8 @@ span.file_wrapper { //outermost element
   filter: alpha(opacity=1);
   -moz-opacity: 0.01;
   opacity: 0.01;
-  font-size:1em;
-  //width:84px;
+  font-size:2em;
+  width:84px;
 }
 
 
