@@ -252,6 +252,7 @@ span.file_wrapper { //outermost element
   overflow: hidden;
   position: relative;
   margin:0 1em;
+  width: 100px;
 }
 
 .file_wrapper input { // large but invisible
@@ -260,11 +261,12 @@ span.file_wrapper { //outermost element
   position: absolute;
   top: 0;
   right: 0;
+  left:0;
   filter: alpha(opacity=1);
   -moz-opacity: 0.01;
   opacity: 0.01;
   font-size:1em;
-  width:84px;
+  //width:84px;
 }
 
 
