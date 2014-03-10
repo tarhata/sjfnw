@@ -247,26 +247,26 @@ span.char_counter_over {
 
 /** file uploads **/
 
-.file_wrapper input{
+span.file_wrapper { //outermost element
   cursor: pointer;
-  height: 100%;
-  position: absolute;
-  right: 0;
-  top: 0;
-  filter: alpha(opacity=1);
-  -moz-opacity: 0.01;
-  opacity: 0.01;
-  font-size:50px;
-  width:84px;
-}
-
-span.file_wrapper {
-  cursor: pointer;
-  //display: inline-block;
   overflow: hidden;
   position: relative;
   margin:0 1em;
 }
+
+.file_wrapper input { // large but invisible
+  cursor: pointer;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  filter: alpha(opacity=1);
+  -moz-opacity: 0.01;
+  opacity: 0.01;
+  font-size:1em;
+  width:84px;
+}
+
 
 span.upload_button {
   cursor: pointer;
