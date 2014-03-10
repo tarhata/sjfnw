@@ -72,7 +72,7 @@
           }
           document.getElementById('autosaved').innerHTML='Error: ' + errortext + '<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>';
         }
-      },
+      }
     });
   }
 
@@ -141,7 +141,7 @@
         cform.action = data;
         var cbutton = document.getElementById(current_field + '_submit');
         cbutton.click();
-      },
+      }
     });
   }
 
@@ -168,7 +168,7 @@
       success: function(data) {
         r_span = document.getElementById(field_name + '_uploaded');
         r_span.innerHTML = '<i>no file uploaded</i>';
-      },
+      }
     });
   }
 
@@ -191,20 +191,23 @@
     $('#override_dialog'+ver).dialog({
       title: 'Warning: simultaneous editing',
       modal: true,
-      buttons: [
-        {text:'Proceed anyway',
+      buttons: [{
+        text:'Proceed anyway',
         click: function(){
             console.log('override!');
             $('#override_dialog'+ver).dialog("close");
             autoSave(false, override=true);
             autosave_timer = window.setInterval("autoSave()", 30000);
-        }},
-        {text:'Cancel', click: function(){ location.href = '/apply/'; }}
+          }
+        },{
+            text:'Cancel',
+            click: function(){ location.href = '/apply/'; }
+        }
       ],
       closeOnEscape: false,
       resizable: false,
       position: {my: 'top', at: 'top', of: '#org_wrapper'},
-      width:400,
+      width:400
     });
   }
 
@@ -218,7 +221,7 @@
     } else {
       console.error('info to show not found');
     }
-  };
+  }
 
   function hide(id) {
     div = document.getElementById(id);
@@ -227,7 +230,7 @@
     } else {
       console.error('Div to hide not found');
     }
-  };
+  }
 
   function setInfoClicks(){
     console.log('setInfoClicks');
@@ -243,7 +246,7 @@
         this.innerHTML = this.innerHTML + '<div class="more-info-hide">click to hide</div>';
         this.onclick = function() { hide(this.id); };
     });
-  };
+  }
 
   // doc ready
   $(document).ready(function() {
