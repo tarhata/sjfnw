@@ -609,6 +609,7 @@
 	<div align="center">
 		<img id="ajax_loading" src="/static/images/ajaxloader.gif" style="display:none;"><br>
 		<button onclick="autoSave(submit=true);">Submit application</button>
+    <br><br><span id="last_saved" title="The form is automatically saved every 30 seconds">Draft auto-saved: <span id="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span></span>
 	</div>
 </div>
 {% endblock content %}
