@@ -41,7 +41,7 @@ $(document).ready(function() {
   } else {
     // No CORS support
     console.log('CORS XML request not supported; showing message & link');
-    document.getElementById('cycle-info').innerHTML = '<p><a href="{{ cycle.info_page }}">Click here</a> to view grant cycle information.</p><p>(You are seeing this because you are using Internet Explorer 9 or below, which does not support loading content from another domain.';
+    document.getElementById('cycle-info').innerHTML = '<h3><a href="{{ cycle.info_page }}">Click here</a> to view grant cycle information.</h3><p><i>(You are seeing this because you are using Internet Explorer 9 or below, which do not support loading content from another domain.)</i></p>';
   }
 });
 </script>
