@@ -1,4 +1,4 @@
-﻿<form id = "{{step_id}}_done_step" method="post" action="{{action}}">
+﻿<form id = "{{ step_id }}_done_step" method="post" action="{{ action }}">
 <table class="form" style="width:98%;">
 	<tr>
     <td style="width:32%;"></td>
@@ -6,26 +6,26 @@
     <td style="width:33%;"></td>
   </tr>
   <tr>
-		<td colspan="3"><b>Completing {{step}}</b></td><!-- Completing step -->
+		<td colspan="3"><b>Completing {{ step }}</b></td><!-- Completing step -->
 	</tr>
 	<tr>
-		<td colspan="3">{{form.promised_amount.errors}}</td>
+		<td colspan="3">{{ form.promised_amount.errors }}</td>
 	</tr>
 	<tr style="height:28px;">
 		<td colspan="2" style="width:65%">
       <table style="width:100%;text-align:center;vertical-align:middle;"><!--table: asked, response, promise -->
         <tr><!-- row 1: labels -->
           <td style="width:32%">      
-            {% if donor.asked %}Asked.{% endif %}<div id = "{{step_id}}_asked">Asked<br>{{form.asked}}</div>
+            {% if donor.asked %}Asked.{% endif %}<div id = "{{ step_id }}_asked">Asked<br>{{ form.asked }}</div>
           </td>
-          <td style="width:33%">{% if donor.promised == 0 %}Declined.{% elif donor.promised %}Promised ${{donor.promised}}.{% endif %}<span id = "{{step_id}}_response">Response<br>{{form.response}}</span></td>
-          <td style="width:33%"><span id="{{step_id}}_promise">Promised<br>${{form.promised_amount}}</span></td>
+          <td style="width:33%">{% if donor.promised == 0 %}Declined.{% elif donor.promised %}Promised ${{ donor.promised }}.{% endif %}<span id = "{{ step_id }}_response">Response<br>{{ form.response }}</span></td>
+          <td style="width:33%"><span id="{{ step_id }}_promise">Promised<br>${{ form.promised_amount }}</span></td>
         </tr>
       </table>
     </td>
-    <td>Contact notes:{{form.notes.errors}}<br>{{form.notes}}</td>
+    <td>Contact notes:{{ form.notes.errors }}<br>{{ form.notes }}</td>
 	</tr>
-	<tr class="{{step_id}}_promise_follow" style="display:none;"><!-- promise follow -->
+	<tr class="{{ step_id }}_promise_follow" style="display:none;"><!-- promise follow -->
 		<td colspan="3">
 			<p><br>Enter a last name and phone or email so that Social Justice Fund can follow up on the promise as needed.</p>
 			<table style="width:100%">	
@@ -35,14 +35,14 @@
 					<td>Email address</td>
 				</tr>
 				<tr>
-					<td>{{form.last_name.errors}}</td>
-					<td>{{form.phone.errors}}</td>
-					<td>{{form.email.errors}}</td>
+					<td>{{ form.last_name.errors }}</td>
+					<td>{{ form.phone.errors }}</td>
+					<td>{{ form.email.errors }}</td>
 				</tr>
 				<tr>
-					<td>{{form.last_name}}</td>
-					<td>{{form.phone}}</td>
-					<td>{{form.email}}</td>
+					<td>{{ form.last_name }}</td>
+					<td>{{ form.phone }}</td>
+					<td>{{ form.email }}</td>
 				</tr>
 			</table>
     </td>
@@ -58,18 +58,18 @@
 	</tr>
   <tr style="height:15px;"><td></td></tr><!--padding so suggested aren't inline with submit-->
   <tr>
-		<td>Date:{{form.next_step_date.errors}}</td>
+		<td>Date:{{ form.next_step_date.errors }}</td>
 	</tr><tr>
-		<td>{{form.next_step_date}}</td>
+		<td>{{ form.next_step_date }}</td>
 	</tr><tr>
-		<td>Description:{{form.next_step.errors}}</td>
+		<td>Description:{{ form.next_step.errors }}</td>
 	</tr><tr>
-		<td>{{form.next_step}}</td><!-- form ends -->
+		<td>{{ form.next_step }}</td><!-- form ends -->
 	</tr>
 </table>
 </form>
 <div align="center">
 	<img id = "ajax_loading" src="/static/images/ajaxloader.gif" style="display:none;" alt="Loading..."><br>
-	<button onclick="Submit('{{action}}', '#{{step_id}}_done_step', '{{donor.pk}}-nextstep', 'date', '{{donor.asked}}', '{{donor.promised}}')">Save</button>
+	<button onclick="Submit('{{ action }}', '#{{ step_id }}_done_step', '{{ donor.pk }}-nextstep', 'date', '{{ donor.asked }}', '{{ donor.promised }}')">Save</button>
 	<button onclick="location.href='/fund/'">Cancel</button>
 </div>
