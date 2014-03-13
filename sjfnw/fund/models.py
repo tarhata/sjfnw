@@ -228,6 +228,16 @@ class Membership(models.Model): #relationship b/n member and gp
 
 
 class Donor(models.Model):
+  PROMISE_REASON_CHOICES = choices = (
+      ('Relationship', 'Relationship with me'),
+      ('GP topic', 'Interested in GP topic'),
+      ('Social justice', 'Interested in social justice issues generally'),
+      ('SJF', 'Passionate/excited about SJF'))
+  LIKELY_TO_JOIN_CHOICES = choices = (
+          (3, 'Definitely'),
+          (2, 'Likely'),
+          (1, 'Unlikely'),
+          (0, 'No chance'))
   added = models.DateTimeField(default=timezone.now())
   membership = models.ForeignKey(Membership)
 
@@ -245,17 +255,9 @@ class Donor(models.Model):
   promised = models.PositiveIntegerField(blank=True, null=True)
   # only if promised
   promise_reason = models.CharField(max_length=255, blank=True,
-      choices = (
-          ('Relationship', 'Relationship with me'),
-          ('GP topic', 'Interested in GP topic'),
-          ('Social justice', 'Interested in social justice issues generally'),
-          ('SJF', 'Passionate/excited about SJF')))
+      choices = PROMISE_REASON_CHOICES)
   likely_to_join = models.PositiveIntegerField(null=True, blank=True,
-      choices = (
-          (3, 'Definitely'),
-          (2, 'Likely'),
-          (1, 'Unlikely'),
-          (0, 'No chance')))
+      choices = LIKELY_TO_JOIN_CHOICES)
   received_this = models.PositiveIntegerField(default=0,
       verbose_name='Received - current year')
   received_next = models.PositiveIntegerField(default=0,
