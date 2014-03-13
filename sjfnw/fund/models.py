@@ -234,20 +234,37 @@ class Donor(models.Model):
   firstname = models.CharField(max_length=100, verbose_name='*First name')
   lastname = models.CharField(max_length=100, blank=True, verbose_name='Last name')
 
-  amount = models.PositiveIntegerField(verbose_name='*Amount to ask ($)',
-                                       null=True, blank=True)
-  likelihood = models.PositiveIntegerField(verbose_name='*Estimated likelihood (%)',
-                                           validators=[MaxValueValidator(100)],
-                                           null=True, blank=True)
+  amount = models.PositiveIntegerField(
+      verbose_name='*Amount to ask ($)', null=True, blank=True)
+  likelihood = models.PositiveIntegerField(
+      verbose_name='*Estimated likelihood (%)',
+      validators=[MaxValueValidator(100)], null=True, blank=True)
 
   talked = models.BooleanField(default=False)
   asked = models.BooleanField(default=False)
   promised = models.PositiveIntegerField(blank=True, null=True)
-  received_this = models.PositiveIntegerField(default=0, verbose_name='Received - current year')
-  received_next = models.PositiveIntegerField(default=0, verbose_name='Received - next year')
-  received_afternext = models.PositiveIntegerField(default=0, verbose_name='Received - year after next')
+  # only if promised
+  promise_reason = models.CharField(max_length=255, blank=True,
+      choices = (
+          ('Relationship', 'Relationship with me'),
+          ('GP topic', 'Interested in GP topic'),
+          ('Social justice', 'Interested in social justice issues generally'),
+          ('SJF', 'Passionate/excited about SJF')))
+  likely_to_join = models.PositiveIntegerField(null=True, blank=True,
+      choices = (
+          (3, 'Definitely'),
+          (2, 'Likely'),
+          (1, 'Unlikely'),
+          (0, 'No chance')))
+  received_this = models.PositiveIntegerField(default=0,
+      verbose_name='Received - current year')
+  received_next = models.PositiveIntegerField(default=0,
+      verbose_name='Received - next year')
+  received_afternext = models.PositiveIntegerField(default=0,
+      verbose_name='Received - year after next')
   gift_notified = models.BooleanField(default=False)
 
+  # contact info only required if promise is entered
   phone = models.CharField(max_length=15, blank=True)
   email = models.EmailField(max_length=100, blank=True)
   notes = models.TextField(blank=True)
