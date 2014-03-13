@@ -52,6 +52,18 @@
             <td>{{ form.phone }}</td>
             <td>{{ form.email }}</td>
           </tr>
+          <tr>
+            <td colspan="2">{{ form.promise_reason.errors }}</td>
+            <td>{{ form.likely_to_join.errors }}</td>
+          </tr>
+          <tr>
+          <tr>
+            <td colspan="2">{{ form.promise_reason.label }}</td>
+            <td></td>
+          </tr>
+            <td colspan="2">{{ form.promise_reason }}</td>
+            <td>{{ form.likely_to_join.label }}<br>{{ form.likely_to_join }}</td>
+          </tr>
         </table>
       </td>
     </tr>
