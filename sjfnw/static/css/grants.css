@@ -247,14 +247,14 @@ span.char_counter_over {
 
 /** file uploads **/
 
-span.file_wrapper { //outermost element
+span.file_wrapper { /* outermost element */
   cursor: pointer;
   overflow: hidden;
   position: relative;
   width: 100px;
 }
 
-.file_wrapper input { // large but invisible
+.file_wrapper input { /* large but invisible */
   cursor: pointer;
   height: 100%;
   position: absolute;
