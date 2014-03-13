@@ -1,6 +1,4 @@
-﻿/* --- FUND --- */
-
-/* general */
+﻿/** general **/
 
 body {
   width:640px;
@@ -14,7 +12,7 @@ div.content_area {
 	padding:15px;
 }
 
-.content_area span.header{
+.content_area span.header {
 	text-transform:uppercase;
   font-weight:bold;
   font-size:inherit;
@@ -26,7 +24,7 @@ div.content_area {
   text-align: center;
 }
 
-/* header & bar */
+/** header & bar **/
 
 table.header {
   margin-bottom:10px;
@@ -41,10 +39,10 @@ div.header {
 }
 
 #header_text {
-  /* display:inline-block; */
+  /** display:inline-block; **/
 	font-size:2em;
   text-align:center;
-	/* margin-bottom:.25em; */
+	/** margin-bottom:.25em; **/
 	font-weight:bold;
   vertical-align:middle;
 }
@@ -69,7 +67,7 @@ div.header {
 	margin-bottom:1em;
 }
 
-/* blocks */
+/** blocks **/
 #block_container {
 	width:640px;
 	height:184px;
@@ -136,7 +134,7 @@ div.active_line {
   border-right: solid 2px #C07205;
 }
 
-/* personal */
+/** personal **/
 form{
 	display:inline;
 }
@@ -266,13 +264,13 @@ div#stepmult input {
 	margin-right:auto;
 }
 
-/* copy contacts */
+/** copy contacts **/
 input[readonly="True"] {
   border: none;
   text-align: inherit;
 }
 
-/* gp surveys */
+/** gp surveys **/
 #gpsurvey ul {
   list-style-type: none;
   padding-left: 20px;
@@ -287,7 +285,7 @@ input[readonly="True"] {
   margin-top: .5em;
 }
 
-/* gp */
+/** gp **/
 table.padded td{
 	padding:5px;
 }
@@ -296,12 +294,12 @@ table.padded td{
   font-family:Verdana;
 }
 
-/* error pages */
+/** error pages **/
 div.error_message {
 	font-weight:bold;
 }
 
-/* odo */
+/** odo **/
 .odo_float_right {
   float:right;
   margin-top:8px;
@@ -309,7 +307,7 @@ div.error_message {
   margin-left:8px;
 }
 
-/* footer  */
+/** footer  **/
 .footer {
 	width:640px;
 	font-size:0.75em;
