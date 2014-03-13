@@ -1,9 +1,11 @@
 ﻿{% extends 'fund/base_personal.html' %}
+
 {% block script %}
 {{ block.super }}
 <script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript"><!-- charts -->
+<!--- charts -->
+<script type="text/javascript">
   var text_progress = false;
   if (Modernizr.inlinesvg) {
 
@@ -82,6 +84,7 @@
 		}
   }
 </script>
+<!--- custom functions -->
 <script type="text/javascript">
 
   function toggle(a, b) { //donor info
@@ -166,7 +169,7 @@
 
 
   //complete step form
-  function completeLoaded(pk, dasked, dpromised, submitted) { //loaded
+  function completeLoaded(pk, dasked, dpromised, submitted) {
     //hide fields based on what is already in the database for the contact
     //console.log('completeloaded called, submitted is ' +submitted);
     var asked_span = document.getElementById(pk+'_asked');
@@ -194,8 +197,9 @@
     //follow up is hidden by defalt, don't need to hide it
   }
 
-  function askedToggled(asked) { //step complete form - asked input changed
+  function askedToggled(asked) { 
     //show or hide the response field
+    // called by step complete form - asked input changed
     var num = asked.id.match(/\d+/);
     var response_span = document.getElementById(num+'_response');
     if (asked.checked) {
@@ -212,34 +216,31 @@
     }
   }
 
-  function responseSelected(response) { //step complete form - response input changed
-    //show or hide the promised field
-    var num = response.id.match(/\d+/);
-    var promised_span = document.getElementById(num+'_promise');
+  function responseSelected(response) {
+    // show or hide the promised field
+    // called when step complete form - response input changed
+    var donor_id = response.id.match(/\d+/);
+    var promised_span = document.getElementById(donor_id +'_promise');
     if (response.value == 1) { //1 = promised, 2 = unsure, 3 = dec
-      promised_span.style.display="";
-      var promise = document.getElementById(num+'_id_promised_amount');
       //console.log('in respselected, calling promise entered')
-      promiseEntered(promise);
+      promised(donor_id, true);
     } else {
-      promised_span.style.display="none";
       //console.log('in respselected, calling promise entered hide')
-      promiseEntered(promised_span, true);
+      promised(donor_id, false);
     }
   }
 
-  function promiseEntered(promise, hide) { //step complete form - promise input changed
+  function promised(donor_id, show) { //step complete form - promise input changed
     //show or hide the last name & contact info fields
-    promise_amt = parseFloat(promise.value) || 0;
-    var num = promise.id.match(/\d+/);
-    //console.log('in promiseentered, amt = ' + promise_amt +', num = ' +num)
-    var follows = $('.' + num + '_promise_follow').get();
-    for (var i = 0; i < follows.length; i++) {
-      if (promise_amt > 0 && hide != true) {
-        follows[i].style.display="table-row";
-      } else {
-        follows[i].style.display="none";
-      }
+    //console.log('in promiseentered, amt = ' + promise_amt +', donor_id = ' +donor_id)
+    var followup_class = '.' + donor_id + '_promise_follow';
+    var promise_amount = '#' + donor_id + '_promise';
+    if (show) {
+      $(promise_amount).show();
+      $(followup_class).show();
+    } else {
+      $(promise_amount).hide();
+      $(followup_class).hide();
     }
   }
 

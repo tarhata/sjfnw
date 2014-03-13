@@ -114,7 +114,7 @@ class StepDoneForm(forms.Form):
   promised_amount = IntegerCommaField(
       required=False, min_value=0,
       error_messages={'min_value': 'Promise amounts cannot be negative'},
-      widget=forms.TextInput(attrs = {'onchange':'promiseEntered(this)', 'size':10}))
+      widget=forms.TextInput(attrs = {'size':10}))
 
   last_name = forms.CharField(max_length=255, required=False)
   phone = forms.CharField(max_length=15, required=False)
