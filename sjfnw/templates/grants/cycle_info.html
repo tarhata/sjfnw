@@ -4,6 +4,7 @@
 
 {% block script %}
 <script type="text/javascript">
+/*
 
 $(document).ready(function() {
 
@@ -13,21 +14,24 @@ $(document).ready(function() {
 
   if ('withCredentials' in new XMLHttpRequest()) {
     footer = '{% if cycle.is_open %}<div align="center"><button id="apply-now" onclick="location.href=\'/apply/{{cycle.pk}}\'">Continue to application</button></div>{% endif %}';
-    /* supports cross-domain requests */
+    // supports cross-domain requests
     $.ajax({
       url: '{{ cycle.info_page }}',
       type: "GET",
       async: false, //cross-domain can't be async
 
-      success: function(data, textStatus, jqXHR){
+      success: function(data, textStatus, jqXHR) {
         console.log('success: ' + jqXHR.status);
         console.log(textStatus);
         var content = data.match(/<div id="content"(.|\n|\r)+<!-- \/\.section, \/#content -->/);
         console.log(content);
-        if (content){
-          document.getElementById('cycle-info').innerHTML = content[0].replace("modules/file/icons", "static/images") + footer;
+        if (content) {
+          document.getElementById('cycle-info').innerHTML =
+             content[0].replace("modules/file/icons", "static/images") + footer;
         } else {
-        document.getElementById('cycle-info').innerHTML = 'Could not load info page.  Try visiting the page directly: <a href="{{ cycle.info_page }}" target="_blank">{{ cycle.info_page }}</a>.';
+        document.getElementById('cycle-info').innerHTML =
+           'Could not load info page.  Try visiting the page directly: ' +
+           '<a href="{{ cycle.info_page }}" target="_blank">{{ cycle.info_page }}</a>.';
         }
       },
 
@@ -44,6 +48,8 @@ $(document).ready(function() {
     document.getElementById('cycle-info').innerHTML = '<h3><a href="{{ cycle.info_page }}">Click here</a> to view grant cycle information.</h3><p><i>(You are seeing this because you are using Internet Explorer 9 or below, which do not support loading content from another domain.)</i></p>';
   }
 });
+
+*/
 </script>
 {% endblock script %}
 
@@ -62,7 +68,7 @@ $(document).ready(function() {
 <hr>
 
 <div id="cycle-info" class="info-frame">
-  <img id="loading" src="/static/images/ajaxloader.gif" alt="Loading..." style="margin:100px 0 0 50%;">
+  {{ content|safe }}
 </div>
 
 {% endblock %}
