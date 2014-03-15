@@ -63,13 +63,20 @@ $(document).ready(function() {
 <div align="center">
   <button id="apply-now" onclick="location.href='/apply/{{cycle.pk}}'">Continue to application</button>
 </div>
-<br><br>
-{% endif %}
 <hr>
+{% endif %}
 
 <div id="cycle-info" class="info-frame">
   {{ content|safe }}
 </div>
+
+{% if cycle.is_open %}
+<hr>
+<div align="center">
+  <button id="apply-now" onclick="location.href='/apply/{{cycle.pk}}'">Continue to application</button>
+</div>
+<br><br>
+{% endif %}
 
 {% endblock %}
 
