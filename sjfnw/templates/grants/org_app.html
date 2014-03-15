@@ -49,10 +49,10 @@
             var submit_all = document.getElementById('hidden_submit_app');
             submit_all.click();
           } else { //update 'last saved'
-            document.getElementById('autosaved').innerHTML=getCurrentTime();
+            $('.autosaved').innerHTML=getCurrentTime();
           }
         } else { //unexpected status code
-          document.getElementById('autosaved').innerHTML='Unknown error<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>';
+          $('.autosaved').innerHTML='Unknown error<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>';
         }
       },
       error:function(jqXHR, textStatus, errorThrown){
@@ -70,7 +70,7 @@
           } else {
             errortext = 'Unknown error';
           }
-          document.getElementById('autosaved').innerHTML='Error: ' + errortext + '<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>';
+          $('.autosaved').innerHTML='Error: ' + errortext + '<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>';
         }
       }
     });
@@ -306,7 +306,7 @@
 			<h1>{{cycle}} Application</h1>
 			{% if user_override %}<h1>Applying as {{ org }}</h1>{% endif %}
       {% if cycle.info_page %}<a href="/apply/info/{{ cycle.pk }}" target="_blank">application instructions</a><br><br>{% endif %}
-			<span id="last_saved" title="The form is automatically saved every 30 seconds">Last saved: <span id="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span></span>
+			<span class="last_saved" title="The form is automatically saved every 30 seconds">Last saved: <span id="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span></span>
 		</div>
 		{% if form.errors %}
 		<div style="border:2px groove red;padding:0 10px;margin:10px 0;text-align:center;">
@@ -609,7 +609,7 @@
 	<div align="center">
 		<img id="ajax_loading" src="/static/images/ajaxloader.gif" style="display:none;"><br>
 		<button onclick="autoSave(submit=true);">Submit application</button>
-    <br><br><span id="last_saved" title="The form is automatically saved every 30 seconds">Draft auto-saved: <span id="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span></span>
+    <br><br><span class="last_saved" title="The form is automatically saved every 30 seconds">Draft auto-saved: <span id="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span></span>
 	</div>
 </div>
 {% endblock content %}
