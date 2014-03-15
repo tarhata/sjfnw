@@ -20,12 +20,6 @@ div.content_area {
   font-size:inherit;
 }
 
-.center {
-  margin-left:auto;
-  margin-right: auto;
-  text-align: center;
-}
-
 /* header & bar */
 
 table.header {
