@@ -233,11 +233,11 @@
   function promised(donor_id, show) { //step complete form - promise input changed
     //show or hide the last name & contact info fields
     //console.log('in promiseentered, amt = ' + promise_amt +', donor_id = ' +donor_id)
-    var followup_class = '.' + donor_id + '_promise_follow';
+    var followup_class = '#' + donor_id + '_promise_follow';
     var promise_amount = '#' + donor_id + '_promise';
     if (show) {
       $(promise_amount).show();
-      $(followup_class).show();
+      $(followup_class).show("drop");
     } else {
       $(promise_amount).hide();
       $(followup_class).hide();

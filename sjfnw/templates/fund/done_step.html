@@ -7,36 +7,32 @@
     </tr>
     <!--- Complete step -->
     <tr>
-      <td colspan="3"><b>Completing {{ step }}</b></td>
+      <td colspan="3" class="small-form-header">1) Complete a step: {{ step }}</td>
     </tr>
     <tr>
       <td colspan="3">{{ form.promised_amount.errors }}</td>
     </tr>
-    <tr style="height:28px;">
-      <td colspan="2" style="width:65%">
-        <table style="width:100%;text-align:center;vertical-align:middle;">
-          <tr>
-            <td style="width:32%">      
-              {% if donor.asked %}Asked.{% endif %}<div id = "{{ step_id }}_asked">Asked<br>{{ form.asked }}</div>
-            </td>
-            <td style="width:33%">
-              {% if donor.promised == 0 %}Declined.{% elif donor.promised %}Promised ${{ donor.promised }}.{% endif %}
-              <span id = "{{ step_id }}_response">Response<br>{{ form.response }}</span>
-            </td>
-            <td style="width:33%">
-              <span id="{{ step_id }}_promise">Promised<br>${{ form.promised_amount }}</span>
-            </td>
-          </tr>
-        </table>
+    <tr style="height:28px;" class="center">
+      <td style="width:32%">      
+        {% if donor.asked %}Asked.{% endif %}<div id = "{{ step_id }}_asked">Asked<br>{{ form.asked }}</div>
       </td>
-      <td>Contact notes:{{ form.notes.errors }}<br>{{ form.notes }}</td>
+      <td style="width:33%">
+        {% if donor.promised == 0 %}Declined.{% elif donor.promised %}Promised ${{ donor.promised }}.{% endif %}
+        <span id = "{{ step_id }}_response">Response<br>{{ form.response }}</span>
+      </td>
+      <td style="width:33%">
+        <span id="{{ step_id }}_promise">Promised<br>${{ form.promised_amount }}</span>
+      </td>
     </tr>
     <!--- promise follow-up -->
-    <tr class="{{ step_id }}_promise_follow" style="display:none;">
+    <tr>
       <td colspan="3" class="center">
-        <p>Congratulations on a successful ask!</p>
-        <p>Please provide some more information so that Social Justice Fund can follow up on the promise as needed.</p>
-        <table style="width:100%">	
+        <table style="display:none; width:90%;" id="{{ step_id }}_promise_follow" class="promise-followup">
+          <tr>
+            <td colspan="3">
+              <p>Congratulations on a successful ask!</p>
+              <p>Please provide some more information so that Social Justice Fund can follow up on the promise as needed.</p>
+            </td>
           <tr>
             <td>Last name</td>
             <td>Phone number</td>
@@ -54,39 +50,48 @@
           </tr>
           <tr>
             <td colspan="2">{{ form.promise_reason.errors }}</td>
-            <td>{{ form.likely_to_join.errors }}</td>
+            <td>{{  form.likely_to_join.errors }}</td>
           </tr>
           <tr>
           <tr>
             <td colspan="2">{{ form.promise_reason.label }}</td>
             <td></td>
           </tr>
-            <td colspan="2">{{ form.promise_reason }}</td>
-            <td>{{ form.likely_to_join.label }}<br>{{ form.likely_to_join }}</td>
+            <td colspan="2" class="multiple-choice">{{ form.promise_reason }}</td>
+            <td>{{ form.likely_to_join.label }}<br><br>{{ form.likely_to_join }}</td>
           </tr>
         </table>
       </td>
     </tr>
     <tr>
-      <td colspan="3"></td>
+      <td colspan="3" class="small-form-header">2) Update your notes for this contact <i>(optional)</i></td>
+    </tr>
+    <tr>
+      <td colspan="2">{{ form.notes }}</td>
+      <td>{{ form.notes.errors }}</td>
     </tr>
     <!--- Plan a next step -->
     <tr>
-      <td><b>Plan a next step:</b> (optional)</td>
-      <td colspan="2" rowspan="7" style="vertical-align:bottom;">
-        <div align="center" style="margin-bottom:15px;">{% include 'fund/suggested_steps.html' %}</div>
+      <td colspan="3" class="small-form-header">3) Plan a next step <i>(optional)</i></td>
+    </tr>
+    <tr>
+      <td>
+        Date: {{ form.next_step_date.errors }}<br>
+        {{ form.next_step_date }}
+      </td>
+      <td colspan="2" rowspan="5" style="vertical-align:bottom;">
+        {% include 'fund/suggested_steps.html' %}
       </td>
     </tr>
-    <tr style="height:15px;"><td></td></tr><!--padding so suggested aren't inline with submit-->
     <tr>
-      <td>Date:{{ form.next_step_date.errors }}</td>
-    </tr><tr>
-      <td>{{ form.next_step_date }}</td>
-    </tr><tr>
-      <td>Description:{{ form.next_step.errors }}</td>
-    </tr><tr>
-      <td>{{ form.next_step }}</td><!-- form ends -->
+      <td>
+        Description: {{ form.next_step.errors }}<br>
+        {{ form.next_step }}
+      </td>
     </tr>
+    <tr><td></td></tr>
+    <tr><td></td></tr>
+    <tr><td></td></tr>
   </table>
 </form>
 <div align="center">
