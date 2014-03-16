@@ -22,6 +22,8 @@ from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRollo
 from sjfnw.grants.modelforms import GrantApplicationModelForm, OrgProfile
 from sjfnw.grants.utils import local_date_str, FindBlobKey, FindBlob, ServeBlob, DeleteBlob
 from sjfnw.grants import models
+
+import urllib2
 import datetime, logging, json
 logger = logging.getLogger('sjfnw')
 
@@ -103,10 +105,32 @@ def org_support(request):
 
 def cycle_info(request, cycle_id):
   cycle = get_object_or_404(models.GrantCycle, pk=cycle_id)
+  error_display = ('<h4 class="center">Sorry, the cycle information page could '
+      'not be loaded.<br>Try visiting it directly: <a href="' +
+      cycle.info_page +'" target="_blank">grant cycle information</a>')
+  content = ''
   if not cycle.info_page:
     raise Http404
-  logger.info(cycle.info_page)
-  return render(request, 'grants/pre_apply.html', {'cycle':cycle})
+  try:
+    info_page = urllib2.urlopen(cycle.info_page)
+  except urllib2.URLError as e:
+    logger.error('Error fetching cycle info page; URLError: ' + str(e.reason))
+  except urllib2.HTTPError as e:
+    logger.error('Error fetching cycle info page; HTTPError: %s %s' % (e.code, e.reason))
+  except IOError as e:
+    logger.error('Unknown error fetching cycle info page: %s' % e)
+  else:
+    content = info_page.read()
+    start = content.find('<div id="content"')
+    end = content.find('<!-- /#content')
+    content = content[start:end].replace('modules/file/icons', 'static/images')
+    if content == '':
+      logger.error('Info page content at %s could not be split' % cycle.info_page)
+    else:
+      logger.info('Received info page content from ' + cycle.info_page)
+  finally:
+    return render(request, 'grants/cycle_info.html',
+        {'cycle': cycle, 'content': content or error_display})
 
 # REGISTERED ORG VIEWS
 @login_required(login_url=LOGIN_URL)
@@ -239,7 +263,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       draft.save()
       logger.debug('Created new draft')
       if cycle.info_page: #redirect to instructions first
-        return render(request, 'grants/pre_apply.html', {'cycle':cycle})
+        return render(request, 'grants/cycle_info.html', {'cycle':cycle})
 
     else: #load a draft
       dict = json.loads(draft.contents)
@@ -625,7 +649,7 @@ def grants_report(request):
   app_form = AppReportForm()
   org_form = OrgReportForm()
   award_form = AwardReportForm()
-  
+
   context = {'app_form': app_form,
              'org_form': org_form,
              'award_form': award_form}
@@ -681,7 +705,7 @@ def grants_report(request):
   context['award_base'] = 'organization name, amount, date check mailed'
   context['org_base'] = 'name'
   return render(request, 'grants/reporting.html', context)
-                 
+
 
 def get_app_results(options):
   """ Fetches application report results
@@ -723,7 +747,7 @@ def get_app_results(options):
     apps = apps.exclude(fiscal_org='')
 
   #TODO screening status
-  if options.get('pre_screening_status'): 
+  if options.get('pre_screening_status'):
     apps = apps.filter(pre_screening_status__in=options.get('pre_screening_status'))
   if options.get('screening_status'):
     apps = apps.filter(projectapp__screening_status__in=options.get('screening_status'))
@@ -771,7 +795,7 @@ def get_app_results(options):
   results = []
   for app in apps:
     row = []
-    
+
     # application fields
     for field in fields:
       if field == 'pre_screening_status': #TODO
@@ -782,7 +806,7 @@ def get_app_results(options):
           val = convert[val]
         row.append(val)
       elif field=='submission_time':
-        row.append(local_date_str(getattr(app, field))) 
+        row.append(local_date_str(getattr(app, field)))
       else:
         row.append(getattr(app, field))
 
