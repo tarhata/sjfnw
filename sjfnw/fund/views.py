@@ -869,31 +869,37 @@ def done_step(request, donor_id, step_id):
                   str(step_id))
     raise Http404
 
-  action = '/fund/' + str(donor_id) + '/' + str(step_id) + '/done'
+  action = reverse('sjfnw.fund.views.done_step', kwargs={'donor_id': donor_id, 'step_id': step_id})
 
   if request.method == 'POST':
+    # update membership activity timestamp
     membership.last_activity = timezone.now()
     membership.save(skip=True)
+
+    # get posted form
     form = forms.StepDoneForm(request.POST, auto_id = str(step.pk) + '_id_%s')
     if form.is_valid():
+      logger.info('Completing a step')
+
       step.completed = timezone.now()
       donor.talked = True
       donor.notes = form.cleaned_data['notes']
+
       asked = form.cleaned_data['asked']
       response = form.cleaned_data['response']
       promised = form.cleaned_data['promised_amount']
-      news = ' talked to a donor' #TODO is this unused?
+
+      # process ask-related input
       if asked:
         if not donor.asked: #asked this step
           logger.debug('Asked this step')
           step.asked = True
           donor.asked = True
-          news = ' asked a donor'
         if response == '3': #declined, doesn't matter this step or not
           donor.promised = 0
           step.promised = 0
           logger.debug('Declined')
-        if response == '1' and promised and not donor.promised: #this step
+        if response == '1' and promised and not donor.promised: # pledged this step
           logger.debug('Promise entered')
           step.promised = promised
           donor.promised = promised
@@ -904,12 +910,17 @@ def done_step(request, donor_id, step_id):
             donor.phone = phone
           if email:
             donor.email = email
-      logger.info('Completing a step')
+
+      # save donor & completed step
       step.save()
+      donor.save()
+
       #call story creator/updater
       if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
         deferred.defer(membership.update_story, timezone.now())
-        logger.info('calling update story')
+        logger.info('Calling update story')
+
+      # process next step input
       next_step = form.cleaned_data['next_step']
       next_date = form.cleaned_data['next_step_date']
       if next_step != '' and next_date != None:
@@ -917,25 +928,21 @@ def done_step(request, donor_id, step_id):
         form2.date = next_date
         form2.description = next_step
         form2.donor = donor
-        ns = form2.save()
-        logger.info(form2)
-      donor.save()
+        form2.save()
+        logger.info('Next step created')
+
       return HttpResponse("success")
+
   else: #GET - fill form with initial data
-    response = 2
-    amount = None
+    initial = {'asked': donor.asked, 'notes': donor.notes,'last_name': donor.lastname,
+               'phone': donor.phone, 'email': donor.email}
     if donor.promised:
       if donor.promised == 0:
-        response = 3
+        initial['response'] = 3
       else:
-        response = 1
-        amount = donor.promised
-    form = forms.StepDoneForm(auto_id = str(step.pk) + '_id_%s',
-                        initial = {'asked':donor.asked, 'response':response,
-                                   'promised_amount':amount,
-                                   'notes':donor.notes,
-                                   'last_name':donor.lastname,
-                                   'phone':donor.phone, 'email':donor.email})
+        initial['response'] = 1
+        initial['promised_amount'] = donor.promised
+    form = forms.StepDoneForm(auto_id = str(step.pk) + '_id_%s', initial = initial)
 
   return render(request, 'fund/done_step.html',
                 {'form':form, 'action':action, 'donor':donor,
