@@ -104,6 +104,11 @@ class MassStep(forms.Form):
 
 
 class StepDoneForm(forms.Form):
+  PROMISE_REASON_CHOICES = (
+      ('Relationship', 'Relationship with me'),
+      ('GP topic', 'Interested in GP topic'),
+      ('Social justice', 'Interested in social justice issues generally'),
+      ('SJF', 'Passionate/excited about SJF'))
   asked = forms.BooleanField(
       required=False,
       widget=forms.CheckboxInput(attrs={'onchange':'askedToggled(this)'}))
@@ -117,7 +122,7 @@ class StepDoneForm(forms.Form):
       widget=forms.TextInput(attrs = {'size':10}))
   promise_reason = forms.MultipleChoiceField(required=False,
       label = 'Why did this person give?',
-      choices = models.Donor.PROMISE_REASON_CHOICES,
+      choices = PROMISE_REASON_CHOICES,
       widget = forms.CheckboxSelectMultiple())
   likely_to_join = forms.ChoiceField(required=False,
       label = 'Are they likely to join a giving project?',

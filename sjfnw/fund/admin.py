@@ -170,10 +170,18 @@ class DonorA(admin.ModelAdmin):
   list_filter = ('membership__giving_project', 'asked', PromisedBooleanFilter,
                  ReceivedBooleanFilter)
   list_editable = ('received_this', 'received_next', 'received_afternext')
-  exclude = ('added',)
   search_fields = ['firstname', 'lastname', 'membership__member__first_name',
                    'membership__member__last_name']
   actions = ['export_donors']
+
+  fields = (('firstname', 'lastname'),
+            ('phone', 'email'),
+            ('amount', 'likelihood'),
+            ('talked', 'asked', 'promised', 'promise_reason_display', 'likely_to_join'),
+            ('received_this', 'received_next', 'received_afternext'),
+            'notes')
+
+  readonly_fields = ('membership', 'promise_reason_display', 'likely_to_join')
 
   def export_donors(self, request, queryset):
     logger.info('Export donors called by ' + request.user.email)

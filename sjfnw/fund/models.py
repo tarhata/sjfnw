@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from sjfnw.fund.utils import NotifyApproval
 
-import datetime, logging
+import datetime, json, logging
 
 logger = logging.getLogger('sjfnw')
 
@@ -228,16 +228,11 @@ class Membership(models.Model): #relationship b/n member and gp
 
 
 class Donor(models.Model):
-  PROMISE_REASON_CHOICES = choices = (
-      ('Relationship', 'Relationship with me'),
-      ('GP topic', 'Interested in GP topic'),
-      ('Social justice', 'Interested in social justice issues generally'),
-      ('SJF', 'Passionate/excited about SJF'))
   LIKELY_TO_JOIN_CHOICES = choices = (
-          (3, 'Definitely'),
-          (2, 'Likely'),
-          (1, 'Unlikely'),
-          (0, 'No chance'))
+          (3, '3 - Definitely'),
+          (2, '2 - Likely'),
+          (1, '1 - Unlikely'),
+          (0, '0 - No chance'))
   added = models.DateTimeField(default=timezone.now())
   membership = models.ForeignKey(Membership)
 
@@ -254,8 +249,7 @@ class Donor(models.Model):
   asked = models.BooleanField(default=False)
   promised = models.PositiveIntegerField(blank=True, null=True)
   # only if promised
-  promise_reason = models.CharField(max_length=255, blank=True,
-      choices = PROMISE_REASON_CHOICES)
+  promise_reason = models.TextField(blank=True) #json'd list of strings
   likely_to_join = models.PositiveIntegerField(null=True, blank=True,
       choices = LIKELY_TO_JOIN_CHOICES)
   received_this = models.PositiveIntegerField(default=0,
@@ -305,6 +299,9 @@ class Donor(models.Model):
       return steps[0]
     else:
       return None
+
+  def promise_reason_display(self):
+    return ', '.join(json.loads(self.promise_reason))
 
 class Step(models.Model):
   created = models.DateTimeField(default=timezone.now())
