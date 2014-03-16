@@ -249,7 +249,7 @@ class Donor(models.Model):
   asked = models.BooleanField(default=False)
   promised = models.PositiveIntegerField(blank=True, null=True)
   # only if promised
-  promise_reason = models.TextField(blank=True) #json'd list of strings
+  promise_reason = models.TextField(blank=True, default='[]') #json'd list of strings
   likely_to_join = models.PositiveIntegerField(null=True, blank=True,
       choices = LIKELY_TO_JOIN_CHOICES)
   received_this = models.PositiveIntegerField(default=0,
