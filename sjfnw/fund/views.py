@@ -904,6 +904,10 @@ def done_step(request, donor_id, step_id):
           step.promised = promised
           donor.promised = promised
           donor.lastname = form.cleaned_data['last_name']
+          donor.likely_to_join = form.cleaned_data['likely_to_join']
+          logger.info(form.cleaned_data['likely_to_join'])
+          donor.promise_reason = form.cleaned_data['promise_reason']
+          logger.info(form.cleaned_data['promise_reason'])
           phone = form.cleaned_data['phone']
           email = form.cleaned_data['email']
           if phone:
