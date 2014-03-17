@@ -327,12 +327,10 @@ def autosave_app(request, cycle_id):  # /apply/[cycle_id]/autosave/
   draft = get_object_or_404(models.DraftGrantApplication, organization=organization, grant_cycle=cycle)
 
   if request.method == 'POST':
-    logger.info([request.GET.get('override')])
     curr_user = request.POST.get('user_id')
 
     #check for simultaneous editing
     if request.GET.get('override') != 'true': #override skips this check
-      logger.info('Checking whether to autosave or require confirmation')
       if draft.modified + datetime.timedelta(seconds=35) > timezone.now(): #edited recently
         if draft.modified_by and draft.modified_by != curr_user: #last save wasn't this userid
           logger.info('Requiring confirmation')
