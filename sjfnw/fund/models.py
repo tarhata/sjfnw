@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from sjfnw.fund.utils import NotifyApproval
 
-import datetime, logging
+import datetime, json, logging
 
 logger = logging.getLogger('sjfnw')
 
@@ -228,26 +228,40 @@ class Membership(models.Model): #relationship b/n member and gp
 
 
 class Donor(models.Model):
+  LIKELY_TO_JOIN_CHOICES = choices = (
+      ('', '---------'),
+      (3, '3 - Definitely'),
+      (2, '2 - Likely'),
+      (1, '1 - Unlikely'),
+      (0, '0 - No chance'))
   added = models.DateTimeField(default=timezone.now())
   membership = models.ForeignKey(Membership)
 
   firstname = models.CharField(max_length=100, verbose_name='*First name')
   lastname = models.CharField(max_length=100, blank=True, verbose_name='Last name')
 
-  amount = models.PositiveIntegerField(verbose_name='*Amount to ask ($)',
-                                       null=True, blank=True)
-  likelihood = models.PositiveIntegerField(verbose_name='*Estimated likelihood (%)',
-                                           validators=[MaxValueValidator(100)],
-                                           null=True, blank=True)
+  amount = models.PositiveIntegerField(
+      verbose_name='*Amount to ask ($)', null=True, blank=True)
+  likelihood = models.PositiveIntegerField(
+      verbose_name='*Estimated likelihood (%)',
+      validators=[MaxValueValidator(100)], null=True, blank=True)
 
   talked = models.BooleanField(default=False)
   asked = models.BooleanField(default=False)
   promised = models.PositiveIntegerField(blank=True, null=True)
-  received_this = models.PositiveIntegerField(default=0, verbose_name='Received - current year')
-  received_next = models.PositiveIntegerField(default=0, verbose_name='Received - next year')
-  received_afternext = models.PositiveIntegerField(default=0, verbose_name='Received - year after next')
+  # only if promised
+  promise_reason = models.TextField(blank=True, default='[]') #json'd list of strings
+  likely_to_join = models.PositiveIntegerField(null=True, blank=True,
+      choices = LIKELY_TO_JOIN_CHOICES)
+  received_this = models.PositiveIntegerField(default=0,
+      verbose_name='Received - current year')
+  received_next = models.PositiveIntegerField(default=0,
+      verbose_name='Received - next year')
+  received_afternext = models.PositiveIntegerField(default=0,
+      verbose_name='Received - year after next')
   gift_notified = models.BooleanField(default=False)
 
+  # contact info only required if promise is entered
   phone = models.CharField(max_length=15, blank=True)
   email = models.EmailField(max_length=100, blank=True)
   notes = models.TextField(blank=True)
@@ -286,6 +300,9 @@ class Donor(models.Model):
       return steps[0]
     else:
       return None
+
+  def promise_reason_display(self):
+    return ', '.join(json.loads(self.promise_reason))
 
 class Step(models.Model):
   created = models.DateTimeField(default=timezone.now())
