@@ -1,4 +1,4 @@
-{% extends 'fund/blocks.html' %}
+{% extends 'fund/base_blocks.html' %}
 
 {% block title %}Grants {{block.super}}{% endblock %}
 
@@ -7,9 +7,11 @@
 <p>Grants are not available yet.</p>
 {% else %}
 <p>Click to open a grant application in a new tab.</p>
+{% autoescape off %}
 {% for grant in grants %}
-<a href="/grants/view/{{grant.pk}}" target="_blank">{{grant.organization}}</a><br>
+<a href="/grants/view/{{grant.application.pk}}" target="_blank">{{grant.application.organization}}</a><br>
 {% endfor %}
+{% endautoescape %}
 {% endif %}
 
 {% endblock %}

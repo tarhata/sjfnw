@@ -1,0 +1,6 @@
+{% extends 'admin/edit_inline/tabular.html' %}
+{% block add_link %}
+<tr>
+  <td colspan="5"><a href="/admin/grants/grantaward/add/?application={{object_id}}" target="_blank">Add a grant award</a></td>
+</tr>
+{% endblock %}

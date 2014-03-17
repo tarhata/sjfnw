@@ -3,25 +3,28 @@
 {% block scripts %}
 <script type="text/javascript">
 	var main_div;
-	var frame;
+  var frame;
+  var first = true;
 	function showMain(){
 		console.log('displaying main content');
 		main_div.style.display = '';
 		frame.style.display = 'none';
 	}
 
-	function showAttachment(){
-		if (frame){
+function showAttachment(){
+    if (first){
+      first = false;
+    } else if (frame){
 			console.log('Displaying iframe');
 			frame.style.display = '';
 			main_div.style.display = 'none';
 		}
-	}
+}
 
 	$(document).ready(function() {
 		console.log('doc is ready');
 		main_div = document.getElementById('main_content');
-		frame = document.getElementById('reading_frame');
+    frame = document.getElementById('reading_frame');
 	});
 </script>
 {% endblock %}

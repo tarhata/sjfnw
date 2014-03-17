@@ -1,0 +1,11 @@
+{% extends 'admin/edit_inline/tabular.html' %}
+{% block add_link %}
+<tr>
+  <td colspan="5">
+    <a href="/admin/grants/sponsoredprogramgrant/add/?organization={{object_id}}" target="_blank">
+      Add a sponsored program grant
+    </a>
+  </td>
+</tr>
+{% endblock %}
+

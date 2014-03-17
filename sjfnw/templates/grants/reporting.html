@@ -1,0 +1,115 @@
+﻿{% extends 'grants/base.html' %}
+
+{% block title %}Reports{% endblock %}
+{% block style %}<link rel="stylesheet" type="text/css" href="/static/css/reporting.css">{% endblock %}
+{% block script %}
+<script type="text/javascript">
+
+  var active_form = '' // to detect when it has been changed
+
+  function check(name, checked){
+    console.log(name + ' ' + checked);
+    console.log($('input[name="' + name + '"]').prop('checked'));
+    $('input[name="' + name + '"]').prop('checked', checked);
+  }
+
+  function toggleHelp(){
+    help = document.getElementById('help');
+    if (help.style.display == 'inline-block'){
+      help.style.display = 'none';
+    } else {
+      help.style.display = 'inline-block';
+    }
+  }
+
+  function typeSelected(){
+    console.log('type selected');
+    var new_val = $('#report-type-selector').val();
+    if (new_val != active_form){
+      console.log('hiding ' + active_form);
+      $(active_form).hide();
+      active_form = new_val;
+      console.log('showing ' + active_form);
+      $(active_form).show();
+      console.log('active swapped');
+    }
+  }
+
+  $(document).ready(function() {
+      if ('{{ active_form }}' != ''){
+      console.log('active form exists onload: {{ active_form }}');
+      $('#report-type-selector').val('{{ active_form }}');
+    };
+    typeSelected(); // make sure form matches selection, in case of back button
+  });
+
+</script>
+{% endblock %}
+
+{% block body %}
+
+<div class="reporting-wrapper">
+
+  <a id="back-link" href="/admin/grants/">Back to admin site</a>
+  <h1>Grant Database Reports</h1>
+
+  <div class="report-type">Report type: 
+    <select id="report-type-selector" onchange="typeSelected();">
+      <option value="#application-form">Applications</option>
+      <option value="#organization-form">Organizations</option>
+      <option value="#award-form">Awards</option>
+    </select>
+  </div>
+
+  <img class="help_toggle" alt="Click for more information about this form"
+       title="Click for more information about this form" src="/static/images/info.png"
+       onclick="toggleHelp()"><!--TODO-->
+
+  {% include 'grants/reporting_form.html' with report_type='award' form=award_form base_fields=award_base %}
+  {% include 'grants/reporting_form.html' with report_type='application' form=app_form base_fields=app_base %}
+  {% include 'grants/reporting_form.html' with report_type='organization' form=org_form base_fields=org_base %}
+
+</div><!-- ends report_form -->
+<div id="help">
+  <h2>Overview</h2>
+  <table>
+    <tr>
+      <td>
+        Use reporting for:
+        <ul class="show">
+          <li>Exporting to spreadsheet</li>
+          <li>Complex filtering</li>
+          <li>Viewing specific fields</li>
+        </ul>
+      </td>
+      <td>
+        Use the admin site for:
+        <ul class="show">
+          <li>Reading grant applications</li>
+          <li>Viewing organization info</li>
+          <li>Simple filtering and sorting</li>
+          <li>Editing or updating any fields</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+  <h2>Report types</h2>
+  <p>With any report, you will have access to information from related items.</p>
+  <p>For example, when running a report on organizations, you can include a list
+  of awards they have received from SJF.</p>
+  <p>Based on the report type:</p>
+  <ul class="show">
+    <li>You have more detailed filters and fields for the item you select</li>
+    <li>Your report will have one line per organization/award/application
+    depending on which you select</li>
+  </ul>
+  <p>For example: if you report on awards, the same organization may appear
+  multiple times in your results: once per award they've received.  If you run
+  a similar report on organizations, each organization will only appear once,
+  but the award information will be more condensed.</p>
+  <h2>Help</h2>
+  Report a problem or suggest a change <a href="https://docs.google.com/forms/d/1SKjXMmDgXeM0IFp0yiJTJgLt6smP8b3P3dbOb4AWTck/viewform?entry.804197744={{ request.user.username }}" target="_blank">here</a>.
+</div>
+{% endblock %}
+
+

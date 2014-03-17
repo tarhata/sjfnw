@@ -2,76 +2,16 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import BaseValidator
 from django.db import models
-from django.forms import ModelForm, Textarea
-from django.forms.widgets import FileInput, MultiWidget
 from django.utils import timezone
-from django.utils.text import capfirst
+
 from sjfnw.fund.models import GivingProject
-from sjfnw.forms import IntegerCommaField, PhoneNumberField
-import logging, json, re
 from sjfnw import constants
+
 from datetime import timedelta
+import logging, json, re
 
-class TimelineWidget(MultiWidget):
-  def __init__(self, attrs=None):
-    _widgets = (
-      Textarea(attrs={'rows':'5', 'cols':'20'}),
-      Textarea(attrs={'rows':'5'}),
-      Textarea(attrs={'rows':'5'}),
-      Textarea(attrs={'rows':'5', 'cols':'20'}),
-      Textarea(attrs={'rows':'5'}),
-      Textarea(attrs={'rows':'5'}),
-      Textarea(attrs={'rows':'5', 'cols':'20'}),
-      Textarea(attrs={'rows':'5'}),
-      Textarea(attrs={'rows':'5'}),
-      Textarea(attrs={'rows':'5', 'cols':'20'}),
-      Textarea(attrs={'rows':'5'}),
-      Textarea(attrs={'rows':'5'}),
-      Textarea(attrs={'rows':'5', 'cols':'20'}),
-      Textarea(attrs={'rows':'5'}),
-      Textarea(attrs={'rows':'5'}),
-    )
-    super(TimelineWidget, self).__init__(_widgets, attrs)
+logger = logging.getLogger('sjfnw')
 
-
-  def decompress(self, value):
-    """ break single database value up for widget display
-          argument: database value (json string representing list of vals)
-          returns: list of values to be displayed in widgets """
-
-    if value:
-      return json.loads(value)
-    return [None, None, None, None, None, None, None, None, None, None, None,
-            None, None, None, None]
-
-
-  def format_output(self, rendered_widgets):
-    """
-    format the widgets for display
-      args: list of rendered widgets
-      returns: a string of HTML for displaying the widgets
-    """
-
-    html = ('<table id="timeline_form"><tr class="heading"><td></td>'
-            '<th>date range</th><th>activities</th>'
-            '<th>goals/objectives</th></tr>')
-    for i in range(0, len(rendered_widgets), 3):
-      html += ('<tr><th class="left">q' + str((i+3)/3) + '</th><td>' +
-              rendered_widgets[i] + '</td><td>' + rendered_widgets[i+1] +
-              '</td><td>' + rendered_widgets[i+2] +'</td></tr>')
-    html += '</table>'
-    return html
-
-  def value_from_datadict(self, data, files, name):
-    """ Consolodate widget data into a single value
-        returns:
-          json'd list of values """
-
-    val_list = []
-    for i, widget in enumerate(self.widgets):
-      val_list.append(widget.value_from_datadict(data, files, name +
-                                                  '_%s' % i))
-    return json.dumps(val_list)
 
 #used by org & app
 STATE_CHOICES = [
@@ -136,26 +76,51 @@ STATUS_CHOICES = [
    'Sponsored by a 501(c)3, 501(c)4, or federally recognized tribal government')
   ]
 
+PRE_SCREENING = (
+  (10, 'Received'),
+  (20, 'Incomplete'),
+  (30, 'Complete'),
+  (40, 'Pre-screened out'),
+  (45, 'Screened out by sub-committee'),
+  (50, 'Pre-screened in')
+)
+
+SCREENING = (
+  (60, 'Screened out'),
+  (70, 'Site visit awarded'), #site visit reports
+  (80, 'Grant denied'),
+  (90, 'Grant issued'),
+  (100, 'Grant paid'),
+  (110, 'Year-end report overdue'),
+  (120, 'Year-end report received'),
+  (130, 'Closed')
+)
+
 class Organization(models.Model):
   #registration fields
-  name = models.CharField(max_length=255)
-  email = models.EmailField(max_length=100, verbose_name='Email(login)',
-                            unique=True) #= django username
+  name = models.CharField(max_length=255, unique=True, error_messages={
+    'unique': ('An organization with this name is already in the system. '
+    'To add a separate org with the same name, add/alter the name to '
+    'differentiate the two.')})
+  email = models.EmailField(max_length=100, verbose_name='Login',
+                            blank=True, unique=True) #django username
 
   #org contact info
   address = models.CharField(max_length=100, blank=True)
   city = models.CharField(max_length=50, blank=True)
-  state = models.CharField(max_length=2, choices=STATE_CHOICES, null=True,
-                           blank=True)
+  state = models.CharField(max_length=2, choices=STATE_CHOICES, blank=True)
   zip = models.CharField(max_length=50, blank=True)
   telephone_number = models.CharField(max_length=20, blank=True)
   fax_number = models.CharField(max_length=20, blank=True)
   email_address = models.EmailField(max_length=100, blank=True)
-  website = models.CharField(max_length=50, null=True, blank=True)
+  website = models.CharField(max_length=50, blank=True)
+  contact_person = models.CharField(max_length=250, blank=True,
+      verbose_name= 'Contact person')
+  contact_person_title = models.CharField(max_length=100, blank=True,
+      verbose_name='Title')
 
   #org info
-  status = models.CharField(max_length=50, choices=STATUS_CHOICES, null=True,
-                            blank=True)
+  status = models.CharField(max_length=50, choices=STATUS_CHOICES, blank=True)
   ein = models.CharField(max_length=50,
                          verbose_name="Organization's or Fiscal Sponsor Organization's EIN",
                          blank=True)
@@ -165,15 +130,15 @@ class Organization(models.Model):
 
   #fiscal sponsor info (if applicable)
   fiscal_org = models.CharField(verbose_name='Organization name',
-                                max_length=255, null=True, blank=True)
+                                max_length=255, blank=True)
   fiscal_person = models.CharField(verbose_name='Contact person',
-                                   max_length=255, null=True, blank=True)
+                                   max_length=255, blank=True)
   fiscal_telephone = models.CharField(verbose_name='Telephone',
-                                      max_length=25, null=True, blank=True)
+                                      max_length=25, blank=True)
   fiscal_email = models.CharField(verbose_name='Email address',
-                                  max_length=100, null=True, blank=True)
+                                  max_length=100, blank=True)
   fiscal_address = models.CharField(verbose_name='Address',
-                                    max_length=255, null=True, blank=True)
+                                    max_length=255, blank=True)
   fiscal_city = models.CharField(verbose_name='City',
                                  max_length=50, blank=True)
   fiscal_state = models.CharField(verbose_name='State', max_length=2,
@@ -187,11 +152,6 @@ class Organization(models.Model):
   class Meta:
     ordering = ('name',)
 
-class OrgProfile(ModelForm):
-  class Meta:
-    model = Organization
-    exclude = ('name', 'email')
-
 class GrantCycle(models.Model):
   title = models.CharField(max_length=100)
   open = models.DateTimeField()
@@ -200,9 +160,11 @@ class GrantCycle(models.Model):
   info_page = models.URLField()
   email_signature = models.TextField(blank=True)
   conflicts = models.TextField(blank=True,
-                               help_text='Track any conflicts of interest '
-                               '(automatic & personally declared) that occurred'
-                               ' during this cycle.')
+      help_text='Track any conflicts of interest (automatic & personally '
+      'declared) that occurred  during this cycle.')
+
+  class Meta:
+    ordering = ['title', 'close']
 
   def __unicode__(self):
     return self.title
@@ -235,12 +197,12 @@ class DraftGrantApplication(models.Model):
   funding_sources = models.FileField(upload_to='/', max_length=255)
   budget1 = models.FileField(upload_to='/', max_length=255,
                              verbose_name = 'Annual statement')
-  budget2 = models.FileField(upload_to='/', max_length=255,
-                             verbose_name = 'Annual operating')
-  budget3 = models.FileField(upload_to='/', max_length=255,
-                             verbose_name = 'Balance sheet')
-  project_budget_file = models.FileField(upload_to='/', max_length=255,
-                                         verbose_name = 'Project budget')
+  budget2 = models.FileField(
+      upload_to='/', max_length=255, verbose_name = 'Annual operating budget')
+  budget3 = models.FileField(
+      upload_to='/', max_length=255, verbose_name = 'Balance sheet')
+  project_budget_file = models.FileField(
+      upload_to='/', max_length=255, verbose_name = 'Project budget')
   fiscal_letter = models.FileField(upload_to='/', max_length=255)
 
   extended_deadline = models.DateTimeField(help_text = ('Allows this draft to'
@@ -259,9 +221,10 @@ class DraftGrantApplication(models.Model):
 
   def editable(self):
     deadline = self.grant_cycle.close
+    logger.debug('deadline is ' + str(self.grant_cycle.close))
     now = timezone.now()
-    if deadline > now or (self.extended_deadline and
-                          self.extended_deadline > now):
+    if self.grant_cycle.open < now and (deadline > now or 
+        (self.extended_deadline and self.extended_deadline > now)):
       return True
     else:
       return False
@@ -310,10 +273,8 @@ class GrantApplication(models.Model):
   founded = models.PositiveIntegerField(verbose_name='Year founded')
   mission = models.TextField(verbose_name="Mission statement",
                              validators=[WordLimitValidator(150)])
-  previous_grants = models.CharField(max_length=255,
-                                     verbose_name=("Previous SJF grants awarded"
-                                                  " (amounts and year)"),
-                                     blank=True)
+  previous_grants = models.CharField(max_length=255, blank=True,
+      verbose_name='Previous SJF grants awarded (amounts and year)')
 
   #budget info
   start_year = models.CharField(max_length=250,
@@ -334,7 +295,7 @@ class GrantApplication(models.Model):
   SUPPORT_CHOICES = [('General support', 'General support'),
                      ('Project support', 'Project support'),]
   support_type = models.CharField(max_length=50, choices=SUPPORT_CHOICES)
-  project_title = models.CharField(max_length=250, null=True, blank=True,
+  project_title = models.CharField(max_length=250, blank=True,
                                    verbose_name='Project title (if applicable)')
   project_budget = models.PositiveIntegerField(null=True, blank=True,
                                                verbose_name='Project budget (if applicable)')
@@ -356,7 +317,7 @@ class GrantApplication(models.Model):
   fiscal_zip = models.CharField(verbose_name='ZIP', max_length=50, blank=True)
 
   #narratives
-  NARRATIVE_CHAR_LIMITS = [0, 300, 150, 450, 300, 300, 450, 300]
+  NARRATIVE_CHAR_LIMITS = [0, 300, 150, 450, 300, 300, 450, 500]
   NARRATIVE_TEXTS = ['Placeholder for 0',
     ('Describe your organization\'s mission, history and major '
      'accomplishments.'), #1
@@ -366,7 +327,8 @@ class GrantApplication(models.Model):
      'communities most directly impacted by the issues your organization '
      'addresses?</li><li>How are those communities involved in the leadership '
      'of your organization, and how does your organization remain accountable '
-     'to those communities?</li></ul>'), #2
+     'to those communities?</li><li>What is your organization\'s <span '
+     'class="has-more-info" id="nar-2">leadership body?</span></li></ul>'), #2
     ('Social Justice Fund prioritizes groups that understand and address the '
     'underlying, or root causes of the issues, and that bring people together '
     'to build collective power.<ul><li>What problems, needs or issues does '
@@ -375,10 +337,11 @@ class GrantApplication(models.Model):
     'your work change the root causes and underlying power dynamics of the '
     'identified problems, needs or issues?</li></ul>'), #3
     ('Please describe your workplan, covering at least the next 12 months. '
-     '(You will list the activities and objectives in the timeline form below '
-     'the narrative.)<ul><li>What are your overall goals and strategies for '
-     'the coming year?</li><li>How will you assess whether you have met your '
-     'objectives and goals?</li></ul>'), #4
+     '(You will list the activities and objectives in the timeline form below,)'
+     '<ul><li>What are your overall <span class="has-more-info" id="nar-4">'
+     'goals, objectives and strategies</span> for the coming year?</li>'
+     '<li>How will you assess whether you have met your goals and objectives?'
+     '</li></ul>'), #4
     ('Social Justice Fund prioritizes groups that see themselves as part of a '
      'larger movement for social change, and work towards strengthening that '
      'movement.<ul><li>Describe at least two coalitions, collaborations, '
@@ -395,26 +358,66 @@ class GrantApplication(models.Model):
      'economic injustice, homophobia, and other forms of oppression. <i>While '
      'we believe people of color must lead the struggle for racial justice, '
      'we also realize that the demographics of our region make the work of '
-     'white anti-racist allies critical to achieving racial justice.</i> If '
-     'you are a primarily white-led organization, also describe how you work '
-     'as an ally to communities of color.') #6
+     'white anti-racist allies critical to achieving racial justice.</i>'
+     'If your organization\'s <span class="has-more-info" id="nar-6">'
+     'leadership body</span> is majority white, also describe how you work as '
+     'an ally to communities of color. Be as specific as possible, and list at '
+     'least one organization led by people of color that we can contact as a '
+     'reference for your racial justice work. Include their name, '
+     'organization, phone number and email.') #6
   ]
+  HELP_TEXTS = {
+    'leadership': ('Your organization\'s leadership body is the group of '
+        'people who together make strategic decisions about the '
+        'organization\'s direction, provide oversight and guidance, and are '
+        'ultimately responsible for the organization\'s mission and ability '
+        'to carry out its mission. In most cases, this will be a Board of '
+        'Directors, but it might also be a steering committee, collective, '
+        'or other leadership structure.'),
+    'goals': ('<ul><li>A goal is what your organization wants to achieve or '
+        'accomplish. You may have both internal goals (how this work will '
+        'impact your organization) and external goals (how this work will '
+        'impact your broader community).</li><li>An objective is generally '
+        'narrower and more specific than a goal, like a stepping stone along '
+        'the way.</li><li>A strategy is a road map for achieving your goal. '
+        'How will you get there? A strategy will generally encompass '
+        'multiple activities or tactics.</li></ul>'),
+  }
+
   narrative1 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[1])],
                                 verbose_name = NARRATIVE_TEXTS[1])
   narrative2 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[2])],
-                                verbose_name = NARRATIVE_TEXTS[2])
+                                verbose_name = NARRATIVE_TEXTS[2],
+                                help_text=HELP_TEXTS['leadership'])
   narrative3 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[3])],
                                 verbose_name = NARRATIVE_TEXTS[3])
   narrative4 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[4])],
-                                verbose_name = NARRATIVE_TEXTS[4])
+                                verbose_name = NARRATIVE_TEXTS[4],
+                                help_text = HELP_TEXTS['goals'])
   narrative5 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[5])],
                                 verbose_name = NARRATIVE_TEXTS[5])
   narrative6 = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[6])],
-                                verbose_name = NARRATIVE_TEXTS[6])
+                                verbose_name = NARRATIVE_TEXTS[6],
+                                help_text = HELP_TEXTS['leadership'])
   cycle_question = models.TextField(validators=[WordLimitValidator(NARRATIVE_CHAR_LIMITS[7])],
                                     blank=True)
 
-  timeline = models.TextField()
+  timeline = models.TextField(
+      verbose_name='Please fill in this timeline to describe your activities '
+                   'over the next five quarters. This will not exactly match '
+                   'up with the time period funded by this grant. We are '
+                   'asking for this information to give us an idea of what your '
+                   'work looks like: what you are doing and how those '
+                   'activities intersect and build on each other and move you '
+                   'towards your goals. Because our grants are usually general '
+                   'operating funds, we want to get a sense of what your '
+                   'organizing work looks like over time. Note: We understand '
+                   'that this timeline is based only on what you know right '
+                   'now and that circumstances change. If you receive this '
+                   'grant, you will submit a brief report one year later, which '
+                   'will ask you what progress you\'ve made on the goals '
+                   'outlined in this application or, if you changed direction, '
+                   'why.')
 
   #collab references (after narrative 5)
   collab_ref1_name = models.CharField(help_text='Provide names and contact information for two people '
@@ -437,7 +440,7 @@ class GrantApplication(models.Model):
                                         blank=True)
 
   #racial justice references (after narrative 6)
-  racial_justice_ref1_name = models.CharField(help_text='If you are a primarily white-led organization, please list at least one organization led by people of color that we can contact as a reference for your racial justice work.', verbose_name='Name', max_length=150, blank=True)
+  racial_justice_ref1_name = models.CharField(verbose_name='Name', max_length=150, blank=True)
   racial_justice_ref1_org = models.CharField(verbose_name='Organization',
                                              max_length=150, blank=True)
   racial_justice_ref1_phone = models.CharField(verbose_name='Phone number',
@@ -455,52 +458,78 @@ class GrantApplication(models.Model):
                                                 max_length=100, blank=True)
 
   #files
-  budget = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)
-  demographics = models.FileField(verbose_name = 'Diversity chart', upload_to='/', max_length=255, validators=[validate_file_extension])
-  funding_sources = models.FileField(upload_to='/', max_length=255, validators=[validate_file_extension])
-  budget1 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual statement', validators=[validate_file_extension], blank=True)
-  budget2 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Annual operating budget', validators=[validate_file_extension], blank=True)
-  budget3 = models.FileField(upload_to='/', max_length=255, verbose_name = 'Balance sheet (if available)', validators=[validate_file_extension], blank=True)
-  project_budget_file = models.FileField(upload_to='/', max_length=255, verbose_name = 'Project budget (if applicable)', validators=[validate_file_extension], blank=True)
-  fiscal_letter = models.FileField(upload_to='/', blank=True, verbose_name = 'Fiscal sponsor letter', help_text='Letter from the sponsor stating that it agrees to act as your fiscal sponsor and supports Social Justice Fund\'s mission.', max_length=255, validators=[validate_file_extension])
+  budget = models.FileField( #no longer in use
+      upload_to='/', max_length=255, validators=[validate_file_extension], blank=True)
+  demographics = models.FileField(
+      verbose_name = 'Diversity chart', upload_to='/', max_length=255,
+      validators=[validate_file_extension])
+  funding_sources = models.FileField(
+      upload_to='/', max_length=255, validators=[validate_file_extension])
+  budget1 = models.FileField(
+      verbose_name = 'Annual statement', upload_to='/', max_length=255,
+      validators=[validate_file_extension],
+      help_text = ('This is the statement of actual income and expenses for '
+                   'the most recent completed fiscal year. Upload in your own '
+                   'format, but do not send your annual report, tax returns, '
+                   'or entire audited financial statement.'))
+  budget2 = models.FileField(
+      verbose_name = 'Annual operating budget', upload_to='/', max_length=255,
+      validators=[validate_file_extension],
+      help_text = ('This is a projection of all known and estimated income and '
+                   'expenses for the current fiscal year. You may upload in '
+                   'your own format or use our budget form. NOTE: If your '
+                   'fiscal year will end within three months of this grant '
+                   'application deadline, please also attach your operating '
+                   'budget for the next fiscal year, so that we can get a more '
+                   'accurate sense of your organization\'s situation.'))
+  budget3 = models.FileField(
+      verbose_name = 'Balance sheet', upload_to='/', max_length=255,
+      validators=[validate_file_extension],
+      help_text = ('This is a snapshot of your financial status at the moment: '
+                   'a brief, current statement of your assets, liabilities, '
+                   'and cash on hand. Upload in your own format.'))
+  project_budget_file = models.FileField(
+      verbose_name = 'Project budget (if applicable)', upload_to='/',
+      max_length=255, validators=[validate_file_extension], blank=True,
+      help_text = ('This is required only if you are requesting '
+                   'project-specific funds. Otherwise, it is optional. You '
+                   'may upload in your own format or use our budget form.'))
+  fiscal_letter = models.FileField(
+      upload_to='/', blank=True, verbose_name = 'Fiscal sponsor letter',
+      help_text=('Letter from the sponsor stating that it agrees to act as your '
+                 'fiscal sponsor and supports Social Justice Fund\'s mission.'),
+      max_length=255, validators=[validate_file_extension])
 
-  SCREENING_CHOICES = (
-    (10, 'Received'),
-    (20, 'Incomplete'),
-    (30, 'Complete'),
-    (40, 'Pre-screened out'),
-    (45, 'Screened out by sub-committee'),
-    (50, 'Pre-screened in'), #readable, scorable
-    (60, 'Screened out'),
-    (70, 'Site visit awarded'), #site visit reports
-    (80, 'Grant denied'),
-    (90, 'Grant issued'),
-    (100, 'Grant paid'),
-    (110, 'Year-end report overdue'),
-    (120, 'Year-end report received'),
-    (130, 'Closed'),)
-  #admin fields
-  screening_status = models.IntegerField(choices=SCREENING_CHOICES, default=10)
-  giving_project = models.ForeignKey(GivingProject, null=True, blank=True)
-  scoring_bonus_poc = models.BooleanField(default=False, verbose_name='Scoring bonus for POC-led')
-  scoring_bonus_geo = models.BooleanField(default=False, verbose_name='Scoring bonus for geographic diversity')
-  site_visit_report = models.URLField(blank=True, help_text='Link to the google doc containing the site visit report. This will be visible to all project members, but not the organization.')
+  # admin fields
+  pre_screening_status = models.IntegerField(choices = PRE_SCREENING,
+                                             default = 10)
+  giving_projects = models.ManyToManyField(GivingProject, through='ProjectApp',
+                                           blank=True)
+  scoring_bonus_poc = models.BooleanField(default=False,
+      verbose_name='Scoring bonus for POC-led')
+  scoring_bonus_geo = models.BooleanField(default=False,
+      verbose_name='Scoring bonus for geographic diversity')
+  site_visit_report = models.URLField(
+      blank=True, help_text = ('Link to the google doc containing the site '
+      'visit report. This will be visible to all project members, but not the '
+      'organization.'))
 
   class Meta:
+    ordering = ['organization', 'submission_time']
     unique_together = ('organization', 'grant_cycle')
 
   def __unicode__(self):
     return unicode(self.organization) + u' - ' + unicode(self.grant_cycle) + u' - ' + unicode(self.submission_time.year)
 
   def id_number(self):
-    return self.pk + 5211 #picking up after the access db
+    return self.pk + 5211 #TODO obsolete?
 
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
   view_link.allow_tags = True
 
-  def timeline_display(self):
-    logging.info(type(self.timeline))
+  def timeline_display(self): #TODO move to modelform?
+    logger.info(type(self.timeline))
     timeline = json.loads(self.timeline)
     html = '<table id="timeline_display"><tr class="heading"><td></td><th>date range</th><th>activities</th><th>goals/objectives</th></tr>'
     for i in range(0, 15, 3):
@@ -510,176 +539,42 @@ class GrantApplication(models.Model):
   timeline_display.allow_tags = True
 
   @classmethod
-  def fiscal_fields(cls):
-    return [f for f in cls._meta.get_all_field_names() if f.startswith('fiscal')]
+  def get_field_names(cls):
+    return [f for f in cls._meta.get_all_field_names()]
+
+  @classmethod
+  def fields_starting_with(cls, start):
+    return [f for f in cls._meta.get_all_field_names() if f.startswith(start)]
 
   @classmethod
   def file_fields(cls):
     return [f.name for f in cls._meta.fields if isinstance(f, models.FileField)]
 
-def custom_fields(f, **kwargs): #sets phonenumber and money fields
-  money_fields = ['budget_last', 'budget_current', 'amount_requested', 'project_budget']
-  phone_fields = ['telephone_number', 'fax_number', 'fiscal_telephone',
-                  'collab_ref1_phone', 'collab_ref2_phone',
-                  'racial_justice_ref1_phone', 'racial_justice_ref2_phone']
-  kwargs['required'] = not f.blank
-  if f.verbose_name:
-    kwargs['label'] = capfirst(f.verbose_name)
-  if f.name in money_fields:
-    return IntegerCommaField(**kwargs)
-  elif f.name in phone_fields:
-    return PhoneNumberField(**kwargs)
-  else:
-    return f.formfield(**kwargs)
 
-class GrantApplicationModelForm(ModelForm):
-  formfield_callback = custom_fields
-  class Meta:
-    model = GrantApplication
-    exclude = ['screening_status', 'submission_time'] #auto fields with defaults
-    widgets = {
-      #char limits
-      'mission': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 150)'}),
-      'grant_request': Textarea(attrs={'rows': 3, 'onKeyUp':'charLimitDisplay(this, 100)'}),
-      'narrative1': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[1]) + ')'}),
-      'narrative2': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[2]) + ')'}),
-      'narrative3': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[3]) + ')'}),
-      'narrative4': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[4]) + ')'}),
-      'narrative5': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[5]) + ')'}),
-      'narrative6': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[6]) + ')'}),
-      'cycle_question': Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[7]) + ')'}),
-      #file callbacks
-      'budget': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'demographics': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'funding_sources': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'fiscal_letter': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget1': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget2': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget3': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'project_budget_file': FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      #timeline
-      'timeline':TimelineWidget(),
-    }
+class ProjectApp(models.Model):
+  """ Connection between a grant app and a giving project.
 
-  def __init__(self, cycle, *args, **kwargs):
-    super(GrantApplicationModelForm, self).__init__(*args, **kwargs)
-    if cycle and cycle.extra_question:
-      self.fields['cycle_question'].required = True
-      logging.info('Requiring the cycle question')
+  Stores that project's screening and site visit info related to the app """
 
+  giving_project = models.ForeignKey(GivingProject)
+  application = models.ForeignKey(GrantApplication)
+
+  screening_status = models.IntegerField(choices=SCREENING, blank=True,
+                                         null=True)
+
+  """
   def clean(self):
-    cleaned_data = super(GrantApplicationModelForm, self).clean()
+    Make sure pre-screening status is valid
+    app = self.application
+    if app and app.pre_screening_status < 50:
+        raise ValidationError('An application be pre-screened in before it can '
+                              'be assigned to a giving project. Please correct '
+                              'the pre-screening status and try again.')
+  """
 
-    #timeline
-    timeline = cleaned_data.get('timeline')
-    timeline = json.loads(timeline)
-    empty = False
-    incomplete = False
-    for i in range(0, 13, 3):
-      date = timeline[i]
-      act = timeline[i+1]
-      obj = timeline[i+2]
-      if i == 0 and not (date or act or obj):
-        empty = True
-      if (date or act or obj) and not (date and act and obj):
-        incomplete = True
-    if incomplete:
-      self._errors['timeline'] = '<div class="form_error">All three columns are required for each quarter that you include in your timeline.</div>'
-    elif empty:
-      self._errors['timeline'] = '<div class="form_error">This field is required.</div>'
+  def __unicode__(self):
+    return '%s - %s' % (self.giving_project.title, self.application)
 
-    #collab refs - require phone or email
-    phone = cleaned_data.get('collab_ref1_phone')
-    email = cleaned_data.get('collab_ref1_email')
-    if not phone and not email:
-      self._errors["collab_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
-    phone = cleaned_data.get('collab_ref2_phone')
-    email = cleaned_data.get('collab_ref2_email')
-    if not phone and not email:
-      self._errors["collab_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
-
-    #racial justice refs - require full set if any
-    name = cleaned_data.get('racial_justice_ref1_name')
-    org = cleaned_data.get('racial_justice_ref1_org')
-    phone = cleaned_data.get('racial_justice_ref1_phone')
-    email = cleaned_data.get('racial_justice_ref1_email')
-    if name or org or phone or email:
-      if not name:
-        self._errors["racial_justice_ref1_name"] = '<div class="form_error">Enter a contact person.</div>'
-      if not org:
-        self._errors["racial_justice_ref1_org"] = '<div class="form_error">Enter the organization name.</div>'
-      if not phone and not email:
-        self._errors["racial_justice_ref1_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
-    name = cleaned_data.get('racial_justice_ref2_name')
-    org = cleaned_data.get('racial_justice_ref2_org')
-    phone = cleaned_data.get('racial_justice_ref2_phone')
-    email = cleaned_data.get('racial_justice_ref2_email')
-    if name or org or phone or email:
-      if not name:
-        self._errors["racial_justice_ref2_name"] = '<div class="form_error">Enter a contact person.</div>'
-      if not org:
-        self._errors["racial_justice_ref2_org"] = '<div class="form_error">Enter the organization name.</div>'
-      if not phone and not email:
-        self._errors["racial_justice_ref2_phone"] = '<div class="form_error">Enter a phone number or email.</div>'
-
-    #project - require title & budget if type
-    support_type = cleaned_data.get('support_type')
-    if support_type == 'Project support':
-      if not cleaned_data.get('project_budget'):
-        self._errors["project_budget"] = '<div class="form_error">This field is required when applying for project support.</div>'
-      if not cleaned_data.get('project_title'):
-        self._errors["project_title"] = '<div class="form_error">This field is required when applying for project support.</div>'
-
-    #budget files - require all-in-one or full set
-    budget = cleaned_data.get('budget')
-    b1 = cleaned_data.get('budget1')
-    b2 = cleaned_data.get('budget2')
-    b3 = cleaned_data.get('budget3')
-    if not budget:
-      if not (b1 or b2): #no budget files entered at all
-        self._errors["budget"] = '<div class="form_error">Budget documents are required. You may upload them as one file or as multuple files.</div>'
-      else: #some files uploaded
-        if not b1:
-          self._errors["budget1"] = '<div class="form_error">This field is required.</div>'
-        if not b2:
-          self._errors["budget2"] = '<div class="form_error">This field is required.</div>'
-      #require project budget if applicable and if not all-in-one
-      if (support_type == 'Project support') and not cleaned_data.get('project_budget_file'):
-        self._errors["project_budget_file"] = '<div class="form_error">This field is required when applying for project support.</div>'
-    elif b1 or b2 or b3: #all-in-one included + other file(s)
-      self._errors["budget"] = '<div class="form_error">Budget documents should be uploaded all in one file OR in the individual fields below.</div>'
-
-    #fiscal info/file - require all if any
-    org = cleaned_data.get('fiscal_org')
-    person = cleaned_data.get('fiscal_person')
-    phone = cleaned_data.get('fiscal_telephone')
-    email = cleaned_data.get('fiscal_email')
-    address = cleaned_data.get('fiscal_address')
-    city = cleaned_data.get('fiscal_city')
-    state = cleaned_data.get('fiscal_state')
-    zip = cleaned_data.get('fiscal_zip')
-    file = cleaned_data.get('fiscal_letter')
-    if (org or person or phone or email or address or city or state or zip):
-      if not org:
-        self._errors["fiscal_org"] = '<div class="form_error">This field is required.</div>'
-      if not person:
-        self._errors["fiscal_person"] = '<div class="form_error">This field is required.</div>'
-      if not phone:
-        self._errors["fiscal_telephone"] = '<div class="form_error">This field is required.</div>'
-      if not email:
-        self._errors["fiscal_email"] = '<div class="form_error">This field is required.</div>'
-      if not address:
-        self._errors["fiscal_address"] = '<div class="form_error">This field is required.</div>'
-      if not city:
-        self._errors["fiscal_city"] = '<div class="form_error">This field is required.</div>'
-      if not state:
-        self._errors["fiscal_state"] = '<div class="form_error">This field is required.</div>'
-      if not zip:
-        self._errors["fiscal_zip"] = '<div class="form_error">This field is required.</div>'
-      if not file:
-        self._errors["fiscal_letter"] = '<div class="form_error">This field is required.</div>'
-
-    return cleaned_data
 
 class GrantApplicationLog(models.Model):
   date = models.DateTimeField(default = timezone.now())
@@ -689,10 +584,11 @@ class GrantApplicationLog(models.Model):
   contacted = models.CharField(max_length=255, help_text = 'Person from the organization that you talked to, if applicable.', blank=True)
   notes = models.TextField()
 
-class GrantAward(models.Model):
+
+class GivingProjectGrant(models.Model):
   created = models.DateTimeField(default=timezone.now())
 
-  application = models.ForeignKey(GrantApplication)
+  project_app = models.OneToOneField(ProjectApp)
 
   amount = models.DecimalField(max_digits=8, decimal_places=2)
   check_number = models.PositiveIntegerField(null=True, blank=True)
@@ -709,9 +605,25 @@ class GrantAward(models.Model):
       return None
 
   def yearend_due(self):
-    with self.agreement_mailed as mailed:
-      if mailed:
-        return (mailed + timedelta(days=30)).replace(year = mailed.year+1)
-      else:
-        return None
+    if self.agreement_mailed:
+      return (self.agreement_mailed +
+          timedelta(days=30)).replace(year = self.agreement_mailed.year + 1)
+    else:
+      return None
+
+
+class SponsoredProgramGrant(models.Model):
+
+  entered = models.DateTimeField(default=timezone.now())
+  organization = models.ForeignKey(Organization)
+  amount = models.PositiveIntegerField()
+  check_number = models.PositiveIntegerField(null=True, blank=True)
+  check_mailed = models.DateField(null=True, blank=True)
+  approved = models.DateField(verbose_name='Date approved by the ED',
+                              null=True, blank=True)
+
+  description = models.TextField(blank=True)
+
+  class Meta:
+    ordering = ['organization']
 

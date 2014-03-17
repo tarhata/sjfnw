@@ -1,0 +1,227 @@
+[
+{
+  "pk": 2,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "Next Generation Giving Project",
+    "fund_goal": 12575,
+    "pre_approved": "",
+    "fundraising_deadline": "2012-08-25",
+    "site_visits": false,
+    "calendar": "lhrtsohp21tere0ktuhjq758q8@group.calendar.google.com",
+    "public": true,
+    "fundraising_training": "2013-01-01T17:24:44Z"
+  }
+},
+{
+  "pk": 3,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "Social Justice Giving Project based in Portland",
+    "fund_goal": 0,
+    "pre_approved": "",
+    "fundraising_deadline": "2012-09-05",
+    "site_visits": false,
+    "calendar": "",
+    "public": true,
+    "fundraising_training": "2013-01-01T17:24:44Z"
+  }
+},
+{
+  "pk": 4,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about SJF\nInvite to Information Session (12/31/12)\nSet up in-person follow up \nAsk SJF staff to meet with GP recruit\nConfirm participation/Determine Follow Up Needed",
+    "title": "Staff and Board Fundraising",
+    "fund_goal": 20000,
+    "pre_approved": "estevan@socialjusticefund.org, zeke@socialjusticefund.org, lynne@socialjusticefund.org, kylie@socialjusticefund.org, abel@capacesleadership.org, burke@estansbury.com, dana.arviso04@gmail.com, dina@disabilityrightsidaho.org, nhasting@earthlink.net, morenoemma2000@yahoo.com, esther.handy@gmail.com, joaquiniuy@gmail.com, keegan.flaherty@gmail.com, rstolzster@gmail.com, sashya@gmail.com, ubaxga@gmail.com",
+    "fundraising_deadline": "2013-06-01",
+    "site_visits": false,
+    "calendar": "fevaee81tf7mvii553vd0eevnc@group.calendar.google.com",
+    "public": false,
+    "fundraising_training": "2013-01-01T17:24:44Z"
+  }
+},
+{
+  "pk": 7,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about project\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "Immigration Reform Winter",
+    "fund_goal": 27000,
+    "pre_approved": "ubaxga@gmail.com,kroseingenuity@gmail.com,\r\nmorenoemma2000@yahoo.com,\r\nddesberg@schoolsoutwashington.org,\r\nhawkinme@gmail.com,\r\nali.leigh.b@gmail.com,\r\ngiagillis@gmail.com,\r\ntuyetlan.nguyen@gmail.com,\r\ngabedkit@gmail.com,\r\nCarole@lacasahogar.org,\r\naamusse@gmail.com,\r\nissak@comcast.net,\r\nesteban.wacan@gmail.com,\r\nsusanko@gmail.com,\r\nssotto@me.com,\r\nlilly.hankins@gmail.com,\r\nredestributeglobally@gmail.com\r\n",
+    "fundraising_deadline": "2013-03-20",
+    "site_visits": false,
+    "calendar": "lfppi8un92hu0o5qgjog1rsqqg@group.calendar.google.com",
+    "public": true,
+    "fundraising_training": "2013-02-16T23:30:00Z"
+  }
+},
+{
+  "pk": 8,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "Training Giving Project",
+    "fund_goal": 100000,
+    "pre_approved": "dianne@socialjusticefund.org, kylie@socialjusticefund.org, karen@socialjusticefund.org",
+    "fundraising_deadline": "2013-05-15",
+    "site_visits": false,
+    "calendar": "",
+    "public": false,
+    "fundraising_training": "2013-04-03T00:51:02Z"
+  }
+},
+{
+  "pk": 9,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about project\nInvite to SJF event on 04/20\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "Economic Justice",
+    "fund_goal": 100000,
+    "pre_approved": "ariana.ghasedi@gmail.com,\r\nadedge@uw.edu,\r\nfredyzate@gmail.com,\r\nlupita.lct@gmail.com,\r\nRachel_72@hotmail.com,\r\nlaurenspokane@gmail.com,\r\narelll@uw.edu,\r\njmaydegroot@gmail.com,\r\nburke@estansbury.com,\r\naimeekanemori@gmail.com,\r\nleannebmoss@gmail.com,\r\ntalk2re@yahoo.com,\r\namyhirtzel@gmail.com,\r\nraphsherry@gmail.com,\r\nmichael@estansbury.com, karen@socialjusticefund.org,Yemanegm2@gmail.com, rozzannaf@gmail.com, elsabatresbonita@hotmail.com, caramanik@gmail.com,estevan@socialjusticefund.org ",
+    "fundraising_deadline": "2013-08-03",
+    "site_visits": false,
+    "calendar": "hr177o8kb6pfj7un0gum67tdg0@group.calendar.google.com",
+    "public": true,
+    "fundraising_training": "2013-04-03T19:00:00Z"
+  }
+},
+{
+  "pk": 10,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about Giving Project\nInvite to Giving Project Summit (April 20)\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "LGBTQ Giving Project",
+    "fund_goal": 50000,
+    "pre_approved": "kylie@socialjusticefund.org, Alexis.lair@gmail.com, ajkwheeler@gmail.com, antric1928@yahoo.com, bets1983@yahoo.com, danielleaskini@gmail.com, krlombard@gmail.com, lillian.hewko@gmail.com, matts@collinsgroup.com, maxx.platinum@gmail.com, apfiruz@gmail.com, ragnarthorisson@yahoo.com, saxonrawlings@yahoo.com, sofia@riseup.net, virginia.weihs@gmail.com, dianne@socialjusticefund.org, mijo@socialjusticefund.org, acca.fabulous@gmail.com",
+    "fundraising_deadline": "2013-08-03",
+    "site_visits": false,
+    "calendar": "hq5eic9io9jk3alpokre5sb6cs@group.calendar.google.com",
+    "public": true,
+    "fundraising_training": "2013-04-02T23:34:10Z"
+  }
+},
+{
+  "pk": 11,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about project\nInvite to SJF Member Summit\nSet up time to meet for the ask\nAsk\nFollow up\nThank\n",
+    "title": "Environmental Justice ",
+    "fund_goal": 100000,
+    "pre_approved": "Adamg23@uw.edu,david.aaron.wieland@gmail.com,genevieve.g.stokes@gmail.com,tseng_joyce@hotmail.com,kkemezis@gmail.com,jessica.s.roundy@gmail.com,hollyelizabethsmith@gmail.com,amanda.righi@gmail.com,rosawgoldberg@gmail.com,kathlynk@gmail.com,avery.kirsten@gmail.com,hayden3rd@gmail.com,yolandakho@gmail.com,kim.berardi@gmail.com,wendybird@gmail.com",
+    "fundraising_deadline": "2013-06-07",
+    "site_visits": false,
+    "calendar": "socialjusticefund.org_ikp2g400qs92orl7brm0th8090@group.calendar.google.com",
+    "public": true,
+    "fundraising_training": "2013-03-27T13:00:00Z"
+  }
+},
+{
+  "pk": 12,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "Next Generation Giving Project",
+    "fund_goal": 125000,
+    "pre_approved": "vanna.waldron@gmail.com,addis.gebremedhin89@gmail.com,facey.lacey@gmail.com,eekmerz@gmail.com,ka.mcateer@gmail.com,ericka.ward@gmail.com,gabe.nishimura@gmail.com,fleurlarsen@gmail.com,glo.mayne@gmail.com,bdastrup@gmail.com,julia.a.ismael@gmail.com,ilovefilm@gmail.com,jaclyn.mena@gmail.com,kristaleehanson@gmail.com,lea.aromin@gmail.com,m_e_cadera@hotmail.com,alexahuling@fastmail.fm,talk2lauren@gmail.com,jessica.hatlo@gmail.com,maya.berkowitz@gmail.com,yshah1118@yahoo.com,\r\nnaomi@naomig.com,\r\n",
+    "fundraising_deadline": "2013-07-21",
+    "site_visits": false,
+    "calendar": "socialjusticefund.org_9kge10jtmblunkkegcq1u03utg@group.calendar.google.com",
+    "public": true,
+    "fundraising_training": "2013-05-15T23:30:00Z"
+  }
+},
+{
+  "pk": 13,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "Criminal Justice Giving Project ",
+    "fund_goal": 125000,
+    "pre_approved": "runlolatrinity@yahoo.com, Quincy Kendrix <qhkendrix@yahoo.com>, Carol Estes <allegria88ce@gmail.com>, Chris Stearns <cstearns@hobbsstraus.com>, Rebecca Chan <beccayc@gmail.com>, Kizha D <kydavidson@gmail.com>, lupe wilson <lupe.wilson@gmail.com>, therose68@hotmail.com, Madalyn Alexander <madalyn.alexander@gmail.com>, Amber Rose <amber@washingtonbus.org>, Sam Parker <sam.kazuo.parker@gmail.com>, David Reyes <reyesmdavid@gmail.com>, writenow2day@hotmail.com, Ansel Herz <ansel.herz@gmail.com>, Allison Durazzi <adurazzi@gmail.com>, hannah back <hannah.e.back@gmail.com>, aaron robertson <robertsonaaronb@gmail.com>, \"bean l. y.\" <bridgepoem@gmail.com>, Jay Doran <jay.doran8@gmail.com>, lkcdilla@gmail.com, magando@gmail.com, sonya oh <yoonjaw@gmail.com>, Stephen Adams <rakudrama@gmail.com>, jessicatracey@gmail.com, Jude Watson <jude.a.watson@gmail.com>, Lola Peters <uualpeters@aol.com>, Marcenia Milligan <marcenia323@gmail.com>, karen@socialjusticefund.org, ",
+    "fundraising_deadline": "2013-08-04",
+    "site_visits": false,
+    "calendar": "socialjusticefund.org_a0368acqttafkkdvlir780gnf8@group.calendar.google.com",
+    "public": true,
+    "fundraising_training": "2013-05-15T00:00:23Z"
+  }
+},
+{
+  "pk": 14,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "Social Justice Giving Project in Portland",
+    "fund_goal": 45000,
+    "pre_approved": "shoshanna.leah@gmail.com, ErikaMosqueda89@gmail.com, baherbutti@yahoo.com, u2canword@hotmail.com, cesia.kearns@sierraclub.org, ewasongolo@janusyouth.org, rnwmayer@gmail.com, jackmacnichol@gmail.com, margaritalgutierrez@gmail.com, mmedina@afsc.org, kelli.horvath@gmail.com, mychal.tetteh@gmail.com, drea.valderrama@gmail.com, wrobinson@metgroup.com, mickey.lee@carbonconcierge.com, greenannsteph@gmail.com, loudr13@gmail.com, kinhnarathsophia@gmail.com, Certifiedoregonic@riseup.net, jessica.giann@gmail.com, SABRINA.SUNFLOWER@GMAIL.COM, laura.erceg@gmail.com, emiko.badillo@gmail.com, derailmented@gmail.com, cesia.kearns@gmail.com \r\n",
+    "fundraising_deadline": "2013-09-25",
+    "site_visits": true,
+    "calendar": "socialjusticefund.org_l6a7gqkls12ngi2245qpndlqq4@group.calendar.google.com",
+    "public": true,
+    "fundraising_training": "2013-05-18T17:00:00Z"
+  }
+},
+{
+  "pk": 15,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Share introductory information about the project\nRequest a meeting for the ask\nAsk\nFollow up if needed\nSend a thank you note",
+    "title": "Montana Giving Project",
+    "fund_goal": 25000,
+    "pre_approved": "savannah.sinquah@gmail.com\r\nlilygladstone@gmail.com\r\nkrystal.twobulls@gmail.com\r\nkacrevi@gmail.com\r\njeremyredeagle@yahoo.com\r\ncoffeehero@gmail.com\r\njakeflaherty1950@gmail.com\r\ncdabbott10@gmail.com\r\ncarmstronga227@gmail.com\r\nafausser@gmail.com\r\nmb132714@gmail.com",
+    "fundraising_deadline": "2013-09-28",
+    "site_visits": false,
+    "calendar": "socialjusticefund.org_gsl8prol5h2sbjrjeg4rldp8ko@group.calendar.google.com",
+    "public": true,
+    "fundraising_training": "2013-06-05T17:09:14Z"
+  }
+},
+{
+  "pk": 16,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "General Grant",
+    "fund_goal": 0,
+    "pre_approved": "",
+    "fundraising_deadline": "2013-06-30",
+    "site_visits": false,
+    "calendar": "",
+    "public": true,
+    "fundraising_training": "2013-06-17T22:02:09Z"
+  }
+},
+{
+  "pk": 18,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about SJF\nInvite to SJF BBQ, 8/22\nInvite to SJF Dinner, 10/19\nIntroduce to SJF staff or board member\nInvite to site visit (if member)\nSend stories, updates\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "Circle of Awesomeness",
+    "fund_goal": 0,
+    "pre_approved": "martha@socialjusticefund.org,rachelnicoleforte@gmail.com,kylackie@gmail.com,stellanor@gmail.com,anairofverb@gmail.com,rbccameredith@gmail.com,ashleypalar@gmail.com,mochcihri@gmail.com,wadingavocet@gmail.com,rocili.maglalang@gmail.com,dean.jackson@gmail.com,jacquelyn.hermer@gmail.com,ctillier@gmail.com,j.a.mangaliman@gmail.com",
+    "fundraising_deadline": "2013-10-28",
+    "site_visits": false,
+    "calendar": "",
+    "public": true,
+    "fundraising_training": "2013-06-24T21:56:22Z"
+  }
+},
+{
+  "pk": 19,
+  "model": "fund.givingproject",
+  "fields": {
+    "suggested_steps": "Talk to about project\nInvite to SJF event\nSet up time to meet for the ask\nAsk\nFollow up\nThank",
+    "title": "Immigration Reform Summer",
+    "fund_goal": 40000,
+    "pre_approved": "j.isaura@gmail.com,khuddleup@gmail.com,paulina500@hotmail.com,Juliannatesfu@yahoo.com,cecerblack@gmail.com,redreeben@gmail.com,martha@socialjusticefund.org,adurazzi@gmail.com,stinajanssen@gmail.com,joaquiniuy@gmail.com,shimizucsr@gmail.com,epaddison@gmail.com,melissamstuart@gmail.com,lauragomez226@gmail.com,mana.borenstine@gmail.com",
+    "fundraising_deadline": "2013-10-12",
+    "site_visits": false,
+    "calendar": "socialjusticefund.org_722a6ntpt983c4dtuj2chvpvb4@group.calendar.google.com",
+    "public": true,
+    "fundraising_training": "2013-07-23T19:00:00Z"
+  }
+}
+]

@@ -1,5 +1,6 @@
-﻿from fund import models
+﻿from sjfnw.fund import models
 import logging
+logger = logging.getLogger('sjfnw')
 
 #sets request.membership, request.membership_status
 class MembershipMiddleware(object):
@@ -25,27 +26,28 @@ class MembershipMiddleware(object):
   # .membership - present in 2-3
 
   def process_view(self, request, view_func, view_args, view_kwargs):
-    #logging.debug(str(view_func.__module__))
-    if view_func.__module__.startswith('fund'):
+    #logger.debug('fund middleware running for ' + str(view_func.__module__))
+    if 'fund' in view_func.__module__:
       if request.user.is_authenticated():
         request.membership_status = 0
         request.membership = None
 
         try:
           member = models.Member.objects.get(email=request.user.username) #q3
-          logging.info(member)
+          logger.info(member)
         except models.Member.DoesNotExist: #no member object
-          logging.warning('Custom middleware: No member object with email of '+request.user.username)
+          logger.warning('Custom middleware: No member object with email of '+request.user.username)
           return None
 
         try:
           membership = models.Membership.objects.select_related().get(member = member, pk=member.current) #q4
           request.membership_status = 3
           request.membership = membership
+          logger.debug(membership)
         except models.Membership.DoesNotExist: #current is wrong
           all = member.membership_set.all()
           if all: #if 1+ memberships, update current & set ship var
-            logging.warning('Custom middleware: Current was wrong even though memberships exist')
+            logger.warning('Custom middleware: Current was wrong even though memberships exist')
             request.membership_status = 3
             request.membership = all[0] ###
             membership = all[0]
@@ -59,6 +61,7 @@ class MembershipMiddleware(object):
 
         #membership exists, status is 3
         if membership.approved == False: #current not approved
+          logger.warning('Current membership not approved')
           ships = member.membership_set.filter(approved=True)
           if ships: #switch default to their first approved gp
             request.membership_status = 3

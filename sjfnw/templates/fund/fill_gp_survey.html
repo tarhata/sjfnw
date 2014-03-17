@@ -1,0 +1,16 @@
+{% extends request.is_ajax|yesno:"base_ajax.html,fund/base_personal.html" %}
+{% block content %}
+<div id="gpsurvey-wrapper">
+<p>{{ survey.intro }}</p>
+  <form id="gpsurvey" method="post" action="" accept-charset="UTF-8">
+    {{ form.non_field_errors }}
+      {% for field in form %}
+       {{ field.errors }}{{ field }}
+      {% endfor %}
+  </form>
+  <div align="center">
+    <img id = "ajax_loading" src="/static/images/ajaxloader.gif" style="display:none;" alt="Loading..."><br>
+    <button onclick="Submit('{{ request.path }}', '#gpsurvey', 'gpsurvey-wrapper')">Save</button>
+  </div>
+</div>
+{% endblock %}

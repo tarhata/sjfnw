@@ -1,0 +1,82 @@
+﻿{% extends 'grants/base.html' %}
+
+{% block title %}Grant cycle information | {{block.super}}{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+/*
+
+$(document).ready(function() {
+
+  console.log('loading info page');
+
+  $.support.cors = true; // for IE
+
+  if ('withCredentials' in new XMLHttpRequest()) {
+    footer = '{% if cycle.is_open %}<div align="center"><button id="apply-now" onclick="location.href=\'/apply/{{cycle.pk}}\'">Continue to application</button></div>{% endif %}';
+    // supports cross-domain requests
+    $.ajax({
+      url: '{{ cycle.info_page }}',
+      type: "GET",
+      async: false, //cross-domain can't be async
+
+      success: function(data, textStatus, jqXHR) {
+        console.log('success: ' + jqXHR.status);
+        console.log(textStatus);
+        var content = data.match(/<div id="content"(.|\n|\r)+<!-- \/\.section, \/#content -->/);
+        console.log(content);
+        if (content) {
+          document.getElementById('cycle-info').innerHTML =
+             content[0].replace("modules/file/icons", "static/images") + footer;
+        } else {
+        document.getElementById('cycle-info').innerHTML =
+           'Could not load info page.  Try visiting the page directly: ' +
+           '<a href="{{ cycle.info_page }}" target="_blank">{{ cycle.info_page }}</a>.';
+        }
+      },
+
+      error: function(jqXHR, textStatus, errorThrown){
+        console.log('error: ' + jqXHR.status + textStatus);
+        console.log(errorThrown);
+        console.log(errorThrown.name + ' ' + errorThrown.message + ' '  + errorThrown.stack);
+        document.getElementById('cycle-info').innerHTML = 'Could not load info page.  Try visiting the page directly: <a href="{{ cycle.info_page }}" target="_blank">{{ cycle.info_page }}</a>.';
+      }
+    });
+  } else {
+    // No CORS support
+    console.log('CORS XML request not supported; showing message & link');
+    document.getElementById('cycle-info').innerHTML = '<h3><a href="{{ cycle.info_page }}">Click here</a> to view grant cycle information.</h3><p><i>(You are seeing this because you are using Internet Explorer 9 or below, which do not support loading content from another domain.)</i></p>';
+  }
+});
+
+*/
+</script>
+{% endblock script %}
+
+{% block content %}
+<br>
+<br>
+
+<h3>Please review grant cycle information below before beginning the application</h3>
+
+{% if cycle.is_open %}
+<div align="center">
+  <button id="apply-now" onclick="location.href='/apply/{{cycle.pk}}'">Continue to application</button>
+</div>
+<hr>
+{% endif %}
+
+<div id="cycle-info" class="info-frame">
+  {{ content|safe }}
+</div>
+
+{% if cycle.is_open %}
+<hr>
+<div align="center">
+  <button id="apply-now" onclick="location.href='/apply/{{cycle.pk}}'">Continue to application</button>
+</div>
+<br><br>
+{% endif %}
+
+{% endblock %}
+

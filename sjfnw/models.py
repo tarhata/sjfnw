@@ -1,9 +1,8 @@
-﻿from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 from django.core.validators import MaxLengthValidator
 
 #User username length patch
 def patch_user_model(model):
-
   field = model._meta.get_field("username")
   field.max_length = 100
   field.help_text = ('Required, 100 characters or fewer. Only letters, numbers,'

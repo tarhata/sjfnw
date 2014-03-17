@@ -1,6 +1,13 @@
 ﻿{% extends 'grants/base.html' %}
-{% block title %}Application form | {{block.super}}{% endblock %}
+{% block title %}Application form | {{ block.super }}{% endblock %}
 {% block script %}
+<script>
+    (function(_,e,rr,s){_errs=[s];var c=_.onerror;_.onerror=function(){var a=arguments;_errs.push(a);
+    c&&c.apply(this,a)};var b=function(){var c=e.createElement(rr),b=e.getElementsByTagName(rr)[0];
+    c.src="//beacon.errorception.com/"+s+".js";c.async=!0;b.parentNode.insertBefore(c,b)};
+    _.addEventListener?_.addEventListener("load",b,!1):_.attachEvent("onload",b)})
+    (window,document,"script","5324845d740290b52b000152");
+</script>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script type="text/javascript">
   // autosaving
@@ -13,11 +20,13 @@
     408: '408 Request timeout',
     500: '500 Internal server error',
     503: '503 Service unavailable',
-    504: '504 Gateway timeout',
+    504: '504 Gateway timeout'
   }
 
   function getCurrentTime(){
-    var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+    var monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
     var d = new Date();
     var h = d.getHours();
     var m = d.getMinutes();
@@ -52,7 +61,7 @@
       }
     }
     $.ajax({
-      url:"/apply/{{cycle.pk}}/autosave/{{user_override|default:'?'}}&override=" + override,
+      url:"/apply/{{ cycle.pk }}/autosave/{{ user_override|default:'?'}}&override=" + override,
       type:"POST",
       data:$('form').serialize() + '&user_id=' + user_id,
       success:function(data, textStatus, jqXHR){
@@ -61,10 +70,10 @@
             var submit_all = document.getElementById('hidden_submit_app');
             submit_all.click();
           } else { //update 'last saved'
-            document.getElementById('autosaved').innerHTML=getCurrentTime();
+            $('.autosaved').html(getCurrentTime());
           }
         } else { //unexpected status code
-          document.getElementById('autosaved').innerHTML='Unknown error<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>';
+          $('.autosaved').html('Unknown error<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>');
         }
       },
       error:function(jqXHR, textStatus, errorThrown){
@@ -82,18 +91,18 @@
           } else {
             errortext = 'Unknown error';
           }
-          document.getElementById('autosaved').innerHTML='Error: ' + errortext + '<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>';
+          $('.autosaved').html('Error: ' + errortext + '<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>');
         }
-      },
+      }
     });
   }
 
   // character limits
   function charLimitDisplay(area, limit){
-      var counter = document.getElementById(area.name + '_counter');
-      var words = area.value.match(/[^ \r\n]+/g) || [];
-      //console.log(words);
-      var diff = limit - words.length;
+    var counter = document.getElementById(area.name + '_counter');
+    var words = area.value.match(/[^ \r\n]+/g) || [];
+    //console.log(words);
+    var diff = limit - words.length;
     if (diff >= 0) {
       counter.innerHTML = diff + ' words remaining';
       counter.className = 'char_counter_ok';
@@ -115,85 +124,76 @@
     submit button: 						fieldname + '_submit' */
 
   function clickFileInput(event, input_id) {
-      console.log(event);
-      console.log('clickFileInput' + input_id);
-      var input = document.getElementById(input_id);
-      if (input) {
-          input.control.click();
-          console.log('Clicked it');
-      } else {
-          console.log('Error - no input found');
-      }
+    console.log(event);
+    console.log('clickFileInput' + input_id);
+    var input = document.getElementById(input_id);
+    if (input) {
+      input.control.click();
+      console.log('Clicked it');
+    } else {
+      console.log('Error - no input found');
+    }
   }
 
   function fileChanged(field_id) { //file selected - show loader, call getuploadurl
-      console.log('fileChanged');
-      if (uploading) {
-          console.log('Upload in progress; returning');
-          return false;
-      }
-      console.log(field_id + " onchange");
-      var file = document.getElementById(field_id).value;
-      console.log("Value: " + file);
-      if (file) {
-          uploading = true;
-          current_field = field_id.replace('id_', '')
-          uploading_span = document.getElementById(field_id.replace('id_', '') + '_uploaded');
-          uploading_span.innerHTML = '<img src="/static/images/ajaxloader2.gif" height="16" width="16" alt="Loading...">';
-          getUploadURL();
-      }
+    console.log('fileChanged');
+    if (uploading) {
+      console.log('Upload in progress; returning');
+      return false;
+    }
+    console.log(field_id + " onchange");
+    var file = document.getElementById(field_id).value;
+    console.log("Value: " + file);
+    if (file) {
+      uploading = true;
+      current_field = field_id.replace('id_', '')
+      uploading_span = document.getElementById(field_id.replace('id_', '') + '_uploaded');
+      uploading_span.innerHTML = '<img src="/static/images/ajaxloader2.gif" height="16" width="16" alt="Loading...">';
+      getUploadURL();
+    }
   }
 
-  function getUploadURL() { // gets url and submits file to it
-      console.log('getUploadURL');
-      $.ajax({
-          url: '/get-upload-url/{{draft.pk}}',
-          success: function(data) {
-              var cform = document.getElementById(current_field + '_form');
-              cform.action = data;
-              var cbutton = document.getElementById(current_field + '_submit');
-              cbutton.click();
-          },
-      });
-  }
-
-  function iframeUpdated(iframe) { //process response
-      console.log('iframeUpdated');
-      var results = iframe.contentDocument.body.innerHTML;
-      console.log("The iframe changed! New contents: " + results);
-      if (results) {
-          var field_name = results.split("~~")[0];
-          var linky = results.split("~~")[1];
-          var file_input = document.getElementById('id_' + field_name);
-          if (file_input && linky) {
-              uploading_span.innerHTML = linky;
-          } else {
-              uploading_span.innerHTML = 'There was an error uploading your file. Try again or <a href="/apply/support">contact us</a>.';
-          }
-          uploading = false;
-      }
-  }
-
-  function removeFile(field_name) {
-      $.ajax({
-          url: '/apply/{{draft.pk}}/remove/' + field_name + '{{user_override|default:''}}',
-          success: function(data) {
-              r_span = document.getElementById(field_name + '_uploaded');
-              r_span.innerHTML = '<i>no file uploaded</i>';
-          },
-      });
-  }
-
-  if($.browser.mozilla) { //make file upload labels work in firefox
-      console.log('mozilla');
-    $(document).on('click', 'label', function(e) {
-      if(e.currentTarget === this && e.target.nodeName !== 'INPUT') {
-        $(this.control).click();
+  function getUploadURL() {
+    console.log('getUploadURL');
+    $.ajax({
+      url: '/get-upload-url/{{ draft.pk }}',
+      success: function(data) {
+        var cform = document.getElementById(current_field + '_form');
+        cform.action = data;
+        var cbutton = document.getElementById(current_field + '_submit');
+        cbutton.click();
       }
     });
   }
 
-  // user id and save override
+  function iframeUpdated(iframe) { //process response
+    console.log('iframeUpdated');
+    var results = iframe.contentDocument.body.innerHTML;
+    console.log("The iframe changed! New contents: " + results);
+    if (results) {
+      var field_name = results.split("~~")[0];
+      var linky = results.split("~~")[1];
+      var file_input = document.getElementById('id_' + field_name);
+      if (file_input && linky) {
+        uploading_span.innerHTML = linky;
+      } else {
+        uploading_span.innerHTML = 'There was an error uploading your file. Try again or <a href="/apply/support">contact us</a>.';
+      }
+      uploading = false;
+    }
+  }
+
+  function removeFile(field_name) {
+    $.ajax({
+      url: '/apply/{{ draft.pk }}/remove/' + field_name + '{{ user_override|default:''}}',
+      success: function(data) {
+        r_span = document.getElementById(field_name + '_uploaded');
+        r_span.innerHTML = '<i>no file uploaded</i>';
+      }
+    });
+  }
+
+  // user id and override
   var user_id = '';
 
   function setUserID() {
@@ -212,55 +212,91 @@
     $('#override_dialog'+ver).dialog({
       title: 'Warning: simultaneous editing',
       modal: true,
-      buttons: [
-        {text:'Proceed anyway',
+      buttons: [{
+        text:'Proceed anyway',
         click: function(){
             console.log('override!');
             $('#override_dialog'+ver).dialog("close");
             autoSave(false, override=true);
             autosave_timer = window.setInterval("autoSave()", 30000);
-        }},
-        {text:'Cancel', click: function(){ location.href = '/apply/'; }}
+          }
+        },{
+            text:'Cancel',
+            click: function(){ location.href = '/apply/'; }
+        }
       ],
       closeOnEscape: false,
       resizable: false,
       position: {my: 'top', at: 'top', of: '#org_wrapper'},
-      width:400,
+      width:400
+    });
+  }
+
+  function showMoreInfo(show_id) {
+    div = show_id + '-info';
+    console.log('showing ' + div);
+    div = document.getElementById(div);
+    if (div) {
+      console.log(div);
+      div.style.display = 'block';
+    } else {
+      console.error('info to show not found');
+    }
+  }
+
+  function hide(id) {
+    div = document.getElementById(id);
+    if (div) {
+      div.style.display = 'none';
+    } else {
+      console.error('Div to hide not found');
+    }
+  }
+
+  function setInfoClicks(){
+    console.log('setInfoClicks');
+    $('.has-more-info').each(function(index) {
+        if (this.id) {
+          this.onclick = function(){ showMoreInfo(this.id); };
+          console.log('Linked ' + this.id);
+        } else {
+          console.log('Error - has-more-info without an id');
+        }
+    });
+    $('.more-info').each(function(i) {
+        this.innerHTML = this.innerHTML + '<div class="more-info-hide">click to hide</div>';
+        this.onclick = function() { hide(this.id); };
     });
   }
 
   // doc ready
   $(document).ready(function() {
     // update char counters
-      $('.char_counter').each(function(index) {
-          var id = "id_" + this.id.replace("_counter","");
+    $('.char_counter').each(function(index) {
+      var id = "id_" + this.id.replace("_counter","");
       var area = document.getElementById(id);
-          var limit = parseInt(this.innerHTML);
-          charLimitDisplay(area, limit);
-      });
+      var limit = parseInt(this.innerHTML);
+      charLimitDisplay(area, limit);
+    });
     //get iframe
-      iframe = document.getElementById("id_upload_frame");
+    iframe = document.getElementById("id_upload_frame");
     //set user id
     setUserID();
     //check whether it was edited recently -- show override confirmation
-    if ('{{flag}}' == 'True'){
+    if ('{{ flag }}' == 'True'){
       showOverrideWarning(1);
     } else { //if not warning, start autosave
       autosave_timer = window.setInterval("autoSave()", 30000);
     }
+    setInfoClicks();
   });
-
-  // timeout
-  function idle(){
-    
-  }
-
 </script>
-{%endblock%}
+{% endblock script %}
 
 {% block content %}
 {% load tz %}
-<!-- override dialog when opening an app -->
+<!--- OVERRIDE DIALOGS -->
+<!-- when opening an app -->
 <div id="override_dialog1" style="display:none;">
   <input type="hidden" autofocus="autofocus" />
   You may be seeing this message because:
@@ -271,7 +307,8 @@
   </ul>
   Only one person should work on an application at a time.  If you proceed, your saves will overwrite any other changes that are being made from other sources.
 </div>
-<!-- override dialog when autosave reports a conflict -->
+
+<!-- when autosave reports a conflict -->
 <div id="override_dialog2" style="display:none;">
   <input type="hidden" autofocus="autofocus" />
   The last autosave did not complete due to a potential conflict.  You may be seeing this if:
@@ -281,19 +318,16 @@
   </ul>
   Only one person should work on an application at a time.  If you proceed, your changes will be saved and will overwrite concurrent changes from other sources.
 </div>
-<!-- form wrapper -->
-<div class="formwrapper">
-	<form id="non_file" action="/apply/{{cycle.pk}}/{{user_override|default:''}}" method="POST" accept-charset="UTF-8">
 
-		<div id="test" style="display:none;">
-			TEST ONLY: {{form.errors}}{{flag}}
-		</div>
+<!--- FORM WRAPPER -->
+<div class="formwrapper">
+	<form id="non_file" action="/apply/{{ cycle.pk }}/{{ user_override|default:''}}" method="POST" accept-charset="UTF-8">
 
 		<div align="center">
 			<h1>{{cycle}} Application</h1>
-			{% if user_override %}<h1>Applying as {{org}}</h1>{% endif %}
-			{% if cycle.info_page %}<a href="/apply/info/{{cycle.pk}}" target="_blank">application instructions</a><br><br>{% endif %}
-			<span id="last_saved" title="The form is automatically saved every 30 seconds">Last saved: <span id="autosaved">{{draft.modified|date:"F j, g:ia"}}</span></span>
+			{% if user_override %}<h1>Applying as {{ org }}</h1>{% endif %}
+      {% if cycle.info_page %}<a href="/apply/info/{{ cycle.pk }}" target="_blank">application instructions</a><br><br>{% endif %}
+			<span class="last_saved" title="The form is automatically saved every 30 seconds">Last saved: <span class="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span></span>
 		</div>
 		{% if form.errors %}
 		<div style="border:2px groove red;padding:0 10px;margin:10px 0;text-align:center;">
@@ -301,276 +335,293 @@
 		</div>
 		{% endif %}
 		{% autoescape off %}
-		<table id="application_form"><!-- Form starts -->
+		<table id="application_form"><!-- Upper form table -->
 			<tr>
 				<td><h4>Organization and Grant Request Profile</h4></td> <!-- Header -->
-				<td>{% if profiled %}<div id="autofilled" title="As a convenience, some information has been automatically filled in based on your most recent submitted application.  It can be removed or overwritten as needed.">Pre-filled <img class="info" src="/static/images/info.png"></div>{% endif %}</td>
+				<td>
+          {% if profiled %}<div id="autofilled" title="As a convenience, some information has been automatically filled in based on your most recent submitted application.  It can be removed or overwritten as needed.">
+          Pre-filled <img class="info" src="/static/images/info.png"></div>{% endif %}
+        </td>
 			</tr>
 			<tr>
-				<td>{{form.address.errors}}</td>
-				<td>{{form.city.errors}}</td>
+				<td>{{ form.address.errors }}</td>
+				<td>{{ form.city.errors }}</td>
 			</tr><tr>
-				<td>{{form.address.label_tag}}{{form.address}}</td>
-				<td>{{form.city.label_tag}}{{form.city}} </td>
+				<td>{{ form.address.label_tag }}{{ form.address }}</td>
+				<td>{{ form.city.label_tag }}{{ form.city }} </td>
 			</tr>
 			<tr>
-				<td>{{form.state.errors}}</td>
-				<td>{{form.zip.errors}}</td>
+				<td>{{ form.state.errors }}</td>
+				<td>{{ form.zip.errors }}</td>
 			</tr><tr>
-				<td>{{form.state.label_tag}}{{form.state}}</td>
-				<td>{{form.zip.label_tag}}{{form.zip}}</td>
+				<td>{{ form.state.label_tag }}{{ form.state }}</td>
+				<td>{{ form.zip.label_tag }}{{ form.zip }}</td>
 			</tr>
 			<tr>
-				<td>{{form.telephone_number.errors}}</td>
-				<td>{{form.fax_number.errors}}</td>
+				<td>{{ form.telephone_number.errors }}</td>
+				<td>{{ form.fax_number.errors }}</td>
 			</tr><tr>
-				<td>{{form.telephone_number.label_tag}}{{form.telephone_number}}</td>
-				<td>{{form.fax_number.label_tag}}{{form.fax_number}}</td>
+				<td>{{ form.telephone_number.label_tag }}{{ form.telephone_number }}</td>
+				<td>{{ form.fax_number.label_tag }}{{ form.fax_number }}</td>
 			</tr>
 			<tr>
-				<td>{{form.email_address.errors}}</td>
-				<td>{{form.website.errors}}</td>
+				<td>{{ form.email_address.errors }}</td>
+				<td>{{ form.website.errors }}</td>
 			</tr><tr>
-				<td>{{form.email_address.label_tag}}{{form.email_address}}</td>
-				<td>{{form.website.label_tag}}{{form.website}}</td>
-			</tr><tr><!-- Organization information -->
-				<td colspan="2">{{form.status.label_tag}}{{form.status}}{{form.status.errors}}</td>
+				<td>{{ form.email_address.label_tag }}{{ form.email_address }}</td>
+				<td>{{ form.website.label_tag }}{{ form.website }}</td>
+			</tr>
+      
+      <tr><!--- Organization information -->
+				<td colspan="2">{{ form.status.label_tag }}{{ form.status }}{{ form.status.errors }}</td>
 			</tr>
 			<tr>
-				<td>{{form.ein.errors}}</td>
-				<td>{{form.founded.errors}}</td>
+				<td>{{ form.ein.errors }}</td>
+				<td>{{ form.founded.errors }}</td>
 			</tr><tr>
-				<td>{{form.ein.label_tag}}{{form.ein}}</td>
-				<td>{{form.founded.label_tag}}{{form.founded}}</td>
+				<td>{{ form.ein.label_tag }}{{ form.ein }}</td>
+				<td>{{ form.founded.label_tag }}{{ form.founded }}</td>
 			</tr><tr>
-				<td colspan="2"><div class="vertical_cushion">{{form.contact_person.help_text}}</div></td>
+				<td colspan="2"><div class="vertical_cushion">{{ form.contact_person.help_text }}</div></td>
 			</tr><tr>
-				<td>{{form.contact_person.errors}}</td>
-				<td>{{form.contact_person_title.errors}}</td>
+				<td>{{ form.contact_person.errors }}</td>
+				<td>{{ form.contact_person_title.errors }}</td>
 			</tr><tr>
-				<td>{{form.contact_person.label_tag}}{{form.contact_person}}</td>
-				<td>{{form.contact_person_title.label_tag}}{{form.contact_person_title}}</td>
+				<td>{{ form.contact_person.label_tag }}{{ form.contact_person }}</td>
+				<td>{{ form.contact_person_title.label_tag }}{{ form.contact_person_title }}</td>
 			</tr><tr>
-				<td colspan="2"><div class="vertical_cushion">{{form.mission.label_tag}}{{form.mission.errors}}<span class="char_counter" id="mission_counter">150</span></div>
-				{{form.mission}}</td>
+				<td colspan="2"><div class="vertical_cushion">{{ form.mission.label_tag }}{{ form.mission.errors }}<span class="char_counter" id="mission_counter">150</span></div>
+				{{ form.mission }}</td>
 			</tr><tr>
-				<td colspan="2">{{form.previous_grants.errors}}</td>
+				<td colspan="2">{{ form.previous_grants.errors }}</td>
 			</tr><tr>
-				<td colspan="2">{{form.previous_grants.label_tag}}{{form.previous_grants}}</td>
-			</tr><tr><!-- Budget information -->
-				<td>{{form.start_year.label_tag}}{{form.start_year}}</td>
-				<td>{{form.start_year.errors}}</td>
+				<td colspan="2">{{ form.previous_grants.label_tag }}{{ form.previous_grants }}</td>
+			</tr>
+      
+      <tr><!--- Budget information -->
+				<td>{{ form.start_year.label_tag }}{{ form.start_year }}</td>
+				<td>{{ form.start_year.errors }}</td>
 			</tr><tr>
-				<td>{{form.budget_last.errors}}</td>
-				<td>{{form.budget_current.errors}}</td>
+				<td>{{ form.budget_last.errors }}</td>
+				<td>{{ form.budget_current.errors }}</td>
 			</tr><tr>
-				<td>{{form.budget_last.label_tag}} ${{form.budget_last}} </td>
-				<td>{{form.budget_current.label_tag}} ${{form.budget_current}}</td>
+				<td>{{ form.budget_last.label_tag }} ${{ form.budget_last }} </td>
+				<td>{{ form.budget_current.label_tag }} ${{ form.budget_current }}</td>
 			</tr><tr>
 				<td colspan="2" style="height:28px;">* Upload budget files at the bottom of the form.</td>
-			</tr><tr><!-- Grant information -->
-				<td colspan="2">{{form.grant_period.label_tag}}{{form.grant_period}}{{form.grant_period.errors}}</td>
+			</tr>
+      
+      <tr><!--- Grant information -->
+				<td colspan="2">{{ form.grant_period.label_tag }}{{ form.grant_period }}{{ form.grant_period.errors }}</td>
 			</tr><tr>
-				<td>{{form.amount_requested.errors}}</td><td>{{form.support_type.errors}}</td>
+				<td>{{ form.amount_requested.errors }}</td><td>{{ form.support_type.errors }}</td>
 			</tr><tr>
-				<td>{{form.amount_requested.label_tag}}${{form.amount_requested}}</td>
-				<td>{{form.support_type.label_tag}}{{form.support_type}}</td>
+				<td>{{ form.amount_requested.label_tag }}${{ form.amount_requested }}</td>
+				<td>{{ form.support_type.label_tag }}{{ form.support_type }}</td>
 			</tr><tr>
-				<td>{{form.project_title.errors}}</td>
-				<td>{{form.project_budget.errors}}</td>
+				<td>{{ form.project_title.errors }}</td>
+				<td>{{ form.project_budget.errors }}</td>
 			</tr><tr>
-				<td>{{form.project_title.label_tag}}{{form.project_title}}</td>
-				<td>{{form.project_budget.label_tag}} ${{form.project_budget}}</td>
+				<td>{{ form.project_title.label_tag }}{{ form.project_title }}</td>
+				<td>{{ form.project_budget.label_tag }} ${{ form.project_budget }}</td>
 			</tr><tr>
-				<td colspan="2"><div class="vertical_cushion">{{form.grant_request.label_tag}}{{form.grant_request.errors}}<span class="char_counter" id="grant_request_counter">100</span></div>
-				{{form.grant_request}}</td>
+				<td colspan="2"><div class="vertical_cushion">{{ form.grant_request.label_tag }}{{ form.grant_request.errors }}<span class="char_counter" id="grant_request_counter">100</span></div>
+				{{ form.grant_request }}</td>
+			</tr>
+      
+      <tr>
+				<td><br><u>Fiscal sponsor information (if applicable)</u></td><!--- Fiscal sponsor info -->
 			</tr><tr>
-				<td><br><u>Fiscal sponsor information (if applicable)</u></td><!-- Fiscal sponsor info -->
+				<td>{{ form.fiscal_org.errors }}</td>
+				<td>{{ form.fiscal_person.errors }}</td>
 			</tr><tr>
-				<td>{{form.fiscal_org.errors}}</td>
-				<td>{{form.fiscal_person.errors}}</td>
+				<td>{{ form.fiscal_org.label_tag }}{{ form.fiscal_org }}</td>
+				<td>{{ form.fiscal_person.label_tag }}{{ form.fiscal_person }}</td>
 			</tr><tr>
-				<td>{{form.fiscal_org.label_tag}}{{form.fiscal_org}}</td>
-				<td>{{form.fiscal_person.label_tag}}{{form.fiscal_person}}</td>
+				<td>{{ form.fiscal_telephone.errors }}</td><td>{{ form.fiscal_email.errors }}</td>
 			</tr><tr>
-				<td>{{form.fiscal_telephone.errors}}</td><td>{{form.fiscal_email.errors}}</td>
+				<td>{{ form.fiscal_telephone.label_tag }}{{ form.fiscal_telephone }}</td>
+				<td>{{ form.fiscal_email.label_tag }}{{ form.fiscal_email }}</td>
 			</tr><tr>
-				<td>{{form.fiscal_telephone.label_tag}}{{form.fiscal_telephone}}</td>
-				<td>{{form.fiscal_email.label_tag}}{{form.fiscal_email}}</td>
+				<td colspan="2">{{ form.fiscal_address.errors }}</td>
 			</tr><tr>
-				<td colspan="2">{{form.fiscal_address.errors}}</td>
+				<td>{{ form.fiscal_address.errors }}</td>
+				<td>{{ form.fiscal_city.errors }}</td>
 			</tr><tr>
-				<td>{{form.fiscal_address.errors}}</td>
-				<td>{{form.fiscal_city.errors}}</td>
-			</tr><tr>
-				<td>{{form.fiscal_address.label_tag}}{{form.fiscal_address}}</td>
-				<td>{{form.fiscal_city.label_tag}}{{form.fiscal_city}} </td>
+				<td>{{ form.fiscal_address.label_tag }}{{ form.fiscal_address }}</td>
+				<td>{{ form.fiscal_city.label_tag }}{{ form.fiscal_city }} </td>
 			</tr>
 			<tr>
-				<td>{{form.fiscal_state.errors}}</td>
-				<td>{{form.fiscal_zip.errors}}</td>
+				<td>{{ form.fiscal_state.errors }}</td>
+				<td>{{ form.fiscal_zip.errors }}</td>
 			</tr><tr>
-				<td>{{form.fiscal_state.label_tag}}{{form.fiscal_state}}</td>
-				<td>{{form.fiscal_zip.label_tag}}{{form.fiscal_zip}}</td>
+				<td>{{ form.fiscal_state.label_tag }}{{ form.fiscal_state }}</td>
+				<td>{{ form.fiscal_zip.label_tag }}{{ form.fiscal_zip }}</td>
 			</tr><tr>
 				<td colspan="2" style="height:28px;">* Upload fiscal letter at the bottom of the form if applicable.</td>
 			</tr>
 		</table>
 
-		<h4>Narratives</h4><!-- Narrative -->
+		<h4>Narratives</h4><!--- Narrative -->
 
 		Be as specific as possible when responding to each item. Your responses will reflect on the soundness of your organizational structure, your social change strategy and your organizing plan.	Please keep in mind that the strength of your written application will significantly influence the overall score you receive in the decision-making process. <img class="info" src="/static/images/info.png" title="See Social Justice Fund's Grantmaking Criteria, included in the application instructions linked at the top of the page.">
 
-		<div class="narrative_q">1. {{form.narrative1.label}}<br><br>
-		{{form.narrative1.errors}}{{form.narrative1}}
-		<span class="char_counter" id="narrative1_counter">{{limits.1}}</span></div>
+		<div class="narrative_q">1. {{ form.narrative1.label }}<br><br>
+		{{ form.narrative1.errors }}{{ form.narrative1 }}
+		<span class="char_counter" id="narrative1_counter">{{ limits.1 }}</span></div>
 
-		<div class="narrative_q">2. {{form.narrative2.label}}
-		{{form.narrative2.errors}}{{form.narrative2}}
-		<span class="char_counter" id="narrative2_counter">{{limits.2}}</span></div>
+    <div class="narrative_q">2. {{ form.narrative2.label }}
+    <div class="more-info" id="nar-2-info" style="display:none;">{{ form.narrative2.help_text }}</div>
+		{{ form.narrative2.errors }}{{ form.narrative2 }}
+		<span class="char_counter" id="narrative2_counter">{{ limits.2 }}</span></div>
 
-		<div class="narrative_q">3. {{form.narrative3.label}}
-		{{form.narrative3.errors}}{{form.narrative3}}
-		<span class="char_counter" id="narrative3_counter">{{limits.3}}</span></div>
+		<div class="narrative_q">3. {{ form.narrative3.label }}
+		{{ form.narrative3.errors }}{{ form.narrative3 }}
+		<span class="char_counter" id="narrative3_counter">{{ limits.3 }}</span></div>
 
-		<div class="narrative_q">4. {{form.narrative4.label}}
-		{{form.narrative4.errors}}{{form.narrative4}}
-		<span class="char_counter" id="narrative4_counter">{{limits.4}}</span></div>
+		<div class="narrative_q">4. {{ form.narrative4.label }}
+    <div class="more-info" id="nar-4-info" style="display:none;">{{ form.narrative4.help_text }}</div>
+		{{ form.narrative4.errors }}{{ form.narrative4 }}
+		<span class="char_counter" id="narrative4_counter">{{ limits.4 }}</span></div>
 
-		{{form.timeline.errors}}
-		{{form.timeline}}
+    <div class="narrative_q">{{ form.timeline.label }}
+		{{ form.timeline.errors }}
+		{{ form.timeline }}
+    </div>
 
-		<div class="narrative_q">5. {{form.narrative5.label}}
-		{{form.narrative5.errors}}{{form.narrative5}}
-		<span class="char_counter" id="narrative5_counter">{{limits.5}}</span>
-		<table class="narrative_references"><tr>
-		<td colspan="4">{{form.collab_ref1_name.help_text}}</td>
-		</tr><tr class="main_row">
-		<td>{{form.collab_ref1_name.label_tag}}</td>
-		<td>{{form.collab_ref1_org.label_tag}}</td>
-		<td>{{form.collab_ref1_phone.label_tag}}</td>
-		<td>{{form.collab_ref1_email.label_tag}}</td>
+		<div class="narrative_q">5. {{ form.narrative5.label }}
+		{{ form.narrative5.errors }}{{ form.narrative5 }}
+		<span class="char_counter" id="narrative5_counter">{{ limits.5 }}</span>
+    <br><br><br>{{ form.collab_ref1_name.help_text }}
+		<table class="narrative_references">
+		<tr class="main_row">
+		<td>{{ form.collab_ref1_name.label_tag }}</td>
+		<td>{{ form.collab_ref1_org.label_tag }}</td>
+		<td>{{ form.collab_ref1_phone.label_tag }}</td>
+		<td>{{ form.collab_ref1_email.label_tag }}</td>
 		</tr><tr>
-		<td>{{form.collab_ref1_name.errors}}</td>
-		<td>{{form.collab_ref1_org.errors}}</td>
-		<td>{{form.collab_ref1_phone.errors}}</td>
-		<td>{{form.collab_ref1_email.errors}}</td>
+		<td>{{ form.collab_ref1_name.errors }}</td>
+		<td>{{ form.collab_ref1_org.errors }}</td>
+		<td>{{ form.collab_ref1_phone.errors }}</td>
+		<td>{{ form.collab_ref1_email.errors }}</td>
 		</tr><tr>
-		<td>{{form.collab_ref1_name}}</td>
-		<td>{{form.collab_ref1_org}}</td>
-		<td>{{form.collab_ref1_phone}}</td>
-		<td>{{form.collab_ref1_email}}</td>
+		<td>{{ form.collab_ref1_name }}</td>
+		<td>{{ form.collab_ref1_org }}</td>
+		<td>{{ form.collab_ref1_phone }}</td>
+		<td>{{ form.collab_ref1_email }}</td>
 		</tr><tr>
-		<td>{{form.collab_ref2_name.errors}}</td>
-		<td>{{form.collab_ref2_org.errors}}</td>
-		<td>{{form.collab_ref2_phone.errors}}</td>
-		<td>{{form.collab_ref2_email.errors}}</td>
+		<td>{{ form.collab_ref2_name.errors }}</td>
+		<td>{{ form.collab_ref2_org.errors }}</td>
+		<td>{{ form.collab_ref2_phone.errors }}</td>
+		<td>{{ form.collab_ref2_email.errors }}</td>
 		</tr><tr>
-		<td>{{form.collab_ref2_name}}</td>
-		<td>{{form.collab_ref2_org}}</td>
-		<td>{{form.collab_ref2_phone}}</td>
-		<td>{{form.collab_ref2_email}}</td>
+		<td>{{ form.collab_ref2_name }}</td>
+		<td>{{ form.collab_ref2_org }}</td>
+		<td>{{ form.collab_ref2_phone }}</td>
+		<td>{{ form.collab_ref2_email }}</td>
 		</tr></table>
 		</div>
 
-		<div class="narrative_q">6. {{form.narrative6.label}}<br>
-		{{form.narrative6.errors}}{{form.narrative6}}
-		<span class="char_counter" id="narrative6_counter">{{limits.6}}</span>
-		<table class="narrative_references"><tr>
-		<td colspan="4">{{form.racial_justice_ref1_name.help_text}}</td>
-		</tr><tr class="main_row">
-		<td>{{form.racial_justice_ref1_name.label_tag}}</td>
-		<td>{{form.racial_justice_ref1_org.label_tag}}</td>
-		<td>{{form.racial_justice_ref1_phone.label_tag}}</td>
-		<td>{{form.racial_justice_ref1_email.label_tag}}</td>
+		<div class="narrative_q">6. {{ form.narrative6.label }}
+    <div class="more-info" id="nar-6-info" style="display:none;">{{ form.narrative6.help_text }}</div>
+		{{ form.narrative6.errors }}{{ form.narrative6 }}
+		<span class="char_counter" id="narrative6_counter">{{ limits.6 }}</span>
+    <table class="narrative_references">
+		<tr class="main_row">
+		<td>{{ form.racial_justice_ref1_name.label_tag }}</td>
+		<td>{{ form.racial_justice_ref1_org.label_tag }}</td>
+		<td>{{ form.racial_justice_ref1_phone.label_tag }}</td>
+		<td>{{ form.racial_justice_ref1_email.label_tag }}</td>
 		</tr><tr>
-		<td>{{form.racial_justice_ref1_name.errors}}</td>
-		<td>{{form.racial_justice_ref1_org.errors}}</td>
-		<td>{{form.racial_justice_ref1_phone.errors}}</td>
-		<td>{{form.racial_justice_ref1_email.errors}}</td>
+		<td>{{ form.racial_justice_ref1_name.errors }}</td>
+		<td>{{ form.racial_justice_ref1_org.errors }}</td>
+		<td>{{ form.racial_justice_ref1_phone.errors }}</td>
+		<td>{{ form.racial_justice_ref1_email.errors }}</td>
 		</tr><tr>
-		<td>{{form.racial_justice_ref1_name}}</td>
-		<td>{{form.racial_justice_ref1_org}}</td>
-		<td>{{form.racial_justice_ref1_phone}}</td>
-		<td>{{form.racial_justice_ref1_email}}</td>
+		<td>{{ form.racial_justice_ref1_name }}</td>
+		<td>{{ form.racial_justice_ref1_org }}</td>
+		<td>{{ form.racial_justice_ref1_phone }}</td>
+		<td>{{ form.racial_justice_ref1_email }}</td>
 		</tr><tr>
-		<td>{{form.racial_justice_ref2_name.errors}}</td>
-		<td>{{form.racial_justice_ref2_org.errors}}</td>
-		<td>{{form.racial_justice_ref2_phone.errors}}</td>
-		<td>{{form.racial_justice_ref2_email.errors}}</td>
+		<td>{{ form.racial_justice_ref2_name.errors }}</td>
+		<td>{{ form.racial_justice_ref2_org.errors }}</td>
+		<td>{{ form.racial_justice_ref2_phone.errors }}</td>
+		<td>{{ form.racial_justice_ref2_email.errors }}</td>
 		</tr><tr>
-		<td>{{form.racial_justice_ref2_name}}</td>
-		<td>{{form.racial_justice_ref2_org}}</td>
-		<td>{{form.racial_justice_ref2_phone}}</td>
-		<td>{{form.racial_justice_ref2_email}}</td>
+		<td>{{ form.racial_justice_ref2_name }}</td>
+		<td>{{ form.racial_justice_ref2_org }}</td>
+		<td>{{ form.racial_justice_ref2_phone }}</td>
+		<td>{{ form.racial_justice_ref2_email }}</td>
 		</tr></table>
 		</div>
 
 		{% if cycle.extra_question %}
-		<div class="narrative_q">7. {{cycle.extra_question}}<br>
-		{{form.cycle_question.errors}}{{form.cycle_question}}
-		<span class="char_counter" id="cycle_question_counter">{{limits.7}}</span>
+		<div class="narrative_q">7. {{ cycle.extra_question }}<br>
+		{{ form.cycle_question.errors }}{{ form.cycle_question }}
+		<span class="char_counter" id="cycle_question_counter">{{ limits.7 }}</span>
 		</div>
 		{% endif %}
 
 		<input id="hidden_submit_app" type="submit" value="Submit EVERYTHING" style="display:none;"/>
-	</form>
+  </form><!--- end of main form -->
 
-	<iframe class="upload" id="id_upload_frame" name = "upload_frame" onload="iframeUpdated(this);"></iframe><!--hidden iframe for file submissions -->
+  <!---hidden iframe for file submissions -->
+	<iframe class="upload" id="id_upload_frame" name="upload_frame" onload="iframeUpdated(this);"></iframe>
 
-		<h4>File uploads</h4><!-- Files -->
-		<p><a href="/apply/info/{{cycle.pk}}" target="_blank">Download templates here.</a><br><br>
+		<h4>File uploads</h4><!--- Files --->
+		<p><a href="/apply/info/{{ cycle.pk }}" target="_blank">Download templates here.</a><br><br>
 		Templates for budgets, funding sources and diversity chart can be downloaded above.  For budget documents, you may use your own format if preferred.</p>
-		<p><b>Note:</b> There is a <a href="http://support.microsoft.com/kb/2601307" target="_blank">known bug</a> in Internet Explorer 9 that may prevent you from uploading files.  They suggest a <a href="http://update.microsoft.com" target="_blank">security update</a>.  You can also try using <a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">Chrome</a> or <a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">Firefox</a>.</p>
-		<table id="file_upload_table" style="width:100%;">
+    <!--<p><b>Note:</b> There is a <a href="http://support.microsoft.com/kb/2601307"
+    target="_blank">known bug</a> in Internet Explorer 9 that may prevent you from uploading files.
+    They suggest a <a href="http://update.microsoft.com" target="_blank">security update</a>.
+    You can also try using <a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">Chrome</a>
+    or <a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">Firefox</a>.</p>-->
+		<table id="file-uploads" style="width:100%;">
 			<tr>
-				<td colspan="4">{{form.budget.errors}}</td>
-			</tr>
-			<tr>
-				<td style="width:150px;vertical-align:top;">1. Budget</td>
-				<td style="width:175px;">All in one file</td>
-				<td style="width:100px;"><form class="files_form" id="budget_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.budget}}<span class="upload_button">Choose file</span></span><input id="budget_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
-				<td style="width:350px;"><span id="budget_uploaded">{{file_urls.budget}}</span></td>
-			</tr><tr style="line-height:2em;">
+				<td style="width:300px;">1. Budget documents</td>
+				<td style="width:140px;"></td>
 				<td></td>
-				<td></td>
-				<td><div align="center">OR</div></td>
-				<td></td>
+      </tr><tr><!--- budget1 -->
+				<td style="padding-left:30px;"><span class="has-more-info" id="budget1">{{ form.budget1.label }}</span>
+          <div class="more-info" id="budget1-info" style="display:none;">{{ form.budget1.help_text }}</div>
+          {{ form.budget1.errors }}</td>
+				<td><form class="files_form" id="budget1_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{ form.budget1 }}<span class="upload_button">Choose file</span></span><input id="budget1_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
+				<td><span id="budget1_uploaded">{{ file_urls.budget1 }}</span></td>
+      </tr><tr><!--- budget2 -->
+        <td style="padding-left:30px;"><span class="has-more-info" id="budget2">{{ form.budget2.label }}</span>
+          <div class="more-info" id="budget2-info" style="display:none;">{{ form.budget2.help_text }}</div>
+          {{ form.budget2.errors }}</td>
+				<td><form class="files_form" id="budget2_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{ form.budget2 }}<span class="upload_button">Choose file</span></span><input id="budget2_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
+				<td><span id="budget2_uploaded">{{ file_urls.budget2 }}</span></td>
+      </tr><tr><!--- budget3 -->
+        <td style="padding-left:30px;"><span class="has-more-info" id="budget3">{{ form.budget3.label }}</span>
+          <div class="more-info" id="budget3-info" style="display:none;">{{ form.budget3.help_text }}</div>
+          {{ form.budget3.errors }}</td>
+				<td><form class="files_form" id="budget3_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{ form.budget3 }}<span class="upload_button">Choose file</span></span><input id="budget3_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
+				<td><span id="budget3_uploaded">{{ file_urls.budget3 }}</span></td>
+      </tr><tr><!--- project budget -->
+        <td style="padding-left:30px;"><span class="has-more-info" id="project-budget">{{ form.project_budget_file.label }}</span>
+          <div class="more-info" id="project-budget-info" style="display:none;">{{ form.project_budget_file.help_text }}</div>
+          {{ form.project_budget_file.errors }}</td>
+				<td><form class="files_form" id="project_budget_file_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{ form.project_budget_file }}<span class="upload_button">Choose file</span></span><input id="project_budget_file_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
+				<td><span id="project_budget_file_uploaded">{{ file_urls.project_budget_file }}</span></td>
 			</tr><tr>
-				<td>{{form.budget1.errors}}</td>
-				<td>{{form.budget1.label}}</td>
-				<td><form class="files_form" id="budget1_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.budget1}}<span class="upload_button">Choose file</span></span><input id="budget1_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
-				<td><span id="budget1_uploaded">{{file_urls.budget1}}</span></td>
+				<td>2. Diversity chart
+          {{ form.demographics.errors }}</td>
+				<td><form class="files_form" id="demographics_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{ form.demographics }}<span class="upload_button">Choose file</span></span><input id="demographics_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
+				<td><span id="demographics_uploaded">{{ file_urls.demographics }}</span></td>
 			</tr><tr>
-				<td>{{form.budget2.errors}}</td>
-				<td>{{form.budget2.label}}</td>
-				<td><form class="files_form" id="budget2_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.budget2}}<span class="upload_button">Choose file</span></span><input id="budget2_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
-				<td><span id="budget2_uploaded">{{file_urls.budget2}}</span></td>
+				<td>3. Funding sources
+          {{ form.funding_sources.errors }}</td>
+				<td><form class="files_form" id="funding_sources_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{ form.funding_sources }}<span class="upload_button">Choose file</span></span><input id="funding_sources_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
+				<td><span id="funding_sources_uploaded">{{ file_urls.funding_sources }}</span></td>
 			</tr><tr>
-				<td>{{form.budget3.errors}}</td>
-				<td>{{form.budget3.label}}</td>
-				<td><form class="files_form" id="budget3_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.budget3}}<span class="upload_button">Choose file</span></span><input id="budget3_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
-				<td><span id="budget3_uploaded">{{file_urls.budget3}}</span></td>
-			</tr><tr>
-				<td>{{form.project_budget_file.errors}}</td>
-				<td>{{form.project_budget_file.label}}</td>
-				<td><form class="files_form" id="project_budget_file_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.project_budget_file}}<span class="upload_button">Choose file</span></span><input id="project_budget_file_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
-				<td><span id="project_budget_file_uploaded">{{file_urls.project_budget_file}}</span></td>
-			</tr><tr>
-				<td>2. Diversity chart</td>
-				<td>{{form.demographics.errors}}</td>
-				<td><form class="files_form" id="demographics_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.demographics}}<span class="upload_button">Choose file</span></span><input id="demographics_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
-				<td><span id="demographics_uploaded">{{file_urls.demographics}}</span></td>
-			</tr><tr>
-				<td>3. Funding sources</td>
-				<td>{{form.funding_sources.errors}}</td>
-				<td><form class="files_form" id="funding_sources_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.funding_sources}}<span class="upload_button">Choose file</span></span><input id="funding_sources_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
-				<td><span id="funding_sources_uploaded">{{file_urls.funding_sources}}</span></td>
-			</tr><tr>
-				<td>4. Fiscal letter <img class="info" src="/static/images/info.png" title="{{form.fiscal_letter.help_text}}" alt="{{form.fiscal_letter.help_text}}"></td>
-				<td>{{form.fiscal_letter.errors}}</td>
-				<td><form class="files_form" id="fiscal_letter_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{form.fiscal_letter}}<span class="upload_button">Choose file</span></span><input id="fiscal_letter_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
-				<td><span id="fiscal_letter_uploaded">{{file_urls.fiscal_letter}}</span></td>
+        <td>4. <span class="has-more-info" id="fiscal-letter">Fiscal letter</span>
+          <div class="more-info" id="fiscal-letter-info" style="display:none;">{{ form.fiscal_letter.help_text }}</div>
+          {{ form.fiscal_letter.errors }}
+        </td>
+				<td><form class="files_form" id="fiscal_letter_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{ form.fiscal_letter }}<span class="upload_button">Choose file</span></span><input id="fiscal_letter_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
+				<td><span id="fiscal_letter_uploaded">{{ file_urls.fiscal_letter }}</span></td>
 			</tr>
 		</table>
 		{% endautoescape %}
@@ -579,6 +630,8 @@
 	<div align="center">
 		<img id="ajax_loading" src="/static/images/ajaxloader.gif" style="display:none;"><br>
 		<button onclick="autoSave(submit=true);">Submit application</button>
+    <br><br><span class="last_saved" title="The form is automatically saved every 30 seconds">Draft auto-saved: <span class="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span></span>
 	</div>
 </div>
-{% endblock %}
+{% endblock content %}
+

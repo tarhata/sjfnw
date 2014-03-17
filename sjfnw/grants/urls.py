@@ -1,13 +1,15 @@
 from django.conf.urls import patterns, include
-from django.views.generic.simple import direct_to_template
+from django.views.generic.base import TemplateView
 from sjfnw import constants
 
+# apply urls will all be prefixed with 'apply/' in mail url file
+
 apply_urls = patterns('',
-  (r'^nr', direct_to_template, {'template': 'grants/not_grantee.html'}),
-  (r'^submitted/?', direct_to_template, {'template': 'grants/submitted.html'}),
+  (r'^nr', TemplateView.as_view(template_name ='grants/not_grantee.html')),
+  (r'^submitted/?', TemplateView.as_view(template_name='grants/submitted.html')),
 )
 
-apply_urls += patterns('grants.views',
+apply_urls += patterns('sjfnw.grants.views',
 
   #login, logout, registration
   (r'^login/?$', 'org_login'),
@@ -37,11 +39,12 @@ apply_urls += patterns('',
   (r'^reset-complete/?', 'django.contrib.auth.views.password_reset_complete', {'template_name':'grants/password_reset_complete.html'}),
 )
 
-grants_urls = patterns('grants.views',
+# grants urls will all be prefixed with 'grants/' in mail url file
+
+grants_urls = patterns('sjfnw.grants.views',
   #reading
   (r'^view/(?P<app_id>\d+)/?$', 'ReadApplication'),
   (r'^view-file/(?P<app_id>\d+)-(?P<file_type>.*)\.', 'ViewFile'),
   (r'^draft-file/(?P<draft_id>\d+)-(?P<file_type>.*)\.', 'ViewDraftFile'),
-  (r'^blocked', 'CannotView'),
 )
 

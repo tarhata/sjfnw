@@ -1,16 +1,18 @@
-﻿{% extends 'fund/blocks.html' %}
-{% block title %}My fundraising {{block.super}}{% endblock %}
+﻿{% extends 'fund/base_personal.html' %}
+
 {% block script %}
+{{ block.super }}
 <script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript"><!-- charts -->
+<!--- charts -->
+<script type="text/javascript">
   var text_progress = false;
   if (Modernizr.inlinesvg) {
 
     var options = {chartArea: {left:0, top:8, width:'100%', height:'85%'},
                     legend: {alignment:'center', textStyle: {fontSize:11}},
                     tooltip: {showColorCode: false, textStyle: {fontSize:14}},
-                    slices: [{color: 'green'}, {color:'#D18316'}, {color: '#8B0E04'}],
+                    slices: [{color: '#8B0E04'}, {color:'#D18316'}, {color: 'green'}],
                     pieSliceText: 'none',
                     pieSliceTextStyle: {fontSize:14},
                     reverseCategories: true,
@@ -25,15 +27,15 @@
 				data.addColumn('string', 'Status');
 				data.addColumn('number', 'Contacts');
 				data.addRows([
-					["Haven't contacted", {{progress.contactsremaining}}],
-					["Talked to", {{progress.talked}}],
-					['Asked', {{progress.asked}}]
+					["Haven't contacted", {{ progress.contactsremaining }}],
+					["Talked to", {{ progress.talked }}],
+					['Asked', {{ progress.asked }}]
 				]);
 
 				// Instantiate and draw our chart, passing in some options.
 				var chart = new google.visualization.PieChart(chart_div);
 				chart.draw(data, options);
-				if ({{progress.estimated}} > 0) {
+				if ({{ progress.estimated }} > 0) {
 					drawChart2();
 				}
 			} else {
@@ -48,9 +50,9 @@
       data.addColumn('string', 'Status');
       data.addColumn('number', 'Amount');
       data.addRows([
-        ['Remaining', {{progress.togo|default:'0'}}],
-        ["Promised", {{progress.promised}}],
-        ['Received', {{progress.received}}]
+        ['Remaining', {{ progress.togo|default:'0'}}],
+        ["Promised", {{ progress.promised }}],
+        ['Received', {{ progress.received }}]
       ]);
 
       // Instantiate and draw our chart, passing in some options.
@@ -73,41 +75,17 @@
     console.log('textProgress');
     chart = document.getElementById('chart_div');
 		if (chart) {
-			chart.innerHTML = "<br><br>Haven't contacted: {{progress.contactsremaining}}<br>Talked to: {{progress.talked}}<br>Asked: {{progress.asked}}";
-			if ({{progress.estimated}} > 0) {
-				document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{progress.togo|default:'0'}}<br>Promised: ${{progress.promised}}<br>Received: ${{progress.received}}";
+			chart.innerHTML = "<br><br>Haven't contacted: {{ progress.contactsremaining }}<br>Talked to: {{ progress.talked }}<br>Asked: {{ progress.asked }}";
+			if ({{ progress.estimated }} > 0) {
+				document.getElementById('chart_div2').innerHTML = "<br><br>Remaining: ${{ progress.togo|default:'0'}}<br>Promised: ${{ progress.promised }}<br>Received: ${{ progress.received }}";
 			}
 		} else {
 			console.log('no chart div, not running textprogress');
 		}
   }
 </script>
-<script type="text/javascript"><!-- custom js for this page -->
-  //constants
-  var status_texts = { //for ajax error messages
-    400: '400 Bad request',
-    401: '401 Unauthorized',
-    403: '403 Forbidden',
-    404: '404 Not found',
-    408: '408 Request timeout',
-    500: '500 Internal server error',
-    503: '503 Service unavailable',
-    504: '504 Gateway timeout'
-  };
-
-  var submitted_messages = { //maps sub_url to a success message to display after reload
-  };
-
-  //general display
-  function datepicker() { //date input fields
-    $.datepicker.setDefaults({
-      dateFormat: 'mm/dd/yy',
-      minDate: 0,
-      hideIfNoPrevNext: true,
-      constrainInput: false
-    });
-    $( ".datePicker" ).datepicker();
-  }
+<!--- custom functions -->
+<script type="text/javascript">
 
   function toggle(a, b) { //donor info
     //toggles a, border on b if a is shown
@@ -126,25 +104,6 @@
     return true;
   }
 
-  //ajax - general
-  var request_processing = false;
-  function startProcessing() {
-    request_processing = true;
-    //console.log('Request processing');
-    var loader = document.getElementById('ajax_loading');
-    if (loader) {
-      loader.style.display = "";
-    }
-  }
-
-  function endProcessing() {
-    request_processing = false;
-    //console.log('Request complete');
-    var loader = document.getElementById('ajax_loading');
-    if (loader) {
-      loader.style.display = "none";
-    }
-  }
 
   function loadView(get_url, div_id, dasked, dpromised) {
     if (request_processing) {
@@ -157,7 +116,7 @@
       url:get_url,
       type:"GET",
       timeout: 10000,
-      success:function(data, textStatus, jqXHR){
+      success: function(data, textStatus, jqXHR){
         console.log(get_url + ' loaded');
         document.getElementById(div_id).innerHTML=jqXHR.responseText; //fill the div
         var pks = get_url.match(/\d+/g);
@@ -174,7 +133,7 @@
         trackEvents(get_url, div_id, 'GET');
         endProcessing();
       },
-      error:function(jqXHR, textStatus, errorThrown){
+      error: function(jqXHR, textStatus, errorThrown){
         endProcessing();
         var errortext = ''
         if (status_texts[jqXHR.status]) {
@@ -190,96 +149,7 @@
     });
   }
 
-  function Submit(sub_url, form_id, div_id, date, dasked, dpromised){
-    if (request_processing) {
-      console.log('Request processing; submit denied');
-      return false;
-    }
-    startProcessing();
-		console.log('Submission to ' + sub_url + ' requested');
-    $.ajax({
-      url:sub_url,
-      type:"POST",
-      data:$(form_id).serialize(),
-      timeout: 10000,
-      success:function(data, textStatus, jqXHR){
-        trackEvents(sub_url, div_id, 'POST');
-        if (jqXHR.responseText=="success") {
-					console.log('Submission to ' + sub_url + ' returned success; redirecting');
-          setTimeout(function() {location.href='/fund/';}, 200);
-        } else {
-					console.log('Submission to ' + sub_url + ' returned text');
-          document.getElementById(div_id).innerHTML=jqXHR.responseText;
-          if (sub_url.match('done')) {
-            var pks = sub_url.match(/\d+/g);
-            if (pks && pks[1]) {
-              completeLoaded(pks[1], dasked, dpromised, 'True');
-            }
-          }
-        }
-        if (date) { datepicker();}
-        endProcessing();
-      },
-      error:function(jqXHR, textStatus, errorThrown){
-        endProcessing();
-        var errortext = ''
-        if (status_texts[jqXHR.status]) {
-          errortext = status_texts[jqXHR.status]
-        } else if (textStatus=='timeout') {
-          errortext = 'Request timeout'
-        } else {
-          errortext = (jqXHR.status || '') + ' Unknown error';
-        }
-        document.getElementById(div_id).innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: POST ' + sub_url + '<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>'
-        console.log('Error submitting to ' + sub_url + ': ' + errortext);
-				if (date) {
-          datepicker();
-        }
-      }
-    });
-  }
-
-  //add mult contacts
-  function SubmitMult() { //add contacts
-    if (request_processing) {
-      console.log('Submitmult rejected; request in progress');
-      return false;
-    }
-		console.log('Submit mult pressed');
-    startProcessing();
-    $.ajax({
-      url:'/fund/addmult',
-      type:"POST",
-      data:$('#addcontacts').serialize(),
-      timeout: 10000,
-      success:function(data, textStatus, jqXHR){
-        trackEvents('/fund/addmult',' addmult', 'POST');
-				if (jqXHR.responseText=="success") {
-					console.log('Submitmult successful; redirecting');
-          setTimeout(function() {location.href= '/fund/?load=stepmult#your-contacts';}, 200);
-        } else {
-					console.log('Submitmult returned form errors' );
-          document.getElementById('addmult').innerHTML=jqXHR.responseText;
-          endProcessing();
-        }
-      },
-      error:function(jqXHR, textStatus, errorThrown){
-        var errortext = '';
-        if (status_texts[jqXHR.status]) {
-          errortext = status_texts[jqXHR.status];
-        } else if (textStatus=='timeout') {
-          errortext = 'Request timeout';
-        } else {
-          errortext = (jqXHR.status || '') + ' Unknown error';
-        }
-        document.getElementById('addmult').innerHTML='<p>An error occurred while handling your request.  We apologize for the inconvenience.</p><p>URL: /fund/addmult<br>Error: ' + errortext + '</p><p><a href="/fund/support" target="_blank">Contact us</a> for assistance if necessary.  Please include the above error text.</p>';
-				console.log('Error submitting add mult: ' + errortext);
-				endProcessing();
-      }
-    });
-  }
-
-  function cloneMore(selector, type) { //add row to form
+  function addRow(selector, type) { //add row to form
     console.log('Adding a row to form');
     var newElement = $(selector).clone(true);
     var total = $('#id_' + type + '-TOTAL_FORMS').val();
@@ -297,75 +167,9 @@
     $(selector).after(newElement); // only copies last row, not incl error row. but error row will load when form reloads
   }
 
-  //analytics events
-  function trackEvents(url, div_id, request_type) { //analytics events
-    //console.log('trackEvents', url, div_id, request_type);
-    var category;
-    var action;
-    if (div_id.search('addmult') > -1) {
-     // console.log('addmult');
-      if (request_type == 'POST') {
-        action = 'Add multiple - submit';
-      } else {
-        action = 'Add multiple - load';
-      }
-      if (url.search('addmult') > -1) {
-        category = 'Contacts';
-      } else if (url.search('stepmult') > -1) {
-        category = 'Steps';
-      }
-    } else if (div_id.search('nextstep') > -1) {
-      //console.log('nextstep');
-      category = 'Steps';
-      if (url.search(/\d+$/) > -1 && request_type == 'POST') {
-        action = 'Edit';
-      } else if (url.search(/done$/) > -1) {
-        if (request_type == 'POST') {
-          action = 'Complete step - submit';
-        } else {
-          action = 'Complete step - load';
-        }
-      }
-    } else if (request_type == 'POST') {
-      //console.log('POST');
-      if (url.search(/step$/) > -1) {
-        category = 'Steps';
-        action = 'Add';
-      } else if (url.search(/delete$/) > -1) {
-          category = 'Contacts';
-          action = 'Delete';
-      } else if (url.search(/edit$/) > -1) {
-        category = 'Contacts';
-        action = 'Edit';
-      }
-    }
-    console.log('trackEvents', category, action)
-    if (category && action) {
-      _gaq.push(['_trackEvent', category, action]);
-    }
-  }
-
-  //suggested steps
-  var sug_div;
-  function showSuggestions(inp) { //shows suggested steps
-    if (sug_div) { sug_div.style.display="none"; } //hides prior set
-    var patt = new RegExp('\\d+');
-    var num = patt.exec(inp);
-    sug_div = document.getElementById('suggest_'+num);
-    sug_div.style.display="block";
-  }
-
-  function suggestFill(source, target) { //fills input with selected step
-    var text = source.innerHTML;
-    if (target) {
-      document.getElementById(target).value=text;
-    } else {
-      document.getElementById('id_description').value=text;
-    }
-  }
 
   //complete step form
-  function completeLoaded(pk, dasked, dpromised, submitted) { //loaded
+  function completeLoaded(pk, dasked, dpromised, submitted) {
     //hide fields based on what is already in the database for the contact
     //console.log('completeloaded called, submitted is ' +submitted);
     var asked_span = document.getElementById(pk+'_asked');
@@ -393,8 +197,9 @@
     //follow up is hidden by defalt, don't need to hide it
   }
 
-  function askedToggled(asked) { //step complete form - asked input changed
+  function askedToggled(asked) { 
     //show or hide the response field
+    // called by step complete form - asked input changed
     var num = asked.id.match(/\d+/);
     var response_span = document.getElementById(num+'_response');
     if (asked.checked) {
@@ -407,46 +212,43 @@
       response_span.style.display="none";
       var hide_span = document.getElementById(num+'_promise');
       hide_span.style.display="none";
-      promiseEntered(hide_span, true);
+      promised(num, false);
     }
   }
 
-  function responseSelected(response) { //step complete form - response input changed
-    //show or hide the promised field
-    var num = response.id.match(/\d+/);
-    var promised_span = document.getElementById(num+'_promise');
+  function responseSelected(response) {
+    // show or hide the promised field
+    // called when step complete form - response input changed
+    var donor_id = response.id.match(/\d+/);
+    var promised_span = document.getElementById(donor_id +'_promise');
     if (response.value == 1) { //1 = promised, 2 = unsure, 3 = dec
-      promised_span.style.display="";
-      var promise = document.getElementById(num+'_id_promised_amount');
       //console.log('in respselected, calling promise entered')
-      promiseEntered(promise);
+      promised(donor_id, true);
     } else {
-      promised_span.style.display="none";
       //console.log('in respselected, calling promise entered hide')
-      promiseEntered(promised_span, true);
+      promised(donor_id, false);
     }
   }
 
-  function promiseEntered(promise, hide) { //step complete form - promise input changed
+  function promised(donor_id, show) { //step complete form - promise input changed
     //show or hide the last name & contact info fields
-    promise_amt = parseFloat(promise.value) || 0;
-    var num = promise.id.match(/\d+/);
-    //console.log('in promiseentered, amt = ' + promise_amt +', num = ' +num)
-    var follows = $('.' + num + '_promise_follow').get();
-    for (var i = 0; i < follows.length; i++) {
-      if (promise_amt > 0 && hide != true) {
-        follows[i].style.display="table-row";
-      } else {
-        follows[i].style.display="none";
-      }
+    //console.log('in promiseentered, amt = ' + promise_amt +', donor_id = ' +donor_id)
+    var followup_class = '#' + donor_id + '_promise_follow';
+    var promise_amount = '#' + donor_id + '_promise';
+    if (show) {
+      $(promise_amount).show();
+      $(followup_class).show("drop");
+    } else {
+      $(promise_amount).hide();
+      $(followup_class).hide();
     }
   }
 
   //log errors
   function logError(msg, url, line) {
     var dict = {msg: msg, script: url, line: line, url: window.location};
-    if ('{{membership}}') {
-      dict['membership'] = '{{membership}}'
+    if ('{{ request.membership }}') {
+      dict['membership'] = '{{ request.membership }}'
     } else {
       dict['membership'] = 'no membership'
     }
@@ -472,8 +274,8 @@
 
   //on load
   $(document).ready(function() {
-    var load = '{{load}}';
-    var loadto = '{{loadto}}';
+    var load = '{{ load }}';
+    var loadto = '{{ loadto }}';
     if (load) {
       loadView(load, loadto);
     }
@@ -490,16 +292,16 @@
 <div id="form_saved"></div>
 
 {% if notif %}
-<div id="notifications">{{notif|safe}}</div>
+<div id="notifications">{{ notif|safe }}</div>
 {% endif %}
 
 {% if donor_list.0 %}
 <span class="header">YOUR PROGRESS</span><!-- PROGRESS -->
 <table style="width:90%;margin-left:8%;margin-top:10px;margin-bottom:15px;text-align:center;">
   <tr>
-    <td><div align="center">{{progress.contacts}} contacts</div><div align="center" id ="chart_div" style="width:240px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
+    <td><div align="center">{{ progress.contacts }} contacts</div><div align="center" id ="chart_div" style="width:240px;height:110px;margin-left:auto;margin-right:auto;"></div></td>
     {% if progress.estimated > 0 %}
-    <td><div align="center" title = "Personal fundraising goal of ${{progress.estimated}} calculated based on your ask amount and estimated likelihood for each contact">{{progress.header}}</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
+    <td><div align="center" title = "Personal fundraising goal of ${{ progress.estimated }} calculated based on your ask amount and estimated likelihood for each contact">{{ progress.header }}</div><div align="center" id ="chart_div2" style="width:260px;height:110px;margin-left:25px;"></div></td>
     {% endif %}
   </tr>
 </table>
@@ -507,71 +309,71 @@
 
 <span class="header" id="your-contacts">YOUR CONTACTS & NEXT STEPS</span><!-- CONTACTS -->
 {% if donor_list.0 %} <!-- add contacts link (only if mass add won't be showing) -->
-  {% if not load %}<div class="edit_done">[<a onclick="loadView('/fund/addmult', 'addmult')">add contacts</a>]</div>{% endif %}
+{% if not load %}<div class="edit_done">[<a onclick="loadView('{% url 'sjfnw.fund.views.add_mult' %}', 'addmult')">add contacts</a>]</div>{% endif %}
   <div class="donor indent" id="addmult"></div><!-- mass forms area #1 -->
 {% endif %}
 {% load humanize %}
 {% for dict in donor_list %} <!-- donors -->
-<div class="donor indent" id="donor-{{dict.donor.pk}}">
+<div class="donor indent" id="donor-{{ dict.donor.pk }}">
   <!-- line 1 name click to toggle -->
-  <a class="{%if dict.donor.promised != None%}promised{%endif%}" onclick="toggle('details-{{dict.donor.pk}}', 'donor-{{dict.donor.pk}}')"><b>{{dict.donor.firstname}} {{dict.donor.lastname}}</b></a><br>
+  <a class="{% if dict.donor.promised != None %}promised{% endif %}" onclick="toggle('details-{{ dict.donor.pk }}', 'donor-{{ dict.donor.pk }}')"><b>{{ dict.donor.firstname }} {{ dict.donor.lastname }}</b></a><br>
   {% if dict.next_step %}
     <!-- line 2 next step summary -->
-    <div id="{{dict.donor.pk}}-nextstep">{%if dict.overdue%}<span title="This step's goal date has passed! Edit or complete it" style="display:inline;"><span class="overdue_step">! </span>{{dict.next_step}}</span>{% else %}{{dict.next_step}}{%endif%}
+    <div id="{{ dict.donor.pk }}-nextstep">{% if dict.overdue %}<span title="This step's goal date has passed! Edit or complete it" style="display:inline;"><span class="overdue_step">! </span>{{ dict.next_step }}</span>{% else %}{{ dict.next_step }}{% endif %}
     <!-- edit/complete links -->
-    <div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}', '{{dict.donor.pk}}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{dict.donor.pk}}/{{dict.next_step.pk}}/done', '{{dict.donor.pk}}-nextstep', '{{dict.donor.asked}}', '{{dict.donor.promised}}');">complete</a>]</div>
+    <div class="edit_done"> [<a class="edit_done" onclick="loadView('/fund/{{ dict.donor.pk }}/{{ dict.next_step.pk }}', '{{ dict.donor.pk }}-nextstep')">edit</a>|<a class="edit_done" onclick="loadView('/fund/{{ dict.donor.pk }}/{{ dict.next_step.pk }}/done', '{{ dict.donor.pk }}-nextstep', '{{ dict.donor.asked }}', '{{ dict.donor.promised }}');">complete</a>]</div>
     </div>
   {% else %}
-    <div id="{{dict.donor.pk}}-addstep">
+    <div id="{{ dict.donor.pk }}-addstep">
     {% if dict.donor.promised == None and dict.donor.received == 0 %}
       <!-- line 2 add a step -->
-      No next step. <a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">Add one.</a>
+      No next step. <a onclick="loadView('/fund/{{ dict.donor.pk }}/step', '{{ dict.donor.pk }}-addstep')">Add one.</a>
     {% else %}
       <!-- line 2 summary of response -->
-      <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.received %}${{dict.donor.received|intcomma}} received by SJF.{% elif dict.donor.promised != None %}{% if dict.donor.promised > 0 %}Promised ${{dict.donor.promised|intcomma}}.{% else %}Declined to donate.{%endif%}{% endif %}
+      <img src="/static/images/check.png" alt="complete checkmark">Asked. {% if dict.donor.received %}${{ dict.donor.received|intcomma }} received by SJF.{% elif dict.donor.promised != None %}{% if dict.donor.promised > 0 %}Promised ${{ dict.donor.promised|intcomma }}.{% else %}Declined to donate.{% endif %}{% endif %}
     {% endif %}
     </div>
   {% endif %}
 
-  <div class="donor_details indent" id="details-{{dict.donor.pk}}" style="display:none;"><!-- donor details (hidden) -->
+  <div class="donor_details indent" id="details-{{ dict.donor.pk }}" style="display:none;"><!-- donor details (hidden) -->
     <table>
-      {% if dict.donor.received %}<!-- received, promised, asked, etc. -->
-        <tr><td>Received by SJF:</td><td>${{dict.donor.received|intcomma}}</td></tr>
-        <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
-      {% elif dict.donor.promised != None%}
+      {% if dict.donor.received > 0 %}<!-- received, promised, asked, etc. -->
+        <tr><td>Received by SJF:</td><td>${{ dict.donor.received|intcomma }}</td></tr>
+        <tr><td>Original estimation:</td><td>${{ dict.donor.estimated|intcomma }}</td></tr>
+      {% elif dict.donor.promised != None %}
         {% if dict.donor.promised > 0 %}
-          <tr><td>Promised:</td><td>${{dict.donor.promised|intcomma}}</td></tr>
+          <tr><td>Promised:</td><td>${{ dict.donor.promised|intcomma }}</td></tr>
         {% else %}
           <tr><td colspan="2">Declined to donate.</td></tr>
         {% endif %}
-        <tr><td>Original estimation:</td><td>${{dict.donor.estimated|intcomma}}</td></tr>
+        <tr><td>Original estimation:</td><td>${{ dict.donor.estimated|intcomma }}</td></tr>
       {% else %}
         {% if dict.donor.asked %}
           <tr><td colspan="2">Asked; awaiting response.</td></tr>
         {% endif %}
         {% if dict.donor.amount %}
-          <tr><td>Amount to ask:</td><td>${{dict.donor.amount|intcomma}}</td></tr>
-          <tr><td>Likelihood:</td><td>{{dict.donor.likelihood}}%</td></tr>
+          <tr><td>Amount to ask:</td><td>${{ dict.donor.amount|intcomma }}</td></tr>
+          <tr><td>Likelihood:</td><td>{{ dict.donor.likelihood }}%</td></tr>
         {% endif %}
       {% endif %}
       <tr><!-- basic fields -->
         <td>{% if dict.donor.email or dict.donor.phone %}Contact info:</td>
-        <td>{{dict.donor.email|default:""}} {{dict.donor.phone|default:""}}{%endif%}</td>
+        <td>{{ dict.donor.email|default:""}} {{ dict.donor.phone|default:""}}{% endif %}</td>
       </tr>
       <tr>
         <td>Notes:</td>
-        <td>{{dict.donor.notes|default:"<i>None entered.</i>"}}<br><br></td>
+        <td>{{ dict.donor.notes|default:"<i>None entered.</i>"}}<br><br></td>
       </tr>
       {% if dict.complete_steps %}<!-- list of complete steps -->
         <tr>
-          <td>Completed steps:{% if dict.donor.promised != None and not dict.next_step %}<br>[<a onclick="loadView('/fund/{{dict.donor.pk}}/step', '{{dict.donor.pk}}-addstep')">add step</a>]{% endif %}</td>
-          <td>{% for step in dict.complete_steps %}{{step.date|date:"n/d/y"}}: {{step.description}}<br>{% endfor %}</td>
+          <td>Completed steps:{% if dict.donor.promised != None and not dict.next_step %}<br>[<a onclick="loadView('/fund/{{ dict.donor.pk }}/step', '{{ dict.donor.pk }}-addstep')">add step</a>]{% endif %}</td>
+          <td>{% for step in dict.complete_steps %}{{ step.date|date:"n/d/y"}}: {{ step.description }}<br>{% endfor %}</td>
         </tr>
       {% endif %}
     </table>
     <br>
-    <div class="donor_delete" id="delete-{{dict.donor.pk}}"><!-- delete/edit -->
-      [<a onclick="loadView('/fund/{{dict.donor.pk}}/edit', 'donor-{{dict.donor.pk}}')">edit contact</a>] [<a onclick="loadView('/fund/{{dict.donor.pk}}/delete', 'delete-{{dict.donor.pk}}')">remove contact</a>]
+    <div class="donor_delete" id="delete-{{ dict.donor.pk }}"><!-- delete/edit -->
+      [<a onclick="loadView('/fund/{{ dict.donor.pk }}/edit', 'donor-{{ dict.donor.pk }}')">edit contact</a>] [<a onclick="loadView('/fund/{{ dict.donor.pk }}/delete', 'delete-{{ dict.donor.pk }}')">remove contact</a>]
     </div>
   </div> <!-- ends donor_details -->
 </div> <!-- ends donor -->

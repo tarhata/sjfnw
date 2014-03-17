@@ -12,7 +12,7 @@
 	</tr>
 	{% for row in results %}
 	<tr>
-		{% for i in row %}<td>{{i}}</td>{% endfor %}
+		{% for i in row %}<td>{{i|safe}}</td>{% endfor %}
 	</tr>
 	{% endfor %}
 </table>

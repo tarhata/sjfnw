@@ -1,34 +1,35 @@
-﻿/* ----- base ----- */
+﻿/**  base  **/
 
-div#nav_menu  {
+#nav_menu  {
 	text-align:center;
 	margin-bottom:20px;
 }
 
-img#logo {
+#logo {
 	display:inline-block;
 	margin-left:20px;
 	margin-right:20px;
 }
 
-div#org_wrapper {
+#org_wrapper {
 	width:725px;
 	margin-left:auto;
 	margin-right:auto;
 }
 
-div#org_wrapper ul{
+#org_wrapper ul{
 	padding-left:30px;
 }
 
-table#org_footer {
+#org_footer {
 	width:100%;
 	font-size:1em;
+  padding: 1em 0;
 }
 
-/* ----- home page ----- */
+/**  home page  **/
 
-div#org_wrapper li {
+#org_wrapper li {
   margin-top:5px;
   margin-bottom:5px;
 }
@@ -37,40 +38,22 @@ table.list td{
   padding-right:20px;
 }
 
-div.section {
+div.home-section {
   border:1px solid black;
   padding: 0 10px 10px 10px;
   margin-bottom:20px;
 }
 
-div.section h3 {
+div.home-section h3 {
   display:inline-block;
   margin: -.5em 0 .5em 0;
   padding:0 10px 0 10px;
   background:white;
 }
 
-/* ----- rollover page ----- */
+/**  application form  **/
 
-div#rollover_form {
-  width:100%;
-}
-
-div#rollover_form select {
-  margin-top:10px;
-  margin-left:16px;
-}
-
-div#rollover_form input[type="submit"] {
-  font-size:1.2em;
-  width:75px;
-  margin: 15px auto;
-  display:block;
-}
-
-/* ----- application form ----- */
-
-/* general */
+/** general **/
 
 div.formwrapper {
 	width:725px;
@@ -84,18 +67,18 @@ div.formwrapper h1 {
   margin-bottom:.25em;
 }
 
-table#application_form {
+#application_form {
 	margin-top:5px;
   width:100%;
   border:1px solid black;
   padding-left:4px;
 }
 
-table#application_form td{
+#application_form td{
 	width:360px;
 }
 
-table#application_form h4{
+#application_form h4{
 	margin-top:.5em;
 }
 
@@ -103,9 +86,9 @@ label {
 	margin-right:8px;
 }
 
-/* info/errors */
+/** info/errors **/
 
-div#org_wrapper ul.errorlist, ul.errorlist li {
+#org_wrapper ul.errorlist, ul.errorlist li {
 	list-style-type: none;
 	font-style:italic;
 	color:red;
@@ -115,22 +98,55 @@ div#org_wrapper ul.errorlist, ul.errorlist li {
   display:inline;
 }
 
+#file-uploads ul.errorlist {
+  display: block;
+}
+
 div.form_error {
   font-style:italic;
 	color:red;
 }
 
-span#last_saved {
+#last_saved {
 	font-style:italic;
 }
 
-div#autofilled {
+#autofilled {
   cursor:help;
   float:right;
   margin-right:15px;
 }
 
-/* specific field/input types */
+.has-more-info {
+  background: url("/static/images/info.png") no-repeat right;
+  background-size: 10px 10px;
+  padding-right: 12px;
+}
+
+.has-more-info:hover {
+  cursor: help;
+  text-decoration: underline;
+}
+
+.more-info {
+  position: absolute;
+  z-index:2;
+  padding: 8px;
+  margin: -80px 0 0 350px;
+  width: 400px;
+  border: 1px solid;
+  background-color: #fff;
+  box-shadow: 2px 2px 1px;
+}
+
+.more-info-hide {
+  font-style: italic;
+  float: right;
+  margin: 3px 0 0 5px;
+  color: #333;
+}
+
+/** specific field/input types **/
 
 textarea {
   font-family:Arial;
@@ -140,11 +156,15 @@ textarea {
   overflow:hidden;
 }
 
+#file-uploads tr {
+  height: 2em;
+}
+
 div.formwrapper input[type="text"] {
   width:140px;
 }
 
-/* jquery ui dialog */
+/** jquery ui dialog **/
 
 .ui-widget-overlay {
 	position: fixed;
@@ -180,7 +200,7 @@ div.ui-dialog {
   display:none;
 }
 
-/* narratives */
+/** narratives **/
 
 div.narrative_q {
   padding-top:2em;
@@ -209,44 +229,45 @@ span.char_counter_over {
 	color:red;
 }
 
-/* timeline */
+/** timeline **/
 
-table#timeline_form {
+#timeline_form {
   margin-top:10px;
   border-spacing:0;
   width:100%;
 }
 
-table#timeline_form th {
+#timeline_form th {
   font-weight:normal
 }
 
-table#timeline_form tr.heading th{
+#timeline_form tr.heading th{
   padding-bottom:2px;
 }
 
-/* file uploads */
+/** file uploads **/
 
-.file_wrapper input{
+span.file_wrapper { /* outermost element */
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  width: 100px;
+}
+
+.file_wrapper input { /* large but invisible */
   cursor: pointer;
   height: 100%;
   position: absolute;
-  right: 0;
   top: 0;
+  right: 0;
+  left:0;
   filter: alpha(opacity=1);
   -moz-opacity: 0.01;
   opacity: 0.01;
-  font-size:50px;
+  font-size:2em;
   width:84px;
 }
 
-span.file_wrapper {
-  cursor: pointer;
-  display: inline-block;
-  overflow: hidden;
-  position: relative;
-  margin:0 1em;
-}
 
 span.upload_button {
   cursor: pointer;
@@ -270,20 +291,20 @@ iframe.upload {
   border:none;
 }
 
-table#file_upload_table td{
+#file_upload_table td{
   line-height:2em;
   white-space:nowrap;
   overflow:ellipsis;
   vertical-align:middle;
 }
 
-/* other specific fields */
+/** other specific fields **/
 
-input#id_contact_person, input#id_previous_grants, input#id_fiscal_address {
+#id_contact_person, #id_previous_grants, #id_fiscal_address {
 	width:300px;
 }
 
-input#id_ein {
+#id_ein {
 	width:100px;
 }
 
@@ -292,30 +313,28 @@ div.vertical_cushion { /* mission & grant req labels */
   margin-bottom:5px;
 }
 
-/* submit button */
+/** submit button **/
 
-input#grant_submit {
+#grant_submit {
   margin-top:40px;
   font-size:135%;
   font-weight:bold;
 }
 
 
-/* ----- cycle info pages ----- */
+/**  cycle info pages  **/
 
-iframe.info_frame {
-  width:100%;
-  height:500px;
-  border:0px;
+.info-frame {
+  margin-bottom: 3em;
 }
 
-button#apply-now {
+#apply-now {
   margin-top:20px;
   font-size:135%;
   font-weight:bold;
 }
 
-/* ----- grant reading ----- */
+/**  grant reading  **/
 
 div.reading_sidebar{
   width:200px;
@@ -329,7 +348,7 @@ div.reading_pane{
   height:100%;
 }
 
-div#main_content{
+#main_content{
   width:725px;
 }
 
@@ -337,7 +356,7 @@ div#main_content{
   font-weight:bold;
 }
 
-iframe#reading_frame{
+#reading_frame{
   border:none;
   width:100%;
   height:100%;
@@ -371,7 +390,7 @@ ol.contents{
   margin-top:0;
 }
 
-table#timeline_display {
+#timeline_display {
   margin:auto;
   padding:0 5px;
   border:1px solid black;
@@ -384,3 +403,22 @@ table#timeline_display {
   border:1px solid black;
   padding:5px 10px;
 }
+
+/**  rollover page  **/
+
+#rollover_form {
+  width:100%;
+}
+
+#rollover_form select {
+  margin-top:10px;
+  margin-left:16px;
+}
+
+#rollover_form input[type="submit"] {
+  font-size:1.2em;
+  width:75px;
+  margin: 15px auto;
+  display:block;
+}
+

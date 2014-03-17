@@ -2,72 +2,82 @@
 {% block title %}Login or register | {{block.super}}{% endblock %}
 {%block content %}
 <div id="login_wrapper">
-	<p>Welcome to Social Justice Fund's online grant application.  Please login or register below in order to apply for a grant.</p>
-	<table style="width:600px;">
-		<tr>
-			<td style="padding-top:0px;padding-right:10px">
-				LOGIN<br>
-				{%if login_errors%}<ul class="errorlist">{{login_errors|safe}}</ul>{%endif%}
-				<form method="post" action="/apply/login/">
-					<table id="login_table">
-					<tr>
-						<td colspan="2">{{ form.email.errors }}</td>
-					</tr>
-					<tr>
+  <p>Welcome to Social Justice Fund's online grant application.
+  Please login or register below in order to apply for a grant.</p>
+  <table style="width:600px;">
+    <tr>
+      <td style="padding-top:0px;padding-right:10px">
+
+        LOGIN<br>
+        <form method="post" action="/apply/login/">
+          <table id="login_table">
+            {% if login_error %}
+            <tr>
+              <td colspan="2"><ul class="errorlist"><li>{{ login_error }}</li></ul></td>
+            </tr>
+            {% endif %}
+            <tr>
+              <td colspan="2">{{ form.email.errors }}</td>
+            </tr>
+            <tr>
               <td>{{ form.email.label }}</td>
-							<td>{{ form.email }}</td>
-					</tr>
-					<tr>
-						<td colspan="2">{{ form.password.errors }}</td>
-					</tr>
-					<tr>
-							<td>{{ form.password.label }}</td>
-							<td>{{ form.password }}</td>
-					</tr>
-					</table>
-					<input type="submit" value="Login" />
-				</form>
-				<br><br>
-				<div class="helptext"><a href="/apply/reset">Can't access your account?</a></div>
-			</td>
-			<td style="padding-left:10px;padding-right:10px">
-			REGISTER<br>
-				{% if register_errors %}<ul class="errorlist">{{register_errors|safe}}</ul>{%endif%}
-				<form method="post" action="/apply/register/">
-					<table>
-						<tr>
-							<td colspan="2">{{ register.email.errors }}</td>
-						</tr>
-						<tr>
-							<td>{{ register.email.label }}</td>
-							<td>{{ register.email }}</td>
-						</tr>
-						<tr>
-							<td colspan="2">{{ register.password.errors }}</td>
-						</tr>
-						<tr>
-							<td>{{ register.password.label }}</td>
-							<td>{{ register.password }}</td>
-						</tr>
-						<tr>
-							<td colspan="2">{{ register.passwordtwo.errors }}</td>
-						</tr>
-						<tr>
-							<td>{{ register.passwordtwo.label }}</td>
-							<td>{{ register.passwordtwo }}</td>
-						</tr>
-						<tr>
-							<td colspan="2">{{ register.organization.errors }}</td>
-						</tr>
-						<tr>
-							<td>{{ register.organization.label }}</td>
-							<td>{{ register.organization }}</td>
-						</tr>
-					</table>
-				<input type="submit" value="Register" />
-				</form>
-			</td>
-		</tr>
-	</table>
+              <td>{{ form.email }}</td>
+            </tr>
+            <tr>
+              <td colspan="2">{{ form.password.errors }}</td>
+            </tr>
+            <tr>
+              <td>{{ form.password.label }}</td>
+              <td>{{ form.password }}</td>
+            </tr>
+          </table>
+          <input type="submit" value="Login" />
+        </form>
+        <br><br>
+        <div class="helptext"><a href="/apply/reset">Can't access your account?</a></div>
+      </td>
+
+      <td style="padding-left:10px;padding-right:10px">
+
+        REGISTER<br>
+        <form method="post" action="/apply/register/">
+          <table>
+            <tr>
+              <td colspan="2"> {{ register.non_field_errors }}</td>
+            </tr>
+            <tr>
+              <td colspan="2">{{ register.email.errors }}</td>
+            </tr>
+            <tr>
+              <td>{{ register.email.label }}</td>
+              <td>{{ register.email }}</td>
+            </tr>
+            <tr>
+              <td colspan="2">{{ register.password.errors }}</td>
+            </tr>
+            <tr>
+              <td>{{ register.password.label }}</td>
+              <td>{{ register.password }}</td>
+            </tr>
+            <tr>
+              <td colspan="2">{{ register.passwordtwo.errors }}</td>
+            </tr>
+            <tr>
+              <td>{{ register.passwordtwo.label }}</td>
+              <td>{{ register.passwordtwo }}</td>
+            </tr>
+            <tr>
+              <td colspan="2">{{ register.organization.errors }}</td>
+            </tr>
+            <tr>
+              <td>{{ register.organization.label }}</td>
+              <td>{{ register.organization }}</td>
+            </tr>
+          </table>
+          <input type="submit" value="Register" />
+        </form>
+      </td>
+    </tr>
+  </table>
 </div>
 {%endblock%}

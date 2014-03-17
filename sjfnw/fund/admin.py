@@ -2,11 +2,16 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.http import HttpResponse
 from django.forms import ValidationError
+from django.utils.safestring import mark_safe
 
 from sjfnw.admin import advanced_admin
-from .models import *
-import forms, utils
-import unicodecsv
+from sjfnw.fund.models import *
+from sjfnw.fund import forms, utils, modelforms
+from sjfnw.grants.models import ProjectApp
+
+import unicodecsv, logging, json
+
+logger = logging.getLogger('sjfnw')
 
 # display methods
 def step_membership(obj): #Step list_display
@@ -24,34 +29,6 @@ def ship_progress(obj):
 ship_progress.short_description = 'Estimated, promised, received'
 ship_progress.allow_tags = True
 
-# actions
-def approve(modeladmin, request, queryset): #Membership action
-  logging.info('Approval button pressed; looking through queryset')
-  for memship in queryset:
-    if memship.approved == False:
-      utils.NotifyApproval(memship)
-  queryset.update(approved=True)
-  logging.info('Approval queryset updated')
-
-def export_donors(modeladmin, request, queryset):
-  logging.info('Export donors called by ' + request.user.email)
-  response = HttpResponse(mimetype='text/csv')
-  response['Content-Disposition'] = 'attachment; filename=prospects.csv'
-  writer = unicodecsv.writer(response)
-
-  writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member',
-                   'Giving Project', 'Amount to ask', 'Asked', 'Promised',
-                   'Received', 'Notes'])
-  count = 0
-  for donor in queryset:
-    fields = [donor.firstname, donor.lastname, donor.phone, donor.email,
-              donor.membership.member, donor.membership.giving_project,
-              donor.amount, donor.asked, donor.promised, donor.received,
-              donor.notes]
-    writer.writerow(fields)
-    count += 1
-  logging.info(str(count) + ' donors exported')
-  return response
 
 # Filters
 class PromisedBooleanFilter(SimpleListFilter): #donors & steps
@@ -79,9 +56,12 @@ class ReceivedBooleanFilter(SimpleListFilter): #donors & steps
 
   def queryset(self, request, queryset):
     if self.value() == 'True':
-      return queryset.filter(received__gt=0)
+      return queryset.exclude(
+          received_this=0, received_next=0, received_afternext=0)
     if self.value() == 'False':
-      return queryset.filter(received=0)
+      return queryset.filter(
+          received_this=0, received_next=0, received_afternext=0)
+
 
 # Inlines
 class MembershipInline(admin.TabularInline): #GP
@@ -106,16 +86,37 @@ class DonorInline(admin.TabularInline): #membership
                      'promised')
   fields = ('firstname', 'lastname', 'amount', 'talked', 'asked', 'promised')
 
-# Forms
-class GivingProjectAdminForm(ModelForm):
-  fund_goal = IntegerCommaField(label='Fundraising goal', initial=0,
-                                help_text=('Fundraising goal agreed upon by '
-                                'the group. If 0, it will not be displayed to '
-                                'members and they won\'t see a group progress '
-                                'chart for money raised.'))
+class ProjectAppInline(admin.TabularInline): # GivingProject
+  model = ProjectApp
+  extra = 1
+  verbose_name = 'Grant application'
+  verbose_name_plural = 'Grant applications'
+  #readonly_fields = ('granted',)
 
-  class Meta:
-    model = GivingProject
+  def granted(self, obj):
+    """ For existing projectapps, shows grant amount or link to add a grant """
+    output = ''
+    if obj.pk:
+      logger.info(obj.pk)
+      try:
+        award = obj.givingprojectgrant
+      except GivingProjectGrant.DoesNotExist:
+        output = mark_safe(
+            '<a href="/admin/grants/givingprojectgrant/add/?project_app=' +
+            str(obj.pk) + '" target="_blank">Enter an award</a>')
+      else:
+        logger.info('grant does exist')
+        output = str(award.amount)
+        logger.info(output)
+    return output
+
+
+class SurveyI(admin.TabularInline):
+
+  model = GPSurvey
+  extra = 1
+  verbose_name = 'Survey'
+  verbose_name_plural = 'Surveys'
 
 # ModelAdmin
 class GivingProjectA(admin.ModelAdmin):
@@ -130,32 +131,86 @@ class GivingProjectA(admin.ModelAdmin):
     'suggested_steps',
     'pre_approved',
    )
-  inlines = [ProjectResourcesInline, MembershipInline]
-  form = GivingProjectAdminForm
+  inlines = [SurveyI, ProjectResourcesInline, MembershipInline, ProjectAppInline]
+  form = modelforms.GivingProjectAdminForm
 
 class MemberAdvanced(admin.ModelAdmin): #advanced only
   list_display = ('first_name', 'last_name', 'email')
   search_fields = ['first_name', 'last_name', 'email']
 
 class MembershipA(admin.ModelAdmin):
+
+  actions = ['approve']
   list_display = ('member', 'giving_project', ship_progress, 'overdue_steps',
                   'last_activity', 'approved', 'leader')
-  readonly_list = (ship_progress, 'overdue_steps',)
-  actions = [approve]
   list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
   search_fields = ['member__first_name', 'member__last_name']
+  readonly_list = (ship_progress, 'overdue_steps',)
+
+  fields = (('member', 'giving_project', 'approved'),
+      ('leader', 'last_activity', 'emailed'),
+      ('estimated', 'asked', 'promised', 'received'),
+      'notifications'
+  )
+  readonly_fields = ('last_activity', 'emailed', 'estimated', 'asked', 'promised', 'received')
   inlines = [DonorInline]
+
+  def approve(self, request, queryset): #Membership action
+    logger.info('Approval button pressed; looking through queryset')
+    for memship in queryset:
+      if memship.approved == False:
+        utils.NotifyApproval(memship)
+    queryset.update(approved=True)
+    logger.info('Approval queryset updated')
+
 
 class DonorA(admin.ModelAdmin):
   list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked',
-                  'promised', 'received')
+                  'promised', 'received_this', 'received_next', 'received_afternext')
   list_filter = ('membership__giving_project', 'asked', PromisedBooleanFilter,
                  ReceivedBooleanFilter)
-  list_editable = ('received',)
-  exclude = ('added',)
+  list_editable = ('received_this', 'received_next', 'received_afternext')
   search_fields = ['firstname', 'lastname', 'membership__member__first_name',
                    'membership__member__last_name']
-  actions = [export_donors]
+  actions = ['export_donors']
+
+  fields = (('firstname', 'lastname'),
+            ('phone', 'email'),
+            ('amount', 'likelihood'),
+            ('talked', 'asked', 'promised', 'promise_reason_display', 'likely_to_join'),
+            ('received_this', 'received_next', 'received_afternext'),
+            'notes')
+
+  readonly_fields = ('membership', 'promise_reason_display', 'likely_to_join')
+
+  def export_donors(self, request, queryset):
+    logger.info('Export donors called by ' + request.user.email)
+
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=prospects.csv'
+    writer = unicodecsv.writer(response)
+
+    writer.writerow(['First name', 'Last name', 'Phone', 'Email', 'Member',
+                     'Giving Project', 'Amount to ask', 'Asked', 'Promised',
+                     'Received - TOTAL', 'Received - Year', 'Received - Amount',
+                     'Received - Year', 'Received - Amount',
+                     'Received - Year', 'Received - Amount', 'Notes',
+                     'Likelihood of joining a GP', 'Reasons for donating'])
+    count = 0
+    for donor in queryset:
+      year = donor.membership.giving_project.fundraising_deadline.year
+      fields = [donor.firstname, donor.lastname, donor.phone, donor.email,
+                donor.membership.member, donor.membership.giving_project,
+                donor.amount, donor.asked, donor.promised, donor.received(),
+                year, donor.received_this, year+1, donor.received_next, year+2,
+                donor.received_afternext, donor.notes,
+                donor.get_likely_to_join_display(),
+                donor.promise_reason_display()]
+      writer.writerow(fields)
+      count += 1
+    logger.info(str(count) + ' donors exported')
+    return response
+
 
 class NewsA(admin.ModelAdmin):
   list_display = ('summary', 'date', 'membership')
@@ -167,12 +222,74 @@ class StepAdv(admin.ModelAdmin): #adv only
   list_filter = ('donor__membership', PromisedBooleanFilter,
                  ReceivedBooleanFilter)
 
+class SurveyA(admin.ModelAdmin):
+  list_display = ('title', 'updated')
+  readonly_fields = ('updated',)
+  form = modelforms.CreateSurvey
+  fields = ('title', 'intro', 'questions')
+
+  def save_model(self, request, obj, form, change):
+    obj.updated = timezone.now()
+    obj.updated_by = request.user.username
+    obj.save()
+
+class SurveyResponseA(admin.ModelAdmin):
+  list_display = ('gp_survey', 'date')
+  list_filter = ('gp_survey__giving_project',)
+  fields = ('gp_survey', 'date', 'display_responses')
+  readonly_fields = ('gp_survey', 'date', 'display_responses')
+  actions = ['export_responses']
+
+  def display_responses(self, obj):
+    if obj and obj.responses:
+      resp_list = json.loads(obj.responses)
+      disp = '<table><tr><th>Question</th><th>Answer</th></tr>'
+      for i in range(0, len(resp_list), 2):
+        disp += ('<tr><td>' + str(resp_list[i]) + '</td><td>' +
+                 str(resp_list[i+1]) + '</td></tr>')
+      disp += '</table>'
+      return mark_safe(disp)
+  display_responses.short_description = 'Responses'
+
+  def export_responses(self, request, queryset):
+
+    logger.info('Export survey responses called by ' + request.user.email)
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=survey_responses %s.csv' % (timezone.now().strftime('%Y-%m-%d'),)
+    writer = unicodecsv.writer(response)
+
+    header = ['Date', 'Survey ID', 'Giving Project', 'Survey'] #base
+    questions = 0
+    response_rows = []
+    for sr in queryset:
+      fields = [sr.date, sr.gp_survey_id,
+                sr.gp_survey.giving_project.title,
+                sr.gp_survey.survey.title]
+      logger.info(isinstance(sr.responses, str))
+      qa = json.loads(sr.responses)
+      for i in range(0, len(qa), 2):
+        fields.append(qa[i])
+        fields.append(qa[i+1])
+        questions = max(questions, (i+2)/2)
+      response_rows.append(fields)
+
+    logger.info('Max %d questions' % questions)
+    for i in range(0, questions):
+      header.append('Question')
+      header.append('Answer')
+    writer.writerow(header)
+    for row in response_rows:
+      writer.writerow(row)
+
+    return response
 
 admin.site.register(GivingProject, GivingProjectA)
 admin.site.register(Membership, MembershipA)
 admin.site.register(NewsItem, NewsA)
 admin.site.register(Donor, DonorA)
 admin.site.register(Resource)
+admin.site.register(Survey, SurveyA)
+admin.site.register(SurveyResponse, SurveyResponseA)
 
 advanced_admin.register(Member, MemberAdvanced)
 advanced_admin.register(Donor, DonorA)
