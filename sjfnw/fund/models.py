@@ -229,10 +229,11 @@ class Membership(models.Model): #relationship b/n member and gp
 
 class Donor(models.Model):
   LIKELY_TO_JOIN_CHOICES = choices = (
-          (3, '3 - Definitely'),
-          (2, '2 - Likely'),
-          (1, '1 - Unlikely'),
-          (0, '0 - No chance'))
+      ('', '---------'),
+      (3, '3 - Definitely'),
+      (2, '2 - Likely'),
+      (1, '1 - Unlikely'),
+      (0, '0 - No chance'))
   added = models.DateTimeField(default=timezone.now())
   membership = models.ForeignKey(Membership)
 

@@ -10,10 +10,12 @@
       <td colspan="3" class="small-form-header">1) Complete a step: {{ step }}</td>
     </tr>
     <tr>
-      <td colspan="3">{{ form.promised_amount.errors }}</td>
+      <td></td>
+      <td></td>
+      <td>{{ form.promised_amount.errors }}</td>
     </tr>
     <tr style="height:28px;" class="center">
-      <td style="width:32%">      
+      <td style="width:32%">
         {% if donor.asked %}Asked.{% endif %}<div id = "{{ step_id }}_asked">Asked<br>{{ form.asked }}</div>
       </td>
       <td style="width:33%">
@@ -30,18 +32,19 @@
         <table style="display:none; width:90%;" id="{{ step_id }}_promise_follow" class="promise-followup">
           <tr>
             <td colspan="3">
+              <br>
               <p>Congratulations on a successful ask!</p>
               <p>Please provide some more information so that Social Justice Fund can follow up on the promise as needed.</p>
+              <br>
             </td>
           <tr>
             <td>Last name</td>
             <td>Phone number</td>
-            <td>and/or Email address</td>
+            <td>Email address</td>
           </tr>
           <tr>
             <td>{{ form.last_name.errors }}</td>
-            <td>{{ form.phone.errors }}</td>
-            <td>{{ form.email.errors }}</td>
+            <td colspan="2">{{ form.phone.errors }}{{ form.email.errors }}</td>
           </tr>
           <tr>
             <td>{{ form.last_name }}</td>
@@ -49,16 +52,12 @@
             <td>{{ form.email }}</td>
           </tr>
           <tr>
-            <td colspan="2">{{ form.promise_reason.errors }}</td>
-            <td>{{  form.likely_to_join.errors }}</td>
-          </tr>
-          <tr>
-          <tr>
-            <td colspan="2">{{ form.promise_reason.label }}</td>
+            <td colspan="2"><br>{{ form.promise_reason.label }}<br>{{ form.promise_reason.errors }}</td>
             <td></td>
           </tr>
+          <tr>
             <td colspan="2" class="multiple-choice">{{ form.promise_reason }}</td>
-            <td>{{ form.likely_to_join.label }}<br><br>{{ form.likely_to_join }}</td>
+            <td>{{ form.likely_to_join.label }}<br>{{  form.likely_to_join.errors }}<br><br>{{ form.likely_to_join }}</td>
           </tr>
         </table>
       </td>

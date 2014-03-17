@@ -936,6 +936,8 @@ def done_step(request, donor_id, step_id):
         logger.info('Next step created')
 
       return HttpResponse("success")
+    else: #invalid form
+      logger.info('Invalid step completion: ' + str(form.errors))
 
   else: #GET - fill form with initial data
     initial = {'asked': donor.asked, 'notes': donor.notes,'last_name': donor.lastname,
