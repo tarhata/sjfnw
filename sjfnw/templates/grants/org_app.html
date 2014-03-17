@@ -10,8 +10,11 @@
 </script>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script type="text/javascript">
-  // autosaving
+
+  /** AUTOSAVE **/
+
   var autosave_timer;
+  var pause_timer;
   var status_texts = { //for ajax error messages
     400: '400 Bad request',
     401: '401 Unauthorized',
@@ -44,22 +47,65 @@
     return monthNames[d.getMonth()]+' '+d.getDate()+', '+h+':'+m+dd;
   }
 
+  function logTime(){
+    var d = new Date();
+    var m = d.getMinutes();
+    m = m<10?"0"+m:m;
+    return d.getHours() + ':' + m + ':' + d.getSeconds() + ' ';
+  }
+  /* autosave flow:
+
+     page load or focus -> resumeAutoSave -> sets autosave_timer -30-> autoSave
+                                          -> sets onblur
+     page blur -> pauseAutoSave -> sets pause_timer -30-> pauseAutoSave
+                                -> sets onfocus
+
+  */
+  
+  function pauseAutoSave(){
+    if ( !window.onfocus ) {
+      console.log(logTime() + 'pauseAutoSave called; setting timer');
+      // pause auto save
+      pause_timer = window.setTimeout(function(){
+         console.log(logTime() + 'pause_timer up, pausing autosave');
+         window.clearInterval(autosave_timer);
+         pause_timer = false;
+         }, 30000);
+      // set to resume when window gains focus
+      $(window).on('focus', resumeAutoSave);
+      // don't watch for further blurs
+      $(window).off('blur');
+    } else {
+      console.log(logTime() + 'pauseAutoSave called, but already paused');
+    }
+  }
+
+    window.clear
+  function resumeAutoSave(){
+    if ( !window.onblur ) { // avoid double-firing
+      console.log(logTime() + ' resumeAutoSave called');
+      // reload the pause binding
+      $(window).on('blur', pauseAutoSave);
+      if (pause_timer) {
+        // clear timer if window recently lost focus (autosave is still going)
+        console.log('pause had been set; clearing it');
+        window.clearTimeout(pause_timer);
+        pause_timer = false;
+      } else {
+        // set up save timer
+        console.log('Setting autosave interval');
+        autosave_timer = window.setInterval("autoSave()", 30000);
+      }
+      // unload the resume binding
+      $(window).off('focus');
+    } else {
+      console.log(logTime() + ' window already has onblur');
+    }
+  }
+
   function autoSave(submit, override){
     if (!override){ override = 'false'; }
-    console.log("autosaving");
-    if (!window.onblur){ //set pause & resume when window loses/gains focus
-      console.log("no onblur func, setting");
-      window.onblur = function(){
-        console.log("Pausing autosave");
-        // pause auto save
-        window.clearInterval(autosave_timer);
-        // set to resume when window gains focus
-        window.onfocus = function(){
-          console.log("Resuming autosave");
-          autosave_timer = window.setInterval("autoSave()", 30000);
-        }
-      }
-    }
+    console.log(logTime() + "autosaving");
     $.ajax({
       url:"/apply/{{ cycle.pk }}/autosave/{{ user_override|default:'?'}}&override=" + override,
       type:"POST",
@@ -97,7 +143,7 @@
     });
   }
 
-  // character limits
+  /** CHARACTER LIMITS **/
   function charLimitDisplay(area, limit){
     var counter = document.getElementById(area.name + '_counter');
     var words = area.value.match(/[^ \r\n]+/g) || [];
@@ -112,7 +158,7 @@
     }
   }
 
-  // file uploads
+  /** FILE UPLOADS **/
   var uploading = false;
   var uploading_span;
   var current_field;
@@ -167,7 +213,7 @@
   }
 
   function iframeUpdated(iframe) { //process response
-    console.log('iframeUpdated');
+    console.log(logTime() + 'iframeUpdated');
     var results = iframe.contentDocument.body.innerHTML;
     console.log("The iframe changed! New contents: " + results);
     if (results) {
@@ -193,7 +239,7 @@
     });
   }
 
-  // user id and override
+  /** user id and override **/
   var user_id = '';
 
   function setUserID() {
@@ -218,7 +264,7 @@
             console.log('override!');
             $('#override_dialog'+ver).dialog("close");
             autoSave(false, override=true);
-            autosave_timer = window.setInterval("autoSave()", 30000);
+            resumeAutoSave();
           }
         },{
             text:'Cancel',
@@ -269,7 +315,7 @@
     });
   }
 
-  // doc ready
+  /** doc ready **/
   $(document).ready(function() {
     // update char counters
     $('.char_counter').each(function(index) {
@@ -286,8 +332,9 @@
     if ('{{ flag }}' == 'True'){
       showOverrideWarning(1);
     } else { //if not warning, start autosave
-      autosave_timer = window.setInterval("autoSave()", 30000);
+      resumeAutoSave();
     }
+    // more info toggles
     setInfoClicks();
   });
 </script>
