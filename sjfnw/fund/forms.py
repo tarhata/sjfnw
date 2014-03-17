@@ -120,11 +120,11 @@ class StepDoneForm(forms.Form):
       required=False, min_value=0,
       error_messages={'min_value': 'Promise amounts cannot be negative'},
       widget=forms.TextInput(attrs = {'size':10}))
-  promise_reason = forms.MultipleChoiceField(required=False,
+  promise_reason = forms.MultipleChoiceField(
       label = 'Why did this person give?',
       choices = PROMISE_REASON_CHOICES,
       widget = forms.CheckboxSelectMultiple())
-  likely_to_join = forms.ChoiceField(required=False,
+  likely_to_join = forms.ChoiceField(
       label = 'Are they likely to join a giving project?',
       choices = models.Donor.LIKELY_TO_JOIN_CHOICES)
 
