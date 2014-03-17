@@ -216,7 +216,17 @@ class Home(BaseFundTestCase):
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
     PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',))
 class StepComplete(BaseFundTestCase):
-  """ Tests various scenarios of step completion """
+  """ Tests various scenarios of step completion
+  1) completion
+    a) minimal step complete - verify step & donor updated
+    b) when different stages have already been reached (asked, responded, promised)
+       verify display and submission handling
+    c) for each additional step, try minimal (no additional data), contradictory/invalid if
+       applicable, and full valid
+  2) contact notes
+  3) next step
+    a) validation
+    b) creation """
 
   fixtures = TEST_FIXTURE
 
@@ -225,38 +235,56 @@ class StepComplete(BaseFundTestCase):
     super(StepComplete, self).setUp('testy')
     self.url = reverse('sjfnw.fund.views.done_step', kwargs = {
       'donor_id': self.donor_id, 'step_id': self.step_id })
-
-  def test_valid_asked(self):
-    """ Verify that an ask can be entered without any other info
-
-    Setup:
-      Complete step with asked checked and everything else blank
-      (response defaults to undecided)
-
-    Asserts:
-      Successful post
-      Step completed
-      Step and donor marked as asked
-    """
-
-    form_data = {
+    self.form_data = {
         'asked': 'on',
         'response': 2,
         'promised_amount': '',
         'last_name': '',
+        'email': '',
+        'phone': '',
         'notes': '',
         'next_step': '',
-        'next_step_date': ''}
+        'next_step_date': '',
+        'likely_to_join': '' }
 
+    # 'asked': 'on', 'promise_reason': ['GP topic', 'Social justice']
+
+  # helper functions used by >1 test
+  def add_followup(self):
+
+    self.form_data['last_name'] = 'Sozzity'
+    self.form_data['email'] = 'blah@gmail.com'
+    self.form_data['promise_reason'] = ['Social justice']
+    self.form_data['likely_to_join'] = 1
+
+
+  def test_minimal_completion(self):
+    """ Verify that step can be completed without any additional input """
+
+    # make sure step is not already completed and ask has not been recorded
+    step = models.Step.objects.get(pk=self.step_id)
+    self.assertIsNone(step.completed)
+
+    response = self.client.post(self.url, self.form_data)
+    self.assertEqual(response.content, "success")
+
+    step = models.Step.objects.get(pk=self.step_id)
+    self.assertIsNotNone(step.completed)
+
+  def test_minimal_asked(self):
+    """ Verify that an ask can be entered without any other info """
 
     donor = models.Donor.objects.get(pk=self.donor_id)
     step = models.Step.objects.get(pk=self.step_id)
 
+    # make sure step is not already completed and ask has not been recorded
     self.assertIsNone(step.completed)
     self.assertFalse(step.asked)
     self.assertFalse(donor.asked)
 
-    response = self.client.post(self.url, form_data)
+    self.form_data['asked'] = 'on'
+
+    response = self.client.post(self.url, self.form_data)
     self.assertEqual(response.content, "success")
 
     step = models.Step.objects.get(pk=self.step_id)
@@ -266,7 +294,7 @@ class StepComplete(BaseFundTestCase):
     self.assertTrue(step.asked)
     self.assertTrue(donor.asked)
 
-  def test_valid_next(self):
+  def test_minimal_next(self):
     """ Verify success of blank form with a next step
 
     Setup:
@@ -327,6 +355,7 @@ class StepComplete(BaseFundTestCase):
     self.assertEqual(response.content, "success")
 
     promised = form_data['promised_amount']
+    print(promised)
     if promised == '5,000': #hacky workaround
       promised = 5000
 
@@ -356,7 +385,7 @@ class StepComplete(BaseFundTestCase):
       self.assertEqual(donor1.email, pre_donor.email)
 
 
-  def test_valid_followup1(self):
+  def test_valid_followup(self):
     """ Verify success of promise with amount, last name and email
 
     Setup:
@@ -367,40 +396,12 @@ class StepComplete(BaseFundTestCase):
       See valid_followup
     """
 
-    form_data = {'asked': 'on',
-      'response': 1,
-      'promised_amount': 50,
-      'last_name': 'Sozzity',
-      'phone': '',
-      'email': 'blah@gmail.com',
-      'notes': '',
-      'next_step': 'A BRAND NEW STEP',
-      'next_step_date': '2013-01-25'}
+    self.form_data['asked'] = 'on'
+    self.form_data['response'] = 1
+    self.form_data['promised_amount'] = 50
+    self.add_followup()
 
-    self.valid_followup(form_data)
-
-  def test_valid_followup2(self):
-    """ Verify success of promise with amount, last name and phone number
-
-    Setup:
-      Form contains asked, response = promised, amount = 50,
-        includes last name and phone number
-
-    Asserts:
-      See valid_followup
-    """
-
-    form_data = {'asked': 'on',
-      'response': 1,
-      'promised_amount': 50,
-      'last_name': 'Sozzity',
-      'phone': '206-555-5898',
-      'email': '',
-      'notes': '',
-      'next_step': 'A BRAND NEW STEP',
-      'next_step_date': '2013-01-25'}
-
-    self.valid_followup(form_data)
+    self.valid_followup(self.form_data)
 
   def test_valid_followup_comma(self):
     """ Verify success of promise when amount has comma in it
@@ -413,34 +414,25 @@ class StepComplete(BaseFundTestCase):
       See valid_followup
     """
 
-    form_data = {'asked': 'on',
-      'response': 1,
-      'promised_amount': '5,000',
-      'last_name': 'Sozzity',
-      'phone': '206-555-5898',
-      'email': '',
-      'notes': '',
-      'next_step': 'A BRAND NEW STEP',
-      'next_step_date': '2013-01-25'}
+    self.form_data['asked'] = 'on'
+    self.form_data['response'] = 1
+    self.form_data['promised_amount'] = '5,000'
+    self.add_followup()
 
-    self.valid_followup(form_data)
+    self.valid_followup(self.form_data)
 
   def test_valid_hiddendata1(self):
 
     """ promise amt + follow up + undecided
       amt & follow up info should not be saved """
 
-    form_data = {'asked': 'on',
-      'response': 2,
-      'promised_amount': 50,
-      'last_name': 'Sozzity',
-      'phone': '206-555-5898',
-      'email': '',
-      'notes': '',
-      'next_step': '',
-      'next_step_date': ''}
+    self.form_data['asked'] = 'on'
+    self.form_data['response'] = 2
+    self.form_data['promised_amount'] = 50
+    self.form_data['last_name'] = 'Sozzity'
+    self.form_data['phone'] = '206-555-5898'
 
-    self.valid_followup(form_data)
+    self.valid_followup(self.form_data)
 
   def test_valid_hiddendata2(self):
 
