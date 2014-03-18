@@ -28,7 +28,7 @@
   </script>
   <!-- IE workaround -->
   <script type="text/javascript">
-  if (!window.console) {
+  if (!window.console || !window.console.log) {
     console = {
         log: function() {}
     };
