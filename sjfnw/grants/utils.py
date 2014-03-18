@@ -54,7 +54,7 @@ def ServeBlob(application, field_name):
   #find the filefield
   file_field = getattr(application, field_name)
   if not file_field:
-    logger.warning('Unknown file type ' + field_name)
+    logger.warning('Draft/app does not have a ' + field_name)
     raise Http404
 
   blob = FindBlob(file_field)
