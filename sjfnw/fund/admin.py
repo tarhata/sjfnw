@@ -170,10 +170,18 @@ class DonorA(admin.ModelAdmin):
   list_filter = ('membership__giving_project', 'asked', PromisedBooleanFilter,
                  ReceivedBooleanFilter)
   list_editable = ('received_this', 'received_next', 'received_afternext')
-  exclude = ('added',)
   search_fields = ['firstname', 'lastname', 'membership__member__first_name',
                    'membership__member__last_name']
   actions = ['export_donors']
+
+  fields = (('firstname', 'lastname'),
+            ('phone', 'email'),
+            ('amount', 'likelihood'),
+            ('talked', 'asked', 'promised', 'promise_reason_display', 'likely_to_join'),
+            ('received_this', 'received_next', 'received_afternext'),
+            'notes')
+
+  readonly_fields = ('membership', 'promise_reason_display', 'likely_to_join')
 
   def export_donors(self, request, queryset):
     logger.info('Export donors called by ' + request.user.email)
@@ -186,7 +194,8 @@ class DonorA(admin.ModelAdmin):
                      'Giving Project', 'Amount to ask', 'Asked', 'Promised',
                      'Received - TOTAL', 'Received - Year', 'Received - Amount',
                      'Received - Year', 'Received - Amount',
-                     'Received - Year', 'Received - Amount', 'Notes'])
+                     'Received - Year', 'Received - Amount', 'Notes',
+                     'Likelihood of joining a GP', 'Reasons for donating'])
     count = 0
     for donor in queryset:
       year = donor.membership.giving_project.fundraising_deadline.year
@@ -194,7 +203,9 @@ class DonorA(admin.ModelAdmin):
                 donor.membership.member, donor.membership.giving_project,
                 donor.amount, donor.asked, donor.promised, donor.received(),
                 year, donor.received_this, year+1, donor.received_next, year+2,
-                donor.received_afternext, donor.notes]
+                donor.received_afternext, donor.notes,
+                donor.get_likely_to_join_display(),
+                donor.promise_reason_display()]
       writer.writerow(fields)
       count += 1
     logger.info(str(count) + ' donors exported')

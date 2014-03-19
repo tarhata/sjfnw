@@ -904,6 +904,10 @@ def done_step(request, donor_id, step_id):
           step.promised = promised
           donor.promised = promised
           donor.lastname = form.cleaned_data['last_name']
+          donor.likely_to_join = form.cleaned_data['likely_to_join']
+          logger.info(form.cleaned_data['likely_to_join'])
+          donor.promise_reason = json.dumps(form.cleaned_data['promise_reason'])
+          logger.info(form.cleaned_data['promise_reason'])
           phone = form.cleaned_data['phone']
           email = form.cleaned_data['email']
           if phone:
@@ -932,6 +936,8 @@ def done_step(request, donor_id, step_id):
         logger.info('Next step created')
 
       return HttpResponse("success")
+    else: #invalid form
+      logger.info('Invalid step completion: ' + str(form.errors))
 
   else: #GET - fill form with initial data
     initial = {'asked': donor.asked, 'notes': donor.notes,'last_name': donor.lastname,
