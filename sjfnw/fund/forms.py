@@ -121,7 +121,7 @@ class StepDoneForm(forms.Form):
       error_messages={'min_value': 'Promise amounts cannot be negative'},
       widget=forms.TextInput(attrs = {'size':10}))
   promise_reason = forms.MultipleChoiceField(required=False,
-      label = 'Why did this person give?',
+      label = 'Why did this person give? Check all that apply.',
       choices = PROMISE_REASON_CHOICES,
       widget = forms.CheckboxSelectMultiple())
   likely_to_join = forms.ChoiceField(required=False,
