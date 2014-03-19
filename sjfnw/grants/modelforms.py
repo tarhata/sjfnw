@@ -128,6 +128,7 @@ class GrantApplicationModelForm(forms.ModelForm):
     super(GrantApplicationModelForm, self).__init__(*args, **kwargs)
     if cycle and cycle.extra_question:
       self.fields['cycle_question'].required = True
+      self.fields['cycle_question'].label = cycle.extra_question
       logger.info('Requiring the cycle question')
 
   def clean(self):
