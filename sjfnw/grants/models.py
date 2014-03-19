@@ -192,7 +192,6 @@ class DraftGrantApplication(models.Model):
 
   contents = models.TextField(default='{}')
 
-  budget = models.FileField(upload_to='/', max_length=255)
   demographics = models.FileField(upload_to='/', max_length=255)
   funding_sources = models.FileField(upload_to='/', max_length=255)
   budget1 = models.FileField(upload_to='/', max_length=255,
@@ -205,10 +204,9 @@ class DraftGrantApplication(models.Model):
       upload_to='/', max_length=255, verbose_name = 'Project budget')
   fiscal_letter = models.FileField(upload_to='/', max_length=255)
 
-  extended_deadline = models.DateTimeField(help_text = ('Allows this draft to'
-                                           ' be edited/submitted past the grant'
-                                           ' cycle close.'),
-                                           blank=True, null=True)
+  extended_deadline = models.DateTimeField(blank=True, null=True,
+      help_text = 'Allows this draft to be edited/submitted past the grant cycle close.')
+                                           
 
   class Meta:
     unique_together = ('organization', 'grant_cycle')

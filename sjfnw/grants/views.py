@@ -407,7 +407,7 @@ def RefreshUploadUrl(request, draft_id):
                                            '/add-file' + user_override)
   return HttpResponse(upload_url)
 
-# COPY / DELETE APPS
+# ORG COPY DELETE APPS
 @login_required(login_url=LOGIN_URL)
 @registered_org()
 def CopyApp(request, organization):
@@ -443,7 +443,7 @@ def CopyApp(request, organization):
                                     'submission_time', 'pre_screening_status',
                                     'giving_projects', 'scoring_bonus_poc',
                                     'scoring_bonus_geo', 'cycle_question',
-                                    'timeline'
+                                    'timeline', 'budget' #old all-in-one budget
                                   ])
           content.update(dict(zip(
               ['timeline_' + str(i) for i in range(15)],
@@ -592,7 +592,8 @@ def AppToDraft(request, app_id):
                        ))
     draft.contents = json.dumps(content)
     for field in submitted_app.file_fields():
-      setattr(draft, field, getattr(submitted_app, field))
+      if hasattr(draft, field):
+        setattr(draft, field, getattr(submitted_app, field))
     draft.modified = timezone.now()
     draft.save()
     logger.info('Reverted to draft, draft id ' + str(draft.pk))
@@ -614,10 +615,12 @@ def AdminRollover(request, app_id):
       cycle = get_object_or_404(models.GrantCycle, pk = int(form.cleaned_data['cycle']))
       logger.info('Success rollover of ' + unicode(application) +
                    ' to ' + str(cycle))
-      application.pk = None
+      application.pk = None # this + save makes new copy
       application.pre_screening_status = 10
       application.submission_time = timezone.now()
       application.grant_cycle = cycle
+      application.cycle_question = ''
+      application.budget = ''
       application.save()
       return redirect('/admin/grants/grantapplication/'+str(application.pk)+'/')
   else:
@@ -1079,10 +1082,14 @@ def GetFileURLs(request, app, printing=False):
       returns an empty dict if the given object is not valid
   """
 
-  #determine whether draft or submitted
   base_url = request.build_absolute_uri('/')
+  file_urls = {'funding_sources':'', 'demographics':'',
+               'fiscal_letter':'', 'budget1': '', 'budget2': '', 'budget3': '',
+               'project_budget_file': ''}
+  #determine whether draft or submitted
   if isinstance(app, models.GrantApplication):
     base_url += 'grants/view-file/'
+    file_urls['budget'] = ''
   elif isinstance(app, models.DraftGrantApplication):
     base_url += 'grants/draft-file/'
   else:
@@ -1090,9 +1097,6 @@ def GetFileURLs(request, app, printing=False):
     return {}
 
   #check file fields, compile links
-  file_urls = {'budget': '', 'funding_sources':'', 'demographics':'',
-               'fiscal_letter':'', 'budget1': '', 'budget2': '', 'budget3': '',
-               'project_budget_file': ''}
   for field in file_urls:
     value = getattr(app, field)
     if value:
