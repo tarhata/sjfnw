@@ -337,7 +337,7 @@ div.vertical_cushion { /* mission & grant req labels */
 /**  grant reading  **/
 
 div.reading_sidebar{
-  width:200px;
+  width:255px;
   border-right:1px solid black;
   position:fixed;
   height:100%;
