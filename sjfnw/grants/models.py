@@ -223,7 +223,7 @@ class DraftGrantApplication(models.Model):
     deadline = self.grant_cycle.close
     logger.debug('deadline is ' + str(self.grant_cycle.close))
     now = timezone.now()
-    if self.grant_cycle.open < now and (deadline > now or 
+    if self.grant_cycle.open < now and (deadline > now or
         (self.extended_deadline and self.extended_deadline > now)):
       return True
     else:
@@ -626,4 +626,53 @@ class SponsoredProgramGrant(models.Model):
 
   class Meta:
     ordering = ['organization']
+
+
+class YearEndReport(models.Model):
+
+  application = models.ForeignKey(GrantApplication)
+  submitted = models.DateTimeField(blank=True, null=True)
+  contact_person = models.TextField(default='{}') #json name, email, phone
+  website = models.CharField(max_length=255) #autofill based on app
+
+  summarize_last_year = models.TextField(
+      verbose_name=('Summarize your organization\'s activities and '
+                    'accomplishments over the last year.'))
+  goal_progress = models.TextField(blank=True, verbose_name=
+      ('If not addressed in #1: Describe the progress you have made for each '
+       'goal outlined in your application for this grant. Also indicate what '
+       'goals were you unable to achieve, and why.'))
+  major_changes = models.TextField(verbose_name=
+      ('Describe any major staff or board changes or other major '
+        'organizational changes in the past year, and describe the internal '
+        'or external causes.'))
+
+  other_comments = models.TextField(blank=True, verbose_name=
+      ('Other comments or information? Do you have any suggestions for how '
+        'SJF can improve its grantmaking programs?'))
+
+  total_size = models.PositiveIntegerField(verbose_name=
+      ('What is the total size of your base? That is, how many people, '
+        'including paid staff, identify as part of your organization?'))
+  donations_count = models.PositiveIntegerField(verbose_name=
+      ('How many people gave a financial contribution of any size to your '
+       'organization in the last year?')
+  donations_count_last = models.PositiveIntegerField(verbose_name=
+    'How many people made a financial contribution the previous year?')
+  quantitative_measures = models.TextField(verbose_name=
+      ('Do you evaluate your work by any quantitative measures (e.g., number '
+        'of voters registered, members trained, leaders developed, etc.)? If '
+        'so, provide that information:')) 
+  policy_changes = models.TextField(blank=True, 
+    verbose_name=('What, if any, specific policy changes have you achieved '
+                  'over the past year?'))
+
+  # stay_informed = m
+
+  photo1 = models.FileField(upload_to='/', blank=True)
+  photo2 = models.FileField(upload_to='/', blank=True)
+  photo3 = models.FileField(upload_to='/', blank=True)
+  photo4 = models.FileField(upload_to='/', blank=True)
+
+  #  photo_release
 
