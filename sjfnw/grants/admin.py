@@ -7,7 +7,6 @@ from django.forms.models import BaseInlineFormSet
 from django.utils.safestring import mark_safe
 
 from sjfnw.admin import advanced_admin
-from sjfnw.forms import IntegerCommaField
 
 from sjfnw.grants.models import *
 from sjfnw.grants.modelforms import DraftAdminForm
