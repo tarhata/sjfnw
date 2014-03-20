@@ -5,8 +5,7 @@ from django.forms import ValidationError, ModelForm
 from django.forms.models import BaseInlineFormSet
 from django.utils.safestring import mark_safe
 
-from sjfnw.admin import advanced_admin
-
+from sjfnw.admin import advanced_admin, YearFilter
 from sjfnw.grants.models import *
 from sjfnw.grants.modelforms import DraftAdminForm
 
@@ -16,6 +15,12 @@ logger = logging.getLogger('sjfnw')
 
 
 # CUSTOM FILTERS
+
+class GrantCycleYearFilter(YearFilter):
+  filter_model = GrantCycle
+  field = 'close'
+  intermediate = 'project_app__application__grant_cycle'
+  title = 'Grant cycle year'
 
 class CycleTypeFilter(admin.SimpleListFilter):
   title = 'Grant cycle type'
@@ -277,7 +282,7 @@ class DraftAdv(admin.ModelAdmin): #Advanced
 class GivingProjectGrantA(admin.ModelAdmin):
   list_display = ('organization_name', 'grant_cycle', 'giving_project',
       'amount', 'check_mailed', 'year_end_report_due')
-  list_filter = ('agreement_mailed', CycleTypeFilter)
+  list_filter = ['agreement_mailed', CycleTypeFilter, GrantCycleYearFilter]
   exclude = ('created',)
   fields = (
       ('project_app', 'amount'),
