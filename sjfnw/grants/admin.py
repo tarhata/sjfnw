@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.helpers import InlineAdminFormSet
 from django.http import HttpResponse
 from django.forms import ValidationError, ModelForm
@@ -14,6 +13,33 @@ from sjfnw.grants.modelforms import DraftAdminForm
 import unicodecsv as csv
 import logging, re
 logger = logging.getLogger('sjfnw')
+
+
+# CUSTOM FILTERS
+
+class CycleTypeFilter(admin.SimpleListFilter):
+  title = 'Grant cycle type'
+  parameter_name = 'cycle_type'
+
+  def lookups(self, request, model_admin):
+    titles = GrantCycle.objects.order_by('title').values_list('title', flat=True).distinct()
+    types = []
+    for title in titles:
+      pos = title.find(' Grant Cycle')
+      if pos > 1:
+        cycle_type = title[:pos]
+        if not cycle_type in types:
+          types.append(cycle_type)
+      else: #Grant Cycle not found - just use whole
+        if not title in types:
+          types.append(title)
+    return [(t, t) for t in types]
+
+  def queryset(self, request, queryset):
+    if not self.value():
+      return queryset
+    else:
+      return queryset.filter(application__grant_cycle__title__startswith=self.value())
 
 
 # INLINES
@@ -249,10 +275,9 @@ class DraftAdv(admin.ModelAdmin): #Advanced
   list_filter = ('grant_cycle',) #extended
 
 class GivingProjectGrantA(admin.ModelAdmin):
-  list_display = ('organization_name', 'grant_cycle',
-                  'giving_project', 'amount', 'check_mailed',
-                  'year_end_report_due')
-  list_filter = ('agreement_mailed',)
+  list_display = ('organization_name', 'grant_cycle', 'giving_project',
+      'amount', 'check_mailed', 'year_end_report_due')
+  list_filter = ('agreement_mailed', CycleTypeFilter)
   exclude = ('created',)
   fields = (
       ('project_app', 'amount'),
