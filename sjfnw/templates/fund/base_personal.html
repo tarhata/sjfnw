@@ -73,7 +73,7 @@
         trackEvents(sub_url, div_id, 'POST');
         if (jqXHR.responseText=="success") { //successful
 					console.log('Submission to ' + sub_url + ' returned success; redirecting');
-          if (sub_url.match('addmult')) {
+          if (sub_url.match('add-contacts')) {
             setTimeout(function() {location.href= '/fund/?load=stepmult#your-contacts';}, 200);
           } else {
             setTimeout(function() {location.href='/fund/';}, 200);
