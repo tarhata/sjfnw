@@ -53,17 +53,18 @@ class LogI(admin.TabularInline): #Org, Application
     """ give initial values for staff and/or org """
     if '/add' in request.path:
       logger.info('LogI.formfield_for_foreignkey called on add view')
-    elif db_field.name == 'staff':
-      kwargs['initial'] = request.user.id
-      return db_field.formfield(**kwargs)
-    elif 'grantapplication' in request.path and db_field.name == 'organization':
-      id = int(request.path.split('/')[-2])
-      app = GrantApplication.objects.get(pk=id)
-      kwargs['initial'] = app.organization.pk
-      return db_field.formfield(**kwargs)
-    if db_field.name=='application':
-      org_pk = int(request.path.split('/')[-2])
-      kwargs['queryset'] = GrantApplication.objects.filter(organization_id=org_pk)
+    else:
+      if db_field.name == 'staff':
+        kwargs['initial'] = request.user.id
+        return db_field.formfield(**kwargs)
+      elif 'grantapplication' in request.path and db_field.name == 'organization':
+        id = int(request.path.split('/')[-2])
+        app = GrantApplication.objects.get(pk=id)
+        kwargs['initial'] = app.organization.pk
+        return db_field.formfield(**kwargs)
+      if db_field.name=='application':
+        org_pk = int(request.path.split('/')[-2])
+        kwargs['queryset'] = GrantApplication.objects.filter(organization_id=org_pk)
     return super(LogI, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class AwardI(BaseShowInline): #App, GP
