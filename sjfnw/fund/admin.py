@@ -71,10 +71,10 @@ class ReceivedBooleanFilter(SimpleListFilter): #donors & steps
 
 
 class GPYearFilter(SimpleListFilter):
-  """ works for any object with a year attribute """
+  """ Filter giving projects by year """
   title = 'year'
   parameter_name = 'year'
-  
+
   def lookups(self, request, model_admin):
     deadlines = GivingProject.objects.values_list(
         'fundraising_deadline', flat=True
@@ -100,7 +100,7 @@ class GPYearFilter(SimpleListFilter):
           'Error loading filter. Contact techsupport@socialjusticefund.org')
       return queryset
     return queryset.filter(fundraising_deadline__year=year)
-  
+
 
 # Inlines
 class MembershipInline(admin.TabularInline): #GP
