@@ -517,7 +517,7 @@ class GrantApplication(models.Model):
     unique_together = ('organization', 'grant_cycle')
 
   def __unicode__(self):
-    return unicode(self.organization) + u' - ' + unicode(self.grant_cycle) + u' - ' + unicode(self.submission_time.year)
+    return '%s - %s' % (unicode(self.organization), unicode(self.grant_cycle))
 
   def id_number(self):
     return self.pk + 5211 #TODO obsolete?
