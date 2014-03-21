@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from sjfnw.admin import advanced_admin
 from sjfnw.fund.models import *
 from sjfnw.fund import forms, utils, modelforms
-from sjfnw.grants.models import ProjectApp
+from sjfnw.grants.models import ProjectApp, GrantApplication
 
 import unicodecsv, logging, json
 
@@ -86,15 +86,35 @@ class DonorInline(admin.TabularInline): #membership
                      'promised')
   fields = ('firstname', 'lastname', 'amount', 'talked', 'asked', 'promised')
 
-class ProjectAppInline(admin.TabularInline): # GivingProject
+class ProjectAppInline(admin.TabularInline):
   model = ProjectApp
   extra = 1
   verbose_name = 'Grant application'
   verbose_name_plural = 'Grant applications'
   #readonly_fields = ('granted',)
 
+  def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    # limit which grant applications are shown
+    if db_field.name == 'application':
+      try:
+        gp_id = int(request.path.split('/')[-2])
+        logger.info(gp_id)
+      except:
+        logger.info('could not parse gp id, not limiting gp choices')
+      else:
+        gp = GivingProject.objects.get(pk=gp_id)
+        year = gp.fundraising_deadline.year
+        apps = GrantApplication.objects.filter(submission_time__year=year).select_related('grant_cycle', 'organization')
+        kwargs['queryset'] = apps
+        logger.info('limiting apps')
+      finally:
+        return super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+    else: #other field
+      return super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+  """
   def granted(self, obj):
-    """ For existing projectapps, shows grant amount or link to add a grant """
+    # For existing projectapps, shows grant amount or link to add a grant
     output = ''
     if obj.pk:
       logger.info(obj.pk)
@@ -109,7 +129,7 @@ class ProjectAppInline(admin.TabularInline): # GivingProject
         output = str(award.amount)
         logger.info(output)
     return output
-
+  """
 
 class SurveyI(admin.TabularInline):
 
@@ -122,17 +142,11 @@ class SurveyI(admin.TabularInline):
 class GivingProjectA(admin.ModelAdmin):
   list_display = ('title', gp_year, 'estimated')
   readonly_fields = ('estimated',)
-  fields = (
-    ('title', 'public'),
-    ('fundraising_training', 'fundraising_deadline'),
-    'fund_goal',
-    'site_visits',
-    'calendar',
-    'suggested_steps',
-    'pre_approved',
-   )
-  inlines = [SurveyI, ProjectResourcesInline, MembershipInline, ProjectAppInline]
+  fields = (('title', 'public'),
+            ('fundraising_training', 'fundraising_deadline'),
+            'fund_goal', 'site_visits', 'calendar', 'suggested_steps', 'pre_approved')
   form = modelforms.GivingProjectAdminForm
+  inlines = [ProjectAppInline]#, SurveyI]#, ProjectResourcesInline, MembershipInline]
 
 class MemberAdvanced(admin.ModelAdmin): #advanced only
   list_display = ('first_name', 'last_name', 'email')
