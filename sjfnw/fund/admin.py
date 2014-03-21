@@ -146,7 +146,7 @@ class GivingProjectA(admin.ModelAdmin):
             ('fundraising_training', 'fundraising_deadline'),
             'fund_goal', 'site_visits', 'calendar', 'suggested_steps', 'pre_approved')
   form = modelforms.GivingProjectAdminForm
-  inlines = [ProjectAppInline]#, SurveyI]#, ProjectResourcesInline, MembershipInline]
+  inlines = [SurveyI, ProjectResourcesInline, MembershipInline, ProjectAppInline]
 
 class MemberAdvanced(admin.ModelAdmin): #advanced only
   list_display = ('first_name', 'last_name', 'email')
