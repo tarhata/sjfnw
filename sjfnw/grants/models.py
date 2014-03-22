@@ -149,6 +149,13 @@ class Organization(models.Model):
   def __unicode__(self):
     return self.name
 
+  def get_profile(self):
+    apps = GrantApplication.objects.filter(organization=self).order_by('-submission_time')
+    if apps:
+      return apps[0].get_profile_info()
+    else:
+      return None
+
   class Meta:
     ordering = ('name',)
 
@@ -519,8 +526,19 @@ class GrantApplication(models.Model):
   def __unicode__(self):
     return unicode(self.organization) + u' - ' + unicode(self.grant_cycle) + u' - ' + unicode(self.submission_time.year)
 
-  def id_number(self):
-    return self.pk + 5211 #TODO obsolete?
+  def get_profile_field_names(self):
+    return GrantApplication.fields_starting_with('fiscal') + [
+        'address', 'city', 'state', 'zip', 'telephone_number', 'fax_number',
+        'email_address', 'website', 'contact_person', 'contact_person_title',
+        'status', 'ein', 'founded', 'mission']
+
+  def get_profile_info(self):
+    profile = {}
+    for field in self.get_profile_field_names():
+      field_obj = self._meta.get_field_by_name(field)
+      field_obj = field_obj[0]
+      profile[field_obj.verbose_name] = getattr(self, field)
+    return profile
 
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
