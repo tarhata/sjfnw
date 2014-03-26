@@ -188,14 +188,15 @@ class DonorA(admin.ModelAdmin):
                    'membership__member__last_name']
   actions = ['export_donors']
 
-  fields = (('firstname', 'lastname'),
+  fields = ('membership',
+            ('firstname', 'lastname'),
             ('phone', 'email'),
             ('amount', 'likelihood'),
             ('talked', 'asked', 'promised', 'promise_reason_display', 'likely_to_join'),
             ('received_this', 'received_next', 'received_afternext'),
             'notes')
 
-  readonly_fields = ('membership', 'promise_reason_display', 'likely_to_join')
+  readonly_fields = ('promise_reason_display', 'likely_to_join')
 
   def export_donors(self, request, queryset):
     logger.info('Export donors called by ' + request.user.email)
