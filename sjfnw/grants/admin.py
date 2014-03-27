@@ -237,6 +237,17 @@ class GrantApplicationA(admin.ModelAdmin):
         'fields': (('organization_link', 'grant_cycle', 'submission_time',
                    'view_link'),)
     }),
+    ('Application contact info', {
+        'classes': ('collapse',),
+        'description':
+            ('Contact information as entered in the grant application. '
+              'You may edit this as needed.  Note that the contact information '
+              'you see on the organization page is always from the most recent '
+              'application, whether that is this or a different one.'),
+          'fields': (('address', 'city', 'state', 'zip', 'telephone_number',
+                     'fax_number', 'email_address', 'website'),
+                   ('status', 'ein'))
+    }),
     ('Administration', {
         'fields': (('pre_screening_status', 'scoring_bonus_poc', 'scoring_bonus_geo', 'site_visit_report'),
                    ('revert_grant', 'rollover'))
