@@ -91,14 +91,24 @@ class ProjectAppInline(admin.TabularInline):
   extra = 1
   verbose_name = 'Grant application'
   verbose_name_plural = 'Grant applications'
-  #readonly_fields = ('granted',)
+  raw_id_fields = ('giving_project',)
+
+  #def get_queryset(self, request):
+  #  qs = super(ProjectAppInline, self).get_queryset(request)
+  #  return qs.select_related('application')
 
   def formfield_for_foreignkey(self, db_field, request, **kwargs):
-    # limit which grant applications are shown
+    # limit which grant applications are shown and cache field choices
     if db_field.name == 'application':
+      cached_choices = getattr(request, 'cached_projectapps', None)
+      if cached_choices:
+        logger.info('getting cached choices')
+        formfield = super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        formfield.choices = cached_choices
+        return formfield
+
       try:
         gp_id = int(request.path.split('/')[-2])
-        logger.info(gp_id)
       except:
         logger.info('could not parse gp id, not limiting gp choices')
       else:
@@ -106,9 +116,12 @@ class ProjectAppInline(admin.TabularInline):
         year = gp.fundraising_deadline.year
         apps = GrantApplication.objects.filter(submission_time__year=year).select_related('grant_cycle', 'organization')
         kwargs['queryset'] = apps
-        logger.info('limiting apps')
       finally:
-        return super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        formfield = super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        formfield.choices = list(formfield.choices)
+        request.cached_projectapps = formfield.choices
+        logger.info('set cached choices')
+        return formfield
     else: #other field
       return super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
@@ -146,7 +159,7 @@ class GivingProjectA(admin.ModelAdmin):
             ('fundraising_training', 'fundraising_deadline'),
             'fund_goal', 'site_visits', 'calendar', 'suggested_steps', 'pre_approved')
   form = modelforms.GivingProjectAdminForm
-  inlines = [SurveyI, ProjectResourcesInline, MembershipInline, ProjectAppInline]
+  inlines = [ProjectAppInline]#[SurveyI, ProjectResourcesInline, MembershipInline, ProjectAppInline]
 
 class MemberAdvanced(admin.ModelAdmin): #advanced only
   list_display = ('first_name', 'last_name', 'email')
