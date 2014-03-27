@@ -531,7 +531,9 @@ class GrantApplication(models.Model):
     for field in self.get_profile_field_names():
       profile.append(getattr(self, field))
     names = [field.replace('_', ' ') for field in self.get_profile_field_names()]
-    return zip(names, profile)
+    profile = zip(names, profile)
+    profile.insert(0, ('Application', unicode(self)))
+    return profile
 
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
