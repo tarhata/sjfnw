@@ -1,4 +1,6 @@
-﻿.change-list .filtered .results, .change-list .filtered .paginator, .filtered #toolbar, .filtered div.xfull {
+﻿/** list pages **/
+
+.change-list .filtered .results, .change-list .filtered .paginator, .filtered #toolbar, .filtered div.xfull {
     margin-right: 200px !important;
     width: auto !important;
 }
@@ -6,6 +8,21 @@
 div#changelist-filter { /*redundantly specific to override admin rule */
   width: 200px;
   height: 100%;
+}
+
+/** individual object pages **/
+
+
+.module h2, .module caption {
+  /* headings (sidebar, fieldsets) and captions (app headings) within modules */
+  font-size:14px;
+  background: #eee;
+  color:#666;
+  padding: 5px;
+}
+
+a.section:link, a.section:visited {
+  color:#666;
 }
 
 div#top_help_text {
@@ -34,10 +51,6 @@ form .aligned p.help {
   padding-top: .5em !important;
 }
 
-.module h2, .module caption, .inline-group h2 {
-  /* home page sidebar */
-  font-size:12px;
-}
 
 select#id_permissions {
   /* user permissions box */
