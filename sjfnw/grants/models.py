@@ -526,19 +526,12 @@ class GrantApplication(models.Model):
   def __unicode__(self):
     return unicode(self.organization) + u' - ' + unicode(self.grant_cycle) + u' - ' + unicode(self.submission_time.year)
 
-  def get_profile_field_names(self):
-    return GrantApplication.fields_starting_with('fiscal') + [
-        'address', 'city', 'state', 'zip', 'telephone_number', 'fax_number',
-        'email_address', 'website', 'contact_person', 'contact_person_title',
-        'status', 'ein', 'founded', 'mission']
-
   def get_profile_info(self):
-    profile = {}
+    profile = []
     for field in self.get_profile_field_names():
-      field_obj = self._meta.get_field_by_name(field)
-      field_obj = field_obj[0]
-      profile[field_obj.verbose_name] = getattr(self, field)
-    return profile
+      profile.append(getattr(self, field))
+    names = [field.replace('_', ' ') for field in self.get_profile_field_names()]
+    return zip(names, profile)
 
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'
@@ -553,6 +546,16 @@ class GrantApplication(models.Model):
     html += '</table>'
     return html
   timeline_display.allow_tags = True
+
+  @classmethod
+  def get_profile_field_names(cls):
+    profile = ['address', 'city', 'state', 'zip', 'telephone_number', 
+        'fax_number', 'email_address', 'website', 'contact_person',
+        'contact_person_title', 'status', 'ein', 'founded', 'mission',
+        'fiscal_org', 'fiscal_person', 'fiscal_telephone', 'fiscal_email',
+        'fiscal_address', 'fiscal_city', 'fiscal_state', 'fiscal_zip']
+    return profile
+
 
   @classmethod
   def get_field_names(cls):

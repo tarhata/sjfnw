@@ -189,25 +189,8 @@ class GrantCycleA(admin.ModelAdmin):
 
 class OrganizationA(admin.ModelAdmin):
   list_display = ('name', 'email',)
-  fieldsets = (
-    ('', {
-      'fields':(('name', 'email'),)
-    }),
-    ('Contact info from most recent application', {
-      'fields':(('address', 'city', 'state', 'zip'),
-                ('telephone_number', 'fax_number', 'email_address', 'website'))
-    }),
-    ('Organization info from most recent application', {
-      'fields':(('founded', 'status', 'ein', 'mission'),)
-    }),
-    ('Fiscal sponsor info from most recent application', {
-      'classes':('collapse',),
-      'fields':(('fiscal_org', 'fiscal_person'),
-                ('fiscal_telephone', 'fiscal_address', 'fiscal_email'),
-                'fiscal_letter')
-    })
-  )
   search_fields = ('name', 'email')
+  fields = ('name', 'email')
   inlines = ()
 
   def change_view(self, request, object_id, form_url='', extra_context=None):
