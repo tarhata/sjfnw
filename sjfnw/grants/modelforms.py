@@ -10,12 +10,6 @@ logger = logging.getLogger('sjfnw')
 
 
 
-class OrgProfile(ModelForm):
-  class Meta:
-    model = Organization
-    exclude = ('name', 'email')
-
-
 class TimelineWidget(forms.widgets.MultiWidget):
   def __init__(self, attrs=None):
     _widgets = (
