@@ -190,17 +190,17 @@ class GrantCycleA(admin.ModelAdmin):
 class OrganizationA(admin.ModelAdmin):
   list_display = ('name', 'email',)
   search_fields = ('name', 'email')
-  fields = ('name', 'email')
+  fieldsets = (
+      ('', { 'fields': ('name', 'email')}),
+      ('Contact person', {
+        'fields': (('contact_person', 'contact_person_title', 'email_address', 'phone'),),
+        'description': 'Staff-maintained.  See below for the contact person from their most recent grant application.'
+      }))
   inlines = ()
 
   def change_view(self, request, object_id, form_url='', extra_context=None):
     logger.info('OrganizationA.change_view()')
-    self.inlines = (GrantApplicationI, SponsoredProgramI,
-                    LogReadonlyI, LogI)
-    self.readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number',
-        'fax_number', 'email_address', 'website', 'status', 'ein', 'founded',
-        'mission', 'fiscal_org', 'fiscal_person', 'fiscal_telephone',
-        'fiscal_address', 'fiscal_email', 'fiscal_letter')
+    self.inlines = (GrantApplicationI, SponsoredProgramI, LogReadonlyI, LogI)
     return super(OrganizationA, self).change_view(request, object_id)
 
 class OrganizationAdvA(OrganizationA):

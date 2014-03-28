@@ -105,46 +105,12 @@ class Organization(models.Model):
   email = models.EmailField(max_length=100, verbose_name='Login',
                             blank=True, unique=True) #django username
 
-  #org contact info
-  address = models.CharField(max_length=100, blank=True)
-  city = models.CharField(max_length=50, blank=True)
-  state = models.CharField(max_length=2, choices=STATE_CHOICES, blank=True)
-  zip = models.CharField(max_length=50, blank=True)
-  telephone_number = models.CharField(max_length=20, blank=True)
-  fax_number = models.CharField(max_length=20, blank=True)
-  email_address = models.EmailField(max_length=100, blank=True)
-  website = models.CharField(max_length=50, blank=True)
   contact_person = models.CharField(max_length=250, blank=True,
       verbose_name= 'Contact person')
   contact_person_title = models.CharField(max_length=100, blank=True,
       verbose_name='Title')
-
-  #org info
-  status = models.CharField(max_length=50, choices=STATUS_CHOICES, blank=True)
-  ein = models.CharField(max_length=50,
-                         verbose_name="Organization's or Fiscal Sponsor Organization's EIN",
-                         blank=True)
-  founded = models.PositiveIntegerField(verbose_name='Year founded',
-                                        null=True, blank=True)
-  mission = models.TextField(blank=True)
-
-  #fiscal sponsor info (if applicable)
-  fiscal_org = models.CharField(verbose_name='Organization name',
-                                max_length=255, blank=True)
-  fiscal_person = models.CharField(verbose_name='Contact person',
-                                   max_length=255, blank=True)
-  fiscal_telephone = models.CharField(verbose_name='Telephone',
-                                      max_length=25, blank=True)
-  fiscal_email = models.CharField(verbose_name='Email address',
-                                  max_length=100, blank=True)
-  fiscal_address = models.CharField(verbose_name='Address',
-                                    max_length=255, blank=True)
-  fiscal_city = models.CharField(verbose_name='City',
-                                 max_length=50, blank=True)
-  fiscal_state = models.CharField(verbose_name='State', max_length=2,
-                                  choices=STATE_CHOICES, blank=True)
-  fiscal_zip = models.CharField(verbose_name='ZIP', max_length=50, blank=True)
-  fiscal_letter = models.FileField(upload_to='/', null=True, blank=True)
+  phone = models.CharField(max_length=20, blank=True)
+  email_address = models.EmailField(max_length=100, blank=True)
 
   def __unicode__(self):
     return self.name
