@@ -115,10 +115,10 @@ class Organization(models.Model):
   def __unicode__(self):
     return self.name
 
-  def get_profile(self):
+  def get_profile(self, display=True):
     apps = GrantApplication.objects.filter(organization=self).order_by('-submission_time')
     if apps:
-      return apps[0].get_profile_info()
+      return apps[0].get_profile_info(display)
     else:
       return None
 
@@ -492,11 +492,14 @@ class GrantApplication(models.Model):
   def __unicode__(self):
     return unicode(self.organization) + u' - ' + unicode(self.grant_cycle) + u' - ' + unicode(self.submission_time.year)
 
-  def get_profile_info(self):
+  def get_profile_info(self, display):
     profile = []
     for field in self.get_profile_field_names():
       profile.append(getattr(self, field))
-    names = [field.replace('_', ' ') for field in self.get_profile_field_names()]
+    if display:
+      names = [field.replace('_', ' ') for field in self.get_profile_field_names()]
+    else:
+      names = self.get_profile_field_names()
     profile = zip(names, profile)
     profile.insert(0, ('Application', unicode(self)))
     return profile

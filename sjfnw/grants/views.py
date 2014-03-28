@@ -219,17 +219,6 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
       #create the GrantApplication
       new_app = form.save()
 
-      #update org profile
-      form2 = OrgProfile(draft_data, instance=organization)
-      if form2.is_valid():
-        form2.save()
-        if files_data.get('fiscal_letter'):
-          organization.fiscal_letter = files_data['fiscal_letter']
-          organization.save()
-        logger.info('Organization profile updated')
-      else:
-        logger.error('Org profile not updated.  User: %s, application id: %s', request.user.email, new_app.pk)
-
       #send email confirmation
       subject, from_email = 'Grant application submitted', constants.GRANT_EMAIL
       to = organization.email
@@ -257,9 +246,8 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
     #get initial data
     if cr or draft.contents == '{}': #load profile
-      dict = model_to_dict(organization, exclude = ['fiscal_letter',])
-      draft.fiscal_letter = organization.fiscal_letter
-      draft.contents = json.dumps(dict)
+      profile = organization.get_profile(display=False)
+      draft.contents = json.dumps(profile)
       draft.save()
       logger.debug('Created new draft')
       if cycle.info_page: #redirect to instructions first
