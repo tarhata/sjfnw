@@ -197,7 +197,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
   if request.method == 'POST': #POST
     #check if draft can be submitted
-    if not draft.editable:
+    if not draft.editable():
       return render(request, 'grants/submitted_closed.html', {'cycle':cycle})
 
     #get fields & files from draft
