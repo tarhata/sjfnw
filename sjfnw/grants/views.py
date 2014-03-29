@@ -19,7 +19,7 @@ from sjfnw import constants
 from sjfnw.fund.models import Member
 from sjfnw.grants.decorators import registered_org
 from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
-from sjfnw.grants.modelforms import GrantApplicationModelForm, OrgProfile
+from sjfnw.grants.modelforms import GrantApplicationModelForm
 from sjfnw.grants.utils import local_date_str, FindBlobKey, FindBlob, ServeBlob, DeleteBlob
 from sjfnw.grants import models
 
@@ -218,6 +218,13 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
       #create the GrantApplication
       new_app = form.save()
+      
+      # update org location
+      organization.city = new_app.city
+      organization.state = new_app.state
+      if new_app.fiscal_org:
+        organization.fiscal_org = True
+      organization.save()
 
       #send email confirmation
       subject, from_email = 'Grant application submitted', constants.GRANT_EMAIL
@@ -246,21 +253,21 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
     #get initial data
     if cr or draft.contents == '{}': #load profile
-      profile = organization.get_profile(display=False)
-      draft.contents = json.dumps(profile)
+      draft_dict = organization.get_profile(display=False)
+      draft.contents = json.dumps(draft_dict)
       draft.save()
-      logger.debug('Created new draft')
+      logger.info('Created new draft')
       if cycle.info_page: #redirect to instructions first
         return render(request, 'grants/cycle_info.html', {'cycle':cycle})
 
     else: #load a draft
-      dict = json.loads(draft.contents)
+      draft_dict = json.loads(draft.contents)
       timeline = []
       for i in range(15): #covering both timeline formats
-        if 'timeline_' + str(i) in dict:
-          timeline.append(dict['timeline_' + str(i)])
-      dict['timeline'] = json.dumps(timeline)
-      logger.debug('Loading draft')
+        if 'timeline_' + str(i) in draft_dict:
+          timeline.append(draft_dict['timeline_' + str(i)])
+      draft_dict['timeline'] = json.dumps(timeline)
+      logger.info('Loading draft')
 
     #check if draft can be submitted
     if not draft.editable():
@@ -268,16 +275,14 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
     #try to determine initial load - cheaty way
     # 1) if referer, make sure it wasn't from copy
-    # 2) check for mission from profile
     # 3) make sure grant request is not there (since it's not in prof)
     referer = request.META.get('HTTP_REFERER')
     if (not (referer and referer.find('copy') != -1) and
-        organization.mission and
-        ((not 'grant_request' in dict) or (not dict['grant_request']))):
+        ((not 'grant_request' in draft_dict) or (not draft_dict['grant_request']))):
       profiled = True
 
     #create form
-    form = GrantApplicationModelForm(cycle, initial=dict)
+    form = GrantApplicationModelForm(cycle, initial=draft_dict)
 
   #get draft files
   file_urls = GetFileURLs(request, draft)
@@ -960,7 +965,7 @@ def get_org_results(options):
   if options.get('state'):
     orgs = orgs.filter(state__in=options['state'])
   if options.get('has_fiscal_sponsor'):
-    orgs = orgs.exclude(fiscal_org='')
+    orgs = orgs.filter(fiscal_org=True)
 
   # fields
   fields = ['name']
