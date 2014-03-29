@@ -462,7 +462,6 @@ class StartApplication(BaseGrantTestCase): #TODO MIGHT BE OUT OF DATE
     self.assertEqual(response.status_code, 200)
     self.assertTemplateUsed(response, 'grants/org_app.html')
     org = Organization.objects.get(pk=2)
-    self.assertContains(response, org.mission)
     self.assertEqual(1, DraftGrantApplication.objects.filter(organization_id=2, grant_cycle_id=6).count())
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
