@@ -160,6 +160,10 @@ class BaseOrgAppReport(forms.Form):
         ('status', 'Status'),
         ('ein', 'EIN'),
         ('founded', 'Year founded')
+        ('contact_person', 'Contact person name'),
+        ('contact_person_title', 'Contact person title'),
+        ('phone', 'Telephone number'),
+        ('email_address', 'Email address')
       ])
   report_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
 
