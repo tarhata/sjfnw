@@ -11,9 +11,7 @@ logger = logging.getLogger('sjfnw')
 def local_date_str(timestamp):
   """ Takes a UTC timestamp and converts to a local date string """
 
-  logger.info(timestamp)
   timestamp = timezone.localtime(timestamp)
-  logger.info(timestamp)
   return timestamp.strftime('%m/%d/%Y')
 
 def FindBlobKey(body):

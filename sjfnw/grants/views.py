@@ -782,8 +782,12 @@ def get_app_results(options):
   field_names = [f.capitalize().replace('_', ' ') for f in fields]
 
   # gp screening, grant awards
+  get_gps = False
   get_gp_ss = False
   get_awards = False
+  if options['report_gps']:
+    field_names.append('Assigned GPs')
+    get_gps = True
   if options['report_gp_screening']:
     field_names.append('GP screening status')
     get_gp_ss = True
@@ -811,29 +815,40 @@ def get_app_results(options):
       else:
         row.append(getattr(app, field))
 
-    # gp screening status, awards
-    if get_awards or get_gp_ss:
-      award_row = ''
-      ss_row = ''
+    # gp GPs, screening status, awards
+    if get_gps or get_awards or get_gp_ss:
+      award_col = ''
+      ss_col = ''
+      gp_col = ''
       papps = app.projectapp_set.all()
       if papps:
         for papp in papps:
+          if get_gps:
+            if gp_col != '':
+              gp_col += ', '
+            gp_col += '%s' % papp.giving_project.title
           if get_awards:
             try:
               award = papp.givingprojectgrant
-              award_row += '%s %s' % (award.amount, papp.giving_project)
+              if award_col != '':
+               award_col += ', '
+              award_col += '%s %s ' % (award.amount, papp.giving_project.title)
             except models.GivingProjectGrant.DoesNotExist:
               pass
           if get_gp_ss:
+            if ss_col != '':
+              ss_col += ', '
             if papp.screening_status:
-              ss_row += '%s (%s)' % (dict(models.SCREENING)[papp.screening_status],
+              ss_col += '%s (%s) ' % (dict(models.SCREENING)[papp.screening_status],
                 papp.giving_project.title)
             else:
-              ss_row += papp.giving_project.title
+              ss_col += '%s (none) ' % papp.giving_project.title
+      if get_gps:
+        row.append(gp_col)
       if get_gp_ss:
-        row.append(ss_row)
+        row.append(ss_col)
       if get_awards:
-        row.append(award_row)
+        row.append(award_col)
 
     results.append(row)
 
