@@ -114,6 +114,7 @@ class Organization(models.Model):
 
   city = models.CharField(max_length=50, blank=True)
   state = models.CharField(max_length=2, choices=STATE_CHOICES, blank=True)
+  fiscal_org = models.BooleanField(blank=True, default=False)
 
   def __unicode__(self):
     return self.name
