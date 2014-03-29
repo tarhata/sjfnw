@@ -164,7 +164,7 @@ class GrantCycle(models.Model):
       'declared) that occurred  during this cycle.')
 
   class Meta:
-    ordering = ['title', 'close']
+    ordering = ['-close', 'title']
 
   def __unicode__(self):
     return self.title
