@@ -75,52 +75,20 @@
     "pk": 1,
     "model": "grants.organization",
     "fields": {
-      "website": "",
-      "city": "",
-      "fiscal_person": "",
       "name": "Fresh New Org",
-      "zip": "",
-      "fiscal_address": "",
-      "mission": "",
-      "fiscal_telephone": "",
-      "telephone_number": "",
-      "fax_number": "",
-      "founded": null,
-      "state": "",
-      "fiscal_org": "",
-      "status": "",
-      "address": "",
-      "fiscal_letter": "",
-      "fiscal_email": "",
+      "phone": "",
       "email_address": "as@gmail.com",
-      "email": "neworg@gmail.com",
-      "ein": ""
+      "email": "neworg@gmail.com"
     }
   },
   {
     "pk": 2,
     "model": "grants.organization",
     "fields": {
-      "website": "officemax.com",
-      "city": "New York",
-      "fiscal_person": "",
       "name": "OfficeMax Foundation",
-      "zip": "65456",
-      "fiscal_address": "",
-      "mission": "Some crap",
-      "fiscal_telephone": "",
-      "telephone_number": "(325)589-9269",
-      "fax_number": "(325)589-9269",
-      "founded": 351,
-      "state": "OR",
-      "fiscal_org": "",
-      "status": "501c3",
-      "address": "asdfsdf",
-      "fiscal_letter": "",
-      "fiscal_email": "",
+      "phone": "(325)589-9269",
       "email_address": "as@gmail.com",
-      "email": "testorg@gmail.com",
-      "ein": "654"
+      "email": "testorg@gmail.com"
     }
   },
   {
