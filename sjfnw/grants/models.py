@@ -582,6 +582,8 @@ class GrantApplicationLog(models.Model):
   contacted = models.CharField(max_length=255, help_text = 'Person from the organization that you talked to, if applicable.', blank=True)
   notes = models.TextField()
 
+  class Meta:
+    ordering = ['-date']
 
 class GivingProjectGrant(models.Model):
   created = models.DateTimeField(default=timezone.now())
