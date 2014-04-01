@@ -1,7 +1,8 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter
 from django.http import HttpResponse
 from django.forms import ValidationError
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from sjfnw.admin import advanced_admin
@@ -18,8 +19,14 @@ def step_membership(obj): #Step list_display
   return obj.donor.membership
 
 def gp_year(obj): #GP list_display
-  return obj.fundraising_deadline.year
+  year = obj.fundraising_deadline.year
+  if year == timezone.now().year:
+    return '<b>%d</b>' % year
+  else:
+    return year
 gp_year.short_description = 'Year'
+gp_year.allow_tags = True
+
 
 def ship_progress(obj):
   return ('<table><tr><td style="width:33%;padding:1px;">$' +
@@ -61,6 +68,38 @@ class ReceivedBooleanFilter(SimpleListFilter): #donors & steps
     if self.value() == 'False':
       return queryset.filter(
           received_this=0, received_next=0, received_afternext=0)
+
+
+class GPYearFilter(SimpleListFilter):
+  """ Filter giving projects by year """
+  title = 'year'
+  parameter_name = 'year'
+
+  def lookups(self, request, model_admin):
+    deadlines = GivingProject.objects.values_list(
+        'fundraising_deadline', flat=True
+        ).order_by('-fundraising_deadline')
+    prev = None
+    years = []
+    for deadline in deadlines:
+      if deadline.year != prev:
+        years.append((deadline.year, deadline.year))
+        prev = deadline.year
+    logger.info(years)
+    return years
+
+  def queryset(self, request, queryset):
+    val = self.value()
+    if not val:
+      return queryset
+    try:
+      year = int(val)
+    except:
+      logger.error('GPYearFilter received invalid value %s' % val)
+      messages.error(request,
+          'Error loading filter. Contact techsupport@socialjusticefund.org')
+      return queryset
+    return queryset.filter(fundraising_deadline__year=year)
 
 
 # Inlines
@@ -154,6 +193,7 @@ class SurveyI(admin.TabularInline):
 # ModelAdmin
 class GivingProjectA(admin.ModelAdmin):
   list_display = ('title', gp_year, 'estimated')
+  list_filter = (GPYearFilter,)
   readonly_fields = ('estimated',)
   fields = (('title', 'public'),
             ('fundraising_training', 'fundraising_deadline'),
