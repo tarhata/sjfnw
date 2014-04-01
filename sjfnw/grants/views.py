@@ -725,33 +725,31 @@ def get_app_results(options):
       'organization', 'grant_cycle')
 
   #filters
-  min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S')
+  min_year = datetime.datetime.strptime(options['filter_year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S')
   min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
-  max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S')
+  max_year = datetime.datetime.strptime(options['filter_year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S')
   max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
   apps = apps.filter(submission_time__gte=min_year, submission_time__lte=max_year)
 
-  if options.get('organization_name'):
+  if options.get('filter_organization_name'):
     apps = apps.filter(organization__name__contains=options['organization_name'])
-  if options.get('city'):
+  if options.get('filter_city'):
     apps = apps.filter(city=options['city'])
-  if options.get('state'):
+  if options.get('filter_state'):
     apps = apps.filter(state__in=options['state'])
-  if options.get('has_fiscal_sponsor'):
+  if options.get('filter_has_fiscal_sponsor'):
     apps = apps.exclude(fiscal_org='')
-
-  #TODO screening status
-  if options.get('pre_screening_status'):
+  if options.get('filter_pre_screening'):
     apps = apps.filter(pre_screening_status__in=options.get('pre_screening_status'))
-  if options.get('screening_status'):
+  if options.get('filter_screening_status'):
     apps = apps.filter(projectapp__screening_status__in=options.get('screening_status'))
-  if options.get('poc_bonus'):
+  if options.get('filter_poc_bonus'):
     apps = apps.filter(scoring_bonus_poc=True)
-  if options.get('geo_bonus'):
+  if options.get('filter_geo_bonus'):
     apps = apps.filter(scoring_bonus_geo=True)
-  if options.get('grant_cycle'):
+  if options.get('filter_grant_cycle'):
     apps = apps.filter(grant_cycle__title__in=options.get('grant_cycle'))
-  if options.get('giving_projects'): #TODO test this
+  if options.get('filter_giving_projects'):
     apps = apps.prefetch_related('giving_projects')
     apps = apps.filter(giving_projects__title__in=options.get('giving_projects'))
 
@@ -833,7 +831,7 @@ def get_app_results(options):
   return field_names, results
 
 def get_award_results(options):
-  """ Fetches award (all types) report results
+  """ Fetches award (gp and sponsored) results
 
   Args:
     options: cleaned_data from a request.POST-filled instance of AwardReportForm
@@ -850,30 +848,32 @@ def get_award_results(options):
       ]
   """
 
+  logger.info('Get award results')
+
   # initial querysets
   gp_awards = models.GivingProjectGrant.objects.all().select_related('project_app',
       'project_app__application', 'project_app__application__organization')
   sponsored = models.SponsoredProgramGrant.objects.all().select_related('organization')
 
   # filters
-  min_year = datetime.datetime.strptime(options['year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S')
+  min_year = datetime.datetime.strptime(options['filter_year_min'] + '-01-01 00:00:01', '%Y-%m-%d %H:%M:%S')
   min_year = timezone.make_aware(min_year, timezone.get_current_timezone())
-  max_year = datetime.datetime.strptime(options['year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S')
+  max_year = datetime.datetime.strptime(options['filter_year_max'] + '-12-31 23:59:59', '%Y-%m-%d %H:%M:%S')
   max_year = timezone.make_aware(max_year, timezone.get_current_timezone())
   gp_awards = gp_awards.filter(created__gte=min_year, created__lte=max_year)
   sponsored = sponsored.filter(entered__gte=min_year, entered__lte=max_year)
 
-  if options.get('organization_name'):
+  if options.get('filter_organization_name'):
     gp_awards = gp_awards.filter(project_app__application__organization__name__contains=options['organization_name'])
     sponsored = sponsored.filter(organization__name__contains=options['organization_name'])
-  if options.get('city'):
-    gp_awards = gp_awards.filter(project_app__application__organization__city=options['city'])
+  if options.get('filter_app_city'):
+    gp_awards = gp_awards.filter(project_app__application__city=options['city'])
     sponsored = sponsored.filter(organization__city=options['city'])
-  if options.get('state'):
-    gp_awards = gp_awards.filter(project_app__application__organization__state__in=options['state'])
+  if options.get('filter_app_state'):
+    gp_awards = gp_awards.filter(project_app__application__state__in=options['state'])
     sponsored = sponsored.filter(organization__state__in=options['state'])
-  if options.get('has_fiscal_sponsor'):
-    gp_awards = gp_awards.exclude(project_app__application__organization__fiscal_org='')
+  if options.get('filter_app_fiscal'):
+    gp_awards = gp_awards.exclude(project_app__application__fiscal_org='')
     sponsored = sponsored.exclude(organization__fiscal_org='')
 
   # fields
@@ -890,7 +890,7 @@ def get_award_results(options):
   if options.get('report_year_end_report_due'):
     fields.append('year_end_report_due')
 
-  org_fields = options['report_contact'] + options['report_org']
+  org_fields = options['report_app_contact'] + options['report_app_org']
   if options.get('report_fiscal'):
     org_fields += models.GrantApplication.fields_starting_with('fiscal')
     org_fields.remove('fiscal_letter')
@@ -948,50 +948,61 @@ def get_org_results(options):
         ['Justice League', 'trouble@gender.org', 'WA']
       ]
   """
+  logger.info('Get org results')
 
   # initial queryset
-  orgs = models.Organization.objects.all()
+  orgs = models.Organization.objects.all().prefetch_related('grantapplication_set')
 
-  # filters
-  reg = options.get('registered')
+  # filters - org fields
+  reg = options.get('filter_registered')
   if reg == True:
     orgs = orgs.exclude(email="")
   elif reg == False:
     org = orgs.filter(email="")
-  if options.get('organization_name'):
+  if options.get('filter_organization_name'):
     orgs = orgs.filter(name__contains=options['organization_name'])
-  if options.get('city'):
-    orgs = orgs.filter(city=options['city'])
-  if options.get('state'):
-    orgs = orgs.filter(state__in=options['state'])
-  if options.get('has_fiscal_sponsor'):
-    orgs = orgs.filter(fiscal_org=True)
 
-  # fields
+  # fields - org
   fields = ['name']
   if options.get('report_account_email'):
     fields.append('email')
-  fields += options['report_contact'] + options['report_org']
+  fields += options['report_staff_contact']
+
+  # fields - profile (most recent app)
+  profile_fields = options.get('report_app_contact') + options.get('report_app_org')
   if options.get('report_fiscal'):
-    fields += models.GrantApplication.fields_starting_with('fiscal')
-    fields.remove('fiscal_letter')
-
-  field_names = [f.capitalize().replace('_', ' ') for f in fields] #for display
-
-  # related objects
+    profile_fields += models.GrantApplication.fields_starting_with('fiscal')
+    profile_fields.remove('fiscal_letter')
+    
+  # prep for getting related objs (apps & awards)
   get_apps = False
   get_awards = False
   if options.get('report_applications'):
     get_apps = True
-    orgs = orgs.prefetch_related('grantapplication_set')
-    field_names.append('Grant applications')
   if options.get('report_awards'):
-    orgs = orgs.prefetch_related('grantapplication_set')
     orgs = orgs.prefetch_related('sponsoredprogramgrant_set')
-    field_names.append('Grants awarded')
     get_awards = True
 
-  # execute queryset, build results
+  # filter by profile (evaluate queryset to filter by most recent app)
+  orgs = list(orgs)
+  if options.get('city'):
+    logger.info(orgs[0].get_profile())
+    logger.info(orgs[0].get_profile()['city'])
+    orgs = filter(lambda o: o.get_profile()['city'] in options['city'], orgs)
+  if options.get('state'):
+    orgs = filter(lambda o: o.get_profile()['state'] in options['state'], orgs)
+  if options.get('has_fiscal_sponsor'):
+    orgs = filter(lambda o: o.get_profile()['fiscal_org'] != '', orgs)
+
+  # field names for first row
+  field_names = [f.capitalize().replace('_', ' ') for f in fields] #for display
+  field_names += [f.capitalize().replace('_', '') for f in profile_fields]
+  if get_apps:
+    field_names.append('Grant applications')
+  if get_awards:
+    field_names.append('Grants awarded')
+
+  # build results
   results = []
   linebreak = '\n' if options['format'] == 'csv' else '<br>'
   for org in orgs:
@@ -999,7 +1010,13 @@ def get_org_results(options):
     # org fields
     for field in fields:
       row.append(getattr(org, field))
-    awards_str = ''
+    # profile (most recent app) fields
+    profile = org.get_profile()
+    if profile:
+      for field in profile_fields:
+        row.append(profile[field])    
+    # related objs (apps & awards)
+    awards_str = '' # need to be available for both ifs below
     if get_apps or get_awards:
       apps_str = ''
       for app in org.grantapplication_set.all():

@@ -131,16 +131,20 @@ class BaseOrgAppReport(forms.Form):
   """ Abstract form for fields shared between report types """
 
   # filters
-  organization_name = forms.CharField(max_length=255, required=False,
+  filter_org_name = forms.CharField(max_length=255, required=False,
+      label='Organization name', 
       help_text='Organization name must contain the given text')
-  city = forms.CharField(max_length=255, required=False,
-      help_text='City must match the given text')
-  state = forms.MultipleChoiceField(choices = STATE_CHOICES[:5],
+
+  filter_app_city = forms.CharField(label='City', max_length=255,
+      required=False, help_text='City must match the given text')
+  filter_app_state = forms.MultipleChoiceField(label='State',
+      choices = STATE_CHOICES[:5],
       widget = forms.CheckboxSelectMultiple, required = False)
-  has_fiscal_sponsor = forms.BooleanField(required=False)
+  filter_app_fiscal = forms.BooleanField(label='Has fiscal sponsor', 
+      required=False)
 
   # fields
-  report_contact = forms.MultipleChoiceField(
+  report_app_contact = forms.MultipleChoiceField(
       label='Contact', required=False,
       widget = CheckMultiple, choices = [
         ('contact_person', 'Contact person name'),
@@ -154,18 +158,14 @@ class BaseOrgAppReport(forms.Form):
         ('email_address', 'Email address'),
         ('website', 'Website')
       ])
-  report_org = forms.MultipleChoiceField(
+  report_app_org = forms.MultipleChoiceField(
       label='Organization', required=False,
       widget = CheckMultiple, choices = [
         ('status', 'Status'),
         ('ein', 'EIN'),
         ('founded', 'Year founded')
-        ('contact_person', 'Contact person name'),
-        ('contact_person_title', 'Contact person title'),
-        ('phone', 'Telephone number'),
-        ('email_address', 'Email address')
-      ])
-  report_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
+        ])
+  report_app_fiscal = forms.BooleanField(label='Fiscal sponsor', required=False)
 
   #format (browse, csv)
   format = forms.ChoiceField(choices = [('csv', 'CSV'), ('browse', 'Don\'t export, just browse')])
@@ -176,24 +176,24 @@ class BaseOrgAppReport(forms.Form):
 class AppReportForm(BaseOrgAppReport):
 
   #filters
-  year_min = forms.ChoiceField(
+  filter_year_min = forms.ChoiceField(
       choices = [(n, n) for n in range(timezone.now().year, 1990, -1)],
       initial = timezone.now().year-1)
-  year_max = forms.ChoiceField(
+  filter_year_max = forms.ChoiceField(
       choices =[(n, n) for n in range(timezone.now().year, 1990, -1)])
-  pre_screening_status = forms.MultipleChoiceField(
+  filter_pre_screening = forms.MultipleChoiceField(label='Pre-screening status',
       choices = PRE_SCREENING,
       widget = forms.CheckboxSelectMultiple, required = False)
-  screening_status = forms.MultipleChoiceField(label='Giving project screening status',
+  filter_screening_status = forms.MultipleChoiceField(label='Giving project screening status',
       choices = SCREENING,
       widget = forms.CheckboxSelectMultiple, required = False)
-  giving_projects = forms.MultipleChoiceField(
+  filter_giving_projects = forms.MultipleChoiceField(label='Giving projects',
       choices = [], widget = forms.CheckboxSelectMultiple, required = False)
-  grant_cycle = forms.MultipleChoiceField(choices = [],
+  filter_grant_cycle = forms.MultipleChoiceField(choices = [],
                                           widget = forms.CheckboxSelectMultiple,
                                           required = False)
-  poc_bonus = forms.BooleanField(required=False)
-  geo_bonus = forms.BooleanField(required=False)
+  filter_poc_bonus = forms.BooleanField(required=False)
+  filter_geo_bonus = forms.BooleanField(required=False)
   #awarded = forms.BooleanField(required=False)
 
   #fields
@@ -238,17 +238,17 @@ class AppReportForm(BaseOrgAppReport):
     choices = GivingProject.objects.values_list('title', flat = True)
     choices = set(choices)
     choices = [(g, g) for g in choices]
-    self.fields['giving_projects'].choices = choices
+    self.fields['filter_giving_projects'].choices = choices
 
     #get cycles
     choices = GrantCycle.objects.values_list('title', flat = True)
     choices = set(choices)
     choices = [(g, g) for g in choices]
-    self.fields['grant_cycle'].choices = choices
+    self.fields['filter_grant_cycle'].choices = choices
 
   def clean(self):
     cleaned_data = super(AppReportForm, self).clean()
-    if cleaned_data['year_max'] < cleaned_data['year_min']:
+    if cleaned_data['filter_year_max'] < cleaned_data['filter_year_min']:
       raise ValidationError('Start year must be less than or equal to end year.')
     return cleaned_data
 
@@ -256,10 +256,10 @@ class AppReportForm(BaseOrgAppReport):
 class AwardReportForm(BaseOrgAppReport):
 
   # filters
-  year_min = forms.ChoiceField(
+  filter_year_min = forms.ChoiceField(
       choices = [(n, n) for n in range(timezone.now().year, 1990, -1)],
       initial = timezone.now().year-1)
-  year_max = forms.ChoiceField(choices =
+  filter_year_max = forms.ChoiceField(choices =
       [(n, n) for n in range(timezone.now().year, 1990, -1)])
 
   # fields (always: org name, amount, check_mailed)
@@ -285,9 +285,16 @@ class AwardReportForm(BaseOrgAppReport):
 class OrgReportForm(BaseOrgAppReport):
 
   # filters
-  registered = forms.ChoiceField(choices = [('None', '---'), ('True', 'yes'), ('False', 'no')])
+  filter_registered = forms.ChoiceField(choices = [('None', '---'), ('True', 'yes'), ('False', 'no')])
 
   # fields
+  report_staff_contact = forms.MultipleChoiceField(label='Staff-entered contact info',
+      required = False, widget = CheckMultiple, choices = [
+        ('contact_person', 'Contact person name'),
+        ('contact_person_title', 'Contact person title'),
+        ('phone', 'Telephone number'),
+        ('email_address', 'Email address')
+      ])
   report_account_email = forms.BooleanField(label='Login email',
       required=False)
   report_applications = forms.BooleanField(label='List of applications',

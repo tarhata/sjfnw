@@ -105,6 +105,7 @@ class Organization(models.Model):
   email = models.EmailField(max_length=100, verbose_name='Login',
                             blank=True, unique=True) #django username
 
+  # staff-entered contact person
   contact_person = models.CharField(max_length=250, blank=True,
       verbose_name= 'Contact person')
   contact_person_title = models.CharField(max_length=100, blank=True,
@@ -506,7 +507,7 @@ class GrantApplication(models.Model):
       names = self.get_profile_field_names()
     profile = zip(names, profile)
     profile.insert(0, ('Application', unicode(self)))
-    return profile
+    return dict(profile)
 
   def view_link(self):
     return '<a href="/grants/view/' + str(self.pk) + '" target="_blank">View application</a>'

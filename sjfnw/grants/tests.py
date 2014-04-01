@@ -849,20 +849,20 @@ class Reporting(BaseGrantTestCase):
           post_dict[name] = True if filters else False
         elif isinstance(field, forms.MultipleChoiceField):
           post_dict[name] = [field.choices[0][0], field.choices[1][0]] if filters else []
-        elif name.startswith('year_m'):
-          if name == 'year_min':
+        elif name.startswith('filter_year'):
+          if name == 'filter_year_min':
             post_dict[name] = 1995
           else:
             post_dict[name] = timezone.now().year
         elif isinstance(field, forms.CharField):
           if filters:
-            if name == 'organization_name':
+            if name == 'filter_org_name':
               post_dict[name] = 'Foundation'
-            elif name == 'city':
+            elif name == 'filter_app_city':
               post_dict[name] = 'Seattle'
           else:
             post_dict[name] = ''
-        elif name == 'registered':
+        elif name == 'filter_registered':
           post_dict[name] = True if filters else None
         else:
           logger.warning('Unexpected field type: ' + str(field))
