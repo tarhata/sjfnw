@@ -104,6 +104,15 @@ class Organization(models.Model):
     'differentiate the two.')})
   email = models.EmailField(max_length=100, verbose_name='Login',
                             blank=True, unique=True) #django username
+  
+  staff_contact_person = models.CharField(max_length=250, blank=True,
+      verbose_name= 'Staff-entered contact person')
+  staff_contact_person_title = models.CharField(max_length=100, blank=True,
+      verbose_name='Title')
+  staff_contact_email = models.EmailField(verbose_name='Email address',
+      max_length=100, blank=True)
+  staff_contact_phone = models.CharField(verbose_name='Phone number',
+      max_length=20, blank=True)
 
   #org contact info
   address = models.CharField(max_length=100, blank=True)

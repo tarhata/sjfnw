@@ -193,9 +193,15 @@ class OrganizationA(admin.ModelAdmin):
     ('', {
       'fields':(('name', 'email'),)
     }),
+    ('Staff-entered contact info', {
+       'fields': (('staff_contact_person', 'staff_contact_person_title',
+                   'staff_contact_phone', 'staff_contact_email'),)
+    }),
     ('Contact info from most recent application', {
       'fields':(('address', 'city', 'state', 'zip'),
-                ('telephone_number', 'fax_number', 'email_address', 'website'))
+                ('contact_person', 'contact_person_title', 'telephone_number',
+                 'email_address'), 
+                ('fax_number',  'website'))
     }),
     ('Organization info from most recent application', {
       'fields':(('founded', 'status', 'ein', 'mission'),)
@@ -217,7 +223,8 @@ class OrganizationA(admin.ModelAdmin):
     self.readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number',
         'fax_number', 'email_address', 'website', 'status', 'ein', 'founded',
         'mission', 'fiscal_org', 'fiscal_person', 'fiscal_telephone',
-        'fiscal_address', 'fiscal_email', 'fiscal_letter')
+        'fiscal_address', 'fiscal_email', 'fiscal_letter', 'contact_person',
+        'contact_person_title')
     return super(OrganizationA, self).change_view(request, object_id)
 
 class OrganizationAdvA(OrganizationA):
