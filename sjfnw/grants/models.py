@@ -110,7 +110,7 @@ class Organization(models.Model):
   staff_contact_person_title = models.CharField(max_length=100, blank=True,
       verbose_name='Title')
   staff_contact_email = models.EmailField(verbose_name='Email address',
-      max_length=100, blank=True)
+      max_length=255, blank=True)
   staff_contact_phone = models.CharField(verbose_name='Phone number',
       max_length=20, blank=True)
 
