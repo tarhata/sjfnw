@@ -1116,12 +1116,13 @@ def GetFileURLs(request, app, printing=False):
     value = getattr(app, field)
     if value:
       ext = value.name.lower().split(".")[-1]
-      logger.debug(ext)
       file_urls[field] +=  base_url + str(app.pk) + u'-' + field + u'.' + ext
       if not settings.DEBUG and ext in constants.VIEWER_FORMATS: #doc viewer
-        if not (printing and (ext == 'xls' or ext == 'xlsx')):
-          file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field]
-        if not printing:
-          file_urls[field] += '&embedded=true'
+        if printing:
+          if not (ext == 'xls' or ext == 'xlsx'):
+            file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field]
+        else: 
+          file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field] + '&embedded=true'
+  logger.debug(file_urls)
   return file_urls
 
