@@ -53,7 +53,7 @@ class GivingProject(models.Model):
                                    null=True, blank=True)
 
   class Meta:
-    ordering = ['-fundraising_training']
+    ordering = ['-fundraising_deadline']
 
   def __unicode__(self):
     return self.title+u' '+unicode(self.fundraising_deadline.year)

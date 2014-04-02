@@ -1,19 +1,50 @@
 from django.contrib import admin
-from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.helpers import InlineAdminFormSet
 from django.http import HttpResponse
 from django.forms import ValidationError, ModelForm
 from django.forms.models import BaseInlineFormSet
 from django.utils.safestring import mark_safe
 
-from sjfnw.admin import advanced_admin
-
+from sjfnw.admin import advanced_admin, YearFilter
 from sjfnw.grants.models import *
 from sjfnw.grants.modelforms import DraftAdminForm
 
 import unicodecsv as csv
 import logging, re
 logger = logging.getLogger('sjfnw')
+
+
+# CUSTOM FILTERS
+
+class GrantCycleYearFilter(YearFilter):
+  filter_model = GrantCycle
+  field = 'close'
+  intermediate = 'project_app__application__grant_cycle'
+  title = 'Grant cycle year'
+
+class CycleTypeFilter(admin.SimpleListFilter):
+  title = 'Grant cycle type'
+  parameter_name = 'cycle_type'
+
+  def lookups(self, request, model_admin):
+    titles = GrantCycle.objects.order_by('title').values_list('title', flat=True).distinct()
+    types = []
+    for title in titles:
+      pos = title.find(' Grant Cycle')
+      if pos > 1:
+        cycle_type = title[:pos]
+        if not cycle_type in types:
+          types.append(cycle_type)
+      else: #Grant Cycle not found - just use whole
+        if not title in types:
+          types.append(title)
+    return [(t, t) for t in types]
+
+  def queryset(self, request, queryset):
+    if not self.value():
+      return queryset
+    else:
+      return queryset.filter(application__grant_cycle__title__startswith=self.value())
 
 
 # INLINES
@@ -52,17 +83,18 @@ class LogI(admin.TabularInline): #Org, Application
     """ give initial values for staff and/or org """
     if '/add' in request.path:
       logger.info('LogI.formfield_for_foreignkey called on add view')
-    elif db_field.name == 'staff':
-      kwargs['initial'] = request.user.id
-      return db_field.formfield(**kwargs)
-    elif 'grantapplication' in request.path and db_field.name == 'organization':
-      id = int(request.path.split('/')[-2])
-      app = GrantApplication.objects.get(pk=id)
-      kwargs['initial'] = app.organization.pk
-      return db_field.formfield(**kwargs)
-    if db_field.name=='application':
-      org_pk = int(request.path.split('/')[-2])
-      kwargs['queryset'] = GrantApplication.objects.filter(organization_id=org_pk)
+    else:
+      if db_field.name == 'staff':
+        kwargs['initial'] = request.user.id
+        return db_field.formfield(**kwargs)
+      elif 'grantapplication' in request.path and db_field.name == 'organization':
+        id = int(request.path.split('/')[-2])
+        app = GrantApplication.objects.get(pk=id)
+        kwargs['initial'] = app.organization.pk
+        return db_field.formfield(**kwargs)
+      if db_field.name=='application':
+        org_pk = int(request.path.split('/')[-2])
+        kwargs['queryset'] = GrantApplication.objects.filter(organization_id=org_pk)
     return super(LogI, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class AwardI(BaseShowInline): #App, GP
@@ -161,9 +193,15 @@ class OrganizationA(admin.ModelAdmin):
     ('', {
       'fields':(('name', 'email'),)
     }),
+    ('Staff-entered contact info', {
+       'fields': (('staff_contact_person', 'staff_contact_person_title',
+                   'staff_contact_phone', 'staff_contact_email'),)
+    }),
     ('Contact info from most recent application', {
       'fields':(('address', 'city', 'state', 'zip'),
-                ('telephone_number', 'fax_number', 'email_address', 'website'))
+                ('contact_person', 'contact_person_title', 'telephone_number',
+                 'email_address'), 
+                ('fax_number',  'website'))
     }),
     ('Organization info from most recent application', {
       'fields':(('founded', 'status', 'ein', 'mission'),)
@@ -171,8 +209,7 @@ class OrganizationA(admin.ModelAdmin):
     ('Fiscal sponsor info from most recent application', {
       'classes':('collapse',),
       'fields':(('fiscal_org', 'fiscal_person'),
-                ('fiscal_telephone', 'fiscal_address', 'fiscal_email'),
-                'fiscal_letter')
+                ('fiscal_telephone', 'fiscal_address', 'fiscal_email'))
     })
   )
   search_fields = ('name', 'email')
@@ -185,7 +222,8 @@ class OrganizationA(admin.ModelAdmin):
     self.readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number',
         'fax_number', 'email_address', 'website', 'status', 'ein', 'founded',
         'mission', 'fiscal_org', 'fiscal_person', 'fiscal_telephone',
-        'fiscal_address', 'fiscal_email', 'fiscal_letter')
+        'fiscal_address', 'fiscal_email', 'fiscal_letter', 'contact_person',
+        'contact_person_title')
     return super(OrganizationA, self).change_view(request, object_id)
 
 class OrganizationAdvA(OrganizationA):
@@ -197,6 +235,17 @@ class GrantApplicationA(admin.ModelAdmin):
     ('Application', {
         'fields': (('organization_link', 'grant_cycle', 'submission_time',
                    'view_link'),)
+    }),
+    ('Application contact info', {
+        'classes': ('collapse',),
+        'description':
+            ('Contact information as entered in the grant application. '
+              'You may edit this as needed.  Note that the contact information '
+              'you see on the organization page is always from the most recent '
+              'application, whether that is this or a different one.'),
+          'fields': (('address', 'city', 'state', 'zip', 'telephone_number',
+                     'fax_number', 'email_address', 'website'),
+                   ('status', 'ein'))
     }),
     ('Administration', {
         'fields': (('pre_screening_status', 'scoring_bonus_poc', 'scoring_bonus_geo', 'site_visit_report'),
@@ -246,19 +295,11 @@ class DraftAdv(admin.ModelAdmin): #Advanced
   list_display = ('organization', 'grant_cycle', 'modified', 'overdue',
                   'extended_deadline')
   list_filter = ('grant_cycle',) #extended
-  fields = (
-    ('organization', 'grant_cycle', 'created', 'modified', 'modified_by'),
-    'contents', 'budget', 'demographics', 'funding_sources', 'fiscal_letter',
-    'budget1', 'budget2', 'budget3', 'project_budget_file',)
-  readonly_fields = ('organization', 'grant_cycle', 'modified', 'budget',
-                     'demographics', 'funding_sources', 'fiscal_letter',
-                     'budget1', 'budget2', 'budget3', 'project_budget_file')
 
 class GivingProjectGrantA(admin.ModelAdmin):
-  list_display = ('organization_name', 'grant_cycle',
-                  'giving_project', 'amount', 'check_mailed',
-                  'year_end_report_due')
-  list_filter = ('agreement_mailed',)
+  list_display = ('organization_name', 'grant_cycle', 'giving_project',
+      'amount', 'check_mailed', 'year_end_report_due')
+  list_filter = ['agreement_mailed', CycleTypeFilter, GrantCycleYearFilter]
   exclude = ('created',)
   fields = (
       ('project_app', 'amount'),

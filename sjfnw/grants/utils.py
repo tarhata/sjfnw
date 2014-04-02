@@ -11,9 +11,7 @@ logger = logging.getLogger('sjfnw')
 def local_date_str(timestamp):
   """ Takes a UTC timestamp and converts to a local date string """
 
-  logger.info(timestamp)
   timestamp = timezone.localtime(timestamp)
-  logger.info(timestamp)
   return timestamp.strftime('%m/%d/%Y')
 
 def FindBlobKey(body):
@@ -22,7 +20,6 @@ def FindBlobKey(body):
     key = re.search('blob-key="([^"\s]*)"', body)
   else:
     key = re.search('blob-key=(\S*)', body)
-  logger.debug(key)
   if key:
     key = key.group(1)
   else:
@@ -54,7 +51,7 @@ def ServeBlob(application, field_name):
   #find the filefield
   file_field = getattr(application, field_name)
   if not file_field:
-    logger.warning('Unknown file type ' + field_name)
+    logger.warning('Draft/app does not have a ' + field_name)
     raise Http404
 
   blob = FindBlob(file_field)

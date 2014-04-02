@@ -1027,8 +1027,8 @@ def gift_notify(request):
   for ship, dlist in memberships.iteritems():
     gift_str = ''
     for d in dlist:
-      gift_str += ('$' + str(d.received() + ' gift or pledge received from ' +
-                  d.firstname))
+      gift_str += ('$' + str(d.received()) + ' gift or pledge received from ' +
+                  d.firstname)
       if d.lastname:
         gift_str += ' '+d.lastname
       gift_str += '!<br>'

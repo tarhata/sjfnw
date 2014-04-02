@@ -104,6 +104,15 @@ class Organization(models.Model):
     'differentiate the two.')})
   email = models.EmailField(max_length=100, verbose_name='Login',
                             blank=True, unique=True) #django username
+  
+  staff_contact_person = models.CharField(max_length=250, blank=True,
+      verbose_name= 'Staff-entered contact person')
+  staff_contact_person_title = models.CharField(max_length=100, blank=True,
+      verbose_name='Title')
+  staff_contact_email = models.EmailField(verbose_name='Email address',
+      max_length=255, blank=True)
+  staff_contact_phone = models.CharField(verbose_name='Phone number',
+      max_length=20, blank=True)
 
   #org contact info
   address = models.CharField(max_length=100, blank=True)
@@ -144,7 +153,7 @@ class Organization(models.Model):
   fiscal_state = models.CharField(verbose_name='State', max_length=2,
                                   choices=STATE_CHOICES, blank=True)
   fiscal_zip = models.CharField(verbose_name='ZIP', max_length=50, blank=True)
-  fiscal_letter = models.FileField(upload_to='/', null=True, blank=True)
+  fiscal_letter = models.FileField(upload_to='/', null=True, blank=True, max_length=255)
 
   def __unicode__(self):
     return self.name
@@ -164,7 +173,7 @@ class GrantCycle(models.Model):
       'declared) that occurred  during this cycle.')
 
   class Meta:
-    ordering = ['title', 'close']
+    ordering = ['-close', 'title']
 
   def __unicode__(self):
     return self.title
@@ -192,7 +201,6 @@ class DraftGrantApplication(models.Model):
 
   contents = models.TextField(default='{}')
 
-  budget = models.FileField(upload_to='/', max_length=255)
   demographics = models.FileField(upload_to='/', max_length=255)
   funding_sources = models.FileField(upload_to='/', max_length=255)
   budget1 = models.FileField(upload_to='/', max_length=255,
@@ -205,10 +213,9 @@ class DraftGrantApplication(models.Model):
       upload_to='/', max_length=255, verbose_name = 'Project budget')
   fiscal_letter = models.FileField(upload_to='/', max_length=255)
 
-  extended_deadline = models.DateTimeField(help_text = ('Allows this draft to'
-                                           ' be edited/submitted past the grant'
-                                           ' cycle close.'),
-                                           blank=True, null=True)
+  extended_deadline = models.DateTimeField(blank=True, null=True,
+      help_text = 'Allows this draft to be edited/submitted past the grant cycle close.')
+                                           
 
   class Meta:
     unique_together = ('organization', 'grant_cycle')
@@ -519,7 +526,7 @@ class GrantApplication(models.Model):
     unique_together = ('organization', 'grant_cycle')
 
   def __unicode__(self):
-    return unicode(self.organization) + u' - ' + unicode(self.grant_cycle) + u' - ' + unicode(self.submission_time.year)
+    return '%s - %s' % (unicode(self.organization), unicode(self.grant_cycle))
 
   def id_number(self):
     return self.pk + 5211 #TODO obsolete?
@@ -584,6 +591,8 @@ class GrantApplicationLog(models.Model):
   contacted = models.CharField(max_length=255, help_text = 'Person from the organization that you talked to, if applicable.', blank=True)
   notes = models.TextField()
 
+  class Meta:
+    ordering = ['-date']
 
 class GivingProjectGrant(models.Model):
   created = models.DateTimeField(default=timezone.now())

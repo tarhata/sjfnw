@@ -197,8 +197,8 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
 
   if request.method == 'POST': #POST
     #check if draft can be submitted
-    if not draft.editable:
-      render(request, 'grants/submitted_closed.html', {'cycle':cycle})
+    if not draft.editable():
+      return render(request, 'grants/submitted_closed.html', {'cycle':cycle})
 
     #get fields & files from draft
     draft_data = json.loads(draft.contents)
@@ -407,7 +407,7 @@ def RefreshUploadUrl(request, draft_id):
                                            '/add-file' + user_override)
   return HttpResponse(upload_url)
 
-# COPY / DELETE APPS
+# ORG COPY DELETE APPS
 @login_required(login_url=LOGIN_URL)
 @registered_org()
 def CopyApp(request, organization):
@@ -443,7 +443,7 @@ def CopyApp(request, organization):
                                     'submission_time', 'pre_screening_status',
                                     'giving_projects', 'scoring_bonus_poc',
                                     'scoring_bonus_geo', 'cycle_question',
-                                    'timeline'
+                                    'timeline', 'budget' #old all-in-one budget
                                   ])
           content.update(dict(zip(
               ['timeline_' + str(i) for i in range(15)],
@@ -592,7 +592,8 @@ def AppToDraft(request, app_id):
                        ))
     draft.contents = json.dumps(content)
     for field in submitted_app.file_fields():
-      setattr(draft, field, getattr(submitted_app, field))
+      if hasattr(draft, field):
+        setattr(draft, field, getattr(submitted_app, field))
     draft.modified = timezone.now()
     draft.save()
     logger.info('Reverted to draft, draft id ' + str(draft.pk))
@@ -614,10 +615,12 @@ def AdminRollover(request, app_id):
       cycle = get_object_or_404(models.GrantCycle, pk = int(form.cleaned_data['cycle']))
       logger.info('Success rollover of ' + unicode(application) +
                    ' to ' + str(cycle))
-      application.pk = None
+      application.pk = None # this + save makes new copy
       application.pre_screening_status = 10
       application.submission_time = timezone.now()
       application.grant_cycle = cycle
+      application.cycle_question = ''
+      application.budget = ''
       application.save()
       return redirect('/admin/grants/grantapplication/'+str(application.pk)+'/')
   else:
@@ -779,8 +782,12 @@ def get_app_results(options):
   field_names = [f.capitalize().replace('_', ' ') for f in fields]
 
   # gp screening, grant awards
+  get_gps = False
   get_gp_ss = False
   get_awards = False
+  if options['report_gps']:
+    field_names.append('Assigned GPs')
+    get_gps = True
   if options['report_gp_screening']:
     field_names.append('GP screening status')
     get_gp_ss = True
@@ -808,29 +815,40 @@ def get_app_results(options):
       else:
         row.append(getattr(app, field))
 
-    # gp screening status, awards
-    if get_awards or get_gp_ss:
-      award_row = ''
-      ss_row = ''
+    # gp GPs, screening status, awards
+    if get_gps or get_awards or get_gp_ss:
+      award_col = ''
+      ss_col = ''
+      gp_col = ''
       papps = app.projectapp_set.all()
       if papps:
         for papp in papps:
+          if get_gps:
+            if gp_col != '':
+              gp_col += ', '
+            gp_col += '%s' % papp.giving_project.title
           if get_awards:
             try:
               award = papp.givingprojectgrant
-              award_row += '%s %s' % (award.amount, papp.giving_project)
+              if award_col != '':
+               award_col += ', '
+              award_col += '%s %s ' % (award.amount, papp.giving_project.title)
             except models.GivingProjectGrant.DoesNotExist:
               pass
           if get_gp_ss:
+            if ss_col != '':
+              ss_col += ', '
             if papp.screening_status:
-              ss_row += '%s (%s)' % (dict(models.SCREENING)[papp.screening_status],
+              ss_col += '%s (%s) ' % (dict(models.SCREENING)[papp.screening_status],
                 papp.giving_project.title)
             else:
-              ss_row += papp.giving_project.title
+              ss_col += '%s (none) ' % papp.giving_project.title
+      if get_gps:
+        row.append(gp_col)
       if get_gp_ss:
-        row.append(ss_row)
+        row.append(ss_col)
       if get_awards:
-        row.append(award_row)
+        row.append(award_col)
 
     results.append(row)
 
@@ -1079,10 +1097,14 @@ def GetFileURLs(request, app, printing=False):
       returns an empty dict if the given object is not valid
   """
 
-  #determine whether draft or submitted
   base_url = request.build_absolute_uri('/')
+  file_urls = {'funding_sources':'', 'demographics':'',
+               'fiscal_letter':'', 'budget1': '', 'budget2': '', 'budget3': '',
+               'project_budget_file': ''}
+  #determine whether draft or submitted
   if isinstance(app, models.GrantApplication):
     base_url += 'grants/view-file/'
+    file_urls['budget'] = ''
   elif isinstance(app, models.DraftGrantApplication):
     base_url += 'grants/draft-file/'
   else:
@@ -1090,18 +1112,40 @@ def GetFileURLs(request, app, printing=False):
     return {}
 
   #check file fields, compile links
-  file_urls = {'budget': '', 'funding_sources':'', 'demographics':'',
-               'fiscal_letter':'', 'budget1': '', 'budget2': '', 'budget3': '',
-               'project_budget_file': ''}
   for field in file_urls:
     value = getattr(app, field)
     if value:
       ext = value.name.lower().split(".")[-1]
       file_urls[field] +=  base_url + str(app.pk) + u'-' + field + u'.' + ext
       if not settings.DEBUG and ext in constants.VIEWER_FORMATS: #doc viewer
-        if not (printing and (ext == 'xls' or ext == 'xlsx')):
-          file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field]
-        if not printing:
-          file_urls[field] += '&embedded=true'
+        if printing:
+          if not (ext == 'xls' or ext == 'xlsx'):
+            file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field]
+        else: 
+          file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field] + '&embedded=true'
+  logger.debug(file_urls)
   return file_urls
+
+def update_profile(request, org_id):
+
+  message = ''
+  org = get_object_or_404(models.Organization, pk=org_id)
+  
+  apps = org.grantapplication_set.all()
+  if apps:
+    profile_data = model_to_dict(apps[0])
+    logger.info(profile_data)
+    form = OrgProfile(profile_data, instance=org)
+    if form.is_valid():
+      form.save()
+      if apps[0].fiscal_letter:
+        org.fiscal_letter = apps[0].fiscal_letter
+        org.save()
+      message = 'Organization profile updated.'
+    else:
+      message = 'Form not valid. Could not update'
+  else:
+    message = 'This org has no applications. Nothing to update'
+
+  return HttpResponse(message)
 

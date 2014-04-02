@@ -198,7 +198,6 @@ class AppReportForm(BaseOrgAppReport):
       label='Basics', required=False,
       widget = CheckMultiple, choices = [
         ('id', 'Unique id number'),
-        ('giving_projects', 'Giving projects'),
         ('pre_screening_status', 'Pre-screening status')
       ])
   report_proposal = forms.MultipleChoiceField(
@@ -224,6 +223,7 @@ class AppReportForm(BaseOrgAppReport):
   report_racial_ref = forms.BooleanField(label='Racial justice references',
       required=False)
   report_bonuses = forms.BooleanField(label='Scoring bonuses', required=False)
+  report_gps = forms.BooleanField(label='Assigned giving_project(s)', required=False)
   report_gp_screening = forms.BooleanField(label='GP screening status', required=False)
   report_award = forms.BooleanField(label='Grant awards', required=False)
 

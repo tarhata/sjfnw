@@ -1,13 +1,14 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter
 from django.http import HttpResponse
 from django.forms import ValidationError
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from sjfnw.admin import advanced_admin
 from sjfnw.fund.models import *
 from sjfnw.fund import forms, utils, modelforms
-from sjfnw.grants.models import ProjectApp
+from sjfnw.grants.models import ProjectApp, GrantApplication
 
 import unicodecsv, logging, json
 
@@ -18,8 +19,14 @@ def step_membership(obj): #Step list_display
   return obj.donor.membership
 
 def gp_year(obj): #GP list_display
-  return obj.fundraising_deadline.year
+  year = obj.fundraising_deadline.year
+  if year == timezone.now().year:
+    return '<b>%d</b>' % year
+  else:
+    return year
 gp_year.short_description = 'Year'
+gp_year.allow_tags = True
+
 
 def ship_progress(obj):
   return ('<table><tr><td style="width:33%;padding:1px;">$' +
@@ -63,6 +70,38 @@ class ReceivedBooleanFilter(SimpleListFilter): #donors & steps
           received_this=0, received_next=0, received_afternext=0)
 
 
+class GPYearFilter(SimpleListFilter):
+  """ Filter giving projects by year """
+  title = 'year'
+  parameter_name = 'year'
+
+  def lookups(self, request, model_admin):
+    deadlines = GivingProject.objects.values_list(
+        'fundraising_deadline', flat=True
+        ).order_by('-fundraising_deadline')
+    prev = None
+    years = []
+    for deadline in deadlines:
+      if deadline.year != prev:
+        years.append((deadline.year, deadline.year))
+        prev = deadline.year
+    logger.info(years)
+    return years
+
+  def queryset(self, request, queryset):
+    val = self.value()
+    if not val:
+      return queryset
+    try:
+      year = int(val)
+    except:
+      logger.error('GPYearFilter received invalid value %s' % val)
+      messages.error(request,
+          'Error loading filter. Contact techsupport@socialjusticefund.org')
+      return queryset
+    return queryset.filter(fundraising_deadline__year=year)
+
+
 # Inlines
 class MembershipInline(admin.TabularInline): #GP
   model = Membership
@@ -86,15 +125,48 @@ class DonorInline(admin.TabularInline): #membership
                      'promised')
   fields = ('firstname', 'lastname', 'amount', 'talked', 'asked', 'promised')
 
-class ProjectAppInline(admin.TabularInline): # GivingProject
+class ProjectAppInline(admin.TabularInline):
   model = ProjectApp
   extra = 1
   verbose_name = 'Grant application'
   verbose_name_plural = 'Grant applications'
-  #readonly_fields = ('granted',)
+  raw_id_fields = ('giving_project',)
 
+  #def get_queryset(self, request):
+  #  qs = super(ProjectAppInline, self).get_queryset(request)
+  #  return qs.select_related('application')
+
+  def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    # limit which grant applications are shown and cache field choices
+    if db_field.name == 'application':
+      cached_choices = getattr(request, 'cached_projectapps', None)
+      if cached_choices:
+        logger.info('getting cached choices')
+        formfield = super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        formfield.choices = cached_choices
+        return formfield
+
+      try:
+        gp_id = int(request.path.split('/')[-2])
+      except:
+        logger.info('could not parse gp id, not limiting gp choices')
+      else:
+        gp = GivingProject.objects.get(pk=gp_id)
+        year = gp.fundraising_deadline.year
+        apps = GrantApplication.objects.filter(submission_time__year=year).select_related('grant_cycle', 'organization')
+        kwargs['queryset'] = apps
+      finally:
+        formfield = super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        formfield.choices = list(formfield.choices)
+        request.cached_projectapps = formfield.choices
+        logger.info('set cached choices')
+        return formfield
+    else: #other field
+      return super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+  """
   def granted(self, obj):
-    """ For existing projectapps, shows grant amount or link to add a grant """
+    # For existing projectapps, shows grant amount or link to add a grant
     output = ''
     if obj.pk:
       logger.info(obj.pk)
@@ -109,7 +181,7 @@ class ProjectAppInline(admin.TabularInline): # GivingProject
         output = str(award.amount)
         logger.info(output)
     return output
-
+  """
 
 class SurveyI(admin.TabularInline):
 
@@ -121,18 +193,13 @@ class SurveyI(admin.TabularInline):
 # ModelAdmin
 class GivingProjectA(admin.ModelAdmin):
   list_display = ('title', gp_year, 'estimated')
+  list_filter = (GPYearFilter,)
   readonly_fields = ('estimated',)
-  fields = (
-    ('title', 'public'),
-    ('fundraising_training', 'fundraising_deadline'),
-    'fund_goal',
-    'site_visits',
-    'calendar',
-    'suggested_steps',
-    'pre_approved',
-   )
-  inlines = [SurveyI, ProjectResourcesInline, MembershipInline, ProjectAppInline]
+  fields = (('title', 'public'),
+            ('fundraising_training', 'fundraising_deadline'),
+            'fund_goal', 'site_visits', 'calendar', 'suggested_steps', 'pre_approved')
   form = modelforms.GivingProjectAdminForm
+  inlines = [SurveyI, ProjectResourcesInline, MembershipInline, ProjectAppInline]
 
 class MemberAdvanced(admin.ModelAdmin): #advanced only
   list_display = ('first_name', 'last_name', 'email')
@@ -174,14 +241,15 @@ class DonorA(admin.ModelAdmin):
                    'membership__member__last_name']
   actions = ['export_donors']
 
-  fields = (('firstname', 'lastname'),
+  fields = ('membership',
+            ('firstname', 'lastname'),
             ('phone', 'email'),
             ('amount', 'likelihood'),
             ('talked', 'asked', 'promised', 'promise_reason_display', 'likely_to_join'),
             ('received_this', 'received_next', 'received_afternext'),
             'notes')
 
-  readonly_fields = ('membership', 'promise_reason_display', 'likely_to_join')
+  readonly_fields = ('promise_reason_display', 'likely_to_join')
 
   def export_donors(self, request, queryset):
     logger.info('Export donors called by ' + request.user.email)

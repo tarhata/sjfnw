@@ -27,7 +27,13 @@
     })();
   </script>
   <!-- IE workaround -->
-  <script type="text/javascript"> if (!window.console) console = {log: function(content) {}}; </script>
+  <script type="text/javascript">
+  if (!window.console || !window.console.log) {
+    console = {
+        log: function() {}
+    };
+  }
+  </script>
   {% block script %}{% endblock %}
 </head>
 

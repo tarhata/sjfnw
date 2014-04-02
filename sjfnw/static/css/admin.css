@@ -5,6 +5,7 @@
 
 div#changelist-filter { /*redundantly specific to override admin rule */
   width: 200px;
+  height: 100%;
 }
 
 div#top_help_text {

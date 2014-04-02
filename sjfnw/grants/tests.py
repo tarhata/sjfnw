@@ -118,7 +118,7 @@ def alter_draft_timeline(draft, values):
 
 def alter_draft_files(draft, files_dict):
   """ File list should match this order:
-      ['budget', 'demographics', 'funding_sources', 'budget1', 'budget2',
+      ['demographics', 'funding_sources', 'budget1', 'budget2',
       'budget3', 'project_budget_file', 'fiscal_letter'] """
   files = dict(zip(DraftGrantApplication.file_fields(), files_dict))
   for key, val in files.iteritems():
@@ -139,7 +139,8 @@ def assert_app_matches_draft(self, draft, app, exclude_cycle): #only checks fiel
     else:
       self.assertEqual(value, getattr(app, field))
   for field in GrantApplication.file_fields():
-    self.assertEqual(getattr(draft, field), getattr(app, field))
+    if hasattr(draft, field):
+      self.assertEqual(getattr(draft, field), getattr(app, field))
   if exclude_cycle:
     self.assertNotIn('cycle_question', draft_contents)
 
@@ -329,7 +330,7 @@ class ApplySuccessful(BaseGrantFilesTestCase):
                 files match  """
 
     draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    files = ['', 'funding_sources.docx', 'diversity.doc', 'budget1.docx', 'budget2.txt', 'budget3.png', '', '']
+    files = ['funding_sources.docx', 'diversity.doc', 'budget1.docx', 'budget2.txt', 'budget3.png', '', '']
     alter_draft_files(draft, files)
 
     response = self.client.post('/apply/3/', follow=True)
@@ -338,9 +339,8 @@ class ApplySuccessful(BaseGrantFilesTestCase):
     self.assertTemplateUsed(response, 'grants/submitted.html')
     app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
     self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
-    self.assertEqual(app.budget1, files[3])
-    self.assertEqual(app.budget2, files[4])
-    self.assertEqual(app.budget, '')
+    self.assertEqual(app.budget1, files[2])
+    self.assertEqual(app.budget2, files[3])
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyBlocked(BaseGrantTestCase):
@@ -569,7 +569,8 @@ class OrgRollover(BaseGrantTestCase):
     self.assertEqual(old_contents, new_contents)
     self.assertNotEqual(old_cycle_q, new_cycle_q)
     for field in GrantApplication.file_fields():
-      self.assertEqual(getattr(draft, field), getattr(new_draft, field))
+      if hasattr(draft, field):
+        self.assertEqual(getattr(draft, field), getattr(new_draft, field))
 
   def test_app_rollover(self):
     """ scenario: take a submitted app, make it belong to new org, rollover to cycle 1
