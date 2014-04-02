@@ -209,8 +209,7 @@ class OrganizationA(admin.ModelAdmin):
     ('Fiscal sponsor info from most recent application', {
       'classes':('collapse',),
       'fields':(('fiscal_org', 'fiscal_person'),
-                ('fiscal_telephone', 'fiscal_address', 'fiscal_email'),
-                'fiscal_letter')
+                ('fiscal_telephone', 'fiscal_address', 'fiscal_email'))
     })
   )
   search_fields = ('name', 'email')
