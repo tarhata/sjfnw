@@ -153,7 +153,7 @@ class Organization(models.Model):
   fiscal_state = models.CharField(verbose_name='State', max_length=2,
                                   choices=STATE_CHOICES, blank=True)
   fiscal_zip = models.CharField(verbose_name='ZIP', max_length=50, blank=True)
-  fiscal_letter = models.FileField(upload_to='/', null=True, blank=True)
+  fiscal_letter = models.FileField(upload_to='/', null=True, blank=True, max_length=255)
 
   def __unicode__(self):
     return self.name
