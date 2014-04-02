@@ -36,6 +36,8 @@ urlpatterns = patterns('',
   (r'^admin/grants/grantapplication/(?P<app_id>\d+)/rollover', 'sjfnw.grants.views.AdminRollover'),
   (r'^admin-advanced/grants/grantapplication/(?P<app_id>\d+)/rollover', 'sjfnw.grants.views.AdminRollover'),
   (r'^admin/grants/organization/login', 'sjfnw.grants.views.Impersonate'),
+  (r'^admin/grants/organization/(?P<org_id>\d+)/update', 'sjfnw.grants.views.update_profile'),
+
   #reporting
   (r'^admin/grants/search/?', 'sjfnw.grants.views.grants_report'),
 

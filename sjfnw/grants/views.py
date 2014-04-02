@@ -1126,3 +1126,26 @@ def GetFileURLs(request, app, printing=False):
   logger.debug(file_urls)
   return file_urls
 
+def update_profile(request, org_id):
+
+  message = ''
+  org = get_object_or_404(models.Organization, pk=org_id)
+  
+  apps = org.grantapplication_set.all()
+  if apps:
+    profile_data = model_to_dict(apps[0])
+    logger.info(profile_data)
+    form = OrgProfile(profile_data, instance=org)
+    if form.is_valid():
+      form.save()
+      if apps[0].fiscal_letter:
+        org.fiscal_letter = apps[0].fiscal_letter
+        org.save()
+      message = 'Organization profile updated.'
+    else:
+      message = 'Form not valid. Could not update'
+  else:
+    message = 'This org has no applications. Nothing to update'
+
+  return HttpResponse(message)
+
