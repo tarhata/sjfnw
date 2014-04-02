@@ -29,6 +29,11 @@ apply_urls += patterns('sjfnw.grants.views',
   (r'^(?P<draft_id>\d+)/add-file/?$', 'AddFile'),
   (r'^(?P<draft_id>\d+)/remove/(?P<file_field>.*)/?$', 'RemoveFile'),
   (r'^(?P<cycle_id>\d+)/autosave/?$','autosave_app'),
+
+  # year-end report
+  (r'^(?P<award_id>\d+)/report/?$', 'year_end_report'),
+  (r'^(?P<draft_id>\d+)/report/autosave/?$', 'autosave_yer'),
+  (r'^(?P<draft_id>\d+)/report/add-file?$', 'add_file_yer'),
 )
 
 apply_urls += patterns('',

@@ -19,7 +19,7 @@ from sjfnw import constants
 from sjfnw.fund.models import Member
 from sjfnw.grants.decorators import registered_org
 from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
-from sjfnw.grants.modelforms import GrantApplicationModelForm, OrgProfile
+from sjfnw.grants.modelforms import GrantApplicationModelForm, OrgProfile, YearEndReportForm
 from sjfnw.grants.utils import local_date_str, FindBlobKey, FindBlob, ServeBlob, DeleteBlob
 from sjfnw.grants import models
 
@@ -406,6 +406,59 @@ def RefreshUploadUrl(request, draft_id):
   upload_url = blobstore.create_upload_url('/apply/' + draft_id +
                                            '/add-file' + user_override)
   return HttpResponse(upload_url)
+
+
+def autosave_yer(request, draft_id):
+
+  if not request.user.is_authenticated():
+    return HttpResponse(LOGIN_URL, status=401)
+  
+  if request.method == 'POST':
+    draft.contents = json.dumps(request.POST)
+    draft.modified = timezone.now()
+    draft.save()
+    return HttpResponse("success")
+
+def add_file_yer(request, draft_id):
+  pass
+
+@login_required(login_url=LOGIN_URL)
+@registered_org()
+def year_end_report(request, organization, award_id):
+  
+  # get award, make sure org matches
+  award = get_object_or_404(models.GivingProjectGrant, pk=award_id)
+  app = award.projectapp.application
+  if application.organization_id != organization.pk:
+    logger.warning('Trying to edit someone else\'s YER')
+    return redirect(Apply)
+
+  # check if already submitted
+  if models.YearEndReport.objects.filter(award=award):
+    logger.warning('YER already exists')
+    return redirect(Apply)
+
+  # get or create draft
+  draft, cr = models.YERDraft.objects.get_or_create(award=award)
+
+  if request.method == 'POST':
+    draft_data = json.loads(draft.contents)
+    files_data = model_to_dict(draft, fields = ['photo1', 'photo2', 'photo3', 'photo4'])
+    form = YearEndReportForm(draft_data, files_data)
+
+    if form.is_valid():
+      logger.info('Valid YER')
+      yer = form.save()
+
+  else: # GET
+    if cr:
+      initial_data = {'website': app.website}
+      logger.info('Created new YER draft')
+    else:
+      initial_data = json.loads(draft.contents)
+
+  form = YearEndReportForm(initial=initial_data)
+
 
 # ORG COPY DELETE APPS
 @login_required(login_url=LOGIN_URL)

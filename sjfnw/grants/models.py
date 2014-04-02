@@ -639,8 +639,8 @@ class SponsoredProgramGrant(models.Model):
 
 class YearEndReport(models.Model):
 
-  application = models.ForeignKey(GrantApplication)
-  submitted = models.DateTimeField(blank=True, null=True)
+  award = models.ForeignKey(GivingProjectGrant, unique=True)
+  submitted = models.DateTimeField(default=timezone.now())
   contact_person = models.TextField(default='{}') #json name, email, phone
   website = models.CharField(max_length=255) #autofill based on app
 
@@ -665,9 +665,9 @@ class YearEndReport(models.Model):
         'including paid staff, identify as part of your organization?'))
   donations_count = models.PositiveIntegerField(verbose_name=
       ('How many people gave a financial contribution of any size to your '
-       'organization in the last year?')
-  donations_count_last = models.PositiveIntegerField(verbose_name=
-    'How many people made a financial contribution the previous year?')
+       'organization in the last year?'))
+  donations_count_last = models.PositiveIntegerField(verbose_name =
+      'How many people made a financial contribution the previous year?')
   quantitative_measures = models.TextField(verbose_name=
       ('Do you evaluate your work by any quantitative measures (e.g., number '
         'of voters registered, members trained, leaders developed, etc.)? If '
@@ -684,4 +684,15 @@ class YearEndReport(models.Model):
   photo4 = models.FileField(upload_to='/', blank=True)
 
   #  photo_release
+
+class YERDraft(models.Model):
+
+  award = models.ForeignKey(GivingProjectGrant, unique=True)
+  modified = models.DateTimeField(default=timezone.now())
+  contents = models.TextField(default='{}')
+
+  photo1 = models.FileField(upload_to='/', blank=True)
+  photo2 = models.FileField(upload_to='/', blank=True)
+  photo3 = models.FileField(upload_to='/', blank=True)
+  photo4 = models.FileField(upload_to='/', blank=True)
 

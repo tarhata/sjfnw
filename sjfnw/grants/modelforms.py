@@ -3,7 +3,7 @@ from django.forms import ValidationError, ModelForm
 from django.utils.text import capfirst
 
 from sjfnw.forms import IntegerCommaField, PhoneNumberField
-from sjfnw.grants.models import Organization, GrantApplication, DraftGrantApplication
+from sjfnw.grants.models import Organization, GrantApplication, DraftGrantApplication, YearEndReport
 
 import json, logging
 logger = logging.getLogger('sjfnw')
@@ -226,6 +226,11 @@ class GrantApplicationModelForm(forms.ModelForm):
 
     return cleaned_data
 
+
+class YearEndReportForm(ModelForm):
+
+  class Meta:
+    model = YearEndReport
 
 # ADMIN
 
