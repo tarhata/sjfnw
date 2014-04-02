@@ -34,6 +34,7 @@ class BlobstoreStorage(Storage):
     elif hasattr(content, 'blobstore_info'):
       data = content.blobstore_info
     elif isinstance(content, File):
+      logger.info('content is a File, guessing its type')
       guessed_type = mimetypes.guess_type(name)[0]
       file_name = files.blobstore.create(mime_type=guessed_type or
                                          'application/octet-stream',
@@ -162,7 +163,7 @@ class BlobstoreUploadedFile(UploadedFile):
   """
 
   def __init__(self, blobinfo, charset):
-    logger.info('BlobstoreUploadedFile.__init__')
+    logger.info('BlobstoreUploadedFile.__init__ %s' % blobinfo.content_type)
     super(BlobstoreUploadedFile, self).__init__(
       BlobReader(blobinfo.key()), blobinfo.filename,
       blobinfo.content_type, blobinfo.size, charset)

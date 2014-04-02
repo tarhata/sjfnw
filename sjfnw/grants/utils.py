@@ -20,7 +20,6 @@ def FindBlobKey(body):
     key = re.search('blob-key="([^"\s]*)"', body)
   else:
     key = re.search('blob-key=(\S*)', body)
-  logger.debug(key)
   if key:
     key = key.group(1)
   else:
