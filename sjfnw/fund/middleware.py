@@ -2,28 +2,29 @@
 import logging
 logger = logging.getLogger('sjfnw')
 
-#sets request.membership, request.membership_status
 class MembershipMiddleware(object):
+  """ sets request.membership, request.membership_status
 
-  #checks
-  # member exists
-  # membership exists (try to find one that does)
-  # membership is approved (try to find one that is)
+  checks
+    member exists
+    membership exists (try to find one that does)
+    membership is approved (try to find one that is)
 
-  #changes to member.current
-  # if member had no membership for that proj (approved or not)
-  #  -> first membership in query, 0 if no memberships exist
-  # if current is not approved, but 1+ other memberships are
-  #  -> first approved membership in query
+  changes to member.current
+    if member had no membership for that proj (approved or not)
+      -> first membership in query, 0 if no memberships exist
+    if current is not approved, but 1+ other memberships are
+      -> first approved membership in query
 
-  #resulting request vars
-  # .membership_status
-  #   0 = no member object
-  #   1 = no membership objects assoc w/member
-  #   2 = no approved memberships
-  #   3 = approved :) (current was, or current was changed -> is now)
-  # .member - present in 1-3
-  # .membership - present in 2-3
+  resulting request vars
+    .membership_status
+      0 = no member object
+      1 = no membership objects assoc w/member
+      2 = no approved memberships
+      3 = approved :) (current was, or current was changed -> is now)
+    .member - present in 1-3
+    .membership - present in 2-3
+  """
 
   def process_view(self, request, view_func, view_args, view_kwargs):
     #logger.debug('fund middleware running for ' + str(view_func.__module__))
