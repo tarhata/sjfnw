@@ -52,19 +52,20 @@ class CopyContacts(forms.Form):
   email = forms.CharField(widget=forms.HiddenInput, required=False)
   notes = forms.CharField(widget=forms.HiddenInput, required=False)
 
-class MassDonor(forms.Form):
+
+class MassDonorPre(forms.Form):
   firstname = forms.CharField(max_length=100, label='*First name')
   lastname = forms.CharField(max_length=100, required=False, label='Last name')
+  
+  confirm = forms.CharField(max_length=5, widget=forms.HiddenInput(), required=False)
+
+
+class MassDonor(MassDonorPre):
   amount = IntegerCommaField(label='*Estimated donation ($)',
                              widget=forms.TextInput(attrs={'class':'tq'}))
   likelihood = forms.IntegerField(label='*Estimated likelihood (%)',
                                   validators=[validators.MaxValueValidator(100)],
                                   widget=forms.TextInput(attrs={'class':'half'}))
-
-
-class MassDonorPre(forms.Form):
-  firstname = forms.CharField(max_length=100, label='*First name')
-  lastname = forms.CharField(max_length=100, required=False, label='Last name')
 
 
 class DonorEstimates(forms.Form):
