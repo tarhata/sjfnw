@@ -1062,23 +1062,21 @@ def find_duplicates(request): #no url
   ships = []
   deleted = 0
   prior = None
-  matching = False
   for donor in donors:
     if (prior and donor.membership == prior.membership and
         donor.firstname == prior.firstname and donor.lastname and
         donor.lastname == prior.lastname and not donor.talked):
       #matches prev, no completed steps
-      matching = True
       if donor.get_next_step():
-        logger.warning('Donor matched but has a step. Not deleting.')
+        logger.warning('%s matched but has a step. Not deleting.' % unicode(donor))
+        prior = donor
       else:
+        logger.info('Deleting %s' % unicode(donor))
         donor.delete()
       deleted += 1
       if not donor.membership in ships:
         ships.append(donor.membership)
     else:
-      if matching: #break, reset
-        matching = False
       prior = donor
   return render(request, 'fund/test.html', {'deleted':deleted, 'ships':ships})
 
