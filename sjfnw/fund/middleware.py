@@ -34,16 +34,16 @@ class MembershipMiddleware(object):
 
         try:
           member = models.Member.objects.get(email=request.user.username) #q3
-          logger.info(member)
+          #logger.info(member)
         except models.Member.DoesNotExist: #no member object
           logger.warning('Custom middleware: No member object with email of '+request.user.username)
           return None
 
-        try:
+        try: # get current membership
           membership = models.Membership.objects.select_related().get(member = member, pk=member.current) #q4
           request.membership_status = 3
           request.membership = membership
-          logger.debug(membership)
+          logger.info(membership)
         except models.Membership.DoesNotExist: #current is wrong
           all = member.membership_set.all()
           if all: #if 1+ memberships, update current & set ship var
@@ -54,6 +54,7 @@ class MembershipMiddleware(object):
             member.current = membership.pk
             member.save()
           else: #no memberships
+            logger.info('%s (no memberships)')
             member.current = 0
             member.save()
             request.membership_status = 1

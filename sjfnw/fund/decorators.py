@@ -4,6 +4,13 @@ from django.utils.decorators import available_attrs
 import logging
 logger = logging.getLogger('sjfnw')
 
+""" request.membership_status from middleware
+  3 = current membership is approved
+  2 = no approved memberships
+  1 = no memberships
+  0 = no member object
+"""
+
 def approved_membership(function=None):
   def decorator(view_func):
     @wraps(view_func, assigned=available_attrs(view_func))
