@@ -1056,8 +1056,9 @@ def gift_notify(request):
 
 def find_duplicates(request): #no url
   donors = (models.Donor.objects.select_related('membership')
+                                .prefetch_related('step_set')
                                 .order_by('firstname', 'lastname',
-                                          'membership', '-next_step'))
+                                          'membership', '-talked'))
   ships = []
   deleted = 0
   prior = None
@@ -1068,7 +1069,10 @@ def find_duplicates(request): #no url
         donor.lastname == prior.lastname and not donor.talked):
       #matches prev, no completed steps
       matching = True
-      donor.delete()
+      if donor.get_next_step():
+        logger.warning('Donor matched but has a step. Not deleting.')
+      else:
+        donor.delete()
       deleted += 1
       if not donor.membership in ships:
         ships.append(donor.membership)
