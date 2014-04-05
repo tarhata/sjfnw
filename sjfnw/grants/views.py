@@ -428,8 +428,8 @@ def year_end_report(request, organization, award_id):
   
   # get award, make sure org matches
   award = get_object_or_404(models.GivingProjectGrant, pk=award_id)
-  app = award.projectapp.application
-  if application.organization_id != organization.pk:
+  app = award.project_app.application
+  if app.organization_id != organization.pk:
     logger.warning('Trying to edit someone else\'s YER')
     return redirect(Apply)
 
@@ -457,8 +457,9 @@ def year_end_report(request, organization, award_id):
     else:
       initial_data = json.loads(draft.contents)
 
-  form = YearEndReportForm(initial=initial_data)
+    form = YearEndReportForm(initial=initial_data)
 
+  return render(request, 'grants/yer_form.html', {'form': form, 'org': organization, 'draft_id': draft.pk, 'award_id': award.pk})
 
 # ORG COPY DELETE APPS
 @login_required(login_url=LOGIN_URL)

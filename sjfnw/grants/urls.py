@@ -28,12 +28,14 @@ apply_urls += patterns('sjfnw.grants.views',
   #application ajax
   (r'^(?P<draft_id>\d+)/add-file/?$', 'AddFile'),
   (r'^(?P<draft_id>\d+)/remove/(?P<file_field>.*)/?$', 'RemoveFile'),
-  (r'^(?P<cycle_id>\d+)/autosave/?$','autosave_app'),
+  (r'^(?P<cycle_id>\d+)/autosave/?$','autosave_app')
+)
 
+report_urls = patterns('sjfnw.grants.views',
   # year-end report
-  (r'^(?P<award_id>\d+)/report/?$', 'year_end_report'),
-  (r'^(?P<draft_id>\d+)/report/autosave/?$', 'autosave_yer'),
-  (r'^(?P<draft_id>\d+)/report/add-file?$', 'add_file_yer'),
+  (r'^(?P<award_id>\d+)/?$', 'year_end_report'),
+  (r'^(?P<draft_id>\d+)/autosave/?$', 'autosave_yer'),
+  (r'^(?P<draft_id>\d+)/add-file?$', 'add_file_yer'),
 )
 
 apply_urls += patterns('',
