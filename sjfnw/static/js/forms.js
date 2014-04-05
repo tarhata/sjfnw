@@ -1,7 +1,19 @@
 /** Shared form functions - utils, autosave, file handling **/
 
 /**----------------------------- formUtils ---------------------------------**/
-var formUtils = {}; 
+var formUtils = {};
+
+formUtils.init = function(url_prefix, draft_id, submit_id, staff_user) {
+  if (staff_user){
+    formUtils.staff_user = staff_user;
+  } else {
+    formUtils.staff_user = '';
+  }
+  autoSave.init(url_prefix, draft_id, submit_id, staff_user);
+  fileUploads.init(url_prefix, draft_id);
+}
+
+formUtils.loading_image = '<img src="/static/images/ajaxloader2.gif" height="16" width="16" alt="Loading...">';
 
 formUtils.status_texts = { //for ajax error messages
   400: '400 Bad request',
@@ -50,17 +62,17 @@ var autoSave = {};
 autoSave.save_timer = false;
 autoSave.pause_timer = false;
 
-  /* autosave flow:
+/* autosave flow:
 
-     page load -> init ->
-                 focus -> resume() -> sets onblur, sets save_timer -30-> save()
-     page blur -> pause() -> sets onfocus, sets pause_timer -30-> clears save_timer
+   page load -> init ->
+               focus -> resume() -> sets onblur, sets save_timer -30-> save()
+   page blur -> pause() -> sets onfocus, sets pause_timer -30-> clears save_timer
 
-  */
+*/
 
-autoSave.init = function(url_prefix, save_id, submit_id, staff_user) {
+autoSave.init = function(url_prefix, draft_id, submit_id, staff_user) {
   autoSave.get_upload_url = '/get-upload-url/?t=' + url_prefix;
-  autoSave.autosave_url = url_prefix + '/' + save_id + '/autosave';
+  autoSave.autosave_url = url_prefix + '/' + draft_id + '/autosave';
   autoSave.submit_url = url_prefix + '/' + submit_id;
   if (staff_user){
     autoSave.staff_user = staff_user;
@@ -70,7 +82,7 @@ autoSave.init = function(url_prefix, save_id, submit_id, staff_user) {
   console.log('Autosave variables loaded');
 };
 
- 
+
 autoSave.pause = function() {
   if ( !window.onfocus ) {
     console.log(logTime() + 'autoSave.pause called; setting timer');
@@ -138,8 +150,8 @@ autoSave.save = function (submit, override){
       } else {
         if(jqXHR.status==401){
           location.href = jqXHR.responseText + '?next=' + location.href;
-        } else if (status_texts[jqXHR.status]) {
-          errortext = status_texts[jqXHR.status];
+        } else if (formUtils.status_texts[jqXHR.status]) {
+          errortext = formUtils.status_texts[jqXHR.status];
         } else if (textStatus=='timeout') {
           errortext = 'Request timeout';
         } else {
@@ -166,125 +178,135 @@ autoSave.save = function (submit, override){
     }
   }
 
-  /** FILE UPLOADS **/
-  var uploading = false;
-  var uploading_span;
-  var current_field;
+/**------------------------------------ FILE UPLOADS -------------------------------------------**/
+var fileUploads = {};
 
-  /* each file field has its own form. html element ids use this pattern:
-    input field: 							'id_' + fieldname
-    form: 										fieldname + '_form'
-    span for upload status: 	fieldname + '_uploaded'
-    submit button: 						fieldname + '_submit' */
+fileUploads.uploading = false;
+fileUploads.uploading_span = '';
+fileUploads.current_field = '';
 
-  function clickFileInput(event, input_id) {
-    console.log(event);
-    console.log('clickFileInput' + input_id);
-    var input = document.getElementById(input_id);
-    if (input) {
-      input.control.click();
-      console.log('Clicked it');
+fileUploads.init = function(url_prefix, draft_id) {
+  fileUploads.get_url = '/get-upload-url/' + draft_id;
+  fileUploads.remove_url = url_prefix + '/' + draft_id + '/remove/'
+}
+
+/* each file field has its own form. html element ids use this pattern:
+  input field: 							'id_' + fieldname
+  form: 										fieldname + '_form'
+  span for upload status: 	fieldname + '_uploaded'
+  submit button: 						fieldname + '_submit' */
+
+fileUploads.clickFileInput = function(event, input_id) {
+  /* triggered when "choose file" label is clicked
+     transfers the click to the hidden file input */
+  console.log(event);
+  console.log('clickFileInput' + input_id);
+  var input = document.getElementById(input_id);
+  if (input) {
+    input.control.click();
+    console.log('Clicked it');
+  } else {
+    console.log('Error - no input found');
+  }
+}
+
+fileUploads.fileChanged = function(field_id) {
+  /* triggered when a file is selected
+     show loader, call getuploadurl */
+  console.log('fileChanged');
+  if (fileUploads.uploading) {
+    console.log('Upload in progress; returning');
+    return false;
+  }
+  console.log(field_id + " onchange");
+  var file = document.getElementById(field_id).value;
+  console.log("Value: " + file);
+  if (file) {
+    fileUploads.uploading = true;
+    fileUploads.current_field = field_id.replace('id_', '')
+    fileUploads.uploading_span = document.getElementById(field_id.replace('id_', '') + '_uploaded');
+    fileUploads.uploading_span.innerHTML = formUtils.loading_image;
+    fileUploads.getUploadURL();
+  }
+}
+
+fileUploads.getUploadURL = function() {
+  console.log('getUploadURL');
+  $.ajax({
+    url: fileUploads.get_url,
+    success: function(data) {
+      var cform = document.getElementById(fileUploads.current_field + '_form');
+      cform.action = data;
+      var cbutton = document.getElementById(fileUploads.current_field + '_submit');
+      cbutton.click();
+    }
+  });
+}
+
+fileUploads.iframeUpdated = function(iframe) { //process response
+  console.log(logTime() + 'iframeUpdated');
+  var results = iframe.contentDocument.body.innerHTML;
+  console.log("The iframe changed! New contents: " + results);
+  if (results) {
+    var field_name = results.split("~~")[0];
+    var linky = results.split("~~")[1];
+    var file_input = document.getElementById('id_' + field_name);
+    if (file_input && linky) {
+      fileUploads.uploading_span.innerHTML = linky;
     } else {
-      console.log('Error - no input found');
+      fileUploads.uploading_span.innerHTML = 'There was an error uploading your file. Try again or <a href="/apply/support">contact us</a>.';
     }
+    fileUploads.uploading = false;
   }
+}
 
-  function fileChanged(field_id) { //file selected - show loader, call getuploadurl
-    console.log('fileChanged');
-    if (uploading) {
-      console.log('Upload in progress; returning');
-      return false;
+fileUploads.removeFile = function(field_name) {
+  $.ajax({
+    url: fileUploads.remove_url + field_name + formUtils.staff_override,
+    success: function(data) {
+      r_span = document.getElementById(field_name + '_uploaded');
+      r_span.innerHTML = '<i>no file uploaded</i>';
     }
-    console.log(field_id + " onchange");
-    var file = document.getElementById(field_id).value;
-    console.log("Value: " + file);
-    if (file) {
-      uploading = true;
-      current_field = field_id.replace('id_', '')
-      uploading_span = document.getElementById(field_id.replace('id_', '') + '_uploaded');
-      uploading_span.innerHTML = '<img src="/static/images/ajaxloader2.gif" height="16" width="16" alt="Loading...">';
-      getUploadURL();
-    }
+  });
+}
+
+/** user id and override **/
+var user_id = '';
+
+function setUserID() {
+  var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  var result = '';
+  for (var i = 16; i > 0; --i){
+    result += chars[Math.round(Math.random() * (chars.length - 1))];
   }
+  user_id = result;
+  console.log(user_id);
+}
 
-  function getUploadURL() {
-    console.log('getUploadURL');
-    $.ajax({
-      url: '/get-upload-url/{{ draft.pk }}',
-      success: function(data) {
-        var cform = document.getElementById(current_field + '_form');
-        cform.action = data;
-        var cbutton = document.getElementById(current_field + '_submit');
-        cbutton.click();
-      }
-    });
-  }
-
-  function iframeUpdated(iframe) { //process response
-    console.log(logTime() + 'iframeUpdated');
-    var results = iframe.contentDocument.body.innerHTML;
-    console.log("The iframe changed! New contents: " + results);
-    if (results) {
-      var field_name = results.split("~~")[0];
-      var linky = results.split("~~")[1];
-      var file_input = document.getElementById('id_' + field_name);
-      if (file_input && linky) {
-        uploading_span.innerHTML = linky;
-      } else {
-        uploading_span.innerHTML = 'There was an error uploading your file. Try again or <a href="/apply/support">contact us</a>.';
-      }
-      uploading = false;
-    }
-  }
-
-  function removeFile(field_name) {
-    $.ajax({
-      url: '/apply/{{ draft.pk }}/remove/' + field_name + '{{ user_override|default:''}}',
-      success: function(data) {
-        r_span = document.getElementById(field_name + '_uploaded');
-        r_span.innerHTML = '<i>no file uploaded</i>';
-      }
-    });
-  }
-
-  /** user id and override **/
-  var user_id = '';
-
-  function setUserID() {
-    var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    var result = '';
-    for (var i = 16; i > 0; --i){
-      result += chars[Math.round(Math.random() * (chars.length - 1))];
-    }
-    user_id = result;
-    console.log(user_id);
-  }
-
-  function showOverrideWarning(ver){
-    window.scrollTo(0, 0);
-    console.log('scrolled, showing override');
-    $('#override_dialog'+ver).dialog({
-      title: 'Warning: simultaneous editing',
-      modal: true,
-      buttons: [{
-        text:'Proceed anyway',
-        click: function(){
-            console.log('override!');
-            $('#override_dialog'+ver).dialog("close");
-            autoSave(false, override=true);
-            autoSave.resume();
-          }
-        },{
-            text:'Cancel',
-            click: function(){ location.href = '/apply/'; }
+function showOverrideWarning(ver){
+  window.scrollTo(0, 0);
+  console.log('scrolled, showing override');
+  $('#override_dialog'+ver).dialog({
+    title: 'Warning: simultaneous editing',
+    modal: true,
+    buttons: [{
+      text:'Proceed anyway',
+      click: function(){
+          console.log('override!');
+          $('#override_dialog'+ver).dialog("close");
+          autoSave(false, override=true);
+          autoSave.resume();
         }
-      ],
-      closeOnEscape: false,
-      resizable: false,
-      position: {my: 'top', at: 'top', of: '#org_wrapper'},
-      width:400
-    });
-  }
+      },{
+          text:'Cancel',
+          click: function(){ location.href = '/apply/'; }
+      }
+    ],
+    closeOnEscape: false,
+    resizable: false,
+    position: {my: 'top', at: 'top', of: '#org_wrapper'},
+    width:400
+  });
+}
 
-};
 
