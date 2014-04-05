@@ -610,7 +610,7 @@ def add_mult(request):
               logger.info('contact created')
         if duplicates:
           logger.info('Showing confirmation page for duplicates: ' + str(duplicates))
-          empty_error = '<ul class="errorlist"><li>The contacts below have the same name as contacts you have already entered. Press submit again to confirm.</li></ul>'
+          empty_error = '<ul class="errorlist"><li>The contacts below have the same name as contacts you have already entered. Press submit again to confirm that you want to add them.</li></ul>'
           if est:
             contact_formset = formset_factory(forms.MassDonor)
           else:
