@@ -57,10 +57,12 @@
       <tr><td colspan="3">
         {% if award %}
           {% if award.agreement_mailed and award.agreement_mailed|timesince > 0 %}
-          ${{ award.amount|intcomma }} awarded. Agreement mailed {{ award.agreement_mailed|date:"n/j/y" }},
+          <ul>
+            <li>${{ award.amount|intcomma }} awarded.</li>
+            <li>Agreement mailed {{ award.agreement_mailed|date:"n/j/y" }},
             {% if award.agreement_returned|date:"n/j/y" %}returned {{ award.agreement_returned|date:"n/j/y" }}
-            {% else %}due {{ award.agreement_due|date:"n/j/y" }}{% endif %}.
-          Year end report due {{ award.yearend_due|date:"n/j/y" }}.
+            {% else %}due {{ award.agreement_due|date:"n/j/y" }}{% endif %}.</li>
+            <li>Year end report due {{ award.yearend_due|date:"n/j/y" }}.</li>
           {% endif %}
         {% endif %}
         {% endwith %}
