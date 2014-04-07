@@ -23,11 +23,12 @@ function setUserID() {
   }
   user_id = result;
   console.log(user_id);
+  return user_id;
 }
 
 function showOverrideWarning(ver){
   window.scrollTo(0, 0);
-  console.log('scrolled, showing override');
+  console.log('scrolled to top, showing override');
   $('#override_dialog'+ver).dialog({
     title: 'Warning: simultaneous editing',
     modal: true,
@@ -37,7 +38,7 @@ function showOverrideWarning(ver){
           click: function(){
             console.log('override!');
             $('#override_dialog'+ver).dialog("close");
-            autoSave(false, override=true);
+            autoSave.save(false, true);
             autoSave.resume();
             }
         },{
@@ -51,12 +52,58 @@ function showOverrideWarning(ver){
   });
 }
 
+
+function showMoreInfo(show_id) {
+  div = show_id + '-info';
+  console.log('showing ' + div);
+  div = document.getElementById(div);
+  if (div) {
+    console.log(div);
+    div.style.display = 'block';
+  } else {
+    console.error('info to show not found');
+  }
+}
+
+function hide(id) {
+  div = document.getElementById(id);
+  if (div) {
+    div.style.display = 'none';
+  } else {
+    console.error('Div to hide not found');
+  }
+}
+
+function setInfoClicks(){
+  console.log('setInfoClicks');
+  $('.has-more-info').each(function(index) {
+      if (this.id) {
+        this.onclick = function(){ showMoreInfo(this.id); };
+        console.log('Linked ' + this.id);
+      } else {
+        console.log('Error - has-more-info without an id');
+      }
+  });
+  $('.more-info').each(function(i) {
+      this.innerHTML = this.innerHTML + '<div class="more-info-hide">click to hide</div>';
+      this.onclick = function() { hide(this.id); };
+  });
+}
+
 $(document).ready(function() {
-  formUtils.init('apply', {{ draft.pk }}, {{ cycle.pk }}, '{{ user_override }}');
+  formUtils.init('apply', {{ draft.pk }}, {{ cycle.pk }}, setUserID(), '{{ user_override }}');
   var counted_fields = $('[onKeyUp]');
   for(var i = 0; i < counted_fields.length; i++) {
     $(counted_fields[i]).keyup();
   }
+
+  //check whether it was edited recently -- show override confirmation
+  if ('{{ flag }}' == 'True'){
+    autoSave.pause();
+    showOverrideWarning(1);
+  }
+  // more info toggles
+  setInfoClicks();
 });
 
 </script>
@@ -398,7 +445,7 @@ $(document).ready(function() {
 
 	<div align="center">
 		<img id="ajax_loading" src="/static/images/ajaxloader.gif" style="display:none;"><br>
-		<button onclick="autoSave(submit=true);">Submit application</button>
+		<button onclick="autoSave.save(true);">Submit application</button>
     <br><br><span class="last_saved" title="The form is automatically saved every 30 seconds">Draft auto-saved: <span class="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span></span>
 	</div>
 </div>
