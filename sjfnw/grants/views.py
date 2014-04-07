@@ -297,7 +297,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     if url:
       name = getattr(draft, field).name.split('/')[-1]
       #short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
-      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
+      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + name + '</a> [<a onclick="fileUploads.removeFile(\'' + field + '\');">remove</a>]'
     else:
       file_urls[field] = '<i>no file uploaded</i>'
 
@@ -376,7 +376,7 @@ def AddFile(request, draft_id):
   file_urls = GetFileURLs(request, draft)
   content = (field_name + u'~~<a href="' + file_urls[field_name] +
              u'" target="_blank" title="' + unicode(blob_file) + u'">' +
-             unicode(blob_file) + u'</a> [<a onclick="removeFile(\'' +
+             unicode(blob_file) + u'</a> [<a onclick="fileUploads.removeFile(\'' +
              field_name + u'\');">remove</a>]')
   logger.info(u"AddFile returning: " + content)
   return HttpResponse(content)
@@ -412,15 +412,16 @@ def RefreshUploadUrl(request):
   return HttpResponse(upload_url)
 
 
-def autosave_yer(request, draft_id):
+def autosave_yer(request, award_id):
 
   if not request.user.is_authenticated():
     return HttpResponse(LOGIN_URL, status=401)
 
-  draft = get_object_or_404(models.YERDraft, pk=draft_id)
-  
+  draft = get_object_or_404(models.YERDraft, award_id=award_id)
+
   if request.method == 'POST':
     draft.contents = json.dumps(request.POST)
+    logger.info(draft.contents)
     draft.modified = timezone.now()
     draft.save()
     return HttpResponse("success")
@@ -429,7 +430,7 @@ def add_file_yer(request, draft_id):
 
   draft = get_object_or_404(models.YERDraft, pk=draft_id)
   logger.debug([request.body]) #don't remove this without fixing storage to not access body blob_file = False
-  
+
   blob_file = False
   for key in request.FILES:
     blob_file = request.FILES[key]
@@ -455,10 +456,23 @@ def add_file_yer(request, draft_id):
   return HttpResponse(content)
 
 
+def remove_file_yer(request, draft_id, file_field): #TODO combine with app
+  draft = get_object_or_404(models.YERDraft, pk=draft_id)
+  if hasattr(draft, file_field):
+    old = getattr(draft, file_field)
+    deferred.defer(DeleteBlob, old)
+    setattr(draft, file_field, '')
+    draft.modified = timezone.now()
+    draft.save()
+  else:
+    logger.error('Tried to remove non-existent field: ' + file_field)
+  return HttpResponse('success')
+
+
 @login_required(login_url=LOGIN_URL)
 @registered_org()
 def year_end_report(request, organization, award_id):
-  
+
   # get award, make sure org matches
   award = get_object_or_404(models.GivingProjectGrant, pk=award_id)
   app = award.project_app.application
@@ -477,6 +491,7 @@ def year_end_report(request, organization, award_id):
   if request.method == 'POST':
     draft_data = json.loads(draft.contents)
     files_data = model_to_dict(draft, fields = ['photo1', 'photo2', 'photo3', 'photo4'])
+    logger.info(files_data)
     form = YearEndReportForm(draft_data, files_data)
 
     if form.is_valid():
@@ -489,15 +504,18 @@ def year_end_report(request, organization, award_id):
       logger.info('Created new YER draft')
     else:
       initial_data = json.loads(draft.contents)
+      if initial_data['contact_person_0'] or initial_data['contact_person_1']:
+        initial_data['contact_person'] = initial_data['contact_person_0'] + ', ' + initial_data['contact_person_1']
+
 
     form = YearEndReportForm(initial=initial_data)
-  
+
   file_urls = GetFileURLs(request, draft)
   for field, url in file_urls.iteritems():
     if url:
       name = getattr(draft, field).name.split('/')[-1]
       #short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
-      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
+      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + name + '</a> [<a onclick="fileUploads.removeFile(\'' + field + '\');">remove</a>]'
     else:
       file_urls[field] = '<i>no file uploaded</i>'
 
@@ -512,7 +530,7 @@ def view_yer(request, report_id):
 def view_yer_file(request, report_id, file_type):
   return HttpResponse('temp')
 
-def view_yer_draft_file(request, report_id, file_type):
+def view_yer_draft_file(request, draft_id, file_type):
   return HttpResponse('temp')
 
 
@@ -1212,7 +1230,7 @@ def GetFileURLs(request, app, printing=False):
 
   base_url = request.build_absolute_uri('/')
 
-  
+
   if isinstance(app, models.GrantApplication):
     base_url += 'grants/view-file/'
     file_urls = app_urls
@@ -1240,7 +1258,7 @@ def GetFileURLs(request, app, printing=False):
         if printing:
           if not (ext == 'xls' or ext == 'xlsx'):
             file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field]
-        else: 
+        else:
           file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field] + '&embedded=true'
   logger.debug(file_urls)
   return file_urls
@@ -1249,7 +1267,7 @@ def update_profile(request, org_id):
 
   message = ''
   org = get_object_or_404(models.Organization, pk=org_id)
-  
+
   apps = org.grantapplication_set.all()
   if apps:
     profile_data = model_to_dict(apps[0])
