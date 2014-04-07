@@ -7,7 +7,7 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
-  formUtils.init('/report', {{ draft_id }}, {{ award_id }});
+  formUtils.init('report', {{ draft.pk }}, {{ award_id }});
 });
 
 </script>
@@ -30,13 +30,101 @@ $(document).ready(function() {
 
   <form id="yer-form" action="" method="POST" accept-charset="UTF-8">
 
-    {{ form.as_table }}
+    {{ form.award }}
+    <div style="margin-top:2em;">
+      {{ form.contact_person.label_tag }}{{ form.contact_person }}<br><br>
+    {{ form.email.label_tag }}{{ form.email }}
+    {{ form.phone.label_tag }}{{ form.phone }}
+    {{ form.website.label_tag }}{{ form.website }}
+    </div>
 
+    <div class="narrative_q">
+      {{ form.summarize_last_year.label_tag }}
+      {{ form.summarize_last_year.errors }}
+      {{ form.summarize_last_year }}
+    </div>
+    <div class="narrative_q">
+      {{ form.goal_progress.label_tag }}
+      {{ form.goal_progress.errors}}
+      {{ form.goal_progress }}
+    </div>
+    <div class="narrative_q">
+      {{ form.major_changes.label_tag }}
+      {{ form.major_changes.errors}}
+      {{ form.major_changes }}
+    </div>
+    <div class="narrative_q">
+      {{ form.total_size.label_tag }}
+      {{ form.total_size.errors}}
+      {{ form.total_size }}
+    </div>
+    <div class="narrative_q">
+      {{ form.donations_count.label_tag }}
+      {{ form.donations_count.errors}}
+      {{ form.donations_count }}
+    </div>
+    <div class="narrative_q">
+      {{ form.donations_count_last.label_tag }}
+      {{ form.donations_count_last.errors}}
+      {{ form.donations_count_last }}
+    </div>
+    <div class="narrative_q">
+      {{ form.quantitative_measures.label_tag }}
+      {{ form.quantitative_measures.errors}}
+      {{ form.quantitative_measures }}
+    </div>
+    <div class="narrative_q">
+      {{ form.policy_changes.label_tag }}
+      {{ form.policy_changes.errors}}
+      {{ form.policy_changes }}
+    </div>
+    <div class="narrative_q">
+      {{ form.other_comments.label_tag }}
+      {{ form.other_comments.errors}}
+      {{ form.other_comments }}
+    </div>
 
-  <!--
-	<iframe class="upload" id="id_upload_frame" name="upload_frame" onload="iframeUpdated(this);"></iframe>
-      <td><form class="files_form" id="budget1_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8"><span class="file_wrapper">{{ form.budget1 }}<span class="upload_button">Choose file</span></span><input id="budget1_submit" type="submit" value="Submit files" style="display:none;"/></form></td>
-  </form> -->
+  </form> <!-- end non-file form -->
+
+  <iframe class="upload" id="id_upload_frame" name="upload_frame" onload="fileUploads.iframeUpdated(this); console.log('iframe onload');"></iframe>
+  
+  {% autoescape off %}
+  <table class="file-uploads">
+    <tr>
+      <td colspan="2">{{ form.photo1.errors }}</td>
+      <td colspan="2">{{ form.photo3.errors }}</td>
+    </tr>
+    <tr>
+      <td>1. <form class="files_form" id="photo1_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
+          <span class="file_wrapper">{{ form.photo1 }}<span class="upload_button">Choose file</span></span>
+          <input id="photo1_submit" type="submit" value="Submit files" style="display:none;">
+        </form>          
+      </td>
+      <td>
+        <span id="photo1_uploaded">{{ file_urls.photo1 }}</span>
+      </td>
+      <td>2. {{ form.photo3 }}</td>
+      <td>
+        <span id="photo3_uploaded">{{ file_urls.photo3 }}</span>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">{{ form.photo2.errors }}</td>
+      <td colspan="2">{{ form.photo4.errors }}</td>
+    </tr>
+    <tr>
+      <td>2. {{ form.photo2 }}</td>
+      <td>
+        <span id="photo2_uploaded">{{ file_urls.photo2 }}</span>
+      </td>
+      <td>4. {{ form.photo4 }}</td>
+      <td>
+        <span id="photo4_uploaded">{{ file_urls.photo4 }}</span>
+      </td>
+    </tr>
+  </table>
+  {% endautoescape %}
+
 
   <!--- submit button -->
 	<div align="center">

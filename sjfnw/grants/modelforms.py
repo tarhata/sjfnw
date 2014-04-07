@@ -227,10 +227,43 @@ class GrantApplicationModelForm(forms.ModelForm):
     return cleaned_data
 
 
+class ContactPersonWidget(forms.widgets.MultiWidget):
+  """ Displays widgets for contact person and their title
+  Stores in DB as a single value: Name, title """
+
+  def __init__(self, attrs=None):
+    _widgets = (forms.TextInput(), forms.TextInput())
+    super(ContactPersonWidget, self).__init__(_widgets, attrs)
+
+  def decompress(self, value):
+    """ break single db value up for display
+    returns list of values to be displayed in widgets """
+    if value:
+      return [val for val in value.split(', ')]
+    else:
+      return [None, None]
+
+  def format_output(self, rendered_widgets):
+    """ format widgets for display - add any additional labels, html, etc """
+    return (rendered_widgets[0] + '<label>Title</label>' + rendered_widgets[1])
+
+  def value_from_datadict(self, data, files, name):
+    """ Consolidate widget data into single value for db storage """
+
+    val_list = []
+    for i, widget in enumerate(self.widgets):
+      val_list.append(widget.value_from_datadict(data, files, name + '_%s' % i))
+    return ', '.join(val_list)
+
+
+
 class YearEndReportForm(ModelForm):
 
   class Meta:
     model = YearEndReport
+    exclude = ['submitted']
+    widgets = {'award': forms.HiddenInput(),
+               'contact_person': ContactPersonWidget}
 
 # ADMIN
 

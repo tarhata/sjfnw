@@ -393,7 +393,7 @@ def RemoveFile(request, draft_id, file_field):
     logger.error('Tried to remove non-existent field: ' + file_field)
   return HttpResponse('success')
 
-def RefreshUploadUrl(request, draft_id):
+def RefreshUploadUrl(request):
   """ Get a blobstore url for uploading a file """
 
   #staff override
@@ -403,8 +403,12 @@ def RefreshUploadUrl(request, draft_id):
   else:
     user_override = ''
 
-  upload_url = blobstore.create_upload_url('/apply/' + draft_id +
-                                           '/add-file' + user_override)
+  draft_id = int(request.GET.get('id'))
+  logger.info(draft_id)
+  prefix = request.GET.get('type')
+  logger.info(prefix)
+
+  upload_url = blobstore.create_upload_url('/%s/%d/add-file' % (prefix, draft_id) + user_override)
   return HttpResponse(upload_url)
 
 
@@ -412,6 +416,8 @@ def autosave_yer(request, draft_id):
 
   if not request.user.is_authenticated():
     return HttpResponse(LOGIN_URL, status=401)
+
+  draft = get_object_or_404(models.YERDraft, pk=draft_id)
   
   if request.method == 'POST':
     draft.contents = json.dumps(request.POST)
@@ -420,7 +426,34 @@ def autosave_yer(request, draft_id):
     return HttpResponse("success")
 
 def add_file_yer(request, draft_id):
-  pass
+
+  draft = get_object_or_404(models.YERDraft, pk=draft_id)
+  logger.debug([request.body]) #don't remove this without fixing storage to not access body blob_file = False
+  
+  blob_file = False
+  for key in request.FILES:
+    blob_file = request.FILES[key]
+    if blob_file:
+      if hasattr(draft, key):
+        setattr(draft, key, blob_file)
+        field_name = key
+        break
+      else:
+        logger.error('Tried to add unknown file field %s' % key)
+  draft.modified = timezone.now()
+  draft.save()
+
+  if not (blob_file and field_name):
+    return HttpResponse("Errorrrr")
+
+  content = (field_name + u'~~<a href="' + GetFileURLs(request, draft)[field_name] +
+             u'" target="_blank" title="' + unicode(blob_file) + '">' +
+             unicode(blob_file) + '</a> [<a onclick="fileUploads.removeFile(\'' +
+             field_name + '\');">remove</a>]')
+  logger.info('add_file_yer returning %s' % content)
+
+  return HttpResponse(content)
+
 
 @login_required(login_url=LOGIN_URL)
 @registered_org()
@@ -458,8 +491,30 @@ def year_end_report(request, organization, award_id):
       initial_data = json.loads(draft.contents)
 
     form = YearEndReportForm(initial=initial_data)
+  
+  file_urls = GetFileURLs(request, draft)
+  for field, url in file_urls.iteritems():
+    if url:
+      name = getattr(draft, field).name.split('/')[-1]
+      #short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
+      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
+    else:
+      file_urls[field] = '<i>no file uploaded</i>'
 
-  return render(request, 'grants/yer_form.html', {'form': form, 'org': organization, 'draft_id': draft.pk, 'award_id': award.pk})
+  return render(request, 'grants/yer_form.html',
+      {'form': form, 'org': organization, 'draft': draft, 'award_id': award.pk,
+       'file_urls': file_urls})
+
+
+def view_yer(request, report_id):
+  return HttpResponse('temp')
+
+def view_yer_file(request, report_id, file_type):
+  return HttpResponse('temp')
+
+def view_yer_draft_file(request, report_id, file_type):
+  return HttpResponse('temp')
+
 
 # ORG COPY DELETE APPS
 @login_required(login_url=LOGIN_URL)
@@ -1138,10 +1193,10 @@ def DraftWarning(request):
 # UTILS
 # (caused import probs in utils.py)
 def GetFileURLs(request, app, printing=False):
-  """ Get viewing urls for the files in a given draft or app
+  """ Get viewing urls for the files in a given app or year-end report, draft or final
 
     Args:
-      app: GrantApplication or DraftGrantApplication object
+      One of: GrantApplication, DraftGrantApplication, YearEndReport, YERDraft
 
     Returns:
       a dict of urls for viewing each file, taking into account whether it can be viewed in google doc viewer
@@ -1150,17 +1205,27 @@ def GetFileURLs(request, app, printing=False):
     Raises:
       returns an empty dict if the given object is not valid
   """
-
-  base_url = request.build_absolute_uri('/')
-  file_urls = {'funding_sources':'', 'demographics':'',
+  app_urls = {'funding_sources':'', 'demographics':'',
                'fiscal_letter':'', 'budget1': '', 'budget2': '', 'budget3': '',
                'project_budget_file': ''}
-  #determine whether draft or submitted
+  report_urls = {'photo1': '', 'photo2': '', 'photo3': '', 'photo4': '' }
+
+  base_url = request.build_absolute_uri('/')
+
+  
   if isinstance(app, models.GrantApplication):
     base_url += 'grants/view-file/'
+    file_urls = app_urls
     file_urls['budget'] = ''
   elif isinstance(app, models.DraftGrantApplication):
+    file_urls = app_urls
     base_url += 'grants/draft-file/'
+  elif isinstance(app, models.YearEndReport):
+    file_urls = report_urls
+    base_url += 'report/view-file/'
+  elif isinstance(app, models.YERDraft):
+    file_urls = report_urls
+    base_url += 'report/draft-file/'
   else:
     logger.error("GetFileURLs received invalid object")
     return {}

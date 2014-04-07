@@ -25,7 +25,7 @@ urlpatterns = patterns('',
   (r'^report/?', include(report_urls)),
   (r'^org/?$', 'sjfnw.grants.views.RedirToApply'),
   (r'^logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/apply'}),
-  (r'^get-upload-url/(?P<draft_id>\d+)/?$','sjfnw.grants.views.RefreshUploadUrl'), #TODO put this under /apply
+  (r'^get-upload-url/?','sjfnw.grants.views.RefreshUploadUrl'), #TODO put this under /apply
 
   # admin
   (r'^admin/', include(admin.site.urls)),

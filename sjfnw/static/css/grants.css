@@ -422,3 +422,10 @@ ol.contents{
   display:block;
 }
 
+/** yer form **/
+
+div.narrative_q label {
+  display: block;
+  margin-bottom:.5em;
+}
+

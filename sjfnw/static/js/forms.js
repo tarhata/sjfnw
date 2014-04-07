@@ -11,7 +11,7 @@ formUtils.init = function(url_prefix, draft_id, submit_id, staff_user) {
   }
   autoSave.init(url_prefix, draft_id, submit_id, staff_user);
   fileUploads.init(url_prefix, draft_id);
-}
+};
 
 formUtils.loading_image = '<img src="/static/images/ajaxloader2.gif" height="16" width="16" alt="Loading...">';
 
@@ -71,24 +71,24 @@ autoSave.pause_timer = false;
 */
 
 autoSave.init = function(url_prefix, draft_id, submit_id, staff_user) {
-  autoSave.get_upload_url = '/get-upload-url/?t=' + url_prefix;
-  autoSave.autosave_url = url_prefix + '/' + draft_id + '/autosave';
-  autoSave.submit_url = url_prefix + '/' + submit_id;
+  autoSave.save_url = '/' + url_prefix + '/' + draft_id + '/autosave';
+  autoSave.submit_url = '/' + url_prefix + '/' + submit_id;
   if (staff_user){
     autoSave.staff_user = staff_user;
   } else {
     autoSave.staff_user = false;
   }
   console.log('Autosave variables loaded');
+  autoSave.resume();
 };
 
 
 autoSave.pause = function() {
   if ( !window.onfocus ) {
-    console.log(logTime() + 'autoSave.pause called; setting timer');
+    console.log(formUtils.logTime() + 'autoSave.pause called; setting timer');
     // pause auto save
     autoSave.pause_timer = window.setTimeout(function(){
-       console.log(logTime() + 'autoSave.pause_timer up, pausing autosave');
+       console.log(formUtils.logTime() + 'autoSave.pause_timer up, pausing autosave');
        window.clearInterval(autoSave.save_timer);
        autoSave.pause_timer = false;
        }, 30000);
@@ -97,13 +97,13 @@ autoSave.pause = function() {
     // don't watch for further blurs
     $(window).off('blur');
   } else {
-    console.log(logTime() + 'autoSave.pause called, but already paused');
+    console.log(formUtils.logTime() + 'autoSave.pause called, but already paused');
   }
 };
 
 autoSave.resume = function() {
   if ( !window.onblur ) { // avoid double-firing
-    console.log(logTime() + ' autoSave.resume called');
+    console.log(formUtils.logTime() + ' autoSave.resume called');
     // reload the pause binding
     $(window).on('blur', autoSave.pause);
     if (autoSave.pause_timer) {
@@ -119,15 +119,15 @@ autoSave.resume = function() {
     // unload the resume binding
     $(window).off('focus');
   } else {
-    console.log(logTime() + ' window already has onblur');
+    console.log(formUtils.logTime() + ' window already has onblur');
   }
 };
 
 autoSave.save = function (submit, override){
   if (!override){ override = 'false'; }
-  console.log(logTime() + "autosaving");
+  console.log(formUtils.logTime() + "autosaving");
   $.ajax({
-    url:"/apply/{{ cycle.pk }}/autosave/{{ user_override|default:'?'}}&override=" + override,
+    url: autoSave.save_url,
     type:"POST",
     data:$('form').serialize() + '&user_id=' + user_id,
     success:function(data, textStatus, jqXHR){
@@ -136,7 +136,7 @@ autoSave.save = function (submit, override){
           var submit_all = document.getElementById('hidden_submit_app');
           submit_all.click();
         } else { //update 'last saved'
-          $('.autosaved').html(currentTimeDisplay());
+          $('.autosaved').html(formUtils.currentTimeDisplay());
         }
       } else { //unexpected status code
         $('.autosaved').html('Unknown error<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>');
@@ -163,20 +163,20 @@ autoSave.save = function (submit, override){
   });
 };
 
-  /** CHARACTER LIMITS **/
-  function charLimitDisplay(area, limit){
-    var counter = document.getElementById(area.name + '_counter');
-    var words = area.value.match(/[^ \r\n]+/g) || [];
-    //console.log(words);
-    var diff = limit - words.length;
-    if (diff >= 0) {
-      counter.innerHTML = diff + ' words remaining';
-      counter.className = 'char_counter_ok';
-    } else {
-      counter.innerHTML = -diff + ' words over the limit';
-      counter.className = 'char_counter_over';
-    }
+/** CHARACTER LIMITS **/
+function charLimitDisplay(area, limit){
+  var counter = document.getElementById(area.name + '_counter');
+  var words = area.value.match(/[^ \r\n]+/g) || [];
+  //console.log(words);
+  var diff = limit - words.length;
+  if (diff >= 0) {
+    counter.innerHTML = diff + ' words remaining';
+    counter.className = 'char_counter_ok';
+  } else {
+    counter.innerHTML = -diff + ' words over the limit';
+    counter.className = 'char_counter_over';
   }
+}
 
 /**------------------------------------ FILE UPLOADS -------------------------------------------**/
 var fileUploads = {};
@@ -186,9 +186,18 @@ fileUploads.uploading_span = '';
 fileUploads.current_field = '';
 
 fileUploads.init = function(url_prefix, draft_id) {
-  fileUploads.get_url = '/get-upload-url/' + draft_id;
-  fileUploads.remove_url = url_prefix + '/' + draft_id + '/remove/'
-}
+  fileUploads.get_url = '/get-upload-url/?type=' + url_prefix + '&id=' + draft_id;
+  fileUploads.remove_url = '/' + url_prefix + '/' + draft_id + '/remove/';
+  $('#id_photo1').change(function() {
+      fileUploads.fileChanged('id_photo1');
+    });
+  /*
+    id = 'id_photo' + i;
+    console.log('setting onchange for ' + id);
+    $('#' + id).change(  }
+  */
+  console.log('fileUploads vars loaded');
+};
 
 /* each file field has its own form. html element ids use this pattern:
   input field: 							'id_' + fieldname
@@ -208,7 +217,7 @@ fileUploads.clickFileInput = function(event, input_id) {
   } else {
     console.log('Error - no input found');
   }
-}
+};
 
 fileUploads.fileChanged = function(field_id) {
   /* triggered when a file is selected
@@ -223,28 +232,29 @@ fileUploads.fileChanged = function(field_id) {
   console.log("Value: " + file);
   if (file) {
     fileUploads.uploading = true;
-    fileUploads.current_field = field_id.replace('id_', '')
+    fileUploads.current_field = field_id.replace('id_', '');
     fileUploads.uploading_span = document.getElementById(field_id.replace('id_', '') + '_uploaded');
     fileUploads.uploading_span.innerHTML = formUtils.loading_image;
     fileUploads.getUploadURL();
   }
-}
+};
 
 fileUploads.getUploadURL = function() {
   console.log('getUploadURL');
   $.ajax({
     url: fileUploads.get_url,
     success: function(data) {
+      console.log('current field: ' + fileUploads.current_field);
       var cform = document.getElementById(fileUploads.current_field + '_form');
       cform.action = data;
       var cbutton = document.getElementById(fileUploads.current_field + '_submit');
       cbutton.click();
     }
   });
-}
+};
 
 fileUploads.iframeUpdated = function(iframe) { //process response
-  console.log(logTime() + 'iframeUpdated');
+  console.log(formUtils.logTime() + 'iframeUpdated');
   var results = iframe.contentDocument.body.innerHTML;
   console.log("The iframe changed! New contents: " + results);
   if (results) {
@@ -258,7 +268,7 @@ fileUploads.iframeUpdated = function(iframe) { //process response
     }
     fileUploads.uploading = false;
   }
-}
+};
 
 fileUploads.removeFile = function(field_name) {
   $.ajax({
@@ -268,13 +278,13 @@ fileUploads.removeFile = function(field_name) {
       r_span.innerHTML = '<i>no file uploaded</i>';
     }
   });
-}
+};
 
 /** user id and override **/
 var user_id = '';
 
 function setUserID() {
-  var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   var result = '';
   for (var i = 16; i > 0; --i){
     result += chars[Math.round(Math.random() * (chars.length - 1))];
