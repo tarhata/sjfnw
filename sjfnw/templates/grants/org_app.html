@@ -8,335 +8,57 @@
     _.addEventListener?_.addEventListener("load",b,!1):_.attachEvent("onload",b)})
     (window,document,"script","5324845d740290b52b000152");
 </script>
+<script type="text/javascript" src="/static/js/forms.js"></script>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 <script type="text/javascript">
 
-  /** AUTOSAVE **/
+/** user id and override **/
+var user_id = '';
 
-  var autosave_timer;
-  var pause_timer;
-  var status_texts = { //for ajax error messages
-    400: '400 Bad request',
-    401: '401 Unauthorized',
-    403: '403 Forbidden',
-    404: '404 Not found',
-    408: '408 Request timeout',
-    500: '500 Internal server error',
-    503: '503 Service unavailable',
-    504: '504 Gateway timeout'
+function setUserID() {
+  var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var result = '';
+  for (var i = 16; i > 0; --i){
+    result += chars[Math.round(Math.random() * (chars.length - 1))];
   }
+  user_id = result;
+  console.log(user_id);
+}
 
-  function getCurrentTime(){
-    var monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"];
-    var d = new Date();
-    var h = d.getHours();
-    var m = d.getMinutes();
-    /*var s = d.getSeconds();*/
-    var dd = "a.m.";
-    if (h >= 12) {
-      h = h-12;
-      dd = "p.m.";
-    }
-    if (h == 0) {
-      h = 12;
-    }
-    m = m<10?"0"+m:m;
-    /* s = s<10?"0"+s:s; */
-    return monthNames[d.getMonth()]+' '+d.getDate()+', '+h+':'+m+dd;
-  }
-
-  function logTime(){
-    var d = new Date();
-    var m = d.getMinutes();
-    m = m<10?"0"+m:m;
-    return d.getHours() + ':' + m + ':' + d.getSeconds() + ' ';
-  }
-  /* autosave flow:
-
-     page load or focus -> resumeAutoSave -> sets autosave_timer -30-> autoSave
-                                          -> sets onblur
-     page blur -> pauseAutoSave -> sets pause_timer -30-> pauseAutoSave
-                                -> sets onfocus
-
-  */
-  
-  function pauseAutoSave(){
-    if ( !window.onfocus ) {
-      console.log(logTime() + 'pauseAutoSave called; setting timer');
-      // pause auto save
-      pause_timer = window.setTimeout(function(){
-         console.log(logTime() + 'pause_timer up, pausing autosave');
-         window.clearInterval(autosave_timer);
-         pause_timer = false;
-         }, 30000);
-      // set to resume when window gains focus
-      $(window).on('focus', resumeAutoSave);
-      // don't watch for further blurs
-      $(window).off('blur');
-    } else {
-      console.log(logTime() + 'pauseAutoSave called, but already paused');
-    }
-  }
-
-    window.clear
-  function resumeAutoSave(){
-    if ( !window.onblur ) { // avoid double-firing
-      console.log(logTime() + ' resumeAutoSave called');
-      // reload the pause binding
-      $(window).on('blur', pauseAutoSave);
-      if (pause_timer) {
-        // clear timer if window recently lost focus (autosave is still going)
-        console.log('pause had been set; clearing it');
-        window.clearTimeout(pause_timer);
-        pause_timer = false;
-      } else {
-        // set up save timer
-        console.log('Setting autosave interval');
-        autosave_timer = window.setInterval("autoSave()", 30000);
-      }
-      // unload the resume binding
-      $(window).off('focus');
-    } else {
-      console.log(logTime() + ' window already has onblur');
-    }
-  }
-
-  function autoSave(submit, override){
-    if (!override){ override = 'false'; }
-    console.log(logTime() + "autosaving");
-    $.ajax({
-      url:"/apply/{{ cycle.pk }}/autosave/{{ user_override|default:'?'}}&override=" + override,
-      type:"POST",
-      data:$('form').serialize() + '&user_id=' + user_id,
-      success:function(data, textStatus, jqXHR){
-        if (jqXHR.status==200) {
-          if (submit) { //trigger the submit button
-            var submit_all = document.getElementById('hidden_submit_app');
-            submit_all.click();
-          } else { //update 'last saved'
-            $('.autosaved').html(getCurrentTime());
-          }
-        } else { //unexpected status code
-          $('.autosaved').html('Unknown error<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>');
-        }
-      },
-      error:function(jqXHR, textStatus, errorThrown){
-        var errortext = ''
-        if (jqXHR.status==409){ //conflict - pause autosave and confirm override
-          window.clearInterval(autosave_timer);
-          showOverrideWarning(2);
-        } else {
-          if(jqXHR.status==401){
-            location.href = jqXHR.responseText + '?next=' + location.href;
-          } else if (status_texts[jqXHR.status]) {
-            errortext = status_texts[jqXHR.status];
-          } else if (textStatus=='timeout') {
-            errortext = 'Request timeout';
-          } else {
-            errortext = 'Unknown error';
-          }
-          $('.autosaved').html('Error: ' + errortext + '<br>If you are seeing errors repeatedly please <a href="/apply/support#contact">contact us</a>');
-        }
-      }
-    });
-  }
-
-  /** CHARACTER LIMITS **/
-  function charLimitDisplay(area, limit){
-    var counter = document.getElementById(area.name + '_counter');
-    var words = area.value.match(/[^ \r\n]+/g) || [];
-    //console.log(words);
-    var diff = limit - words.length;
-    if (diff >= 0) {
-      counter.innerHTML = diff + ' words remaining';
-      counter.className = 'char_counter_ok';
-    } else {
-      counter.innerHTML = -diff + ' words over the limit';
-      counter.className = 'char_counter_over';
-    }
-  }
-
-  /** FILE UPLOADS **/
-  var uploading = false;
-  var uploading_span;
-  var current_field;
-
-  /* each file field has its own form. html element ids use this pattern:
-    input field: 							'id_' + fieldname
-    form: 										fieldname + '_form'
-    span for upload status: 	fieldname + '_uploaded'
-    submit button: 						fieldname + '_submit' */
-
-  function clickFileInput(event, input_id) {
-    console.log(event);
-    console.log('clickFileInput' + input_id);
-    var input = document.getElementById(input_id);
-    if (input) {
-      input.control.click();
-      console.log('Clicked it');
-    } else {
-      console.log('Error - no input found');
-    }
-  }
-
-  function fileChanged(field_id) { //file selected - show loader, call getuploadurl
-    console.log('fileChanged');
-    if (uploading) {
-      console.log('Upload in progress; returning');
-      return false;
-    }
-    console.log(field_id + " onchange");
-    var file = document.getElementById(field_id).value;
-    console.log("Value: " + file);
-    if (file) {
-      uploading = true;
-      current_field = field_id.replace('id_', '')
-      uploading_span = document.getElementById(field_id.replace('id_', '') + '_uploaded');
-      uploading_span.innerHTML = '<img src="/static/images/ajaxloader2.gif" height="16" width="16" alt="Loading...">';
-      getUploadURL();
-    }
-  }
-
-  function getUploadURL() {
-    console.log('getUploadURL');
-    $.ajax({
-      url: '/get-upload-url/{{ draft.pk }}',
-      success: function(data) {
-        var cform = document.getElementById(current_field + '_form');
-        cform.action = data;
-        var cbutton = document.getElementById(current_field + '_submit');
-        cbutton.click();
-      }
-    });
-  }
-
-  function iframeUpdated(iframe) { //process response
-    console.log(logTime() + 'iframeUpdated');
-    var results = iframe.contentDocument.body.innerHTML;
-    console.log("The iframe changed! New contents: " + results);
-    if (results) {
-      var field_name = results.split("~~")[0];
-      var linky = results.split("~~")[1];
-      var file_input = document.getElementById('id_' + field_name);
-      if (file_input && linky) {
-        uploading_span.innerHTML = linky;
-      } else {
-        uploading_span.innerHTML = 'There was an error uploading your file. Try again or <a href="/apply/support">contact us</a>.';
-      }
-      uploading = false;
-    }
-  }
-
-  function removeFile(field_name) {
-    $.ajax({
-      url: '/apply/{{ draft.pk }}/remove/' + field_name + '{{ user_override|default:''}}',
-      success: function(data) {
-        r_span = document.getElementById(field_name + '_uploaded');
-        r_span.innerHTML = '<i>no file uploaded</i>';
-      }
-    });
-  }
-
-  /** user id and override **/
-  var user_id = '';
-
-  function setUserID() {
-    var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    var result = '';
-    for (var i = 16; i > 0; --i){
-      result += chars[Math.round(Math.random() * (chars.length - 1))];
-    }
-    user_id = result;
-    console.log(user_id);
-  }
-
-  function showOverrideWarning(ver){
-    window.scrollTo(0, 0);
-    console.log('scrolled, showing override');
-    $('#override_dialog'+ver).dialog({
-      title: 'Warning: simultaneous editing',
-      modal: true,
-      buttons: [{
-        text:'Proceed anyway',
-        click: function(){
+function showOverrideWarning(ver){
+  window.scrollTo(0, 0);
+  console.log('scrolled, showing override');
+  $('#override_dialog'+ver).dialog({
+    title: 'Warning: simultaneous editing',
+    modal: true,
+    buttons:
+       [{
+          text:'Proceed anyway',
+          click: function(){
             console.log('override!');
             $('#override_dialog'+ver).dialog("close");
             autoSave(false, override=true);
-            resumeAutoSave();
-          }
+            autoSave.resume();
+            }
         },{
-            text:'Cancel',
-            click: function(){ location.href = '/apply/'; }
-        }
-      ],
-      closeOnEscape: false,
-      resizable: false,
-      position: {my: 'top', at: 'top', of: '#org_wrapper'},
-      width:400
-    });
-  }
-
-  function showMoreInfo(show_id) {
-    div = show_id + '-info';
-    console.log('showing ' + div);
-    div = document.getElementById(div);
-    if (div) {
-      console.log(div);
-      div.style.display = 'block';
-    } else {
-      console.error('info to show not found');
-    }
-  }
-
-  function hide(id) {
-    div = document.getElementById(id);
-    if (div) {
-      div.style.display = 'none';
-    } else {
-      console.error('Div to hide not found');
-    }
-  }
-
-  function setInfoClicks(){
-    console.log('setInfoClicks');
-    $('.has-more-info').each(function(index) {
-        if (this.id) {
-          this.onclick = function(){ showMoreInfo(this.id); };
-          console.log('Linked ' + this.id);
-        } else {
-          console.log('Error - has-more-info without an id');
-        }
-    });
-    $('.more-info').each(function(i) {
-        this.innerHTML = this.innerHTML + '<div class="more-info-hide">click to hide</div>';
-        this.onclick = function() { hide(this.id); };
-    });
-  }
-
-  /** doc ready **/
-  $(document).ready(function() {
-    // update char counters
-    $('.char_counter').each(function(index) {
-      var id = "id_" + this.id.replace("_counter","");
-      var area = document.getElementById(id);
-      var limit = parseInt(this.innerHTML);
-      charLimitDisplay(area, limit);
-    });
-    //get iframe
-    iframe = document.getElementById("id_upload_frame");
-    //set user id
-    setUserID();
-    //check whether it was edited recently -- show override confirmation
-    if ('{{ flag }}' == 'True'){
-      showOverrideWarning(1);
-    } else { //if not warning, start autosave
-      resumeAutoSave();
-    }
-    // more info toggles
-    setInfoClicks();
+          text:'Cancel',
+          click: function(){ location.href = '/apply/'; }
+        }],
+    closeOnEscape: false,
+    resizable: false,
+    position: {my: 'top', at: 'top', of: '#org_wrapper'},
+    width:400
   });
+}
+
+$(document).ready(function() {
+  formUtils.init('apply', {{ draft.pk }}, {{ cycle.pk }}, '{{ user_override }}');
+  var counted_fields = $('[onKeyUp]');
+  for(var i = 0; i < counted_fields.length; i++) {
+    $(counted_fields[i]).keyup();
+  }
+});
+
 </script>
 {% endblock script %}
 
@@ -613,7 +335,7 @@
   </form><!--- end of main form -->
 
   <!---hidden iframe for file submissions -->
-	<iframe class="upload" id="id_upload_frame" name="upload_frame" onload="iframeUpdated(this);"></iframe>
+	<iframe class="upload" id="id_upload_frame" name="upload_frame" onload="fileUploads.iframeUpdated(this);"></iframe>
 
 		<h4>File uploads</h4><!--- Files --->
 		<p><a href="/apply/info/{{ cycle.pk }}" target="_blank">Download templates here.</a><br><br>
