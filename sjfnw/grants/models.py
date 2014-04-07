@@ -642,7 +642,7 @@ class YearEndReport(models.Model):
   award = models.ForeignKey(GivingProjectGrant, unique=True)
   submitted = models.DateTimeField(default=timezone.now())
   contact_person = models.TextField() # Name, title
-  email = models.CharField(max_length=255)
+  email = models.EmailField(max_length=255)
   phone = models.CharField(max_length=20)
   website = models.CharField(max_length=255) #autofill based on app
 
