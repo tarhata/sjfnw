@@ -17,13 +17,13 @@ formUtils.status_texts = { //for ajax error messages
 };
 
 
-formUtils.init = function(url_prefix, draft_id, submit_id, staff_user) {
+formUtils.init = function(url_prefix, draft_id, submit_id, user_id, staff_user) {
   if (staff_user){
     formUtils.staff_user = staff_user;
   } else {
     formUtils.staff_user = '';
   }
-  autoSave.init(url_prefix, submit_id);
+  autoSave.init(url_prefix, submit_id, user_id);
   fileUploads.init(url_prefix, draft_id);
 };
 
@@ -92,6 +92,11 @@ autoSave.pause_timer = false;
 autoSave.init = function(url_prefix, submit_id) {
   autoSave.submit_url = '/' + url_prefix + '/' + submit_id;
   autoSave.save_url = autoSave.submit_url + '/autosave';
+  if (user_id) {
+    autoSave.user_id = user_id;
+  } else {
+    autoSave.user_id = '';
+  }
   console.log('Autosave variables loaded');
   autoSave.resume();
 };
@@ -144,7 +149,7 @@ autoSave.save = function (submit, override){
   $.ajax({
     url: autoSave.save_url,
     type:"POST",
-    data:$('form').serialize(),// + '&user_id=' + formuser_id,
+    data:$('form').serialize() + '&user_id=' + autoSave.user_id,
     success:function(data, textStatus, jqXHR){
       if (jqXHR.status==200) {
         if (submit) { //trigger the submit button
