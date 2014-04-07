@@ -11,12 +11,14 @@ logger = logging.getLogger('sjfnw')
 
 
 class OrgProfile(ModelForm):
+
   class Meta:
     model = Organization
     exclude = ('name', 'email')
 
 
 class TimelineWidget(forms.widgets.MultiWidget):
+
   def __init__(self, attrs=None):
     _widgets = (
       forms.Textarea(attrs={'rows':'5', 'cols':'20'}),
@@ -37,7 +39,6 @@ class TimelineWidget(forms.widgets.MultiWidget):
     )
     super(TimelineWidget, self).__init__(_widgets, attrs)
 
-
   def decompress(self, value):
     """ break single database value up for widget display
           argument: database value (json string representing list of vals)
@@ -47,7 +48,6 @@ class TimelineWidget(forms.widgets.MultiWidget):
       return json.loads(value)
     return [None, None, None, None, None, None, None, None,
             None, None, None, None, None, None, None]
-
 
   def format_output(self, rendered_widgets):
     """
@@ -111,15 +111,6 @@ class GrantApplicationModelForm(forms.ModelForm):
       'narrative5': forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[5]) + ')'}),
       'narrative6': forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[6]) + ')'}),
       'cycle_question': forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[7]) + ')'}),
-      #file callbacks
-      'budget': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'demographics': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'funding_sources': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'fiscal_letter': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget1': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget2': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget3': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'project_budget_file': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
       #timeline
       'timeline':TimelineWidget(),
     }
@@ -256,8 +247,15 @@ class ContactPersonWidget(forms.widgets.MultiWidget):
     return ', '.join(val_list)
 
 
+def set_yer_custom_fields(field, **kwargs):
+  if field.name == 'phone':
+    return PhoneNumberField(**kwargs)
+  else:
+    return field.formfield(**kwargs)
 
 class YearEndReportForm(ModelForm):
+  
+  formfield_callback = set_yer_custom_fields
 
   class Meta:
     model = YearEndReport
