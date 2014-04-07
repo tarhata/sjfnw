@@ -580,21 +580,46 @@ def add_mult(request):
       if formset.has_changed():
         logger.info('AddMult valid formset')
         #count = 0
+        donors = models.Donor.objects.filter(membership=membership)
+        donors = [donor.firstname + ' ' + donor.lastname for donor in donors]
+        duplicates = []
         for form in formset.cleaned_data:
           if form:
-            #count += 1
-            if est:
-              contact = models.Donor(firstname = form['firstname'],
-                                     lastname= form['lastname'],
-                                     amount= form['amount'],
-                                     likelihood= form['likelihood'],
-                                     membership = membership)
-            else:
-              contact = models.Donor(firstname = form['firstname'],
-                                     lastname= form['lastname'],
-                                     membership = membership)
-            contact.save()
-        return HttpResponse("success")
+            confirm = form['confirm'] and form['confirm'] == '1'
+            if not confirm and (form['firstname'] + ' ' + form['lastname'] in donors):
+              initial = {'confirm': u'1',
+                         'firstname': form['firstname'],
+                         'lastname': form['lastname']}
+              if est:
+                initial['amount'] = form['amount']
+                initial['likelihood'] = form['likelihood']
+              duplicates.append(initial)
+
+            else: # not a duplicate
+              if est:
+                contact = models.Donor(firstname = form['firstname'],
+                                       lastname= form['lastname'],
+                                       amount= form['amount'],
+                                       likelihood= form['likelihood'],
+                                       membership = membership)
+              else:
+                contact = models.Donor(firstname = form['firstname'],
+                                       lastname= form['lastname'],
+                                       membership = membership)
+              contact.save()
+              logger.info('contact created')
+        if duplicates:
+          logger.info('Showing confirmation page for duplicates: ' + str(duplicates))
+          empty_error = '<ul class="errorlist"><li>The contacts below have the same name as contacts you have already entered. Press submit again to confirm that you want to add them.</li></ul>'
+          if est:
+            contact_formset = formset_factory(forms.MassDonor)
+          else:
+            contact_formset = formset_factory(forms.MassDonorPre)
+          formset = contact_formset(initial=duplicates)
+          return render(request, 'fund/add_mult_flex.html',
+                  {'formset':formset, 'empty_error':empty_error})
+        else:
+          return HttpResponse("success")
       else: #empty formset
         empty_error = u'<ul class="errorlist"><li>Please enter at least one contact.</li></ul>'
     else: #invalid
@@ -1056,25 +1081,27 @@ def gift_notify(request):
 
 def find_duplicates(request): #no url
   donors = (models.Donor.objects.select_related('membership')
+                                .prefetch_related('step_set')
                                 .order_by('firstname', 'lastname',
-                                          'membership', '-next_step'))
+                                          'membership', '-talked'))
   ships = []
   deleted = 0
   prior = None
-  matching = False
   for donor in donors:
     if (prior and donor.membership == prior.membership and
         donor.firstname == prior.firstname and donor.lastname and
         donor.lastname == prior.lastname and not donor.talked):
       #matches prev, no completed steps
-      matching = True
-      donor.delete()
+      if donor.get_next_step():
+        logger.warning('%s matched but has a step. Not deleting.' % unicode(donor))
+        prior = donor
+      else:
+        logger.info('Deleting %s' % unicode(donor))
+        donor.delete()
       deleted += 1
       if not donor.membership in ships:
         ships.append(donor.membership)
     else:
-      if matching: #break, reset
-        matching = False
       prior = donor
   return render(request, 'fund/test.html', {'deleted':deleted, 'ships':ships})
 

@@ -614,9 +614,8 @@ class GivingProjectGrant(models.Model):
       return None
 
   def yearend_due(self):
-    if self.agreement_mailed:
-      return (self.agreement_mailed +
-          timedelta(days=30)).replace(year = self.agreement_mailed.year + 1)
+    if self.agreement_returned:
+      return self.agreement_returned.replace(year = self.agreement_returned.year + 1)
     else:
       return None
 

@@ -51,6 +51,7 @@ urlpatterns = patterns('',
 
   # dev
   (r'^dev/jslog/?', 'sjfnw.views.log_javascript'),
+  (r'^dev/donor-dups', 'sjfnw.fund.views.find_duplicates'),
 )
 
 #for dev_appserver
