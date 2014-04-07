@@ -145,7 +145,6 @@ autoSave.resume = function() {
 autoSave.save = function (submit, override){
   if (!override){ override = 'false'; }
   console.log(formUtils.logTime() + "autosaving");
-  console.log($('form').serialize());
   $.ajax({
     url: autoSave.save_url,
     type:"POST",

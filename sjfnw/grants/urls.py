@@ -26,17 +26,18 @@ apply_urls += patterns('sjfnw.grants.views',
   (r'^info/(?P<cycle_id>\d+)/?$','cycle_info'),
 
   #application ajax
-  (r'^(?P<draft_id>\d+)/add-file/?$', 'AddFile'),
-  (r'^(?P<draft_id>\d+)/remove/(?P<file_field>.*)/?$', 'RemoveFile'),
   (r'^(?P<cycle_id>\d+)/autosave/?$','autosave_app')
+)
+
+root_urls = patterns('sjfnw.grants.views',
+  (r'^(?P<draft_type>.*)/(?P<draft_id>\d+)/add-file/?$', 'add_file'),
+  (r'^(?P<draft_type>.*)/(?P<draft_id>\d+)/remove/(?P<file_field>.*)/?$', 'remove_file')
 )
 
 report_urls = patterns('sjfnw.grants.views',
   # year-end report
   (r'^(?P<award_id>\d+)/?$', 'year_end_report'),
   (r'^(?P<award_id>\d+)/autosave/?$', 'autosave_yer'),
-  (r'^(?P<draft_id>\d+)/add-file?$', 'add_file_yer'),
-  (r'^(?P<draft_id>\d+)/remove/(?P<file_field>.*)/?$', 'remove_file_yer'),
   (r'^view/(?P<report_id>\d+)/?$', 'view_yer'),
   (r'^view-file/(?P<report_id>\d+)-(?P<file_type>.*)\.', 'view_yer_file'),
   (r'^draft-file/(?P<draft_id>\d+)-(?P<file_type>.*)\.', 'view_yer_draft_file'),

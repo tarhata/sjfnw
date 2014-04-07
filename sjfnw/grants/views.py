@@ -345,12 +345,20 @@ def autosave_app(request, cycle_id):  # /apply/[cycle_id]/autosave/
     draft.save()
     return HttpResponse("success")
 
-def AddFile(request, draft_id):
+def add_file(request, draft_type, draft_id):
   """ Upload a file to a draft
       Called by javascript in application page """
 
-  draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
-  logger.debug(unicode(draft.organization) + u' adding a file')
+  if draft_type == 'apply':
+    draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
+    logger.debug(unicode(draft.organization) + u' adding a file')
+  elif draft_type == 'report':
+    draft = get_object_or_404(models.YERDraft, pk=draft_id)
+    logger.debug('Adding a file to YER draft %d' % draft_id)
+  else:
+    logger.error('Invalid draft_type %s for add_file' % draft_type)
+    return Http404
+
   logger.debug([request.body]) #don't remove this without fixing storage to not access body blob_file = False
   blob_file = False
   for key in request.FILES:
@@ -378,10 +386,10 @@ def AddFile(request, draft_id):
              u'" target="_blank" title="' + unicode(blob_file) + u'">' +
              unicode(blob_file) + u'</a> [<a onclick="fileUploads.removeFile(\'' +
              field_name + u'\');">remove</a>]')
-  logger.info(u"AddFile returning: " + content)
+  logger.info(u"add_file returning: " + content)
   return HttpResponse(content)
 
-def RemoveFile(request, draft_id, file_field):
+def remove_file(request, draft_type, draft_id, file_field):
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   if hasattr(draft, file_field):
     old = getattr(draft, file_field)
@@ -425,48 +433,6 @@ def autosave_yer(request, award_id):
     draft.modified = timezone.now()
     draft.save()
     return HttpResponse("success")
-
-def add_file_yer(request, draft_id):
-
-  draft = get_object_or_404(models.YERDraft, pk=draft_id)
-  logger.debug([request.body]) #don't remove this without fixing storage to not access body blob_file = False
-
-  blob_file = False
-  for key in request.FILES:
-    blob_file = request.FILES[key]
-    if blob_file:
-      if hasattr(draft, key):
-        setattr(draft, key, blob_file)
-        field_name = key
-        break
-      else:
-        logger.error('Tried to add unknown file field %s' % key)
-  draft.modified = timezone.now()
-  draft.save()
-
-  if not (blob_file and field_name):
-    return HttpResponse("Errorrrr")
-
-  content = (field_name + u'~~<a href="' + GetFileURLs(request, draft)[field_name] +
-             u'" target="_blank" title="' + unicode(blob_file) + '">' +
-             unicode(blob_file) + '</a> [<a onclick="fileUploads.removeFile(\'' +
-             field_name + '\');">remove</a>]')
-  logger.info('add_file_yer returning %s' % content)
-
-  return HttpResponse(content)
-
-
-def remove_file_yer(request, draft_id, file_field): #TODO combine with app
-  draft = get_object_or_404(models.YERDraft, pk=draft_id)
-  if hasattr(draft, file_field):
-    old = getattr(draft, file_field)
-    deferred.defer(DeleteBlob, old)
-    setattr(draft, file_field, '')
-    draft.modified = timezone.now()
-    draft.save()
-  else:
-    logger.error('Tried to remove non-existent field: ' + file_field)
-  return HttpResponse('success')
 
 
 @login_required(login_url=LOGIN_URL)
