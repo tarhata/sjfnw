@@ -3,16 +3,6 @@
 /**----------------------------- formUtils ---------------------------------**/
 var formUtils = {};
 
-formUtils.init = function(url_prefix, draft_id, submit_id, staff_user) {
-  if (staff_user){
-    formUtils.staff_user = staff_user;
-  } else {
-    formUtils.staff_user = '';
-  }
-  autoSave.init(url_prefix, draft_id, submit_id, staff_user);
-  fileUploads.init(url_prefix, draft_id);
-};
-
 formUtils.loading_image = '<img src="/static/images/ajaxloader2.gif" height="16" width="16" alt="Loading...">';
 
 formUtils.status_texts = { //for ajax error messages
@@ -25,6 +15,18 @@ formUtils.status_texts = { //for ajax error messages
   503: '503 Service unavailable',
   504: '504 Gateway timeout'
 };
+
+
+formUtils.init = function(url_prefix, draft_id, submit_id, staff_user) {
+  if (staff_user){
+    formUtils.staff_user = staff_user;
+  } else {
+    formUtils.staff_user = '';
+  }
+  autoSave.init(url_prefix, submit_id);
+  fileUploads.init(url_prefix, draft_id);
+};
+
 
 formUtils.currentTimeDisplay = function(){
   /* returns current time as a string. format = May 12, 2:45p.m. */
@@ -48,6 +50,7 @@ formUtils.currentTimeDisplay = function(){
   return monthNames[d.getMonth()]+' '+d.getDate()+', '+h+':'+m+dd;
 };
 
+
 formUtils.logTime = function (){
   /* returns current time as a string for console logs. hh:mm:ss */
   var d = new Date();
@@ -55,6 +58,22 @@ formUtils.logTime = function (){
   m = m<10?"0"+m:m;
   return d.getHours() + ':' + m + ':' + d.getSeconds() + ' ';
 };
+
+
+/** CHARACTER LIMITS **/
+function charLimitDisplay(area, limit){
+  var counter = document.getElementById(area.name + '_counter');
+  var words = area.value.match(/[^ \r\n]+/g) || [];
+  //console.log(words);
+  var diff = limit - words.length;
+  if (diff >= 0) {
+    counter.innerHTML = diff + ' words remaining';
+    counter.className = 'char_counter_ok';
+  } else {
+    counter.innerHTML = -diff + ' words over the limit';
+    counter.className = 'char_counter_over';
+  }
+}
 
 /**------------------------------- autoSave --------------------------------**/
 
@@ -70,14 +89,9 @@ autoSave.pause_timer = false;
 
 */
 
-autoSave.init = function(url_prefix, draft_id, submit_id, staff_user) {
-  autoSave.save_url = '/' + url_prefix + '/' + draft_id + '/autosave';
+autoSave.init = function(url_prefix, submit_id) {
   autoSave.submit_url = '/' + url_prefix + '/' + submit_id;
-  if (staff_user){
-    autoSave.staff_user = staff_user;
-  } else {
-    autoSave.staff_user = false;
-  }
+  autoSave.save_url = autoSave.submit_url + '/autosave';
   console.log('Autosave variables loaded');
   autoSave.resume();
 };
@@ -126,10 +140,11 @@ autoSave.resume = function() {
 autoSave.save = function (submit, override){
   if (!override){ override = 'false'; }
   console.log(formUtils.logTime() + "autosaving");
+  console.log($('form').serialize());
   $.ajax({
     url: autoSave.save_url,
     type:"POST",
-    data:$('form').serialize() + '&user_id=' + user_id,
+    data:$('form').serialize(),// + '&user_id=' + formuser_id,
     success:function(data, textStatus, jqXHR){
       if (jqXHR.status==200) {
         if (submit) { //trigger the submit button
@@ -163,21 +178,6 @@ autoSave.save = function (submit, override){
   });
 };
 
-/** CHARACTER LIMITS **/
-function charLimitDisplay(area, limit){
-  var counter = document.getElementById(area.name + '_counter');
-  var words = area.value.match(/[^ \r\n]+/g) || [];
-  //console.log(words);
-  var diff = limit - words.length;
-  if (diff >= 0) {
-    counter.innerHTML = diff + ' words remaining';
-    counter.className = 'char_counter_ok';
-  } else {
-    counter.innerHTML = -diff + ' words over the limit';
-    counter.className = 'char_counter_over';
-  }
-}
-
 /**------------------------------------ FILE UPLOADS -------------------------------------------**/
 var fileUploads = {};
 
@@ -188,15 +188,10 @@ fileUploads.current_field = '';
 fileUploads.init = function(url_prefix, draft_id) {
   fileUploads.get_url = '/get-upload-url/?type=' + url_prefix + '&id=' + draft_id;
   fileUploads.remove_url = '/' + url_prefix + '/' + draft_id + '/remove/';
-  $('#id_photo1').change(function() {
-      fileUploads.fileChanged('id_photo1');
+  $('[type="file"]').change(function() {
+      fileUploads.fileChanged(this.id);
     });
-  /*
-    id = 'id_photo' + i;
-    console.log('setting onchange for ' + id);
-    $('#' + id).change(  }
-  */
-  console.log('fileUploads vars loaded');
+  console.log('fileUploads vars loaded, file fields scripted');
 };
 
 /* each file field has its own form. html element ids use this pattern:
@@ -272,51 +267,12 @@ fileUploads.iframeUpdated = function(iframe) { //process response
 
 fileUploads.removeFile = function(field_name) {
   $.ajax({
-    url: fileUploads.remove_url + field_name + formUtils.staff_override,
+    url: fileUploads.remove_url + field_name + formUtils.staff_user,
     success: function(data) {
       r_span = document.getElementById(field_name + '_uploaded');
       r_span.innerHTML = '<i>no file uploaded</i>';
     }
   });
 };
-
-/** user id and override **/
-var user_id = '';
-
-function setUserID() {
-  var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  var result = '';
-  for (var i = 16; i > 0; --i){
-    result += chars[Math.round(Math.random() * (chars.length - 1))];
-  }
-  user_id = result;
-  console.log(user_id);
-}
-
-function showOverrideWarning(ver){
-  window.scrollTo(0, 0);
-  console.log('scrolled, showing override');
-  $('#override_dialog'+ver).dialog({
-    title: 'Warning: simultaneous editing',
-    modal: true,
-    buttons: [{
-      text:'Proceed anyway',
-      click: function(){
-          console.log('override!');
-          $('#override_dialog'+ver).dialog("close");
-          autoSave(false, override=true);
-          autoSave.resume();
-        }
-      },{
-          text:'Cancel',
-          click: function(){ location.href = '/apply/'; }
-      }
-    ],
-    closeOnEscape: false,
-    resizable: false,
-    position: {my: 'top', at: 'top', of: '#org_wrapper'},
-    width:400
-  });
-}
 
 
