@@ -62,7 +62,7 @@
             <li>Agreement mailed {{ award.agreement_mailed|date:"n/j/y" }},
             {% if award.agreement_returned|date:"n/j/y" %}returned {{ award.agreement_returned|date:"n/j/y" }}
             {% else %}due {{ award.agreement_due|date:"n/j/y" }}{% endif %}.</li>
-            <li>Year end report due {{ award.yearend_due|date:"n/j/y" }}.</li>
+            <li><a href="/report/{{ award.pk }}">Year end report</a> due {{ award.yearend_due|date:"n/j/y" }}.</li>
           {% endif %}
         {% endif %}
         {% endwith %}
