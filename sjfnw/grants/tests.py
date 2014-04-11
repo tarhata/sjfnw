@@ -46,7 +46,7 @@ class BaseGrantTestCase(BaseTestCase):
     user = User.objects.create_user('testorg@gmail.com', 'testorg@gmail.com', 'noob')
     self.client.login(username = 'testorg@gmail.com', password = 'noob')
 
-  def setUp(self, login):
+  def setUp(self, login=''):
     super(BaseGrantTestCase, self).setUp(login)
     if login == 'testy':
       self.logInTestorg()
@@ -64,7 +64,7 @@ class BaseGrantFilesTestCase(BaseGrantTestCase):
   """ Can handle file uploads too """
 
   def setUp(self, login):
-    super(BaseGrantFilesTestCase, self).setUp(login)
+    super(BaseGrantFilesTestCase, self).setUp(login=login)
     self.testbed = testbed.Testbed()
     self.testbed.activate()
     self.testbed.init_datastore_v3_stub()
@@ -153,7 +153,7 @@ class Register(BaseGrantTestCase):
   template_error = 'grants/org_login_register.html'
 
   def setUp(self):
-    super(Register, self).setUp('')
+    super(Register, self).setUp(login='')
 
   def test_valid_registration(self):
     """ All fields provided, neither email nor name match an org in db """
@@ -267,8 +267,11 @@ class Register(BaseGrantTestCase):
     MIDDLEWARE_CLASSES = TEST_MIDDLEWARE, MEDIA_ROOT = 'media/')
 class ApplySuccessful(BaseGrantFilesTestCase):
 
+  org_id = 2
+  cycle_id = 2
+
   def setUp(self):
-    super(ApplySuccessful, self).setUp('testy')
+    super(ApplySuccessful, self).setUp(login='testy')
 
   def test_saved_timeline1(self):
     """ Verify that a timeline with just a complete first row is accepted
@@ -288,12 +291,13 @@ class ApplySuccessful(BaseGrantFilesTestCase):
                 '', '', '',
                 '', '', '']
 
-    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    draft = DraftGrantApplication.objects.get(organization_id = self.org_id, grant_cycle_id = self.cycle_id)
     alter_draft_timeline(draft, answers)
 
-    response = self.client.post('/apply/3/', follow=True)
+    response = self.client.post('/apply/%d/' % self.cycle_id, follow=True)
     self.assertEqual(response.status_code, 200)
-    app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3) #TODO failing here
+    print(response.context)
+    app = GrantApplication.objects.get(organization_id = self.org_id, grant_cycle_id = self.cycle_id) #TODO failing here
     self.assertEqual(app.timeline, json.dumps(answers))
 
   def test_saved_timeline5(self):
@@ -315,12 +319,12 @@ class ApplySuccessful(BaseGrantFilesTestCase):
       'July', 'Walking around Greenlake', '9 times',
       'August', 'Reading in the shade', 'No sunburns',]
 
-    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    draft = DraftGrantApplication.objects.get(organization_id = self.org_id, grant_cycle_id = self.cycle_id)
     alter_draft_timeline(draft, answers)
 
-    response = self.client.post('/apply/3/', follow=True)
+    response = self.client.post('/apply/%d/' % self.cycle_id, follow=True)
     self.assertEqual(response.status_code, 200)
-    app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    app = GrantApplication.objects.get(organization_id = self.org_id, grant_cycle_id = self.cycle_id)
     self.assertEqual(app.timeline, json.dumps(answers))
 
   def test_mult_budget(self):
@@ -329,16 +333,16 @@ class ApplySuccessful(BaseGrantFilesTestCase):
         verify: successful submission
                 files match  """
 
-    draft = DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    draft = DraftGrantApplication.objects.get(organization_id = self.org_id, grant_cycle_id = self.cycle_id)
     files = ['funding_sources.docx', 'diversity.doc', 'budget1.docx', 'budget2.txt', 'budget3.png', '', '']
     alter_draft_files(draft, files)
 
-    response = self.client.post('/apply/3/', follow=True)
+    response = self.client.post('/apply/%d/' % self.cycle_id, follow=True)
 
     Organization.objects.get(pk=2)
     self.assertTemplateUsed(response, 'grants/submitted.html')
-    app = GrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
-    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
+    app = GrantApplication.objects.get(organization_id = self.org_id, grant_cycle_id = self.cycle_id)
+    self.assertEqual(0, DraftGrantApplication.objects.filter(organization_id = self.org_id, grant_cycle_id = 3).count())
     self.assertEqual(app.budget1, files[2])
     self.assertEqual(app.budget2, files[3])
 
@@ -346,7 +350,7 @@ class ApplySuccessful(BaseGrantFilesTestCase):
 class ApplyBlocked(BaseGrantTestCase):
 
   def setUp(self):
-    super(ApplyBlocked, self).setUp('testy')
+    super(ApplyBlocked, self).setUp(login='testy')
 
   def test_closed_cycle(self):
     response = self.client.get('/apply/3/')
@@ -377,7 +381,7 @@ class ApplyValidation(BaseGrantFilesTestCase):
       files  """
 
   def setUp(self):
-    super(ApplyValidation, self).setUp('testy')
+    super(ApplyValidation, self).setUp(login='testy')
 
   def test_project_requirements(self):
     """ scenario: support type = project, b1 & b2, no other project info given
@@ -431,7 +435,7 @@ class ApplyValidation(BaseGrantFilesTestCase):
 class StartApplication(BaseGrantTestCase): #TODO MIGHT BE OUT OF DATE
 
   def setUp(self):
-    super(StartApplication, self).setUp('none')
+    super(StartApplication, self).setUp(login='none')
 
   def test_load_first_app(self):
     """ Brand new org starting an application
@@ -469,7 +473,7 @@ class StartApplication(BaseGrantTestCase): #TODO MIGHT BE OUT OF DATE
 class DraftWarning(BaseGrantTestCase):
 
   def setUp(self):
-    super(DraftWarning, self).setUp('admin')
+    super(DraftWarning, self).setUp(login='admin')
 
   def test_long_alert(self):
     """ Cycle created 12 days ago with cycle closing in 7.5 days """
@@ -540,7 +544,7 @@ class OrgRollover(BaseGrantTestCase):
   content,   timeline,   files,   not extra cycle q   """
 
   def setUp(self, *args):
-    super(OrgRollover, self).setUp('newbie')
+    super(OrgRollover, self).setUp(login='newbie')
 
   def test_draft_rollover(self):
     """ scenario: take complete draft, make it belong to new org, rollover to cycle 1
@@ -621,7 +625,7 @@ class OrgRollover(BaseGrantTestCase):
 class AdminRevert(BaseGrantTestCase):
 
   def setUp(self):
-    super(AdminRevert, self).setUp('admin')
+    super(AdminRevert, self).setUp(login='admin')
 
   def test_load_revert(self):
 
@@ -651,13 +655,13 @@ class AdminRevert(BaseGrantTestCase):
 class AdminRollover(BaseGrantTestCase):
 
   def setUp(self):
-    super(AdminRollover, self).setUp('admin')
+    super(AdminRollover, self).setUp(login='admin')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class DraftExtension(BaseGrantTestCase):
 
   def setUp(self):
-    super(DraftExtension, self).setUp('admin')
+    super(DraftExtension, self).setUp(login='admin')
 
   def test_create_draft(self):
     """ Admin create a draft for Fresh New Org """
@@ -682,7 +686,7 @@ class DraftExtension(BaseGrantTestCase):
 class Draft(BaseGrantTestCase):
 
   def setUp(self):
-    super(Draft, self).setUp('testy')
+    super(Draft, self).setUp(login='testy')
 
   def test_autosave1(self):
     """ scenario: steal contents of draft 2, turn it into a dict. submit that as request.POST for cycle 5
@@ -763,7 +767,7 @@ class OrgHomeAwards(BaseGrantTestCase):
   template = 'grants/org_home.html'
 
   def setUp(self):
-    super(OrgHomeAwards, self).setUp('testy')
+    super(OrgHomeAwards, self).setUp(login='testy')
 
   #TODO test mult awards per app
 
@@ -1157,4 +1161,25 @@ class AdminInlines(BaseGrantTestCase):
 
     self.assertContains(response, papp.giving_project.title)
     self.assertContains(response, papp.screening_status)
+
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class YearEndReport(BaseGrantTestCase):
+  """ Use an organization with at least one existing award """
+
+  def setUp(self):
+    super(YearEndReport, self).setUp(login='testy')
+    award = GivingProjectGrant(project_app_id = 1, amount = 5000)
+    award.save()
+
+  def test_start_report(self):
+    """ Load report for first time """
+
+    award = GivingProjectGrant.objects.get(project_app_id=1)
+
+    response = self.client.get('/report/%d' % award.pk)
+
+    self.assertTemplateUsed(response, 'grants/yer_form.html')
+    form = response.context['form']
+    print(form)
+
 
