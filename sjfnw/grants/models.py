@@ -195,8 +195,8 @@ class DraftGrantApplication(models.Model):
 
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
-  created = models.DateTimeField(blank=True, default = timezone.now())
-  modified = models.DateTimeField(blank=True, default = timezone.now())
+  created = models.DateTimeField(blank=True, default = timezone.now)
+  modified = models.DateTimeField(blank=True, default = timezone.now)
   modified_by = models.CharField(blank=True, max_length=100)
 
   contents = models.TextField(default='{}')
@@ -255,7 +255,7 @@ class GrantApplication(models.Model):
   """ Submitted grant application """
 
   #automated fields
-  submission_time = models.DateTimeField(blank=True, default=timezone.now(),
+  submission_time = models.DateTimeField(blank=True, default=timezone.now,
                                          verbose_name='Submitted')
   organization = models.ForeignKey(Organization)
   grant_cycle = models.ForeignKey(GrantCycle)
@@ -584,7 +584,7 @@ class ProjectApp(models.Model):
 
 
 class GrantApplicationLog(models.Model):
-  date = models.DateTimeField(default = timezone.now())
+  date = models.DateTimeField(default = timezone.now)
   organization = models.ForeignKey(Organization)
   application = models.ForeignKey(GrantApplication, null=True, blank=True, help_text = 'Optional - if this log entry relates to a specific grant application, select it from the list')
   staff = models.ForeignKey(User)
@@ -595,7 +595,7 @@ class GrantApplicationLog(models.Model):
     ordering = ['-date']
 
 class GivingProjectGrant(models.Model):
-  created = models.DateTimeField(default=timezone.now())
+  created = models.DateTimeField(default=timezone.now)
 
   project_app = models.OneToOneField(ProjectApp)
 
@@ -622,7 +622,7 @@ class GivingProjectGrant(models.Model):
 
 class SponsoredProgramGrant(models.Model):
 
-  entered = models.DateTimeField(default=timezone.now())
+  entered = models.DateTimeField(default=timezone.now)
   organization = models.ForeignKey(Organization)
   amount = models.PositiveIntegerField()
   check_number = models.PositiveIntegerField(null=True, blank=True)
