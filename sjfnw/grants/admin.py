@@ -1,10 +1,12 @@
 from django.contrib import admin
 from django.contrib.admin.helpers import InlineAdminFormSet
+from django.db import connection
 from django.http import HttpResponse
 from django.forms import ValidationError, ModelForm
 from django.forms.models import BaseInlineFormSet
 from django.utils.safestring import mark_safe
 
+from sjfnw.utils import log_queries
 from sjfnw.admin import advanced_admin, YearFilter
 from sjfnw.grants.models import *
 from sjfnw.grants.modelforms import DraftAdminForm
@@ -308,8 +310,8 @@ class GivingProjectGrantA(admin.ModelAdmin):
       'approved',
       'year_end_report_due',
     )
-  readonly_fields = ('year_end_report_due', 'grant_cycle',
-                     'organization_name', 'giving_project')
+  readonly_fields = ['year_end_report_due', 'grant_cycle',
+                     'organization_name', 'giving_project']
 
   def year_end_report_due(self, obj):
     return obj.yearend_due()
@@ -323,6 +325,23 @@ class GivingProjectGrantA(admin.ModelAdmin):
 
   def giving_project(self, obj):
     return unicode(obj.project_app.giving_project)
+
+  def get_readonly_fields(self, request, obj=None):
+    logger.info(obj)
+    if obj is not None: #editing - lock org & cycle
+      self.readonly_fields.append('project_app')
+      return self.readonly_fields
+    return self.readonly_fields
+
+  """
+  def change_view(self, request, object_id, form_url='', extra_context=None):
+    logger.info(connection.queries)
+    view = super(GivingProjectGrantA, self).change_view(request, object_id, form_url,
+                                                 extra_context=extra_context)
+    logger.info('Post view')
+    log_queries(connection.queries)
+    return view
+  """
 
 class SponsoredProgramGrantA(admin.ModelAdmin):
   list_display = ('organization', 'amount', 'check_mailed')
