@@ -54,8 +54,11 @@ def admin_adv_redirect(request):
   return redirect('/admin-advanced/')
 
 def log_javascript(request):
-  logger.info('log_js')
   if request.method == 'POST':
-    logger.warning(request.POST)
+    logger.info('log_js')
+    log = ''
+    for k in request.POST:
+      log = log + '\n' + k + ': ' + str(request.POST[k])
+    logger.warning(log)
   return http.HttpResponse('success')
 

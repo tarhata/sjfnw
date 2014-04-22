@@ -1,6 +1,7 @@
 ﻿{% extends 'fund/base_blocks.html' %}
 {% block title %}Project progress {{block.super}}{% endblock %}
 {% block script %}
+{{ block.super }}
 {% with giving_project=request.membership.giving_project %}
 <script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
