@@ -89,7 +89,7 @@ autoSave.pause_timer = false;
 
 */
 
-autoSave.init = function(url_prefix, submit_id) {
+autoSave.init = function(url_prefix, submit_id, user_id) {
   autoSave.submit_url = '/' + url_prefix + '/' + submit_id;
   autoSave.save_url = autoSave.submit_url + '/autosave';
   if (user_id) {
