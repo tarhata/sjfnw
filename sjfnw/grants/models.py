@@ -611,7 +611,7 @@ class GivingProjectGrant(models.Model):
   approved = models.DateField(verbose_name='Date approved by the ED', null=True, blank=True)
 
   class Meta:
-    ordering = ('-created')
+    ordering = ['-created']
 
   def agreement_due(self):
     if self.agreement_mailed:
