@@ -246,6 +246,42 @@ class ContactPersonWidget(forms.widgets.MultiWidget):
       val_list.append(widget.value_from_datadict(data, files, name + '_%s' % i))
     return ', '.join(val_list)
 
+class StayInformedWidget(forms.widgets.MultiWidget):
+  """ Widget with multiple short text inputs.
+    Stores in DB as a json encoded dict """
+
+  def __init__(self, sub_fields=[], attrs=None):
+    self._sub_fields = sub_fields
+    _widgets = [forms.TextInput() for field in sub_fields]
+    super(StayInformedWidget, self).__init__(_widgets, attrs)
+
+  def decompress(self, value):
+    """ break single db value up for display
+      returns list of values to be displayed in widgets """
+    if value:
+      return [v for k, v in json.loads(value).iteritems()]
+    else:
+      return None
+
+  def format_output(self, rendered_widgets):
+    """ format widgets for display - add any additional labels, html, etc """
+    output = '<table>'
+    for i, widget in enumerate(rendered_widgets):
+      if i % 2 == 0:
+        output = output + '<tr>'
+      output = output + '<td><label>' + self._sub_fields[i] + '</label>' + widget + '</td>'
+      if i % 2 == 1:
+        output = output + '</tr>'
+    output = output + '</table>'
+    return output
+
+  def value_from_datadict(self, data, files, name):
+    """ Consolidate widget data into single value for db storage """
+
+    vals = {}
+    for i, widget in enumerate(self.widgets):
+      vals[self.sub_fields[i]] = widget.value_from_datadict(data, files, name + '_%s' % i)
+    return json.dumps(vals)
 
 def set_yer_custom_fields(field, **kwargs):
   if field.name == 'phone':
@@ -261,7 +297,8 @@ class YearEndReportForm(ModelForm):
     model = YearEndReport
     exclude = ['submitted']
     widgets = {'award': forms.HiddenInput(),
-               'contact_person': ContactPersonWidget}
+               'contact_person': ContactPersonWidget,
+               'stay_informed': StayInformedWidget}
 
 # ADMIN
 

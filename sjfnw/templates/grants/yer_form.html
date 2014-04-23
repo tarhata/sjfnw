@@ -59,6 +59,31 @@ $(document).ready(function() {
       {{ form.goal_progress }}
     </div>
     <div class="narrative_q">
+      {{ form.quantitative_measures.label_tag }}
+      {{ form.quantitative_measures.errors}}
+      {{ form.quantitative_measures }}
+    </div>
+    <div class="narrative_q">
+      {{ form.evalutation.label_tag }}
+      {{ form.evalutation.errors}}
+      {{ form.evalutation }}
+    </div>
+    <div class="narrative_q">
+      {{ form.achieved.label_tag }}
+      {{ form.achieved.errors}}
+      {{ form.achieved }}
+    </div>
+    <div class="narrative_q">
+      {{ form.collaboration.label_tag }}
+      {{ form.collaboration.errors}}
+      {{ form.collaboration }}
+    </div>
+    <div class="narrative_q">
+      {{ form.new_funding.label_tag }}
+      {{ form.new_funding.errors}}
+      {{ form.new_funding }}
+    </div>
+    <div class="narrative_q">
       {{ form.major_changes.label_tag }}
       {{ form.major_changes.errors}}
       {{ form.major_changes }}
@@ -74,32 +99,22 @@ $(document).ready(function() {
       {{ form.donations_count }}
     </div>
     <div class="narrative_q">
-      {{ form.donations_count_last.label_tag }}
-      {{ form.donations_count_last.errors}}
-      {{ form.donations_count_last }}
-    </div>
-    <div class="narrative_q">
-      {{ form.quantitative_measures.label_tag }}
-      {{ form.quantitative_measures.errors}}
-      {{ form.quantitative_measures }}
-    </div>
-    <div class="narrative_q">
-      {{ form.policy_changes.label_tag }}
-      {{ form.policy_changes.errors}}
-      {{ form.policy_changes }}
+      {{ form.stay_informed.label_tag }}
+      {{ form.stay_informed.errors}}
+      {{ form.stay_informed }}
     </div>
     <div class="narrative_q">
       {{ form.other_comments.label_tag }}
       {{ form.other_comments.errors}}
       {{ form.other_comments }}
     </div>
-		
+
     <input id="hidden_submit_app" type="submit" value="Submit EVERYTHING" style="display:none;"/>
 
   </form> <!-- end non-file form -->
 
   <iframe class="upload" id="id_upload_frame" name="upload_frame" onload="fileUploads.iframeUpdated(this); console.log('iframe onload');"></iframe>
-  
+
   {% autoescape off %}
   <table class="file-uploads">
     <tr>
@@ -110,7 +125,7 @@ $(document).ready(function() {
       <td>1. <form class="files_form" id="photo1_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
           <span class="file_wrapper">{{ form.photo1 }}<span class="upload_button">Choose file</span></span>
           <input id="photo1_submit" type="submit" value="Submit files" style="display:none;">
-        </form>          
+        </form>
       </td>
       <td>
         <span id="photo1_uploaded">{{ file_urls.photo1 }}</span>
