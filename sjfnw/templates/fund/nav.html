@@ -1,0 +1,8 @@
+<table class="nav">
+  <tr>
+    <td>{% if request.membership and request.membership.member %}<a href="/fund/projects">your projects</a>{% endif %}</td>
+    <td class="center"><a href="/fund/support">support/FAQ</a></td>
+    <td style="text-align:right;">{% if user.is_authenticated %}{{user.email|truncatechars:"21"}} | <a href="/fund/logout/">logout</a>{% endif %}</td>
+  </tr>
+</table>
+

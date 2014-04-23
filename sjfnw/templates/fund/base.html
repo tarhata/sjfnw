@@ -1,14 +1,16 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-  <title>{% block title %}- Project Central{% endblock %}</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=2.0, user-scalable=yes">
-  <link rel="stylesheet" type="text/css" href="/static/css/base.css">
+﻿{% extends 'base.html' %}
+
+{% block title %}- Project Central{% endblock %}
+
+{% block style %}
   <link rel="stylesheet" type="text/css" href="/static/css/fundraising.css">
-  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+{% endblock style %}
+
+{% block script %}
+  {{ block.super }}
   <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
-  <script type="text/javascript"><!--google analytics -->
+  <!--google analytics -->
+  <script type="text/javascript">
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'UA-28076150-2']);
 
@@ -25,11 +27,9 @@
       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
   </script>
-  <!-- SCRIPTS -->
-  {% block script %}{% endblock %}
-</head>
+{% endblock script %}
 
-<body>
+{% block body %}
   <!-- HEADER -->
   <table class="header"><tr>
     <td style="width:161px;">
@@ -43,13 +43,9 @@
   <div class="content_area">
     {% block content %}{% endblock %}<!-- CONTENT -->
   </div>
-  <table class="footer"><!-- FOOTER -->
-    <tr>
-      <td style="width:25%;">{% if request.membership and request.membership.member %}<a href="/fund/projects">your projects</a>{% endif %}</td>
-      <td style="width:25%;text-align:center;"><a href="/fund/support">support/FAQ</a></td>
-      <td style="width:15%;text-align:right;"><a href="http://socialjusticefund.org" target="_blank">sjf.org</a></td>
-      <td style="width:35%;text-align:right;">{% if user.is_authenticated %}{{user.email|truncatechars:"21"}} | <a href="/fund/logout/">logout</a>{% endif %}</td>
-    </tr>
-  </table>
-</body>
-</html>
+  {% include 'fund/nav.html' %}
+  <div class="center footer">
+    <a href="http://socialjusticefund.org" target="_blank">socialjusticefund.org</a>
+  </div>
+{% endblock body %}
+

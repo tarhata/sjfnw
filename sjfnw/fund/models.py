@@ -107,6 +107,7 @@ class Membership(models.Model): #relationship b/n member and gp
 
   class Meta:
     ordering = ['member']
+    unique_together = ('giving_project', 'member')
 
   def __unicode__(self):
     return unicode(self.member)+u', '+unicode(self.giving_project)

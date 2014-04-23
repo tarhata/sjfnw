@@ -1,6 +1,7 @@
 ﻿{% extends 'fund/base_blocks.html' %}
 {% block title %}Project progress {{block.super}}{% endblock %}
 {% block script %}
+{{ block.super }}
 {% with giving_project=request.membership.giving_project %}
 <script type="text/javascript" src="/static/js/modernizr.custom.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -65,6 +66,13 @@ if (Modernizr.inlinesvg) {
   textProgress = true;
 }
 
+function toggleNews() {
+  var extra_news = $('#extra-news');
+  var show_news = $('#show-news');
+  extra_news.toggle();
+  show_news.toggle();
+};
+
 $(document).ready(function() {
 	if (textProgress) {
 		console.log('textProgress');
@@ -94,10 +102,17 @@ $(document).ready(function() {
 <b>NEWS</b>
 <div class="indent">
 {% for new in news %}
-{{new.date|date:"n/d/y"}} - {{new.summary}}
-<br><br>
-{% empty %}
-No news yet!
+  <div class="news-item">{{new.date|date:"n/d/y"}} - {{new.summary}}</div>
+  {% if forloop.counter == 8 and not forloop.last %}
+  <a id="show-news" onclick="toggleNews()">show more</a>
+  <div id="extra-news" style="display:none;">
+  {% endif %}
+  {% if forloop.last and forloop.counter > 8 %}
+  <a id="hide-news" onclick="toggleNews()">show less</a>
+  </div>
+  {% endif %}
+  {% empty %}
+  No news yet!
 {% endfor %}
 </div>
 

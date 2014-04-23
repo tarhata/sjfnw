@@ -51,7 +51,7 @@ def get_block_content(membership, get_steps=True):
   # project news
   bks.append(models.NewsItem.objects
             .filter(membership__giving_project=membership.giving_project)
-            .order_by('-date'))
+            .order_by('-date')[:25])
   # grants
   p_apps = ProjectApp.objects.filter(giving_project=membership.giving_project)
   p_apps = p_apps.select_related('giving_project', 'application',
@@ -485,8 +485,10 @@ def gp_survey(request, gp_survey):
   else: #GET
     form = modelforms.SurveyResponseForm(gp_survey.survey, initial={'gp_survey': gp_survey})
 
+  steps, news, grants = get_block_content(request.membership)
+
   return render(request, 'fund/fill_gp_survey.html', {
-      'form': form, 'survey': gp_survey.survey})
+    'form': form, 'survey': gp_survey.survey, 'news': news, 'steps': steps, 'grants': grants})
 
 
 

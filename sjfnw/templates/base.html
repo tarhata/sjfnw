@@ -1,31 +1,53 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
 
 <head>
-<title>{% block title %}Social Justice Fund Apps{% endblock %}</title>
+  <title>{% block title %}Social Justice Fund Apps{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=2.0, user-scalable=yes">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <!-- CSS -->
+  <link rel="stylesheet" type="text/css" href="/static/css/base.css" media="Screen"/>
+  {% block style %}{% endblock %}
+  <!-- JS -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <!-- log js errors -->
+  <script type="text/javascript">
+    function logError(details) {
+      $.ajax({
+        type: 'POST',
+        url: '/dev/jslog',
+        data: {'user': '{{ user.username }}', 'userAgent': navigator.userAgent, 'error': details},
+      });
+    }
 
-<link rel="stylesheet" type="text/css" href="/static/css/base.css" media="Screen"/>
-<script type="text/javascript"><!--google analytics -->
+    window.onerror = function(message, file, line) {
+      logError(file + ' (' + line + '): ' + message);
+    };
+  </script>
+  <script type="text/javascript"> if (!window.console) console = {log: function() {}}; </script>
+  {% block script %}
+  <!--google analytics for error pages -->
+  <script type="text/javascript">
 
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-28076150-2']);
-  _gaq.push(['_trackPageview']);
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28076150-2']);
+    _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
 
-</script>
-<!-- IE workaround -->
-<script type="text/javascript"> if (!window.console) console = {log: function() {}}; </script>
-{% block css %}{% endblock %}
+  </script>
+  {% endblock script %}
+  <!-- IE workaround -->
 </head>
 
 <body>
-{% block content %}
-{% endblock %}
+  {% block body %}
+  {% endblock %}
 </body>
+
 </html>
+
