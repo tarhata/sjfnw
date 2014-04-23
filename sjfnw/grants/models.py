@@ -579,6 +579,9 @@ class ProjectApp(models.Model):
                               'the pre-screening status and try again.')
   """
 
+  class Meta:
+    unique_together = ('giving_project', 'application')
+
   def __unicode__(self):
     return '%s - %s' % (self.giving_project.title, self.application)
 
