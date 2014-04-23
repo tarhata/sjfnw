@@ -43,13 +43,9 @@
   <div class="content_area">
     {% block content %}{% endblock %}<!-- CONTENT -->
   </div>
-  <table class="footer"><!-- FOOTER -->
-    <tr>
-      <td style="width:25%;">{% if request.membership and request.membership.member %}<a href="/fund/projects">your projects</a>{% endif %}</td>
-      <td style="width:25%;text-align:center;"><a href="/fund/support">support/FAQ</a></td>
-      <td style="width:15%;text-align:right;"><a href="http://socialjusticefund.org" target="_blank">sjf.org</a></td>
-      <td style="width:35%;text-align:right;">{% if user.is_authenticated %}{{user.email|truncatechars:"21"}} | <a href="/fund/logout/">logout</a>{% endif %}</td>
-    </tr>
-  </table>
+  {% include 'fund/nav.html' %}
+  <div class="center footer">
+    <a href="http://socialjusticefund.org" target="_blank">socialjusticefund.org</a>
+  </div>
 {% endblock body %}
 
