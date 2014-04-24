@@ -313,6 +313,14 @@ class GivingProjectGrantA(admin.ModelAdmin):
   readonly_fields = ['year_end_report_due', 'grant_cycle',
                      'organization_name', 'giving_project']
 
+
+  def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    if db_field.name == 'project_app':
+      pa = request.GET.get('project_app')
+      if pa:
+        kwargs['queryset'] = ProjectApp.objects.filter(pk=pa).select_related('application', 'application__organization', 'giving_project')
+    return super(GivingProjectGrantA, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
   def year_end_report_due(self, obj):
     return obj.yearend_due()
 
