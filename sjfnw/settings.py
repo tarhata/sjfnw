@@ -25,7 +25,7 @@ else:
       'NAME': 'sjfdb_local',
     }
   }
-  DEBUG = True
+DEBUG = True # TODO temporary
 
 APP_BASE_URL = 'https://sjf-nw.appspot.com/' # used by cron jobs
 
