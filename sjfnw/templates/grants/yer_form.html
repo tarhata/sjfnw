@@ -173,6 +173,24 @@ $(document).ready(function() {
         <span id="photo4_uploaded">{{ file_urls.photo4 }}</span>
       </td>
     </tr>
+    <tr>
+      <td colspan="4">{{ form.photo_release.label_tag }}{{ form.photo_release.errors }}</td>
+    </tr>
+    <tr>
+      <td colspan="4">
+          <form class="files_form" id="photo_release_form" action="" target="upload_frame"
+            method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
+          <span class="file_wrapper">
+            {{ form.photo_release }}
+            <span class="upload_button">Choose file</span>
+          </span>
+          <input id="photo_release_submit" type="submit" value="Submit files" style="display:none;">
+        </form>
+      </td>
+      <td>
+        <span id="photo_release_uploaded">{{ file_urls.photo_release }}</span>
+      </td>
+    </tr>
   </table>
   {% endautoescape %}
 
