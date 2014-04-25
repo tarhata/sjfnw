@@ -690,7 +690,7 @@ class YearEndReport(models.Model):
 
   stay_informed = models.TextField(verbose_name=
       ('11. What is the best way for us to stay informed about your work? '
-       '(Enter any/all that apply)'))
+       '(Enter any/all that apply)'), default='{}', blank=True)
 
   other_comments = models.TextField(blank=True, verbose_name=
       ('12. Other comments or information? Do you have any suggestions for how '

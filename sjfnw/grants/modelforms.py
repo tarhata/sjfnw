@@ -290,15 +290,34 @@ def set_yer_custom_fields(field, **kwargs):
     return field.formfield(**kwargs)
 
 class YearEndReportForm(ModelForm):
-  
+  # stay in touch components
+  listserve = forms.CharField(required=False)
+  sit_website = forms.CharField(required=False, label='Website')
+  newsletter = forms.CharField(required=False)
+  facebook = forms.CharField(required=False)
+  twitter = forms.CharField(required=False)
+  other = forms.CharField(required=False)
+
   formfield_callback = set_yer_custom_fields
 
   class Meta:
     model = YearEndReport
     exclude = ['submitted']
     widgets = {'award': forms.HiddenInput(),
-               'contact_person': ContactPersonWidget,
-               'stay_informed': StayInformedWidget}
+               'stay_informed': forms.HiddenInput(),
+               'contact_person': ContactPersonWidget}
+  
+  def clean(self):
+    stay_informed = {}
+    for field_name in self.declared_fields:
+      val = self.cleaned_data.get(field_name, None)
+      if val:
+        stay_informed[field_name] = val
+    if stay_informed:
+      self.cleaned_data['stay_informed'] = json.dumps(stay_informed)
+    else:
+      self._errors['stay_informed'] = 'Please fill out at least one of the options below.'
+    return super(YearEndReportForm, self).clean()
 
 # ADMIN
 

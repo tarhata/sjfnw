@@ -102,6 +102,18 @@ $(document).ready(function() {
       {{ form.stay_informed.label_tag }}
       {{ form.stay_informed.errors}}
       {{ form.stay_informed }}
+      <table>
+        <tr>
+          <td>{{ form.listserve.label }}: {{ form.listserve }}</td>
+          <td>{{ form.website.label }}: {{ form.website }}</td>
+          <td>{{ form.newsletter.label }}: {{ form.newsletter }}</td>
+        </tr>
+        <tr>
+          <td>{{ form.facebook.label }}: {{ form.facebook }}</td>
+          <td>{{ form.twitter.label }}: {{ form.twitter }}</td>
+          <td>{{ form.other.label }}: {{ form.other }}</td>
+        </tr>
+      </table>
     </div>
     <div class="narrative_q">
       {{ form.other_comments.label_tag }}
