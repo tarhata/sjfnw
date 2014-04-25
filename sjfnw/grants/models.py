@@ -644,8 +644,11 @@ class SponsoredProgramGrant(models.Model):
 
 class YearEndReport(models.Model):
 
+  # automatic
   award = models.ForeignKey(GivingProjectGrant, unique=True)
   submitted = models.DateTimeField(default=timezone.now())
+
+  # user-entered
   contact_person = models.TextField() # Name, title
   email = models.EmailField(max_length=255)
   phone = models.CharField(max_length=20)
@@ -704,6 +707,10 @@ class YearEndReport(models.Model):
 
   photo_release = models.FileField(upload_to='/')
 
+  # admin-entered
+  visible = models.BooleanField(default=False, help_text=
+      ('Check this to make the YER visible to members of the GP that made the grant. (When '
+       'unchecked, YER is only visible to staff and the org that submitted it.)'))
 
 class YERDraft(models.Model):
 
