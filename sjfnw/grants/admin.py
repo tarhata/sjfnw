@@ -341,15 +341,16 @@ class GivingProjectGrantA(admin.ModelAdmin):
       return self.readonly_fields
     return self.readonly_fields
 
-  """
   def change_view(self, request, object_id, form_url='', extra_context=None):
     logger.info(connection.queries)
+    prior = len(connection.queries)
     view = super(GivingProjectGrantA, self).change_view(request, object_id, form_url,
                                                  extra_context=extra_context)
     logger.info('Post view')
     log_queries(connection.queries)
+    logger.info(str(len(connection.queries) - prior) + ' TOTAL QUERIES')
     return view
-  """
+
 
 class SponsoredProgramGrantA(admin.ModelAdmin):
   list_display = ('organization', 'amount', 'check_mailed')
