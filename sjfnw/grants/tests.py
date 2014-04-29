@@ -1164,19 +1164,22 @@ class AdminInlines(BaseGrantTestCase):
 
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
-class YERTests(BaseGrantTestCase):
-  """ Uses an organization with at least one existing award:
-    Org: 2 OfficeMax Foundation
-    App: 1 (cycle 1)
-    Projectapp: 1 (IRGP 4)
-
-    setUp creates a GivingProjectGrant
-  """
+class YearEndReportForm(BaseGrantTestCase):
+  """ Test functionality related to the YER form:
+      Views that handle autosave, file upload, submission
+      Form validation with YER modelform """
 
   def setUp(self):
-    super(YERTests, self).setUp(login='testy')
-    award = models.GivingProjectGrant(project_app_id = 1, amount = 5000)
+    super(YearEndReportForm, self).setUp(login='testy')
+    award = models.GivingProjectGrant(project_app_id = 1, amount = 5000,
+        agreement_mailed = '2014-01-02', agreement_returned = '2014-01-06')
     award.save()
+    self.award_id = award.pk
+
+  def create_draft(self):
+    # create the initial draft by visiting report page
+    response = self.client.get('/report/%d' % self.award_id)
+    self.assertEqual(1, models.YERDraft.objects.filter(award_id=self.award_id).count())
 
   def test_home_link(self):
     """ Load home page, verify it links to report """
@@ -1185,7 +1188,7 @@ class YERTests(BaseGrantTestCase):
 
     self.assertTemplateUsed('grants/org_home.html')
     award = models.GivingProjectGrant.objects.get(project_app_id=1)
-    self.assertContains(response, '<a href="/report/%d">year end report</a>' % award.pk)
+    self.assertContains(response, '<a href="/report/%d">' % award.pk)
 
   def test_start_report(self):
     """ Load report for first time """
@@ -1197,20 +1200,17 @@ class YERTests(BaseGrantTestCase):
     response = self.client.get('/report/%d' % award.pk)
 
     self.assertTemplateUsed(response, 'grants/yer_form.html')
-    # draft created
+    # assert draft created
     self.assertEqual(1, models.YERDraft.objects.filter(award_id=award.pk).count())
 
     form = response.context['form']
     application = award.project_app.application
-    self.assertEqual(form['website'].value, application.website)
-    print(form['award'])
+    # assert website autofilled from app
+    self.assertEqual(form['website'].value(), application.website)
     
   def test_autosave(self):
 
-    # create the initial draft
-    award = models.GivingProjectGrant.objects.get(project_app_id=1)
-    response = self.client.get('/report/%d' % award.pk)
-    self.assertEqual(1, models.YERDraft.objects.filter(award_id=award.pk).count())
+    self.create_draft()
 
     # send additional content to autosave
     post_data = {
@@ -1220,9 +1220,60 @@ class YERTests(BaseGrantTestCase):
         'other_comments': 'All my single ladies'
         }
 
-    response = self.client.post('/report/%d/autosave/' % award.pk, post_data)
+    response = self.client.post('/report/%d/autosave/' % self.award_id, post_data)
     self.assertEqual(200, response.status_code)
-    draft = models.YERDraft.objects.get(award_id=award.pk)
+    draft = models.YERDraft.objects.get(award_id=self.award_id)
     self.assertEqual(json.loads(draft.contents), post_data)
+
+  def test_valid_stay_informed(self):
+
+    self.create_draft()
+
+    post_data = {
+      'other_comments': 'Some comments',
+      'total_size': '500',
+      'award': '55',
+      'quantitative_measures': 'Measures',
+      'major_changes': 'Changes',
+      'twitter': '',
+      'listserve': 'Yes this',
+      'summarize_last_year': 'It was all right.',
+      'newsletter': '',
+      'other': '',
+      'donations_count': '503',
+      'user_id': '',
+      'phone': '208-861-8907',
+      'goal_progress': 'We haven\'t made much progress sorry.',
+      'contact_person_1': 'Executive Board Co-Chair',
+      'contact_person_0': 'Krista Perry',
+      'new_funding': 'None! UGH.',
+      'email': 'Idahossc@gmail.com',
+      'facebook': '',
+      'website': 'www.idahossc.org',
+      'achieved': 'Achievement awards.'
+    }
+
+
+    # autosave the post_data (mimic page js which does that prior to submitting)
+    response = self.client.post(reverse('sjfnw.grants.views.autosave_yer',
+      kwargs = {'award_id': self.award_id}),
+                                post_data)
+    self.assertEqual(200, response.status_code)
+    # confirm draft updated
+    draft = models.YERDraft.objects.get(award_id = self.award_id)
+    self.assertEqual(json.loads(draft.contents), post_data)
+    draft.photo1 = 'cats.jpg'
+    draft.photo2 = 'fiscal.png'
+    draft.photo_release = 'budget1.docx'
+    draft.save()
+
+    response = self.client.post('report/%d' % self.award_id)
+
+    self.assertTemplateUsed('grants/yer_submitted.html')
+
+
+
+
+
 
 
