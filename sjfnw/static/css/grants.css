@@ -441,5 +441,7 @@ div.narrative_q label {
 
 .yer-photo {
   max-width: 500px;
+  margin: 1em auto;
+  display: block;
 }
 
