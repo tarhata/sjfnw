@@ -642,10 +642,15 @@ class SponsoredProgramGrant(models.Model):
     ordering = ['organization']
 
 
+def validate_photo_file_extension(value):
+  if not value.name.lower().split(".")[-1] in constants.PHOTO_FILE_TYPES:
+    raise ValidationError(u'That file type is not supported. Please upload an image with one of these extensions: %s' % constants.PHOTO_FILE_TYPES.join(', '))
+
+
 class YearEndReport(models.Model):
 
   # automatic
-  award = models.ForeignKey(GivingProjectGrant, unique=True)
+  award = models.OneToOneField(GivingProjectGrant)
   submitted = models.DateTimeField(default=timezone.now())
 
   # user-entered
@@ -674,7 +679,7 @@ class YearEndReport(models.Model):
   achieved = models.TextField(verbose_name=
       ('5. What specific victories, benchmarks, and/or policy changes (local, '
        'state, regional, or national) have you achieved over the past year?'))
-  collboration = models.TextField(verbose_name=
+  collaboration = models.TextField(verbose_name=
       ('6. What other organizations did you work with to achieve those '
        'accomplishments?'))
   new_funding = models.TextField(verbose_name=
@@ -700,10 +705,10 @@ class YearEndReport(models.Model):
         'SJF can improve its grantmaking programs?')) #json dict - see modelforms
 
 
-  photo1 = models.FileField(upload_to='/')
-  photo2 = models.FileField(upload_to='/')
-  photo3 = models.FileField(upload_to='/', help_text='(optional)', blank=True)
-  photo4 = models.FileField(upload_to='/', help_text='(optional)', blank=True)
+  photo1 = models.FileField(validators = [validate_photo_file_extension], upload_to='/')
+  photo2 = models.FileField(validators = [validate_photo_file_extension], upload_to='/')
+  photo3 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', help_text='(optional)', blank=True)
+  photo4 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', help_text='(optional)', blank=True)
 
   photo_release = models.FileField(upload_to='/')
 

@@ -22,59 +22,99 @@
   </div>
 
   <h4>Saved drafts</h4>
-    <ul><table class="list">
+
+  <ul>
+    <table class="list">
     {% for save in saved %}
       <tr>
-        {% if save.editable %}
-        <td><li>{{ save.grant_cycle }}</li></td>
-        <td>{% if save.grant_cycle.info_page %}<a href="/apply/info/{{ save.grant_cycle.pk }}" target="_blank">Cycle info</a>{% endif %}</td>
-        <td><a href="/apply/{{ save.grant_cycle.pk }}{{ user_override|default:'' }}"><b>Edit draft</b></a></td>
-        <td>Modified {{ save.modified|date:"n/j g:iA"|lower }}</td>
-        <td>Due {% if save.extended_deadline %}{{ save.extended_deadline|date:"n/j g:iA"|lower }}{% else %}{{ save.grant_cycle.close|date:"n/j g:iA"|lower }}{% endif %}</td>
-        {% else %}
-        <td><i><li>{{ save.grant_cycle }}</li></td>
-        <td colspan="4">Cycle closed on {{ save.grant_cycle.close|date:"n/j" }}</i></td>
+      {% if save.editable %}
+        <td>
+          <li>{{ save.grant_cycle }}</li>
+        </td>
+        <td>
+        {% if save.grant_cycle.info_page %}
+          <a href="/apply/info/{{ save.grant_cycle.pk }}" target="_blank">Cycle info</a>
         {% endif %}
-        <td>[<a title="discard draft" onclick="confirmation('{{ save.pk }}')">Discard</a>]</td>
+        </td>
+        <td>
+          <a href="/apply/{{ save.grant_cycle.pk }}{{ user_override|default:'' }}"><b>Edit draft</b></a>
+        </td>
+        <td>
+          Modified {{ save.modified|date:"n/j g:iA"|lower }}
+        </td>
+        <td>
+          Due {% if save.extended_deadline %}
+          {{ save.extended_deadline|date:"n/j g:iA"|lower }}
+          {% else %}
+          {{ save.grant_cycle.close|date:"n/j g:iA"|lower }}
+          {% endif %}
+        </td>
+      {% else %}
+        <td>
+          <i><li>{{ save.grant_cycle }}</li>
+        </td>
+        <td colspan="4">
+          Cycle closed on {{ save.grant_cycle.close|date:"n/j" }}</i>
+        </td>
+      {% endif %}
+        <td>
+          [<a title="discard draft" onclick="confirmation('{{ save.pk }}')">Discard</a>]
+        </td>
       </tr>
-    {% empty %}
-      <li>None found</li>
-    {% endfor %}
-    </table></ul>
+  {% empty %}
+    <li>None found</li>
+  {% endfor %}
+    </table>
+  </ul>
 
   <h4>Submitted applications</h4>
-    <ul>
-    {%if submitted%}
+
+  <ul>
+  {% if submitted %}
     <table class="list">
-    {%for sub in submitted%}
-      <tr><td><li>{{ sub.grant_cycle }}</li></td>
+    {% for sub in submitted %}
+      <tr>
+        <td><li>{{ sub.grant_cycle }}</li></td>
         <td><a href="/grants/view/{{ sub.pk }}">View submitted application</a></td>
         <td>Submitted {{ sub.submission_time|date:"n/j/y" }}</td>  
       </tr>
       {% with projectapps=sub.projectapp_set.all %}
         {% for papp in projectapps %}
         {% with award=papp.givingprojectgrant %}
-      <tr><td colspan="3">
+      <tr>
+        <td colspan="3">
         {% if award %}
           {% if award.agreement_mailed and award.agreement_mailed|timesince > 0 %}
           <ul>
             <li>${{ award.amount|intcomma }} awarded.</li>
             <li>Agreement mailed {{ award.agreement_mailed|date:"n/j/y" }},
-            {% if award.agreement_returned|date:"n/j/y" %}returned {{ award.agreement_returned|date:"n/j/y" }}
-            {% else %}due {{ award.agreement_due|date:"n/j/y" }}{% endif %}.</li>
-            <li><a href="/report/{{ award.pk }}">Year end report</a> due {{ award.yearend_due|date:"n/j/y" }}.</li>
-          {% endif %}
-        {% endif %}
+            {% if award.agreement_returned %}
+              returned {{ award.agreement_returned|date:"n/j/y" }}.</li>
+            {% if award.yearendreport %}
+            <li>
+              <a href="{% url 'grants.views.view_yer' report_id=award.yearendreport.pk %}">
+              Year end report</a> completed.
+            </li>
+            {% else %}
+            <li>
+              <a href="/report/{{ award.pk }}">Year end report</a> due {{ award.yearend_due|date:"n/j/y" }}.
+            </li>
+            {% endif %}{# award.yearendreport #}
+            {% else %}
+              due {{ award.agreement_due|date:"n/j/y" }}.</li>
+            {% endif %}{# agreement_returned #}
+          {% endif %}{# agreement_mailed #}
+          {% endif %}{# award #}
         {% endwith %}
       </td></tr>
       {% endfor %}{# papp in projectapps #}
       {% endwith %}
-    {%endfor%}{# sub in submitted #}
+    {% endfor %}{# sub in submitted #}
     </table>
-    {%else%}
+    {% else %}
     <li>None found</li>
-    {%endif%}
-    </ul>
+    {% endif %}
+  </ul>
 
   <h4>Tools</h4>
     <ul>
