@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {# not grants/base.html bc this gets loaded into an iframe and shouldn't have the header/footer #}
+{% block title %}Year-end report | {{ block.super }}{% endblock %}
 
 {% block style %}
 <link rel="stylesheet" type="text/css" href="/static/css/grants.css">
