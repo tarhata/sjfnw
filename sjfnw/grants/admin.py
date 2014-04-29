@@ -354,6 +354,14 @@ class SponsoredProgramGrantA(admin.ModelAdmin):
   )
   #readonly_fields = ()
 
+class YearEndReportA(admin.ModelAdmin):
+  list_display = ('award', 'submitted')
+  list_select_related = True
+  fields = (('award', 'submitted'),
+            'visible')
+  readonly_fields = ('award', 'submitted')
+
+
 # REGISTER
 
 admin.site.register(GrantCycle, GrantCycleA)
@@ -362,6 +370,7 @@ admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
 admin.site.register(GivingProjectGrant, GivingProjectGrantA)
 admin.site.register(SponsoredProgramGrant, SponsoredProgramGrantA)
+admin.site.register(YearEndReport, YearEndReportA)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)
