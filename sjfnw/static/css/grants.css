@@ -375,9 +375,11 @@ div.heading_sm_margin{
 }
 
 div.contents{
-  margin:20px 0 0 10px;
-  font-size:1.2em;
-  line-height:1.3em;
+  padding: 20px 0 0 10px;
+  font-size: 1.2em;
+  line-height: 1.3em;
+  border-bottom: 1px solid black;
+  margin-bottom: 2em;
 }
 
 img.print {
@@ -427,5 +429,17 @@ ol.contents{
 div.narrative_q label {
   display: block;
   margin-bottom:.5em;
+}
+
+.info-box {
+  border-bottom: 1px solid #333;
+}
+
+.display label {
+  font-weight: bold;
+}
+
+.yer-photo {
+  max-width: 500px;
 }
 
