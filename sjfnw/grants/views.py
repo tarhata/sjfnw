@@ -688,12 +688,7 @@ def view_yer(request, report_id):
 
   file_urls = GetFileURLs(request, report, printing=False)
 
-  if request.GET.get('embedded') == 'true':
-    template = 'grants/yer_display.html'
-  else:
-    template = 'grants/view_yer.html'
-
-  return render(request, template, {
+  return render(request, 'grants/yer_display.html', {
     'report': report, 'form': form, 'award': award, 'projectapp': projectapp, 'file_urls': file_urls
   })
 
