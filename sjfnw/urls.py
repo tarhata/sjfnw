@@ -22,7 +22,7 @@ urlpatterns = patterns('',
   # grants
   (r'^apply/?', include(apply_urls)),
   (r'^grants/?', include(grants_urls)),
-  (r'^report/?', include(report_urls)),
+  (r'^report/', include(report_urls)),
   (r'^', include(root_urls)),
   (r'^org/?$', 'sjfnw.grants.views.RedirToApply'),
   (r'^logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/apply'}),

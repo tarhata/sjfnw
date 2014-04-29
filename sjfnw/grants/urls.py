@@ -39,8 +39,10 @@ report_urls = patterns('sjfnw.grants.views',
   (r'^(?P<award_id>\d+)/?$', 'year_end_report'),
   (r'^(?P<award_id>\d+)/autosave/?$', 'autosave_yer'),
   (r'^view/(?P<report_id>\d+)/?$', 'view_yer'),
-  (r'^view-file/(?P<report_id>\d+)-(?P<file_type>.*)\.', 'view_yer_file'),
-  (r'^draft-file/(?P<draft_id>\d+)-(?P<file_type>.*)\.', 'view_yer_draft_file'),
+)
+
+report_urls += patterns('',
+  (r'^submitted/?', TemplateView.as_view(template_name='grants/yer_submitted.html')),
 )
 
 apply_urls += patterns('',
@@ -55,8 +57,7 @@ apply_urls += patterns('',
 
 grants_urls = patterns('sjfnw.grants.views',
   #reading
-  (r'^view/(?P<app_id>\d+)/?$', 'ReadApplication'),
-  (r'^view-file/(?P<app_id>\d+)-(?P<file_type>.*)\.', 'ViewFile'),
-  (r'^draft-file/(?P<draft_id>\d+)-(?P<file_type>.*)\.', 'ViewDraftFile'),
+  (r'^view/(?P<app_id>\d+)/?$', 'view_application'),
+  (r'^(?P<obj_type>.*)-file/(?P<obj_id>\d+)-(?P<field_name>.*)\.', 'view_file'),
 )
 
