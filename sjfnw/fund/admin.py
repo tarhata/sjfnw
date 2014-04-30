@@ -174,7 +174,7 @@ class ProjectAppInline(admin.TabularInline):
         award = obj.givingprojectgrant
       except GivingProjectGrant.DoesNotExist:
         output = mark_safe(
-            '<a href="/admin/grants/givingprojectgrant/add/?project_app=' +
+            '<a href="/admin/grants/givingprojectgrant/add/?projectapp=' +
             str(obj.pk) + '" target="_blank">Enter an award</a>')
       else:
         logger.info('grant does exist')

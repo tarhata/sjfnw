@@ -22,7 +22,7 @@ logger = logging.getLogger('sjfnw')
 class GrantCycleYearFilter(YearFilter):
   filter_model = GrantCycle
   field = 'close'
-  intermediate = 'project_app__application__grant_cycle'
+  intermediate = 'projectapp__application__grant_cycle'
   title = 'Grant cycle year'
 
 class CycleTypeFilter(admin.SimpleListFilter):
@@ -173,7 +173,7 @@ class ProjectAppI(admin.TabularInline): # GrantApplication
         output = award.amount
       except GivingProjectGrant.DoesNotExist:
         output = mark_safe(
-            '<a href="/admin/grants/givingprojectgrant/add/?project_app=' +
+            '<a href="/admin/grants/givingprojectgrant/add/?projectapp=' +
             str(obj.pk) + '" target="_blank">Enter an award</a>')
     return output
 
@@ -305,7 +305,7 @@ class GivingProjectGrantA(admin.ModelAdmin):
   list_filter = ['agreement_mailed', CycleTypeFilter, GrantCycleYearFilter]
   exclude = ('created',)
   fields = (
-      ('project_app', 'amount'),
+      ('projectapp', 'amount'),
       ('check_number', 'check_mailed'),
       ('agreement_mailed', 'agreement_returned'),
       'approved',
@@ -316,8 +316,8 @@ class GivingProjectGrantA(admin.ModelAdmin):
 
 
   def formfield_for_foreignkey(self, db_field, request, **kwargs):
-    if db_field.name == 'project_app':
-      pa = request.GET.get('project_app')
+    if db_field.name == 'projectapp':
+      pa = request.GET.get('projectapp')
       if pa:
         kwargs['queryset'] = ProjectApp.objects.filter(pk=pa).select_related('application', 'application__organization', 'giving_project')
     return super(GivingProjectGrantA, self).formfield_for_foreignkey(db_field, request, **kwargs)
@@ -326,19 +326,19 @@ class GivingProjectGrantA(admin.ModelAdmin):
     return obj.yearend_due()
 
   def organization_name(self, obj):
-    return obj.project_app.application.organization.name
+    return obj.projectapp.application.organization.name
 
   def grant_cycle(self, obj):
-    return '%s %s' % (obj.project_app.application.grant_cycle.title,
-                      obj.project_app.application.grant_cycle.close.year)
+    return '%s %s' % (obj.projectapp.application.grant_cycle.title,
+                      obj.projectapp.application.grant_cycle.close.year)
 
   def giving_project(self, obj):
-    return unicode(obj.project_app.giving_project)
+    return unicode(obj.projectapp.giving_project)
 
   def get_readonly_fields(self, request, obj=None):
     logger.info(obj)
     if obj is not None: #editing - lock org & cycle
-      self.readonly_fields.append('project_app')
+      self.readonly_fields.append('projectapp')
       return self.readonly_fields
     return self.readonly_fields
 

@@ -1,4 +1,5 @@
-﻿from django.conf.urls import patterns, include
+﻿from django.conf import settings
+from django.conf.urls import patterns, include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic.base import TemplateView
@@ -10,6 +11,14 @@ handler404 = 'sjfnw.views.page_not_found'
 handler500 = 'sjfnw.views.server_error'
 
 admin.autodiscover() # load admin.py from all apps
+
+"""
+if settings.DEBUG:
+  import debug_toolbar
+  urlpatterns += patterns('',
+    url(r'^__debug__/', include(debug_toolbar.urls)),
+  )
+"""
 
 urlpatterns = patterns('',
   (r'^/?$', TemplateView.as_view(template_name='home.html')),

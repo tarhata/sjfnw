@@ -25,7 +25,7 @@ else:
       'NAME': 'sjfdb_local',
     }
   }
-DEBUG = True # TODO temporary
+  DEBUG = True # TODO temporary
 
 APP_BASE_URL = 'https://sjf-nw.appspot.com/' # used by cron jobs
 
@@ -36,15 +36,20 @@ INSTALLED_APPS = (
   'django.contrib.humanize',
   'django.contrib.sessions',
   'django.contrib.messages',
+  'django.contrib.staticfiles',
   'sjfnw',
   'sjfnw.grants',
   'sjfnw.fund',
   'sjfnw.support',
   'pytz',
+  'debug_toolbar'
 )
+
+#DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 MIDDLEWARE_CLASSES = (
   #'google.appengine.ext.appstats.recording.AppStatsDjangoMiddleware', #must be first
+  #'debug_toolbar.middleware.DebugToolbarMiddleware',
   'django.middleware.common.CommonMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
   'django.contrib.auth.middleware.AuthenticationMiddleware',

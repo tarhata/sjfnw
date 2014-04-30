@@ -28,7 +28,7 @@ LIVE_FIXTURES = ['sjfnw/fund/fixtures/live_gp_dump.json', #not using these yet i
                  'sjfnw/grants/fixtures/grant_cycles.json',
                  'sjfnw/grants/fixtures/apps.json',
                  'sjfnw/grants/fixtures/drafts.json',
-                 'sjfnw/grants/fixtures/project_apps.json',
+                 'sjfnw/grants/fixtures/projectapps.json',
                  'sjfnw/grants/fixtures/gp_grants.json']
 
 
@@ -781,7 +781,7 @@ class OrgHomeAwards(BaseGrantTestCase):
 
   def test_early(self):
     """ org has an award, but agreement has not been mailed. verify not shown """
-    award = models.GivingProjectGrant(project_app_id = 1, amount = 9000)
+    award = models.GivingProjectGrant(projectapp_id = 1, amount = 9000)
     award.save()
 
     response = self.client.get(self.url)
@@ -791,7 +791,7 @@ class OrgHomeAwards(BaseGrantTestCase):
 
   def test_sent(self):
     """ org has award, agreement mailed. verify shown """
-    award = models.GivingProjectGrant(project_app_id = 1, amount = 9000,
+    award = models.GivingProjectGrant(projectapp_id = 1, amount = 9000,
         agreement_mailed = timezone.now()-datetime.timedelta(days=1))
     award.save()
 
@@ -1171,7 +1171,7 @@ class YearEndReportForm(BaseGrantTestCase):
 
   def setUp(self):
     super(YearEndReportForm, self).setUp(login='testy')
-    award = models.GivingProjectGrant(project_app_id = 1, amount = 5000,
+    award = models.GivingProjectGrant(projectapp_id = 1, amount = 5000,
         agreement_mailed = '2014-01-02', agreement_returned = '2014-01-06')
     award.save()
     self.award_id = award.pk
@@ -1187,13 +1187,13 @@ class YearEndReportForm(BaseGrantTestCase):
     response = self.client.get('/apply/')
 
     self.assertTemplateUsed('grants/org_home.html')
-    award = models.GivingProjectGrant.objects.get(project_app_id=1)
+    award = models.GivingProjectGrant.objects.get(projectapp_id=1)
     self.assertContains(response, '<a href="/report/%d">' % award.pk)
 
   def test_start_report(self):
     """ Load report for first time """
 
-    award = models.GivingProjectGrant.objects.get(project_app_id=1)
+    award = models.GivingProjectGrant.objects.get(projectapp_id=1)
     # no draft yet
     self.assertEqual(0, models.YERDraft.objects.filter(award_id=award.pk).count())
 
@@ -1204,7 +1204,7 @@ class YearEndReportForm(BaseGrantTestCase):
     self.assertEqual(1, models.YERDraft.objects.filter(award_id=award.pk).count())
 
     form = response.context['form']
-    application = award.project_app.application
+    application = award.projectapp.application
     # assert website autofilled from app
     self.assertEqual(form['website'].value(), application.website)
     

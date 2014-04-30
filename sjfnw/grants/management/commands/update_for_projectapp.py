@@ -36,11 +36,11 @@ class Command(BaseCommand):
       app.pre_screening_status = app.screening_status
       app.save()
       if app.giving_project:
-        project_app = ProjectApp(application = app,
+        projectapp = ProjectApp(application = app,
                                  giving_project = app.giving_project)
         if app.screening_status > 50:
-          project_app.screening_status = app.screening_status
-        project_app.save()
+          projectapp.screening_status = app.screening_status
+        projectapp.save()
         count_pa += 1
 
     awards = GrantAward.objects.all().select_related('application', 'application__giving_project')
@@ -52,7 +52,7 @@ class Command(BaseCommand):
       else:
         try:
           papp = ProjectApp.objects.get(application=app, giving_project=gp)
-          award.project_app = papp
+          award.projectapp = papp
           award.save()
           count_a += 1
         except ProjectApp.DoesNotExist:

@@ -600,7 +600,7 @@ class GrantApplicationLog(models.Model):
 class GivingProjectGrant(models.Model):
   created = models.DateTimeField(default=timezone.now)
 
-  project_app = models.OneToOneField(ProjectApp)
+  projectapp = models.OneToOneField(ProjectApp)
 
   amount = models.DecimalField(max_digits=8, decimal_places=2)
   check_number = models.PositiveIntegerField(null=True, blank=True)
@@ -612,6 +612,9 @@ class GivingProjectGrant(models.Model):
 
   class Meta:
     ordering = ['-created']
+
+  def __unicode__(self):
+    return '$%d grant from %s' % (self.amount, self.projectapp.giving_project)
 
   def agreement_due(self):
     if self.agreement_mailed:

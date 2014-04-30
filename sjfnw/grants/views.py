@@ -441,7 +441,7 @@ def year_end_report(request, organization, award_id):
 
   # get award, make sure org matches
   award = get_object_or_404(models.GivingProjectGrant, pk=award_id)
-  app = award.project_app.application
+  app = award.projectapp.application
   if app.organization_id != organization.pk:
     logger.warning('Trying to edit someone else\'s YER')
     return redirect(Apply)
@@ -684,7 +684,7 @@ def view_yer(request, report_id):
   form = YearEndReportForm(instance = report)
   logger.info(form)
   award = report.award
-  projectapp = award.project_app
+  projectapp = award.projectapp
 
   file_urls = GetFileURLs(request, report, printing=False)
 
@@ -998,8 +998,8 @@ def get_award_results(options):
   """
 
   # initial querysets
-  gp_awards = models.GivingProjectGrant.objects.all().select_related('project_app',
-      'project_app__application', 'project_app__application__organization')
+  gp_awards = models.GivingProjectGrant.objects.all().select_related('projectapp',
+      'projectapp__application', 'projectapp__application__organization')
   sponsored = models.SponsoredProgramGrant.objects.all().select_related('organization')
 
   # filters
@@ -1011,16 +1011,16 @@ def get_award_results(options):
   sponsored = sponsored.filter(entered__gte=min_year, entered__lte=max_year)
 
   if options.get('organization_name'):
-    gp_awards = gp_awards.filter(project_app__application__organization__name__contains=options['organization_name'])
+    gp_awards = gp_awards.filter(projectapp__application__organization__name__contains=options['organization_name'])
     sponsored = sponsored.filter(organization__name__contains=options['organization_name'])
   if options.get('city'):
-    gp_awards = gp_awards.filter(project_app__application__organization__city=options['city'])
+    gp_awards = gp_awards.filter(projectapp__application__organization__city=options['city'])
     sponsored = sponsored.filter(organization__city=options['city'])
   if options.get('state'):
-    gp_awards = gp_awards.filter(project_app__application__organization__state__in=options['state'])
+    gp_awards = gp_awards.filter(projectapp__application__organization__state__in=options['state'])
     sponsored = sponsored.filter(organization__state__in=options['state'])
   if options.get('has_fiscal_sponsor'):
-    gp_awards = gp_awards.exclude(project_app__application__organization__fiscal_org='')
+    gp_awards = gp_awards.exclude(projectapp__application__organization__fiscal_org='')
     sponsored = sponsored.exclude(organization__fiscal_org='')
 
   # fields
@@ -1048,7 +1048,7 @@ def get_award_results(options):
     row = []
     for field in fields:
       if field == 'organization':
-        row.append(award.project_app.application.organization.name)
+        row.append(award.projectapp.application.organization.name)
       elif field == 'grant_type':
         row.append('Giving project')
       elif field == 'year_end_report_due':
@@ -1058,7 +1058,7 @@ def get_award_results(options):
       else:
         row.append(getattr(award, field))
     for field in org_fields:
-      row.append(getattr(award.project_app.application.organization, field))
+      row.append(getattr(award.projectapp.application.organization, field))
     results.append(row)
   for award in sponsored:
     row = []
@@ -1163,7 +1163,7 @@ def get_org_results(options):
                 timestamp = timestamp.strftime('%m/%d/%Y')
               else:
                 timestamp = 'No timestamp'
-              awards_str += '$%s %s %s' % (award.amount, award.project_app.giving_project.title, timestamp)
+              awards_str += '$%s %s %s' % (award.amount, award.projectapp.giving_project.title, timestamp)
               awards_str += linebreak
             except models.GivingProjectGrant.DoesNotExist:
               pass
