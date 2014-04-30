@@ -1,0 +1,1361 @@
+[
+{
+  "pk": 1, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 4, 
+    "session": "Introduction", 
+    "resource": 1
+  }
+},
+{
+  "pk": 2, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 7, 
+    "session": "Session 1 - Intro/Fundraising", 
+    "resource": 2
+  }
+},
+{
+  "pk": 3, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 7, 
+    "session": "Session 1 - Intro/Fundraising", 
+    "resource": 5
+  }
+},
+{
+  "pk": 4, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 7, 
+    "session": "Session 1 - Intro/Fundraising", 
+    "resource": 6
+  }
+},
+{
+  "pk": 5, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 1, 
+    "session": "1 - Introduction", 
+    "resource": 3
+  }
+},
+{
+  "pk": 6, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 1, 
+    "session": "2 - Fake", 
+    "resource": 1
+  }
+},
+{
+  "pk": 8, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 10, 
+    "session": "Session 1 - Intro", 
+    "resource": 11
+  }
+},
+{
+  "pk": 9, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 10, 
+    "session": "Session 2 - Race/Class Workshop", 
+    "resource": 12
+  }
+},
+{
+  "pk": 10, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 10, 
+    "session": "Session 2 - Race/Class Workshop", 
+    "resource": 13
+  }
+},
+{
+  "pk": 11, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 7, 
+    "session": "Session 2 - Race/Class Workshop", 
+    "resource": 14
+  }
+},
+{
+  "pk": 12, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 7, 
+    "session": "Session 2 - Race/Class Workshop", 
+    "resource": 15
+  }
+},
+{
+  "pk": 13, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 7, 
+    "session": "Session 2 - Race/Class Workshop", 
+    "resource": 16
+  }
+},
+{
+  "pk": 14, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Intro/Race and Class", 
+    "resource": 12
+  }
+},
+{
+  "pk": 15, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Intro/Race and Class", 
+    "resource": 13
+  }
+},
+{
+  "pk": 16, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Intro/Race and Class", 
+    "resource": 14
+  }
+},
+{
+  "pk": 17, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Intro/Race and Class", 
+    "resource": 17
+  }
+},
+{
+  "pk": 18, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Intro/Race and Class", 
+    "resource": 19
+  }
+},
+{
+  "pk": 19, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 10, 
+    "session": "Session 3 - Fundraising Training", 
+    "resource": 14
+  }
+},
+{
+  "pk": 20, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 10, 
+    "session": "Session 3 - Fundraising Training", 
+    "resource": 15
+  }
+},
+{
+  "pk": 21, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 10, 
+    "session": "Session 3 - Fundraising Training", 
+    "resource": 16
+  }
+},
+{
+  "pk": 22, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Fundraising", 
+    "resource": 20
+  }
+},
+{
+  "pk": 23, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Intro Session", 
+    "resource": 21
+  }
+},
+{
+  "pk": 24, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Intro Session", 
+    "resource": 22
+  }
+},
+{
+  "pk": 25, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Race/Class Workshop", 
+    "resource": 12
+  }
+},
+{
+  "pk": 26, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Race/Class Workshop", 
+    "resource": 23
+  }
+},
+{
+  "pk": 27, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 12, 
+    "session": "1 - Introduction", 
+    "resource": 12
+  }
+},
+{
+  "pk": 28, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 12, 
+    "session": "2 - Race and Class Workshop", 
+    "resource": 23
+  }
+},
+{
+  "pk": 29, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 12, 
+    "session": "1 and 2 - Timeline", 
+    "resource": 24
+  }
+},
+{
+  "pk": 30, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Race/Class Workshop", 
+    "resource": 25
+  }
+},
+{
+  "pk": 31, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Race/Class Workshop", 
+    "resource": 27
+  }
+},
+{
+  "pk": 32, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Race/Class Workshop", 
+    "resource": 28
+  }
+},
+{
+  "pk": 33, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "Session 1 - Intro + Race & Class", 
+    "resource": 12
+  }
+},
+{
+  "pk": 34, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 10, 
+    "session": "Session 5 - Grantmaking Training", 
+    "resource": 29
+  }
+},
+{
+  "pk": 35, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 10, 
+    "session": "Session 5 - Grantmaking Training", 
+    "resource": 30
+  }
+},
+{
+  "pk": 36, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 10, 
+    "session": "Session 5 - Grantmaking Training", 
+    "resource": 32
+  }
+},
+{
+  "pk": 37, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Grantmaking", 
+    "resource": 33
+  }
+},
+{
+  "pk": 38, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Grantmaking", 
+    "resource": 30
+  }
+},
+{
+  "pk": 39, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Grantmaking", 
+    "resource": 32
+  }
+},
+{
+  "pk": 40, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "Session 2 - Fundraising", 
+    "resource": 16
+  }
+},
+{
+  "pk": 41, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "Session 2 - Fundraising", 
+    "resource": 14
+  }
+},
+{
+  "pk": 42, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "Session 2 - Fundraising", 
+    "resource": 15
+  }
+},
+{
+  "pk": 43, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Fundraising Training ", 
+    "resource": 14
+  }
+},
+{
+  "pk": 44, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Fundraising Training ", 
+    "resource": 15
+  }
+},
+{
+  "pk": 45, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Fundraising Training ", 
+    "resource": 16
+  }
+},
+{
+  "pk": 47, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Fundraising Training ", 
+    "resource": 38
+  }
+},
+{
+  "pk": 48, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Fundraising Training ", 
+    "resource": 39
+  }
+},
+{
+  "pk": 49, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Fundraising Training ", 
+    "resource": 40
+  }
+},
+{
+  "pk": 50, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Fundraising Training ", 
+    "resource": 41
+  }
+},
+{
+  "pk": 51, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Fundraising Training ", 
+    "resource": 42
+  }
+},
+{
+  "pk": 53, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "All Sessions", 
+    "resource": 44
+  }
+},
+{
+  "pk": 54, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Grantmaking Training", 
+    "resource": 45
+  }
+},
+{
+  "pk": 55, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Grantmaking Training", 
+    "resource": 46
+  }
+},
+{
+  "pk": 56, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Grantmaking Training", 
+    "resource": 45
+  }
+},
+{
+  "pk": 57, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 13, 
+    "session": "Grantmaking Training", 
+    "resource": 46
+  }
+},
+{
+  "pk": 58, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 12, 
+    "session": "4 - Grantmaking Training", 
+    "resource": 56
+  }
+},
+{
+  "pk": 60, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 16, 
+    "session": "Grantmaking", 
+    "resource": 47
+  }
+},
+{
+  "pk": 62, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "Session 2 - Fundraising", 
+    "resource": 49
+  }
+},
+{
+  "pk": 63, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "All Sessions", 
+    "resource": 50
+  }
+},
+{
+  "pk": 64, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "All Sessions", 
+    "resource": 51
+  }
+},
+{
+  "pk": 65, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "Session 2 - Fundraising", 
+    "resource": 52
+  }
+},
+{
+  "pk": 66, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Screening Meeting", 
+    "resource": 53
+  }
+},
+{
+  "pk": 67, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 16, 
+    "session": "Grantmaking", 
+    "resource": 54
+  }
+},
+{
+  "pk": 68, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "Session 3 - Grantmaking", 
+    "resource": 57
+  }
+},
+{
+  "pk": 69, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "Session 3 - Grantmaking", 
+    "resource": 58
+  }
+},
+{
+  "pk": 70, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 18, 
+    "session": "CoA Meeting - June 25, 2013", 
+    "resource": 59
+  }
+},
+{
+  "pk": 71, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 18, 
+    "session": "CoA Meeting - June 25, 2013", 
+    "resource": 60
+  }
+},
+{
+  "pk": 72, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 18, 
+    "session": "CoA Meeting - June 25, 2013", 
+    "resource": 61
+  }
+},
+{
+  "pk": 73, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 18, 
+    "session": "CoA Meeting - June 25, 2013", 
+    "resource": 62
+  }
+},
+{
+  "pk": 74, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 18, 
+    "session": "CoA Meeting - June 25, 2013", 
+    "resource": 63
+  }
+},
+{
+  "pk": 75, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Site Visits", 
+    "resource": 64
+  }
+},
+{
+  "pk": 76, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 11, 
+    "session": "Final Decision Meeting", 
+    "resource": 65
+  }
+},
+{
+  "pk": 77, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 12, 
+    "session": "6 - Screening Meeting", 
+    "resource": 66
+  }
+},
+{
+  "pk": 78, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 19, 
+    "session": "Session #1 - Introduction", 
+    "resource": 2
+  }
+},
+{
+  "pk": 79, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 19, 
+    "session": "Session #1 - Introduction", 
+    "resource": 67
+  }
+},
+{
+  "pk": 80, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 19, 
+    "session": "Session #1 - Introduction", 
+    "resource": 68
+  }
+},
+{
+  "pk": 81, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 19, 
+    "session": "Session #2 - Race & Class Workshop", 
+    "resource": 69
+  }
+},
+{
+  "pk": 82, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 19, 
+    "session": "Session #2 - Race & Class Workshop", 
+    "resource": 70
+  }
+},
+{
+  "pk": 83, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 19, 
+    "session": "Session #1 - Introduction", 
+    "resource": 71
+  }
+},
+{
+  "pk": 84, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 19, 
+    "session": "Session #2 - Race & Class Workshop", 
+    "resource": 12
+  }
+},
+{
+  "pk": 85, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 19, 
+    "session": "Session #3 - Fundraising", 
+    "resource": 14
+  }
+},
+{
+  "pk": 86, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 19, 
+    "session": "Session #3 - Fundraising", 
+    "resource": 15
+  }
+},
+{
+  "pk": 87, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 19, 
+    "session": "Session #3 - Fundraising", 
+    "resource": 72
+  }
+},
+{
+  "pk": 88, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 9, 
+    "session": "Decision Making Meeting ", 
+    "resource": 73
+  }
+},
+{
+  "pk": 89, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 12, 
+    "session": "7 - Site Visits", 
+    "resource": 74
+  }
+},
+{
+  "pk": 90, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 15, 
+    "session": "1 - Race and Class ", 
+    "resource": 13
+  }
+},
+{
+  "pk": 91, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 15, 
+    "session": "1 - Race and Class ", 
+    "resource": 12
+  }
+},
+{
+  "pk": 92, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 15, 
+    "session": "2 - Fundraising", 
+    "resource": 14
+  }
+},
+{
+  "pk": 93, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 15, 
+    "session": "2 - Fundraising", 
+    "resource": 20
+  }
+},
+{
+  "pk": 94, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 15, 
+    "session": "2 - Fundraising", 
+    "resource": 15
+  }
+},
+{
+  "pk": 95, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 15, 
+    "session": "1 - Race and Class ", 
+    "resource": 24
+  }
+},
+{
+  "pk": 98, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "SITE VISITS", 
+    "resource": 77
+  }
+},
+{
+  "pk": 100, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 14, 
+    "session": "Fundraising", 
+    "resource": 79
+  }
+},
+{
+  "pk": 101, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 12, 
+    "session": "8 - Final Decision Meeting", 
+    "resource": 80
+  }
+},
+{
+  "pk": 102, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 23, 
+    "session": "#1: Introductions", 
+    "resource": 81
+  }
+},
+{
+  "pk": 103, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "2-15-14 - Session #1: Introduction", 
+    "resource": 22
+  }
+},
+{
+  "pk": 104, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "2-15-14 - Session #1: Introduction", 
+    "resource": 28
+  }
+},
+{
+  "pk": 105, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "2-15-14 - Session #1: Introduction", 
+    "resource": 82
+  }
+},
+{
+  "pk": 106, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "2-15-14 - Session #1: Introduction", 
+    "resource": 38
+  }
+},
+{
+  "pk": 107, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "2-15-14 - Session #1: Introduction", 
+    "resource": 83
+  }
+},
+{
+  "pk": 108, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "2-15-14 - Session #1: Introduction", 
+    "resource": 12
+  }
+},
+{
+  "pk": 109, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 23, 
+    "session": "#3: Grantmaking and Fundraising", 
+    "resource": 85
+  }
+},
+{
+  "pk": 110, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "3-1-14 - Session #2: Race and Class", 
+    "resource": 28
+  }
+},
+{
+  "pk": 111, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "3-1-14 - Session #2: Race and Class", 
+    "resource": 23
+  }
+},
+{
+  "pk": 112, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "3-1-14 - Session #2: Race and Class", 
+    "resource": 25
+  }
+},
+{
+  "pk": 113, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "3-1-14 - Session #2: Race and Class", 
+    "resource": 87
+  }
+},
+{
+  "pk": 114, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "3-1-14 - Session #2: Race and Class", 
+    "resource": 88
+  }
+},
+{
+  "pk": 115, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "3-19-14 - Session #3 Fundraising Training", 
+    "resource": 89
+  }
+},
+{
+  "pk": 116, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "3-19-14 - Session #3 Fundraising Training", 
+    "resource": 90
+  }
+},
+{
+  "pk": 117, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "3-19-14 - Session #3 Fundraising Training", 
+    "resource": 91
+  }
+},
+{
+  "pk": 118, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 24, 
+    "session": "Session #1: Introduction", 
+    "resource": 94
+  }
+},
+{
+  "pk": 119, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 23, 
+    "session": "#1: Introductions", 
+    "resource": 92
+  }
+},
+{
+  "pk": 120, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 23, 
+    "session": "#2: Race and Class Workshop", 
+    "resource": 93
+  }
+},
+{
+  "pk": 121, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 24, 
+    "session": "Session #1: Introduction", 
+    "resource": 95
+  }
+},
+{
+  "pk": 122, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 24, 
+    "session": "(Pre-screening Subcommittee)", 
+    "resource": 96
+  }
+},
+{
+  "pk": 123, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 22, 
+    "session": "4-2-14 - Session #4 Grantmaking Training", 
+    "resource": 97
+  }
+},
+{
+  "pk": 124, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 23, 
+    "session": "#4: Decision Meeting: Screening", 
+    "resource": 98
+  }
+},
+{
+  "pk": 125, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "1 - Intro ", 
+    "resource": 100
+  }
+},
+{
+  "pk": 126, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "1 - Intro ", 
+    "resource": 99
+  }
+},
+{
+  "pk": 127, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "1 - Intro ", 
+    "resource": 101
+  }
+},
+{
+  "pk": 128, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "2 - Race & Class Workshop", 
+    "resource": 12
+  }
+},
+{
+  "pk": 129, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "2 - Race & Class Workshop", 
+    "resource": 23
+  }
+},
+{
+  "pk": 130, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "2 - Race & Class Workshop", 
+    "resource": 87
+  }
+},
+{
+  "pk": 131, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "5 - Grantmaking Training", 
+    "resource": 102
+  }
+},
+{
+  "pk": 132, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "5 - Grantmaking Training", 
+    "resource": 103
+  }
+},
+{
+  "pk": 134, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "2 - Race & Class Workshop", 
+    "resource": 88
+  }
+},
+{
+  "pk": 135, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "5 - Grantmaking Training", 
+    "resource": 45
+  }
+},
+{
+  "pk": 137, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "4 - Fundraising Training", 
+    "resource": 90
+  }
+},
+{
+  "pk": 138, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "4 - Fundraising Training", 
+    "resource": 14
+  }
+},
+{
+  "pk": 139, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "4 - Fundraising Training", 
+    "resource": 15
+  }
+},
+{
+  "pk": 140, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "4 - Fundraising Training", 
+    "resource": 16
+  }
+},
+{
+  "pk": 141, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "4 - Fundraising Training", 
+    "resource": 20
+  }
+},
+{
+  "pk": 142, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "4 - Fundraising Training", 
+    "resource": 104
+  }
+},
+{
+  "pk": 143, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "5 - Grantmaking Training", 
+    "resource": 97
+  }
+},
+{
+  "pk": 144, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 21, 
+    "session": "#1 Intro Session", 
+    "resource": 105
+  }
+},
+{
+  "pk": 145, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 21, 
+    "session": "#2 Race & Class", 
+    "resource": 12
+  }
+},
+{
+  "pk": 146, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 21, 
+    "session": "#2 Race & Class", 
+    "resource": 23
+  }
+},
+{
+  "pk": 147, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 21, 
+    "session": "#1 Intro Session", 
+    "resource": 50
+  }
+},
+{
+  "pk": 149, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 24, 
+    "session": "Session #2: Race and Class Workshop", 
+    "resource": 23
+  }
+},
+{
+  "pk": 150, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 24, 
+    "session": "Session #2: Race and Class Workshop", 
+    "resource": 12
+  }
+},
+{
+  "pk": 151, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 21, 
+    "session": "#2 Race & Class", 
+    "resource": 106
+  }
+},
+{
+  "pk": 152, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 24, 
+    "session": "Session #1: Introduction", 
+    "resource": 108
+  }
+},
+{
+  "pk": 153, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "4 - Fundraising Training", 
+    "resource": 109
+  }
+},
+{
+  "pk": 154, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "4 - Fundraising Training", 
+    "resource": 110
+  }
+},
+{
+  "pk": 155, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "4 - Fundraising Training", 
+    "resource": 111
+  }
+},
+{
+  "pk": 156, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "5 - Grantmaking Training", 
+    "resource": 112
+  }
+},
+{
+  "pk": 157, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "5 - Grantmaking Training", 
+    "resource": 113
+  }
+},
+{
+  "pk": 158, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "3 - Gender Justice Workshop (Western States Center)", 
+    "resource": 114
+  }
+},
+{
+  "pk": 159, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 20, 
+    "session": "3 - Gender Justice Workshop (Western States Center)", 
+    "resource": 115
+  }
+},
+{
+  "pk": 160, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 21, 
+    "session": "#3 Fundraising", 
+    "resource": 14
+  }
+},
+{
+  "pk": 161, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 21, 
+    "session": "#3 Fundraising", 
+    "resource": 116
+  }
+},
+{
+  "pk": 163, 
+  "model": "fund.projectresource", 
+  "fields": {
+    "giving_project": 24, 
+    "session": "Session #3: Fundraising", 
+    "resource": 117
+  }
+}
+]
