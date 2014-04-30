@@ -3,7 +3,7 @@ from django.forms import ValidationError, ModelForm
 from django.utils.text import capfirst
 
 from sjfnw.forms import IntegerCommaField, PhoneNumberField
-from sjfnw.grants.models import Organization, GrantApplication, DraftGrantApplication
+from sjfnw.grants.models import Organization, GrantApplication, DraftGrantApplication, YearEndReport
 
 import json, logging
 logger = logging.getLogger('sjfnw')
@@ -11,12 +11,14 @@ logger = logging.getLogger('sjfnw')
 
 
 class OrgProfile(ModelForm):
+
   class Meta:
     model = Organization
     exclude = ('name', 'email')
 
 
 class TimelineWidget(forms.widgets.MultiWidget):
+
   def __init__(self, attrs=None):
     _widgets = (
       forms.Textarea(attrs={'rows':'5', 'cols':'20'}),
@@ -37,7 +39,6 @@ class TimelineWidget(forms.widgets.MultiWidget):
     )
     super(TimelineWidget, self).__init__(_widgets, attrs)
 
-
   def decompress(self, value):
     """ break single database value up for widget display
           argument: database value (json string representing list of vals)
@@ -47,7 +48,6 @@ class TimelineWidget(forms.widgets.MultiWidget):
       return json.loads(value)
     return [None, None, None, None, None, None, None, None,
             None, None, None, None, None, None, None]
-
 
   def format_output(self, rendered_widgets):
     """
@@ -111,15 +111,6 @@ class GrantApplicationModelForm(forms.ModelForm):
       'narrative5': forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[5]) + ')'}),
       'narrative6': forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[6]) + ')'}),
       'cycle_question': forms.Textarea(attrs={'onKeyUp':'charLimitDisplay(this, ' + str(GrantApplication.NARRATIVE_CHAR_LIMITS[7]) + ')'}),
-      #file callbacks
-      'budget': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'demographics': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'funding_sources': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'fiscal_letter': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget1': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget2': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'budget3': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
-      'project_budget_file': forms.FileInput(attrs={'onchange':'fileChanged(this.id);'}),
       #timeline
       'timeline':TimelineWidget(),
     }
@@ -226,6 +217,72 @@ class GrantApplicationModelForm(forms.ModelForm):
 
     return cleaned_data
 
+
+class ContactPersonWidget(forms.widgets.MultiWidget):
+  """ Displays widgets for contact person and their title
+  Stores in DB as a single value: Name, title """
+
+  def __init__(self, attrs=None):
+    _widgets = (forms.TextInput(), forms.TextInput())
+    super(ContactPersonWidget, self).__init__(_widgets, attrs)
+
+  def decompress(self, value):
+    """ break single db value up for display
+    returns list of values to be displayed in widgets """
+    if value:
+      return [val for val in value.split(', ')]
+    else:
+      return [None, None]
+
+  def format_output(self, rendered_widgets):
+    """ format widgets for display - add any additional labels, html, etc """
+    return (rendered_widgets[0] + '<label>Title</label>' + rendered_widgets[1])
+
+  def value_from_datadict(self, data, files, name):
+    """ Consolidate widget data into single value for db storage """
+
+    val_list = []
+    for i, widget in enumerate(self.widgets):
+      val_list.append(widget.value_from_datadict(data, files, name + '_%s' % i))
+    return ', '.join(val_list)
+
+
+def set_yer_custom_fields(field, **kwargs):
+  if field.name == 'phone':
+    return PhoneNumberField(**kwargs)
+  else:
+    return field.formfield(**kwargs)
+
+
+class YearEndReportForm(ModelForm):
+  # stay in touch components
+  listserve = forms.CharField(required=False)
+  sit_website = forms.CharField(required=False, label='Website')
+  newsletter = forms.CharField(required=False)
+  facebook = forms.CharField(required=False)
+  twitter = forms.CharField(required=False)
+  other = forms.CharField(required=False)
+
+  formfield_callback = set_yer_custom_fields
+
+  class Meta:
+    model = YearEndReport
+    exclude = ['submitted', 'visible']
+    widgets = {'award': forms.HiddenInput(),
+               'stay_informed': forms.HiddenInput(),
+               'contact_person': ContactPersonWidget}
+  
+  def clean(self):
+    stay_informed = {}
+    for field_name in self.declared_fields:
+      val = self.cleaned_data.get(field_name, None)
+      if val:
+        stay_informed[field_name] = val
+    if stay_informed:
+      self.cleaned_data['stay_informed'] = json.dumps(stay_informed)
+    else:
+      self._errors['stay_informed'] = 'Please fill out at least one of the options below.'
+    return super(YearEndReportForm, self).clean()
 
 # ADMIN
 

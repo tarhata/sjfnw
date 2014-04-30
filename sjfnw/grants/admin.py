@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin.helpers import InlineAdminFormSet
+from django.core.urlresolvers import reverse
 from django.db import connection
 from django.http import HttpResponse
 from django.forms import ValidationError, ModelForm
@@ -363,6 +364,20 @@ class SponsoredProgramGrantA(admin.ModelAdmin):
   )
   #readonly_fields = ()
 
+class YearEndReportA(admin.ModelAdmin):
+  list_display = ('award', 'submitted', 'view_link')
+  list_select_related = True
+  fields = (('award', 'submitted'),
+            'visible')
+  readonly_fields = ('award', 'submitted')
+
+  def view_link(self, obj):
+    if obj.pk:
+      link =  '<a href="%s" target="_blank">View report</a>' % reverse('sjfnw.grants.views.view_yer', kwargs = {'report_id': obj.pk})
+      return link
+  view_link.allow_tags = True
+
+
 # REGISTER
 
 admin.site.register(GrantCycle, GrantCycleA)
@@ -371,6 +386,7 @@ admin.site.register(GrantApplication, GrantApplicationA)
 admin.site.register(DraftGrantApplication, DraftGrantApplicationA)
 admin.site.register(GivingProjectGrant, GivingProjectGrantA)
 admin.site.register(SponsoredProgramGrant, SponsoredProgramGrantA)
+admin.site.register(YearEndReport, YearEndReportA)
 
 advanced_admin.register(GrantCycle, GrantCycleA)
 advanced_admin.register(Organization, OrganizationAdvA)

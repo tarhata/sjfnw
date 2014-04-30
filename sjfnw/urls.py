@@ -4,7 +4,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic.base import TemplateView
 
 from sjfnw.admin import advanced_admin
-from sjfnw.grants.urls import apply_urls, grants_urls
+from sjfnw.grants.urls import apply_urls, report_urls, grants_urls, root_urls
 
 handler404 = 'sjfnw.views.page_not_found'
 handler500 = 'sjfnw.views.server_error'
@@ -22,9 +22,11 @@ urlpatterns = patterns('',
   # grants
   (r'^apply/?', include(apply_urls)),
   (r'^grants/?', include(grants_urls)),
+  (r'^report/', include(report_urls)),
+  (r'^', include(root_urls)),
   (r'^org/?$', 'sjfnw.grants.views.RedirToApply'),
   (r'^logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/apply'}),
-  (r'^get-upload-url/(?P<draft_id>\d+)/?$','sjfnw.grants.views.RefreshUploadUrl'), #TODO put this under /apply
+  (r'^get-upload-url/?','sjfnw.grants.views.RefreshUploadUrl'), #TODO put this under /apply
 
   # admin
   (r'^admin/', include(admin.site.urls)),

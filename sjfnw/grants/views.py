@@ -19,7 +19,7 @@ from sjfnw import constants
 from sjfnw.fund.models import Member
 from sjfnw.grants.decorators import registered_org
 from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
-from sjfnw.grants.modelforms import GrantApplicationModelForm, OrgProfile
+from sjfnw.grants.modelforms import GrantApplicationModelForm, OrgProfile, YearEndReportForm
 from sjfnw.grants.utils import local_date_str, FindBlobKey, FindBlob, ServeBlob, DeleteBlob
 from sjfnw.grants import models
 
@@ -297,7 +297,7 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     if url:
       name = getattr(draft, field).name.split('/')[-1]
       #short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
-      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + name + '</a> [<a onclick="removeFile(\'' + field + '\');">remove</a>]'
+      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + name + '</a> [<a onclick="fileUploads.removeFile(\'' + field + '\');">remove</a>]'
     else:
       file_urls[field] = '<i>no file uploaded</i>'
 
@@ -345,12 +345,20 @@ def autosave_app(request, cycle_id):  # /apply/[cycle_id]/autosave/
     draft.save()
     return HttpResponse("success")
 
-def AddFile(request, draft_id):
+def add_file(request, draft_type, draft_id):
   """ Upload a file to a draft
       Called by javascript in application page """
 
-  draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
-  logger.debug(unicode(draft.organization) + u' adding a file')
+  if draft_type == 'apply':
+    draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
+    logger.debug(unicode(draft.organization) + u' adding a file')
+  elif draft_type == 'report':
+    draft = get_object_or_404(models.YERDraft, pk=draft_id)
+    logger.debug('Adding a file to YER draft %s' % draft_id)
+  else:
+    logger.error('Invalid draft_type %s for add_file' % draft_type)
+    return Http404
+
   logger.debug([request.body]) #don't remove this without fixing storage to not access body blob_file = False
   blob_file = False
   for key in request.FILES:
@@ -376,12 +384,12 @@ def AddFile(request, draft_id):
   file_urls = GetFileURLs(request, draft)
   content = (field_name + u'~~<a href="' + file_urls[field_name] +
              u'" target="_blank" title="' + unicode(blob_file) + u'">' +
-             unicode(blob_file) + u'</a> [<a onclick="removeFile(\'' +
+             unicode(blob_file) + u'</a> [<a onclick="fileUploads.removeFile(\'' +
              field_name + u'\');">remove</a>]')
-  logger.info(u"AddFile returning: " + content)
+  logger.info(u"add_file returning: " + content)
   return HttpResponse(content)
 
-def RemoveFile(request, draft_id, file_field):
+def remove_file(request, draft_type, draft_id, file_field):
   draft = get_object_or_404(models.DraftGrantApplication, pk=draft_id)
   if hasattr(draft, file_field):
     old = getattr(draft, file_field)
@@ -393,7 +401,7 @@ def RemoveFile(request, draft_id, file_field):
     logger.error('Tried to remove non-existent field: ' + file_field)
   return HttpResponse('success')
 
-def RefreshUploadUrl(request, draft_id):
+def RefreshUploadUrl(request):
   """ Get a blobstore url for uploading a file """
 
   #staff override
@@ -403,9 +411,87 @@ def RefreshUploadUrl(request, draft_id):
   else:
     user_override = ''
 
-  upload_url = blobstore.create_upload_url('/apply/' + draft_id +
-                                           '/add-file' + user_override)
+  draft_id = int(request.GET.get('id'))
+  logger.info(draft_id)
+  prefix = request.GET.get('type')
+  logger.info(prefix)
+
+  upload_url = blobstore.create_upload_url('/%s/%d/add-file' % (prefix, draft_id) + user_override)
   return HttpResponse(upload_url)
+
+
+def autosave_yer(request, award_id):
+
+  if not request.user.is_authenticated():
+    return HttpResponse(LOGIN_URL, status=401)
+
+  draft = get_object_or_404(models.YERDraft, award_id=award_id)
+
+  if request.method == 'POST':
+    draft.contents = json.dumps(request.POST)
+    logger.info(draft.contents)
+    draft.modified = timezone.now()
+    draft.save()
+    return HttpResponse("success")
+
+
+@login_required(login_url=LOGIN_URL)
+@registered_org()
+def year_end_report(request, organization, award_id):
+
+  # get award, make sure org matches
+  award = get_object_or_404(models.GivingProjectGrant, pk=award_id)
+  app = award.project_app.application
+  if app.organization_id != organization.pk:
+    logger.warning('Trying to edit someone else\'s YER')
+    return redirect(Apply)
+
+  # check if already submitted
+  if models.YearEndReport.objects.filter(award=award):
+    logger.warning('YER already exists')
+    return redirect(Apply)
+
+  # get or create draft
+  draft, cr = models.YERDraft.objects.get_or_create(award=award)
+
+  if request.method == 'POST':
+    draft_data = json.loads(draft.contents)
+    files_data = model_to_dict(draft, fields = ['photo1', 'photo2', 'photo3', 'photo4', 'photo_release'])
+    logger.info(files_data)
+    form = YearEndReportForm(draft_data, files_data)
+
+    if form.is_valid():
+      logger.info('Valid YER')
+      yer = form.save()
+      return redirect('report/submitted')
+
+  else: # GET
+    if cr:
+      initial_data = {'website': app.website, 'award': award,
+                      'contact_person': app.contact_person + ', ' + app.contact_person_title,
+                      'phone': app.telephone_number, 'email': app.email_address}
+      logger.info('Created new YER draft')
+    else:
+      initial_data = json.loads(draft.contents)
+      if initial_data['contact_person_0'] or initial_data['contact_person_1']:
+        initial_data['contact_person'] = initial_data['contact_person_0'] + ', ' + initial_data['contact_person_1']
+
+
+    form = YearEndReportForm(initial=initial_data)
+
+  file_urls = GetFileURLs(request, draft)
+  for field, url in file_urls.iteritems():
+    if url:
+      name = getattr(draft, field).name.split('/')[-1]
+      #short_name = name[:35] + (name[35:] and '..') #stackoverflow'd truncate
+      file_urls[field] = '<a href="' + url + '" target="_blank" title="' + name + '">' + name + '</a> [<a onclick="fileUploads.removeFile(\'' + field + '\');">remove</a>]'
+    else:
+      file_urls[field] = '<i>no file uploaded</i>'
+
+  return render(request, 'grants/yer_form.html',
+      {'form': form, 'org': organization, 'draft': draft, 'award_id': award.pk,
+       'file_urls': file_urls})
+
 
 # ORG COPY DELETE APPS
 @login_required(login_url=LOGIN_URL)
@@ -539,7 +625,7 @@ def view_permission(user, application):
     except Member.DoesNotExist:
       return 0
 
-def ReadApplication(request, app_id):
+def view_application(request, app_id):
   app = get_object_or_404(models.GrantApplication, pk=app_id)
 
   if not request.user.is_authenticated():
@@ -556,17 +642,56 @@ def ReadApplication(request, app_id):
                   {'app':app, 'form':form, 'perm':perm})
   file_urls = GetFileURLs(request, app)
   print_urls = GetFileURLs(request, app, printing=True)
+  awards = {}
+  for papp in app.projectapp_set.all():
+    if hasattr(papp, 'givingprojectgrant'):# and hasattr(papp.givingprojectgrant, 'yearendreport'):
+      awards[papp.giving_project] = papp.givingprojectgrant
 
   return render(request, 'grants/reading_sidebar.html',
-                {'app':app, 'form':form, 'file_urls':file_urls, 'print_urls':print_urls, 'perm':perm})
+                {'app':app, 'form':form, 'file_urls':file_urls, 'print_urls':print_urls, 
+                 'awards': awards, 'perm':perm})
 
-def ViewFile(request, app_id, file_type):
-  application =  get_object_or_404(models.GrantApplication, pk = app_id)
-  return ServeBlob(application, file_type)
+def view_file(request, obj_type, obj_id, field_name):
+  MODEL_TYPES = {
+    'app': models.GrantApplication,
+    'report': models.YearEndReport,
+    'adraft': models.DraftGrantApplication,
+    'rdraft': models.YERDraft
+  }
+  if not obj_type in MODEL_TYPES:
+    logger.warning('Unknown obj type %s' % obj_type)
+    raise Http404
 
-def ViewDraftFile(request, draft_id, file_type):
+  obj =  get_object_or_404(MODEL_TYPES[obj_type], pk = obj_id)
+  return ServeBlob(obj, field_name)
+
+def ViewDraftFile(request, draft_id, field_name):
   application =  get_object_or_404(models.DraftGrantApplication, pk = draft_id)
-  return ServeBlob(application, file_type)
+  return ServeBlob(application, field_name)
+
+def view_yer(request, report_id):
+  logger.info('view_yer')
+
+  report = get_object_or_404(models.YearEndReport.objects.select_related(), pk=report_id)
+  logger.info(report)
+
+  if not request.user.is_authenticated():
+    perm = 0
+  else:
+    perm = view_permission(request.user, report)
+  logger.info(perm)
+
+  form = YearEndReportForm(instance = report)
+  logger.info(form)
+  award = report.award
+  projectapp = award.project_app
+
+  file_urls = GetFileURLs(request, report, printing=False)
+
+  return render(request, 'grants/yer_display.html', {
+    'report': report, 'form': form, 'award': award, 'projectapp': projectapp, 'file_urls': file_urls
+  })
+
 
 # ADMIN
 def RedirToApply(request):
@@ -1084,10 +1209,10 @@ def DraftWarning(request):
 # UTILS
 # (caused import probs in utils.py)
 def GetFileURLs(request, app, printing=False):
-  """ Get viewing urls for the files in a given draft or app
+  """ Get viewing urls for the files in a given app or year-end report, draft or final
 
     Args:
-      app: GrantApplication or DraftGrantApplication object
+      app: one of GrantApplication, DraftGrantApplication, YearEndReport, YERDraft
 
     Returns:
       a dict of urls for viewing each file, taking into account whether it can be viewed in google doc viewer
@@ -1096,17 +1221,28 @@ def GetFileURLs(request, app, printing=False):
     Raises:
       returns an empty dict if the given object is not valid
   """
-
-  base_url = request.build_absolute_uri('/')
-  file_urls = {'funding_sources':'', 'demographics':'',
+  app_urls = {'funding_sources':'', 'demographics':'',
                'fiscal_letter':'', 'budget1': '', 'budget2': '', 'budget3': '',
                'project_budget_file': ''}
-  #determine whether draft or submitted
+  report_urls = {'photo1': '', 'photo2': '', 'photo3': '', 'photo4': '', 'photo_release': '' }
+
+
+  base_url = request.build_absolute_uri('/')
+
+
   if isinstance(app, models.GrantApplication):
-    base_url += 'grants/view-file/'
+    base_url += 'grants/app-file/'
+    file_urls = app_urls
     file_urls['budget'] = ''
   elif isinstance(app, models.DraftGrantApplication):
-    base_url += 'grants/draft-file/'
+    file_urls = app_urls
+    base_url += 'grants/adraft-file/'
+  elif isinstance(app, models.YearEndReport):
+    file_urls = report_urls
+    base_url += 'grants/report-file/'
+  elif isinstance(app, models.YERDraft):
+    file_urls = report_urls
+    base_url += 'grants/rdraft-file/'
   else:
     logger.error("GetFileURLs received invalid object")
     return {}
@@ -1121,7 +1257,7 @@ def GetFileURLs(request, app, printing=False):
         if printing:
           if not (ext == 'xls' or ext == 'xlsx'):
             file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field]
-        else: 
+        else:
           file_urls[field] = 'https://docs.google.com/viewer?url=' + file_urls[field] + '&embedded=true'
   logger.debug(file_urls)
   return file_urls
@@ -1130,7 +1266,7 @@ def update_profile(request, org_id):
 
   message = ''
   org = get_object_or_404(models.Organization, pk=org_id)
-  
+
   apps = org.grantapplication_set.all()
   if apps:
     profile_data = model_to_dict(apps[0])
