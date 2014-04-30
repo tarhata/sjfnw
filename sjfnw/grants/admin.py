@@ -64,10 +64,21 @@ class LogReadonlyI(admin.TabularInline): #Org, Application
   model = GrantApplicationLog
   extra = 0
   max_num = 0
-  fields = ('date', 'application', 'staff', 'contacted', 'notes')
-  readonly_fields = ('date', 'application', 'staff', 'contacted', 'notes')
+  fields = ('date', 'grantcycle', 'staff', 'contacted', 'notes')
+  readonly_fields = ('date', 'grantcycle', 'staff', 'contacted', 'notes')
   verbose_name = 'Log'
   verbose_name_plural = 'Logs'
+
+  def queryset(self, request):
+    return super(LogReadonlyI, self).queryset(request).select_related('staff', 'application', 'application__grant_cycle')
+
+  def grantcycle(self, obj):
+    if obj.application:
+      return obj.application.grant_cycle
+    else:
+      return ''
+  grantcycle.short_description = 'Application'
+
 
 class LogI(admin.TabularInline): #Org, Application
   """ Inline for adding a log to an org or application
@@ -87,24 +98,32 @@ class LogI(admin.TabularInline): #Org, Application
     if '/add' in request.path:
       logger.info('LogI.formfield_for_foreignkey called on add view')
     else:
-      if db_field.name == 'staff':
+      # staff field
+      if db_field.name == 'staff':  
         kwargs['initial'] = request.user.id
+        kwargs['queryset'] = User.objects.filter(is_staff=True)
         return db_field.formfield(**kwargs)
+      # organization field on app page
       elif 'grantapplication' in request.path and db_field.name == 'organization':
         id = int(request.path.split('/')[-2])
         app = GrantApplication.objects.get(pk=id)
-        kwargs['initial'] = app.organization.pk
+        kwargs['initial'] = app.organization_id
         return db_field.formfield(**kwargs)
+      # application field
       if db_field.name=='application':
         org_pk = int(request.path.split('/')[-2])
-        kwargs['queryset'] = GrantApplication.objects.filter(organization_id=org_pk)
+        kwargs['queryset'] = GrantApplication.objects.filter(organization_id=org_pk).select_related('organization', 'grant_cycle')
+
     return super(LogI, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-class AwardI(BaseShowInline): #App, GP
+class AwardI(BaseShowInline): # NOT IN USE CURRENTLY
   model = GivingProjectGrant
   fields = ('amount', 'check_mailed', 'agreement_mailed', 'edit_award')
   readonly_fields = fields
   template = 'admin/grants/givingprojectgrant/tabular_inline.html'
+
+  def queryset(self, request):
+    return super(AwardI, self).queryset(request).select_related()
 
   def edit_award(self, obj):
     if obj.pk:
@@ -125,6 +144,10 @@ class GrantApplicationI(BaseShowInline): #Org
                      'edit_application', 'view_link')
   fields = ('submission_time', 'grant_cycle', 'pre_screening_status',
             'edit_application', 'view_link')
+
+  def queryset(self, request):
+    return super(GrantApplicationI, self).queryset(request).select_related('grant_cycle')
+
 
   def edit_application(self, obj): #GrantApplication fieldset
     return ('<a href="/admin/grants/grantapplication/' + str(obj.pk) +
@@ -220,8 +243,7 @@ class OrganizationA(admin.ModelAdmin):
 
   def change_view(self, request, object_id, form_url='', extra_context=None):
     logger.info('OrganizationA.change_view()')
-    self.inlines = (GrantApplicationI, SponsoredProgramI,
-                    LogReadonlyI, LogI)
+    self.inlines = (GrantApplicationI, SponsoredProgramI, LogReadonlyI, LogI)
     self.readonly_fields = ('address', 'city', 'state', 'zip', 'telephone_number',
         'fax_number', 'email_address', 'website', 'status', 'ein', 'founded',
         'mission', 'fiscal_org', 'fiscal_person', 'fiscal_telephone',
@@ -300,6 +322,7 @@ class DraftAdv(admin.ModelAdmin): #Advanced
   list_filter = ('grant_cycle',) #extended
 
 class GivingProjectGrantA(admin.ModelAdmin):
+  list_select_related = True
   list_display = ('organization_name', 'grant_cycle', 'giving_project',
       'amount', 'check_mailed', 'year_end_report_due')
   list_filter = ['agreement_mailed', CycleTypeFilter, GrantCycleYearFilter]
