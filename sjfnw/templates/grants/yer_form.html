@@ -128,6 +128,7 @@ $(document).ready(function() {
   <iframe class="upload" id="id_upload_frame" name="upload_frame" onload="fileUploads.iframeUpdated(this); console.log('iframe onload');"></iframe>
 
   {% autoescape off %}
+  {{ form.photo1.help_text }}
   <table class="file-uploads">
     <tr>
       <td colspan="2">{{ form.photo1.errors }}</td>

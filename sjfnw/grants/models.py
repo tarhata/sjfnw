@@ -664,7 +664,7 @@ class YearEndReport(models.Model):
         ('1. Thinking about the Giving Project volunteers who decided to fund '
         'you last year, including those you met on your site visit, what would '
         'you like to tell them about what you’ve done over the last year?'))
-  goal_progress = models.TextField(blank=True, verbose_name=
+  goal_progress = models.TextField(verbose_name=
         ('2. Please refer back to your application from last year. Looking at '
          'the goals you outlined in your application, what progress have you '
          'made on each? If you were unable to achieve those goals or changed '
@@ -672,7 +672,7 @@ class YearEndReport(models.Model):
   quantitative_measures = models.TextField(verbose_name=
       ('3. Do you evaluate your work by any quantitative measures (e.g., number '
         'of voters registered, members trained, leaders developed, etc.)? If '
-        'so, provide that information:')) 
+        'so, provide that information:'), blank=True) 
   evaluation = models.TextField(verbose_name=
       ('4. What other type of evaluations do you use internally? Please share '
        'any outcomes that are relevant to the work funded by this grant.'))
@@ -684,10 +684,10 @@ class YearEndReport(models.Model):
        'accomplishments?'))
   new_funding = models.TextField(verbose_name=
       ('7. Did your grant from Social Justice Fund help you access any new '
-       'sources of funding? If so, please explain.'))
+       'sources of funding? If so, please explain.'), blank=True)
   major_changes = models.TextField(verbose_name=
       ('8. Describe any major staff or board changes or other major '
-        'organizational changes in the past year.'))
+        'organizational changes in the past year.'), blank=True)
   total_size = models.PositiveIntegerField(verbose_name=
       ('9. What is the total size of your base? That is, how many people, '
         'including paid staff, identify as part of your organization?'))
@@ -698,19 +698,23 @@ class YearEndReport(models.Model):
 
   stay_informed = models.TextField(verbose_name=
       ('11. What is the best way for us to stay informed about your work? '
-       '(Enter any/all that apply)'), default='{}', blank=True)
+       '(Enter any/all that apply)'), default='{}')
 
-  other_comments = models.TextField(blank=True, verbose_name=
+  other_comments = models.TextField(verbose_name=
       ('12. Other comments or information? Do you have any suggestions for how '
-        'SJF can improve its grantmaking programs?')) #json dict - see modelforms
+        'SJF can improve its grantmaking programs?'), blank=True) #json dict - see modelforms
 
 
-  photo1 = models.FileField(validators = [validate_photo_file_extension], upload_to='/')
+  photo1 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', 
+      help_text = ('Please provide two or more photos that show your organization\'s members, '
+        'activities, etc. These pictures help us tell the story of our grantees and of Social '
+        'Justice Fund to the broader public.'))
   photo2 = models.FileField(validators = [validate_photo_file_extension], upload_to='/')
   photo3 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', help_text='(optional)', blank=True)
   photo4 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', help_text='(optional)', blank=True)
 
-  photo_release = models.FileField(upload_to='/')
+  photo_release = models.FileField(upload_to='/',
+    verbose_name = 'Please provide photo releases signed by any people who appear in these photos.')
 
   # admin-entered
   visible = models.BooleanField(default=False, help_text=
