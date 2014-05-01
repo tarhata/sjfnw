@@ -447,12 +447,12 @@ def year_end_report(request, organization, award_id):
   app = award.projectapp.application
   if app.organization_id != organization.pk:
     logger.warning('Trying to edit someone else\'s YER')
-    return redirect(Apply)
+    return redirect(org_home)
 
   # check if already submitted
   if models.YearEndReport.objects.filter(award=award):
     logger.warning('YER already exists')
-    return redirect(Apply)
+    return redirect(org_home)
 
   # get or create draft
   draft, cr = models.YERDraft.objects.get_or_create(award=award)
@@ -651,7 +651,7 @@ def view_application(request, app_id):
       awards[papp.giving_project] = papp.givingprojectgrant
 
   return render(request, 'grants/reading_sidebar.html',
-                {'app':app, 'form':form, 'file_urls':file_urls, 'print_urls':print_urls, 
+                {'app':app, 'form':form, 'file_urls':file_urls, 'print_urls':print_urls,
                  'awards': awards, 'perm':perm})
 
 def view_file(request, obj_type, obj_id, field_name):
@@ -1208,6 +1208,38 @@ def DraftWarning(request):
       msg.send()
       logger.info("Email sent to " + to + "regarding draft application soon to expire")
   return HttpResponse("")
+
+def yer_reminder_email(request):
+  """ Remind orgs of upcoming year end reports that are due
+  Depends on running once a day
+  Sends reminder emails at 1 month and 1 week """
+
+  due_today = timezone.now().date().replace(year = timezone.now().year - 1)
+  award_dates = [due_today + datetime.timedelta(days = 30), due_today + datetime.timedelta(days = 7)]
+  awards = (models.GivingProjectGrant.objects.select_related().prefetch_related('yearendreport')
+                                             .exclude(agreement_returned__isnull=True)[:5])
+  #awards = (models.GivingProjectGrant.objects.select_related().prefetch_related('yearendreport')
+  #                                             .filter(agreement_returned__in=award_dates))
+
+
+  for award in awards:
+    if not hasattr(award, 'yearendreport'):
+      app = award.projectapp.application
+
+      subject = 'Year end report'
+      from_email =  constants.GRANT_EMAIL
+      to = app.organization.email
+      html_content = render_to_string('grants/email_yer_submitted.html',
+        {'award': award, 'app': app, 'gp': award.projectapp.giving_project})
+      text_content = strip_tags(html_content)
+
+      msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [constants.SUPPORT_EMAIL])
+      msg.attach_alternative(html_content, "text/html")
+      msg.send()
+      logger.info('YER reminder email sent to ' + to + ' for award ' + str(award.pk))
+
+  return HttpResponse(html_content)
+
 
 # UTILS
 # (caused import probs in utils.py)

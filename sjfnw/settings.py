@@ -40,8 +40,8 @@ else:
     }
   }
   DEBUG = True
-  INSTALLED_APPS.append('django.contrib.staticfiles')
-  INSTALLED_APPS.append('debug_toolbar')
+  #INSTALLED_APPS.append('django.contrib.staticfiles')
+  #INSTALLED_APPS.append('debug_toolbar')
 
 APP_BASE_URL = 'https://sjf-nw.appspot.com/' # used by cron jobs
 
