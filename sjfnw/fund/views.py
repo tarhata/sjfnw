@@ -967,8 +967,11 @@ def done_step(request, donor_id, step_id):
       logger.info('Invalid step completion: ' + str(form.errors))
 
   else: #GET - fill form with initial data
-    initial = {'asked': donor.asked, 'notes': donor.notes,'last_name': donor.lastname,
-               'phone': donor.phone, 'email': donor.email}
+    initial = {
+        'asked': donor.asked, 'notes': donor.notes,'last_name': donor.lastname,
+        'phone': donor.phone, 'email': donor.email,
+        'promise_reason': json.loads(donor.promise_reason),
+        'likely_to_join': donor.likely_to_join}
     if donor.promised:
       if donor.promised == 0:
         initial['response'] = 3
