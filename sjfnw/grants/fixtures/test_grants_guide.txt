@@ -1,16 +1,6 @@
-﻿SUMMARY
-  2 orgs
-  5 grant cycles (3 open, 1 closed, 1 upcoming)
-  2 applications (1 projectapp)
-  2 drafts
-  2 giving projects
+﻿GUIDE TO TEST_GRANTS.JSON
 
-(reporting tests use live dump fixtures)
-
-TO ADD
-  more apps
-  assign some apps to gp
-  award(s)
+(some test use live dump fixtures with more objects)
 
 GRANT CYCLES
 
@@ -21,23 +11,24 @@ GRANT CYCLES
   5 Let's have a kiki [open]
   6 Oui [open]
 
-* For all but closed, set the dates in setUp
-  
+* For all but closed, set the dates in setUp using set_cycle_dates()
+
 ORGANIZATIONS
 
   1 Fresh New Org - neworg@gmail.com
     (nothing associated)
-  
+
   2 OfficeMax Foundation - testorg@gmail.com
     Drafts:     1 (cycle 2), 2 (cycle 3)
     Submitted:  1 (cycle 1), 2 (cycle 5)
 
 GIVING PROJECTS
+
   3 LGBTQ
   4 Immigration Reform
 
 SUBMITTED
-  
+
   1 OfficeMax (2), Open cycle (1)
     Complete as of 11/2013
     includes timeline, all-in-one budget
@@ -47,13 +38,13 @@ SUBMITTED
 
 DRAFTS
 
-  1 OfficeMax (2), Another open cycle (2)
+  1 OfficeMax (2), Closed cycle (3)
     Missing a lot of stuff
-    
-  2 OfficeMax (2), Closed cycle (3)
-    Complete (as of 3/9/13)
+
+  2 OfficeMax (2), Another open cycle cycle (2)
+    Complete (as of 5/1/14)
     No fiscal info, general support (no project info), all-in-one budget option, includes partial timeline
- 
+
 DRAFT FILES
 
   Any file in the media folder will work.  Currently (in order of files list):
@@ -62,6 +53,6 @@ DRAFT FILES
     diversity.docx
     budget1.doc
     budget2.txt
-    budget3.png    
+    budget3.png
     project.png
     fiscal.jpg

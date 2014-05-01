@@ -6,6 +6,20 @@ ALLOWED_HOSTS  = ['.appspot.com']
 
 SECRET_KEY = '*r-$b*8hglm+959&7x043hlm6-&6-3d3vfc4((7yd0dbrakhvi'
 
+INSTALLED_APPS = [
+  'django.contrib.auth',
+  'django.contrib.admin',
+  'django.contrib.contenttypes',
+  'django.contrib.humanize',
+  'django.contrib.sessions',
+  'django.contrib.messages',
+  'sjfnw',
+  'sjfnw.grants',
+  'sjfnw.fund',
+  'sjfnw.support',
+  'pytz',
+]
+
 if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
   DATABASES = {
     'default': {
@@ -26,22 +40,11 @@ else:
     }
   }
   DEBUG = True
+  INSTALLED_APPS.append('django.contrib.staticfiles')
+  INSTALLED_APPS.append('debug_toolbar')
 
 APP_BASE_URL = 'https://sjf-nw.appspot.com/' # used by cron jobs
 
-INSTALLED_APPS = (
-  'django.contrib.auth',
-  'django.contrib.admin',
-  'django.contrib.contenttypes',
-  'django.contrib.humanize',
-  'django.contrib.sessions',
-  'django.contrib.messages',
-  'sjfnw',
-  'sjfnw.grants',
-  'sjfnw.fund',
-  'sjfnw.support',
-  'pytz',
-)
 
 MIDDLEWARE_CLASSES = (
   #'google.appengine.ext.appstats.recording.AppStatsDjangoMiddleware', #must be first

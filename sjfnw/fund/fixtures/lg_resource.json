@@ -1,0 +1,956 @@
+[
+{
+  "pk": 1, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0Auzums852hH-dGRobEJnczhHcGt6MFFZZk9OcnZkNnc#gid=0", 
+    "title": "All 2012 Giving Project Members"
+  }
+},
+{
+  "pk": 2, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Books, films, articles, websites, and more related to: \r\n- Race\r\n- Class\r\n- Community Organizing & Social Justice Philanthropy \r\n- Immigrant Rights & Immigration Reform \r\n\r\nThis list is a work in progress and we welcome your suggestions! ", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/document/d/1R2WPFkhCHwG79F8ct-9mkE6dGxwZH9R8qXJDJYvyzJw/edit", 
+    "title": "Immigration Reform GP Resource List"
+  }
+},
+{
+  "pk": 3, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/file/d/0B2Y-c5UsKXLgS3p1UGVFTElxNEU/edit?usp=sharing", 
+    "title": "Pledge Form - Immigration Reform Giving Project"
+  }
+},
+{
+  "pk": 4, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AmY-c5UsKXLgdHNxRWxzZnBNemNzVUZGMEhTenVfYkE&usp=sharing", 
+    "title": "Contact List - Immigration Reform Giving Project (Winter)"
+  }
+},
+{
+  "pk": 5, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AmY-c5UsKXLgdHNxRWxzZnBNemNzVUZGMEhTenVfYkE&usp=sharing", 
+    "title": "Contact List - Immigration Reform Giving Project (Winter)"
+  }
+},
+{
+  "pk": 6, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/file/d/0B2Y-c5UsKXLgS3p1UGVFTElxNEU/edit?usp=sharing", 
+    "title": "Pledge Form - Immigration Reform Giving Project"
+  }
+},
+{
+  "pk": 7, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/spreadsheet/ccc?key=0AmY-c5UsKXLgdHo0TVh3b0RmdGxCU09xUXhObG5Pb0E#gid=0", 
+    "title": "Contact List - LGBTQ 2013 Giving Project"
+  }
+},
+{
+  "pk": 11, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Always a work in progress! Please make suggestions.", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/document/d/1A91a_VybJ0AXolgPHm0Uh6kPaZCvIyODTPi8EoMhnaI/edit", 
+    "title": "Resource List - LGBTQ Giving Project 2013"
+  }
+},
+{
+  "pk": 12, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "http://youtu.be/MbdxeFcQtaU", 
+    "title": "\u201c How I Learned to Stop Worrying and Love Discussing Race,\u201d Jay Smooth "
+  }
+},
+{
+  "pk": 13, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "To read before Session 2 (Race/Class Workshop)", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/file/d/0B2Y-c5UsKXLgdmFhUWx4YksxR0k/edit", 
+    "title": "Race Class Definitions"
+  }
+},
+{
+  "pk": 14, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/file/d/0B2Y-c5UsKXLgcTJ1Ml84c2hqQWM/edit", 
+    "title": "Resourcing:Fundraising as Part of Building and Supporting Community"
+  }
+},
+{
+  "pk": 15, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/file/d/0B2Y-c5UsKXLgUVFWUVpVUUJRNnM/edit", 
+    "title": "Why People of Color Need to Be Good Fundraisers"
+  }
+},
+{
+  "pk": 16, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/file/d/0B2Y-c5UsKXLgSXVPaFhsal9XdE0/edit", 
+    "title": "Caring for Each Other: Philanthropy in Communities of Color"
+  }
+},
+{
+  "pk": 17, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Here's a handy list of EJ contacts. Please respect everyone's privacy and do not share outside of the group without permission", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0An_Wr5QI0AubdC1CYXVxRGZJTUpWekpUNE5Nb2V6eHc&usp=sharing", 
+    "title": "Environmental Justice Giving Project 2013 Contact List"
+  }
+},
+{
+  "pk": 19, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "A list of books, articles, films, video and websites that reference Environmental Justice", 
+    "link": "https://docs.google.com/document/d/1T3pVf8xOpYKiFp6eoPiP8bDOg8bQb7bbElW46aa_8W0/edit?usp=sharing", 
+    "title": "Environmental Justice Giving Project 2013 Resource List"
+  }
+},
+{
+  "pk": 20, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "These fundraising letters are from previous Giving Project members. Use them as a guide to creating your own fundraising letters for donor organizing", 
+    "link": "https://docs.google.com/file/d/0B3_Wr5QI0AubT09ySlJDVGstV0U/edit?usp=sharing", 
+    "title": "Sample Fundraising Letters"
+  }
+},
+{
+  "pk": 21, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/spreadsheet/ccc?key=0AmY-c5UsKXLgdDdYOXlqYmF2VXNJOFFGWmtrV0VUT3c#gid=0", 
+    "title": "CJGP 2013 Contact List"
+  }
+},
+{
+  "pk": 22, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/document/d/1H9jH0G3VtBGqYCmXlJMgj7iouDRjqiHokJFTkk9x_Vs/edit", 
+    "title": "CJGP Resource List"
+  }
+},
+{
+  "pk": 23, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/file/d/0B2Y-c5UsKXLgNWx4ek5ibFFIdWs/edit?usp=sharing", 
+    "title": "Definitions for Race/Class Workshop"
+  }
+},
+{
+  "pk": 24, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/file/d/0B8ZKbCgaCJr8MGwxczVVcnlfNHM/edit?usp=sharing", 
+    "title": "Core Timeline"
+  }
+},
+{
+  "pk": 25, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "If you haven't read the book, you really really should! But in the meantime, read this brief summary.", 
+    "link": "http://www.huffingtonpost.com/michelle-alexander/the-new-jim-crow_b_454469.html", 
+    "title": "The New Jim Crow (summary) by Michele Alexander"
+  }
+},
+{
+  "pk": 26, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "http://www.pbs.org/wnet/tavissmiley/tsr/education-under-arrest/school-to-prison-pipeline-fact-sheet/", 
+    "title": "Fact Sheet: How Bad Is the School to Prison Pipeline?, Tavis Smiley Reports "
+  }
+},
+{
+  "pk": 27, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Recommended for an introduction to how the criminal justice system and immigration system intersect. Listen to the program (28 minutes long) or read the transcript. ", 
+    "link": "http://www.radioproject.org/2012/10/the-penalty-is-exile-how-immigration-and-criminalization-collide/", 
+    "title": "The Penalty Is Exile: How Immigration and Criminalization Collide, National Radio Project"
+  }
+},
+{
+  "pk": 28, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Recommended for an introduction to how the criminal justice system and education system intersect. ", 
+    "link": "http://www.pbs.org/wnet/tavissmiley/tsr/education-under-arrest/school-to-prison-pipeline-fact-sheet/", 
+    "title": "Fact Sheet: How Bad Is the School to Prison Pipeline?, Tavis Smiley Reports "
+  }
+},
+{
+  "pk": 29, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/file/d/0B2Y-c5UsKXLgc0JPa29Nc1ExMWc/edit?usp=sharing", 
+    "title": "LGBTQ GP Grantmaking Manual 2013"
+  }
+},
+{
+  "pk": 30, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "http://www.socialjusticefund.org/sites/default/files/SJF%20Grantmaking%20Case%20Statement.pdf", 
+    "title": "SJF Grantmaking Case Statement"
+  }
+},
+{
+  "pk": 32, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "http://www.socialjusticefund.org/sites/default/files/SJF%20Granting%20Criteria%20-%20for%20Grant%20Reviewers_0.pdf", 
+    "title": "SJF Granting Criteria "
+  }
+},
+{
+  "pk": 33, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/file/d/0B2Y-c5UsKXLgUHdSYWg0VFlabFE/edit?usp=sharing", 
+    "title": "EJGP Grantmaking Manual 2013"
+  }
+},
+{
+  "pk": 34, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Instructions: \r\nGo to the link \r\nThis is a blank template - do not type in it!\r\n Make a copy of this template (\"File\"/\"Make a copy\").\r\n Then modify the title by adding YOUR name. \r\nThen share with SJF staff (\"File\"/\"Share\"/Add elsa@socialjusticefund.org, karen@socialjusticefund.org). Enter your scores and notes in the copy ", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/spreadsheet/ccc?key=0AvpovjYAT4e5dHNlQkEzcjZqM2x6cTdzVk9HdDNBV3c#gid=0", 
+    "title": "SCORE SHEET 2013 Economic Justice Applications"
+  }
+},
+{
+  "pk": 35, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/a/socialjusticefund.org/?usp=chrome_app#search/upload", 
+    "title": "Grant Making Manual "
+  }
+},
+{
+  "pk": 36, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/document/d/10-5p6mEl2fU9jeLZcDZSen_nSByg1xa6-dI1aG9Cv7o/edit?usp=sharing", 
+    "title": "CJGP Fundraising Talking Points"
+  }
+},
+{
+  "pk": 37, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/file/d/0B2Y-c5UsKXLgZ0o4b19PbVExZzg/edit?usp=sharing", 
+    "title": "CJGP Fundraising Talking Points "
+  }
+},
+{
+  "pk": 38, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/document/d/10-5p6mEl2fU9jeLZcDZSen_nSByg1xa6-dI1aG9Cv7o/edit?usp=sharing", 
+    "title": "CJ Grantees 2012"
+  }
+},
+{
+  "pk": 39, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/document/d/1tZFb9S7uzYG0xavEbpoCIRjYf9fi3zXd0YXw0GudSJ8/edit?usp=sharing", 
+    "title": "Giving Project Fundraising FAQs"
+  }
+},
+{
+  "pk": 40, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/document/d/1mVKcvcJQQIKIteFkoIPnwmHgoyeLyvq38fWYFA_sGis/edit?usp=sharing", 
+    "title": "Giving Project One-on-One Ask"
+  }
+},
+{
+  "pk": 41, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/document/d/1zJ2PnABjwqj0Q2PxaWCKKqxQaRl13gYOG_ecAHDE0Ks/edit?usp=sharing", 
+    "title": "CJGP Fundraising Logistics"
+  }
+},
+{
+  "pk": 42, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/file/d/0B2Y-c5UsKXLgam93TmYzNXRnUFE/edit?usp=sharing", 
+    "title": "CJGP Fundraising Talking Points (pdf)"
+  }
+},
+{
+  "pk": 44, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/file/d/0B1j1jyd4S3OtUVZsbGVRUmR1S28/edit", 
+    "title": "Contact List - SJGP Portland"
+  }
+},
+{
+  "pk": 45, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://www.youtube.com/watch?v=PJ5qJbDiQ0c", 
+    "title": "Video: SJF's Grantmaking Process (Overview)"
+  }
+},
+{
+  "pk": 46, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/file/d/0B2Y-c5UsKXLgQk5qUVV2Y3VKb28/edit?usp=sharing", 
+    "title": "CJGP 2013 Grantmaking Manual"
+  }
+},
+{
+  "pk": 47, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dGl3WXM5UHVNLTRaeE15Y3NLZzdtN3c&usp=sharing", 
+    "title": "General Grant Scoresheet"
+  }
+},
+{
+  "pk": 49, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": " - Use this to tell people and to remind yourself why this Giving Project is a great thing to put your money behind", 
+    "link": "https://docs.google.com/document/d/1My6afkPKDYRW8SS9XgCwsfmQxncyZjQWRyrKp5BKf4g/edit?usp=sharing", 
+    "title": "Fundraising Talking Points"
+  }
+},
+{
+  "pk": 50, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/document/d/1fs6uBfgIAieEXnIWSNtmAdo2Z8CbnSiqjp9xdokHGVw/edit?usp=sharing", 
+    "title": "Resource List"
+  }
+},
+{
+  "pk": 51, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/document/d/1ZOH6voQqgGryQxXnp1zFTx73XaEcGpMB8Ngizit0up4/edit?usp=sharing", 
+    "title": "Fundraising Logistics"
+  }
+},
+{
+  "pk": 52, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "- use these FAQs to have answers ready for questions that may come up and frequently do in conversations with potential donors", 
+    "link": "https://docs.google.com/document/d/1S0EOeeesRixXQEIRDhPosFUKlSOmuyf8Hd9rkR4jw6c/edit?usp=sharing", 
+    "title": "Fundraising FAQs"
+  }
+},
+{
+  "pk": 53, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dE5nZkZ6STFNd3RNMlBiUmpLX0h6aVE&usp=sharing", 
+    "title": "EJGP 2013 Screening Re-Score Sheet"
+  }
+},
+{
+  "pk": 54, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dDhydUE1dlFIZ1I3NmhydUpieHdTNlE&usp=sharing", 
+    "title": "General Grant Re-Score "
+  }
+},
+{
+  "pk": 55, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dFJvWU4xZkJQNy1pSVBoQXp6QVVYZmc&usp=sharing", 
+    "title": "SJGP in PDX Grant Scoresheet"
+  }
+},
+{
+  "pk": 56, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dFJvWU4xZkJQNy1pSVBoQXp6QVVYZmc&usp=sharing", 
+    "title": "Next Generation Giving Project Scoresheet"
+  }
+},
+{
+  "pk": 57, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/file/d/0B1j1jyd4S3OtbWZSYUxtdlQ2Z1k/edit?usp=sharing", 
+    "title": "Grant Making Manual - Portland 2013"
+  }
+},
+{
+  "pk": 58, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dFJvWU4xZkJQNy1pSVBoQXp6QVVYZmc&usp=sharing", 
+    "title": "General Grant Scoresheet ~ PDX-GP"
+  }
+},
+{
+  "pk": 59, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "http://overheadmyth.com/", 
+    "title": "The Overhead Myth"
+  }
+},
+{
+  "pk": 60, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "http://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&ved=0CCoQFjAA&url=http%3A%2F%2Fwww.ted.com%2Ftalks%2Fdan_pallotta_the_way_we_think_about_charity_is_dead_wrong.html&ei=5kjKUc63DM", 
+    "title": "The Way We Think About Charity Is Dead Wrong - Dan Pallotta"
+  }
+},
+{
+  "pk": 61, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://www.dropbox.com/s/9r46nqboplgu3zt/SJF%20Strategic%20Plan.pdf", 
+    "title": "SJF Strategic Plan"
+  }
+},
+{
+  "pk": 62, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://www.dropbox.com/s/knhbxtu5naywcfu/Fundraising%20Logistics.docx", 
+    "title": "Fundraising Logistics"
+  }
+},
+{
+  "pk": 63, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://www.dropbox.com/s/7vbus7w08smpae2/The%20One%20on%20One%20Ask.docx", 
+    "title": "The One on One Ask"
+  }
+},
+{
+  "pk": 64, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/document/d/1OdK3K-3fto8XxZ18_oRwbTSGw71Hzfp8wSEy57ET7po/edit?usp=sharing", 
+    "title": "Site Visit Report Template EJGP"
+  }
+},
+{
+  "pk": 65, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dGVSR3RnQjVrSU9IWTJHcGlsRlpSVGc&usp=sharing", 
+    "title": "2013 EJGP Final Decisions Rescore Sheet"
+  }
+},
+{
+  "pk": 66, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dHNTaGpUblh2TXdLSnVFaUh0b1p2X3c&usp=sharing", 
+    "title": "2013 NGGP Screening Rescore Sheet"
+  }
+},
+{
+  "pk": 67, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/spreadsheet/ccc?key=0AmY-c5UsKXLgdFFfbmNtekZiaU5tbV9MVDNGb3VaMVE#gid=0", 
+    "title": "IRGP Summer Contact List"
+  }
+},
+{
+  "pk": 68, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/document/d/15wz991Kb3737ZNDmXcTNZRPzWH4p5qmeMX3rkqPWVkI/edit?usp=sharing", 
+    "title": "Recent Immigrant Organizing Grantees"
+  }
+},
+{
+  "pk": 69, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/file/d/0B2Y-c5UsKXLgR0pRcDlPczVOdjg/edit?usp=sharing", 
+    "title": "What's Good, What's Not in Senate CIR Bill"
+  }
+},
+{
+  "pk": 70, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/document/d/1kXidche-gjVcbD2VyrRRLcqiN8Ou5T5K1mtkSJ-0pPo/edit?usp=sharing", 
+    "title": "Definitions for Race & Class Workshop"
+  }
+},
+{
+  "pk": 71, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/document/d/1iatQUs1zFKYIV4n-ng4tYvOlsyGi83_kJyXdw9Y_k68/edit?usp=sharing", 
+    "title": "IRGP Summer Participant Checklist"
+  }
+},
+{
+  "pk": 72, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/file/d/0B2Y-c5UsKXLgV0tEMGZsb2QtakE/edit?usp=sharing", 
+    "title": "IRGP Summer Pledge Form "
+  }
+},
+{
+  "pk": 73, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/spreadsheet/ccc?key=0AvpovjYAT4e5dHJZV1VuSEo3Z2hlRXlaNlpVdDd1WUE#gid=22", 
+    "title": "Final Score Sheet"
+  }
+},
+{
+  "pk": 74, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AhaxRadGQ8rCdEhya1VPbUlQaExMdnJVNDBCR3prSmc&usp=sharing", 
+    "title": "Site Visit Sign Up Form"
+  }
+},
+{
+  "pk": 77, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/spreadsheet/ccc?key=0AhaxRadGQ8rCdFliQmhFSFE1UDZ4S2JkQ21BZkNIU3c#gid=0", 
+    "title": "PDX site visit sign-up sheet"
+  }
+},
+{
+  "pk": 79, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "This is a series of sample emails and letters that past giving project members have created over the last few years", 
+    "link": "https://docs.google.com/document/d/1uBA3mldqyj85SV0CE9DgL95VIPP4ErIZuit7zXiHqDY/edit?usp=sharing", 
+    "title": "SAMPLE FUNDRAISING LETTER"
+  }
+},
+{
+  "pk": 80, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dGxhc2tfdGVTT2RNQmprYXdRWEhjWVE&usp=sharing", 
+    "title": "NGGP Final Decisions Rescore"
+  }
+},
+{
+  "pk": 81, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Resource list for further readings on race, class, community organizing, and social justice philanthropy.", 
+    "link": "https://docs.google.com/document/d/1Eqtcoqma4TR88N5Xr7_8DahBI7JmWmisR7i38aCKaro/edit?usp=sharing", 
+    "title": "MTGP Resource List"
+  }
+},
+{
+  "pk": 82, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Contact and introductory info for 2014 Criminal Justice Giving Project", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0An_Wr5QI0AubdFBYcDl0WHl6Vms0Q1R5T0hIcXJxbFE&usp=sharing", 
+    "title": "2014 CJGP Contact List"
+  }
+},
+{
+  "pk": 83, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "A summary list of the CJGP Grantees for 2013", 
+    "link": "https://drive.google.com/file/d/0B3_Wr5QI0AubNTN6U2xTOEFiRjQ/edit?usp=sharing", 
+    "title": "2013 CJGP Grantees"
+  }
+},
+{
+  "pk": 85, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dGlpbjVYOFE0Sk5YdVRyUHJQOEI5NlE&usp=sharing", 
+    "title": "MTGP 2014 Scoresheet (TEMPLATE)"
+  }
+},
+{
+  "pk": 86, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Infographic describing the disproportionate rates of African Americans within the Criminal Justice System", 
+    "link": "http://www.cocomovement.org/wp-content/uploads/2012/06/Pipeline_to_Prison1.jpg", 
+    "title": "School to Prison Pipeline"
+  }
+},
+{
+  "pk": 87, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Taken from Resource Generation - Privilege Animals and how we behave with regard to class", 
+    "link": "https://drive.google.com/file/d/0B3_Wr5QI0AubcEgtOHVSckRsSG8/edit?usp=sharing", 
+    "title": "Animal Effects: Which Privilege Animal Do you Most Relate?"
+  }
+},
+{
+  "pk": 88, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Understanding the ways people invoke privilege and how others respond", 
+    "link": "https://drive.google.com/file/d/0B3_Wr5QI0AubaTBSQXh1UjFINktiaUFaeHVVbHZ3aW5HTzBR/edit?usp=sharing", 
+    "title": "Target - Agent"
+  }
+},
+{
+  "pk": 89, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "These are frequently asked questions by potential donors. Handy to review before your 1:1 ask. ", 
+    "link": "https://docs.google.com/document/d/1gSWnUmEzambPU3aD7GYAJTlFAi-UwvvavshYgP6tnBk/edit?usp=sharing", 
+    "title": "Fundraising FAQ"
+  }
+},
+{
+  "pk": 90, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Basic fundamentals of a one on one ask", 
+    "link": "https://docs.google.com/document/d/1z-q5YtXoXdAY00JZQPO9TSwNisqN8Mkqjdr3mD82SSk/edit?usp=sharing", 
+    "title": "The One on One Ask"
+  }
+},
+{
+  "pk": 91, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "A handy reference to the dates, methods and processes of collecting gifts from donors. Here you will find fundraising deadlines, methods of payment and contacts for questions", 
+    "link": "https://docs.google.com/document/d/1D2plKQsKPPP2RcCTp_HYApSghmmEG188qJrPIfUZ5T4/edit?usp=sharing", 
+    "title": "CJ 2014 Fundraising Logistics"
+  }
+},
+{
+  "pk": 92, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dFpONnlfTENKLW95WDZreWdsSS1wVWc&usp=sharing#gid=0", 
+    "title": "2014 MTGP Contact List"
+  }
+},
+{
+  "pk": 93, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/file/d/0B8ZKbCgaCJr8VTlja0lVS0lMaEE/edit?usp=sharing", 
+    "title": "2014 MTGP Grantmaking Manual"
+  }
+},
+{
+  "pk": 94, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dFlGZWtHdTdvZHA3b3NTaGs4SVJTRnc&usp=sharing", 
+    "title": "2014 NGGP Contact List"
+  }
+},
+{
+  "pk": 95, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/document/d/1R_bHbySWoTCtlMpJwIlqxsN8yO25esQBAm7PvsYRLFE/edit?usp=sharing", 
+    "title": "NGGP Resource list"
+  }
+},
+{
+  "pk": 96, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dF96WnV3X05QOUdrZkl3Rmcyb09xUUE&usp=sharing", 
+    "title": "2014 Pre-Screening Scoresheet TEMPLATE"
+  }
+},
+{
+  "pk": 97, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Grantmaking Workshop Powerpoint - This is a handy step by step process to help you understand the basics of Grant review and scoring, SJF-style", 
+    "link": "https://docs.google.com/presentation/d/1D6jvxssOMmoOvfuLglDIYaNPbeJaPbM20R-36GqVNsw/edit?usp=sharing", 
+    "title": "Grantmaking Workshop Powerpoint"
+  }
+},
+{
+  "pk": 98, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/spreadsheet/ccc?key=0AsZKbCgaCJr8dEJFM0g2WUJoRXJnZHhlM1p1RFdlenc&usp=sharing", 
+    "title": "2014 MTGP Screening Meeting Scoresheet"
+  }
+},
+{
+  "pk": 99, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Always a work in progress. Articles, websites, books, films, etc. related to gender justice as well as race, class, social justice philanthropy, and community organizing.", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/document/d/1A4pc_ptl-agDdyfj9rX6JGLATO0qT8KvJrrxu8HDHYw/edit", 
+    "title": "Gender Justice Resource List"
+  }
+},
+{
+  "pk": 100, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/a/socialjusticefund.org/file/d/0B2Y-c5UsKXLgaTFtZURlZDcxWkU/edit?usp=sharing", 
+    "title": "GJGP 2014 Contact List"
+  }
+},
+{
+  "pk": 101, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Handout for framework adapted from \"Whipping Girl\" by Julia Serrano", 
+    "link": "https://drive.google.com/a/socialjusticefund.org/#folders/0B2Y-c5UsKXLgYXVibkJPZHhoV0k", 
+    "title": "Gender INjustice Sliders"
+  }
+},
+{
+  "pk": 102, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/a/socialjusticefund.org/#folders/0B2Y-c5UsKXLgYXVibkJPZHhoV0k", 
+    "title": "How To Be An Ally In Solidarity With Trans People"
+  }
+},
+{
+  "pk": 103, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/a/socialjusticefund.org/#folders/0B2Y-c5UsKXLgYXVibkJPZHhoV0k", 
+    "title": "Systems of Inequality - Trans and Gender Non-Conforming People"
+  }
+},
+{
+  "pk": 104, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/file/d/0B2Y-c5UsKXLgXzU5NC12VjRIYm8/edit", 
+    "title": "GJGP Pledge Form"
+  }
+},
+{
+  "pk": 105, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Overview of Organization, Goals, Commitments", 
+    "link": "https://drive.google.com/file/d/0B1j1jyd4S3OtbDlvNjNrdkJNcW8/edit?usp=sharing", 
+    "title": "SJF Goals Powerpoint"
+  }
+},
+{
+  "pk": 106, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Grant Kruger's compiled video links & is open to suggestions of others", 
+    "link": "https://www.youtube.com/playlist?list=PLpUqqC2PAGNXvzZpFvocGhZRoAievP6SK", 
+    "title": "Kruger's \"Equity Best Talks\" video list"
+  }
+},
+{
+  "pk": 107, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Prezi presentation on the wealth gap, criminal justice infographics, etc. Useful to help understand how race and class intersect.", 
+    "link": "http://prezi.com/fdxzwfh-nlvm/?utm_campaign=share&utm_medium=copy&rc=ex0share", 
+    "title": "The Racial Wealth Divide"
+  }
+},
+{
+  "pk": 108, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/file/d/0B8ZKbCgaCJr8eVJYRVhKZFBkQjg/edit?usp=sharing", 
+    "title": "2014 NGGP Grantmaking Manual"
+  }
+},
+{
+  "pk": 109, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "Handout from fundraising training -- includes talking points on Gender Justice and summaries of sample grantees", 
+    "link": "https://drive.google.com/a/socialjusticefund.org/file/d/0B2Y-c5UsKXLgdlpzLVp4SkowMGs/edit?usp=sharing", 
+    "title": "Gender Justice Talking Points and Sample Grantees"
+  }
+},
+{
+  "pk": 110, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/a/socialjusticefund.org/file/d/0B2Y-c5UsKXLgWUFWNmhmVU1hX1k/edit?usp=sharing", 
+    "title": "GJGP Fundraising Logistics"
+  }
+},
+{
+  "pk": 111, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/file/d/0B2Y-c5UsKXLgSEF3MFZGR3EyOEU/edit?usp=sharing", 
+    "title": "Fundraising FAQ's"
+  }
+},
+{
+  "pk": 112, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/file/d/0B2Y-c5UsKXLgQ2hQUjJIV1ZlYWc/edit?usp=sharing", 
+    "title": "GJGP 2014 Grantmaking Manual "
+  }
+},
+{
+  "pk": 113, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/file/d/0B2Y-c5UsKXLgdDZhT1gwaUcyVDg/edit?usp=sharing", 
+    "title": "Gender Justice Criteria for Issue Development - Western States Center"
+  }
+},
+{
+  "pk": 114, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/file/d/0B2Y-c5UsKXLgOE15Ql91a2ZiOXc/edit?usp=sharing", 
+    "title": "LGBTQ Justice & Racial Justice Definitions - WSC"
+  }
+},
+{
+  "pk": 115, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://drive.google.com/file/d/0B2Y-c5UsKXLgM3FUellvR2NhTVU/edit?usp=sharing", 
+    "title": "Strategies of Gender & Reproductive Oppression - WSC"
+  }
+},
+{
+  "pk": 116, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "https://docs.google.com/a/socialjusticefund.org/spreadsheets/d/1Bg-vo4d5-FEOJvyj9k0rY17-dG6uBbnUcdg7LxvMCBM/edit#gid=0", 
+    "title": "Contact List 2014"
+  }
+},
+{
+  "pk": 117, 
+  "model": "fund.resource", 
+  "fields": {
+    "summary": "", 
+    "link": "http://www.askingmatters.com/find-your-asking-style/", 
+    "title": "\"Your Asking Style\" Quiz"
+  }
+}
+]
