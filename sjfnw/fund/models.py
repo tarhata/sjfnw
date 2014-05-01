@@ -136,32 +136,6 @@ class Membership(models.Model): #relationship b/n member and gp
     else:
       return count, steps[0]
 
-  def asked(self): #remove
-    return self.donor_set.filter(asked=True).count()
-
-  def promised(self): #remove
-    donors = self.donor_set.all()
-    amt = 0
-    for donor in donors:
-      if donor.promised:
-        amt = amt + donor.promised
-    return amt
-
-  def received(self): #remove
-    donors = self.donor_set.all()
-    amt = 0
-    for donor in donors:
-      amt = amt + donor.received()
-    return amt
-
-  def estimated(self): #remove
-    estimated = 0
-    donors = self.donor_set.all()
-    for donor in donors:
-      if donor.amount and donor.likelihood:
-        estimated = estimated + donor.amount*donor.likelihood/100
-    return estimated
-
   def update_story(self, timestamp):
 
     logger.info('update_story running for membership ' + str(self.pk) +
