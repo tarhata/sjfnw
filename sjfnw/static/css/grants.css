@@ -203,8 +203,7 @@ div.ui-dialog {
 /** narratives **/
 
 div.narrative_q {
-  padding-top:2em;
-  padding-bottom:2em;
+  margin-top:2em;
 }
 
 table.narrative_references {
@@ -315,8 +314,7 @@ div.vertical_cushion { /* mission & grant req labels */
 
 /** submit button **/
 
-#grant_submit {
-  margin-top:40px;
+.submit {
   font-size:135%;
   font-weight:bold;
 }
@@ -443,5 +441,14 @@ div.narrative_q label {
   max-width: 500px;
   margin: 1em auto;
   display: block;
+}
+
+.file-uploads {
+  width: 100%;
+  margin: 1em 0;
+}
+
+.file-uploads label {
+  padding: 1em 0;
 }
 
