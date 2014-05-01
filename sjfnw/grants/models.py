@@ -726,7 +726,7 @@ class YearEndReport(models.Model):
 
 class YERDraft(models.Model):
 
-  award = models.ForeignKey(GivingProjectGrant, unique=True)
+  award = models.OneToOneField(GivingProjectGrant)
   modified = models.DateTimeField(default=timezone.now())
   contents = models.TextField(default='{}')
 
