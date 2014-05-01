@@ -1,5 +1,7 @@
 from django import forms
 from django.forms import ValidationError, ModelForm
+from django.db.models import PositiveIntegerField
+from django.utils.safestring import mark_safe
 from django.utils.text import capfirst
 
 from sjfnw.forms import IntegerCommaField, PhoneNumberField
@@ -248,8 +250,13 @@ class ContactPersonWidget(forms.widgets.MultiWidget):
 
 
 def set_yer_custom_fields(field, **kwargs):
+  kwargs['required'] = not field.blank
+  if field.verbose_name:
+    kwargs['label'] = capfirst(field.verbose_name)
   if field.name == 'phone':
     return PhoneNumberField(**kwargs)
+  elif isinstance(field, PositiveIntegerField):
+    return IntegerCommaField(**kwargs)
   else:
     return field.formfield(**kwargs)
 
@@ -281,7 +288,8 @@ class YearEndReportForm(ModelForm):
     if stay_informed:
       self.cleaned_data['stay_informed'] = json.dumps(stay_informed)
     else:
-      self._errors['stay_informed'] = 'Please fill out at least one of the options below.'
+      self._errors['stay_informed'] = mark_safe(
+          '<ul class="errorlist"><li>Please fill out at least one of the options below.</li></ul>')
     return super(YearEndReportForm, self).clean()
 
 # ADMIN
