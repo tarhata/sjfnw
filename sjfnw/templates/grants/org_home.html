@@ -61,9 +61,22 @@
           [<a title="discard draft" onclick="confirmation('{{ save.pk }}')">Discard</a>]
         </td>
       </tr>
-  {% empty %}
-    <li>None found</li>
-  {% endfor %}
+      {% endfor %}
+      {% for draft in ydrafts %}
+      <tr>
+        <td>
+          <li>Year end report for award from {{ draft.award.projectapp.giving_project }}</li>
+        </td>
+        <td>(see below)</td>
+        <td><b><a href="report/{{ draft.award_id }}">Edit draft</a></b></td>
+        <td>Modified {{ draft.modified|date:"n/j g:iA"|lower  }}</td>
+        <td>Due {{ draft.award.yearend_due|date:"n/j/y"  }}</td>
+        <td></td>
+      </tr>
+    {% endfor %}
+   {% if not saved and not ydrafts %}
+    <li>No saved drafts found</li>
+   {% endif %}
     </table>
   </ul>
 

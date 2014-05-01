@@ -141,6 +141,8 @@ def org_home(request, organization):
   submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time').select_related('giving_projects')
   cycles = models.GrantCycle.objects.filter(close__gt=timezone.now()-datetime.timedelta(days=180)).order_by('open')
   submitted_cycles = submitted.values_list('grant_cycle', flat=True)
+  yer_drafts = models.YERDraft.objects.select_related().filter(award__projectapp__application__organization_id = organization.pk)
+  logging.info(yer_drafts)
   #TODO could this be changed so the template is less messy when finding awards
 
   closed, open, applied, upcoming = [], [], [], []
@@ -169,6 +171,7 @@ def org_home(request, organization):
     'open':open,
     'upcoming':upcoming,
     'applied':applied,
+    'ydrafts': yer_drafts,
     'user_override':user_override})
 
 @login_required(login_url=LOGIN_URL)
