@@ -196,6 +196,7 @@ fileUploads.init = function(url_prefix, draft_id) {
       fileUploads.fileChanged(this.id);
     });
   console.log('fileUploads vars loaded, file fields scripted');
+  $('.default-file-input').children('a').remove();
 };
 
 /* each file field has its own form. html element ids use this pattern:
