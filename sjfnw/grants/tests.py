@@ -28,7 +28,7 @@ LIVE_FIXTURES = ['sjfnw/fund/fixtures/live_gp_dump.json', #not using these yet i
                  'sjfnw/grants/fixtures/grant_cycles.json',
                  'sjfnw/grants/fixtures/apps.json',
                  'sjfnw/grants/fixtures/drafts.json',
-                 'sjfnw/grants/fixtures/projectapps.json',
+                 'sjfnw/grants/fixtures/project_apps.json',
                  'sjfnw/grants/fixtures/gp_grants.json']
 
 
@@ -342,7 +342,7 @@ class ApplySuccessful(BaseGrantFilesTestCase):
     models.Organization.objects.get(pk=2)
     self.assertTemplateUsed(response, 'grants/submitted.html')
     app = models.GrantApplication.objects.get(organization_id = self.org_id, grant_cycle_id = self.cycle_id)
-    self.assertEqual(0, models.DraftGrantApplication.objects.filter(organization_id = self.org_id, grant_cycle_id = 3).count())
+    self.assertEqual(0, models.DraftGrantApplication.objects.filter(organization_id = self.org_id, grant_cycle_id = self.cycle_id).count())
     self.assertEqual(app.budget1, files[2])
     self.assertEqual(app.budget2, files[3])
 
@@ -380,6 +380,9 @@ class ApplyValidation(BaseGrantFilesTestCase):
       timeline
       files  """
 
+  cycle_id = 2
+  org_id = 2
+
   def setUp(self):
     super(ApplyValidation, self).setUp(login='testy')
 
@@ -395,17 +398,17 @@ class ApplyValidation(BaseGrantFilesTestCase):
     draft.contents = json.dumps(contents_dict)
     draft.save()
 
-    response = self.client.post('/apply/3/', follow=True)
+    response = self.client.post('/apply/%d/' % self.cycle_id, follow=True)
 
     self.assertTemplateUsed(response, 'grants/org_app.html')
-    self.assertEqual(0, models.GrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
-    self.assertEqual(1, models.DraftGrantApplication.objects.filter(organization_id = 2, grant_cycle_id = 3).count())
+    self.assertEqual(0, models.GrantApplication.objects.filter(organization_id = self.org_id, grant_cycle_id = self.cycle_id).count())
+    self.assertEqual(1, models.DraftGrantApplication.objects.filter(organization_id = self.org_id, grant_cycle_id = self.cycle_id).count())
     self.assertFormError(response, 'form', 'project_title', "This field is required when applying for project support.")
     self.assertFormError(response, 'form', 'project_budget', "This field is required when applying for project support.")
 
   def test_timeline_incomplete(self):
 
-    draft = models.DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    draft = models.DraftGrantApplication.objects.get(organization_id = self.org_id, grant_cycle_id = self.cycle_id)
     answers = [
       'Jan', 'Chillin', 'Not applicable',
       'Feb', 'Petting dogs', '5 dogs',
@@ -414,12 +417,12 @@ class ApplyValidation(BaseGrantFilesTestCase):
       '', 'Reading in the shade', 'No sunburns',]
     alter_draft_timeline(draft, answers)
 
-    response = self.client.post('/apply/3/', follow=True)
+    response = self.client.post('/apply/%d/' % self.cycle_id, follow=True)
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">All three columns are required for each quarter that you include in your timeline.</div>')
 
   def test_timeline_empty(self):
 
-    draft = models.DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    draft = models.DraftGrantApplication.objects.get(organization_id = self.org_id, grant_cycle_id = self.cycle_id)
     answers = [
       '', '', '',
       '', '', '',
@@ -428,7 +431,7 @@ class ApplyValidation(BaseGrantFilesTestCase):
       '', '', '']
     alter_draft_timeline(draft, answers)
 
-    response = self.client.post('/apply/3/', follow=True)
+    response = self.client.post('/apply/%d/' % self.cycle_id, follow=True)
     self.assertFormError(response, 'form', 'timeline', '<div class="form_error">This field is required.</div>')
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
@@ -476,12 +479,13 @@ class DraftWarning(BaseGrantTestCase):
     super(DraftWarning, self).setUp(login='admin')
 
   def test_long_alert(self):
-    """ Cycle created 12 days ago with cycle closing in 7.5 days """
+    """ Cycle created 12 days ago with cycle closing in 7.5 days
+    Expect email to be sent """
 
     self.assertEqual(len(mail.outbox), 0)
 
     now = timezone.now()
-    draft = models.DraftGrantApplication.objects.get(pk=1)
+    draft = models.DraftGrantApplication.objects.get(pk=2)
     draft.created = now - datetime.timedelta(days=12)
     draft.save()
     cycle = models.GrantCycle.objects.get(pk=2)
@@ -492,12 +496,13 @@ class DraftWarning(BaseGrantTestCase):
     self.assertEqual(len(mail.outbox), 1)
 
   def test_long_alert_skip(self):
-    """ Cycle created now with cycle closing in 7.5 days """
+    """ Cycle created now with cycle closing in 7.5 days
+    Expect email to not be sent """
 
     self.assertEqual(len(mail.outbox), 0)
 
     now = timezone.now()
-    draft = models.DraftGrantApplication.objects.get(pk=1)
+    draft = models.DraftGrantApplication.objects.get(pk=2)
     draft.created = now
     draft.save()
     cycle = models.GrantCycle.objects.get(pk=2)
@@ -513,7 +518,7 @@ class DraftWarning(BaseGrantTestCase):
     self.assertEqual(len(mail.outbox), 0)
 
     now = timezone.now()
-    draft = models.DraftGrantApplication.objects.get(pk=1)
+    draft = models.DraftGrantApplication.objects.get(pk=2)
     draft.created = now
     draft.save()
     cycle = models.GrantCycle.objects.get(pk=2)
@@ -528,7 +533,7 @@ class DraftWarning(BaseGrantTestCase):
     self.assertEqual(len(mail.outbox), 0)
 
     now = timezone.now()
-    draft = models.DraftGrantApplication.objects.get(pk=1)
+    draft = models.DraftGrantApplication.objects.get(pk=2)
     draft.created = now - datetime.timedelta(days=12)
     draft.save()
     cycle = models.GrantCycle.objects.get(pk=2)
@@ -554,9 +559,10 @@ class OrgRollover(BaseGrantTestCase):
           new draft contents = old draft contents (ignoring cycle q)
           new draft files = old draft files  """
 
-    draft = models.DraftGrantApplication.objects.get(organization_id = 2, grant_cycle_id = 3)
+    draft = models.DraftGrantApplication.objects.get(pk=2)
     draft.organization = models.Organization.objects.get(pk=1)
     draft.save()
+    # prior to rollover, make sure target draft does not exist
     self.assertEqual(0, models.DraftGrantApplication.objects.filter(organization_id=1, grant_cycle_id=1).count())
 
     response = self.client.post('/apply/copy',
