@@ -95,10 +95,10 @@ function showAttachment(){
       {% for gp, award in awards.iteritems %}
       <br>
       {{ gp }} - ${{ award.amount }}
-      {% if award.yearendreport %}
+      {% if award.yearendreport %}{% if award.yearendreport.visible or perm > 1 %}
       (<a href="{% url 'grants.views.view_yer' report_id=award.yearendreport.pk %}?embedded=true"
           target="reading_frame">year end report</a>)
-      {% endif %}
+        {% endif %}{% endif %}
       <br>
     {% endfor %}
     {% endif %}

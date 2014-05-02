@@ -688,6 +688,9 @@ def view_yer(request, report_id):
   else:
     perm = view_permission(request.user, projectapp.application)
 
+  if not report.visible and perm < 2:
+    return render(request, 'grants/blocked.html', {})
+
   form = YearEndReportForm(instance = report)
 
   file_urls = GetFileURLs(request, report, printing=False)
