@@ -647,7 +647,7 @@ class SponsoredProgramGrant(models.Model):
 
 def validate_photo_file_extension(value):
   if not value.name.lower().split(".")[-1] in constants.PHOTO_FILE_TYPES:
-    raise ValidationError(u'That file type is not supported. Please upload an image with one of these extensions: %s' % constants.PHOTO_FILE_TYPES.join(', '))
+    raise ValidationError(u'That file type is not supported. Please upload an image with one of these extensions: %s' % ', '.join(constants.PHOTO_FILE_TYPES))
 
 
 class YearEndReport(models.Model):
@@ -723,6 +723,16 @@ class YearEndReport(models.Model):
   visible = models.BooleanField(default=False, help_text=
       ('Check this to make the YER visible to members of the GP that made the grant. (When '
        'unchecked, YER is only visible to staff and the org that submitted it.)'))
+
+  def stay_informed_display(self):
+    display = []
+    inf = json.loads(self.stay_informed)
+    for k in inf:
+      v = inf[k]
+      if v:
+        display.append(k + ': ' + v)
+    logger.info(display)
+    return ', '.join(display)
 
 class YERDraft(models.Model):
 
