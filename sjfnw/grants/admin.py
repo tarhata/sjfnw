@@ -180,25 +180,32 @@ class DraftI(BaseShowInline): #Adv only
 class ProjectAppI(admin.TabularInline): # GrantApplication
   model = ProjectApp
   extra = 1
-  fields = ('giving_project', 'screening_status', 'granted')
-  readonly_fields = ('granted',)
+  fields = ('giving_project', 'screening_status', 'granted', 'year_end_report')
+  readonly_fields = ('granted', 'year_end_report')
   verbose_name = 'Giving project'
   verbose_name_plural = 'Giving projects'
 
   def granted(self, obj):
     """ For existing projectapps, shows grant amount or link to add a grant """
-    output = ''
     if obj.pk:
-      logger.info(obj.pk)
-      try:
+      if hasattr(obj, 'givingprojectgrant'):
         award = obj.givingprojectgrant
-        logger.info('grant does exist')
-        output = award.amount
-      except GivingProjectGrant.DoesNotExist:
-        output = mark_safe(
-            '<a href="/admin/grants/givingprojectgrant/add/?projectapp=' +
+        return mark_safe('<a target="_blank" href="/admin/grants/givingprojectgrant/' +
+            str(award.pk) + '/">$' + str(award.amount) + '</a>')
+      else:
+        return mark_safe(
+            '<a target="_blank" href="/admin/grants/givingprojectgrant/add/?projectapp=' +
             str(obj.pk) + '" target="_blank">Enter an award</a>')
-    return output
+    return ''
+
+  def year_end_report(self, obj):
+    if obj.pk:
+      report = YearEndReport.objects.select_related('award').filter(
+          award__projectapp_id = obj.pk)
+      if report:
+        return mark_safe('<a target="_blank" href="/admin/grants/yearendreport/' + 
+            str(report[0].pk) + '/">View</a>')
+    return ''
 
 
 # MODELADMIN
@@ -283,7 +290,7 @@ class GrantApplicationA(admin.ModelAdmin):
                   'view_link')
   list_filter = ('grant_cycle',)
   search_fields = ('organization__name',)
-  inlines = [ProjectAppI, LogReadonlyI, LogI] # AwardI
+  inlines = [ProjectAppI, LogReadonlyI, LogI]
 
   def has_add_permission(self, request):
     return False
@@ -388,11 +395,11 @@ class SponsoredProgramGrantA(admin.ModelAdmin):
   #readonly_fields = ()
 
 class YearEndReportA(admin.ModelAdmin):
-  list_display = ('award', 'submitted', 'view_link')
+  list_display = ('award', 'submitted', 'visible', 'view_link')
   list_select_related = True
-  fields = (('award', 'submitted'),
+  fields = (('award', 'submitted', 'view_link'),
             'visible')
-  readonly_fields = ('award', 'submitted')
+  readonly_fields = ('award', 'submitted', 'view_link')
 
   def view_link(self, obj):
     if obj.pk:
