@@ -246,25 +246,33 @@ span.char_counter_over {
 
 /** file uploads **/
 
-span.file_wrapper { /* outermost element */
-  cursor: pointer;
+span.file_wrapper { // outermost element 
   overflow: hidden;
   position: relative;
   width: 100px;
-}
+  cursor: inherit;
+} 
 
-.file_wrapper input { /* large but invisible */
-  cursor: pointer;
-  height: 100%;
+.default-file-input { /* large but invisible */
+  filter: alpha(opacity=1);
+  -moz-opacity: 0.01;
+  opacity: 0.01;
   position: absolute;
   top: 0;
   right: 0;
   left:0;
-  filter: alpha(opacity=1);
-  -moz-opacity: 0.01;
-  opacity: 0.01;
+}
+
+.default-file-input input {
+  height: 20px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left:0;
+  cursor: pointer;
   font-size:2em;
   width:84px;
+
 }
 
 
@@ -433,6 +441,10 @@ div.narrative_q label {
   border-bottom: 1px solid #333;
 }
 
+.display {
+  padding-bottom: 2em;
+}
+
 .display label {
   font-weight: bold;
 }
@@ -446,6 +458,10 @@ div.narrative_q label {
 .file-uploads {
   width: 100%;
   margin: 1em 0;
+}
+
+.file-uploads td {
+  width: 25%;
 }
 
 .file-uploads label {

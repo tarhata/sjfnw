@@ -139,8 +139,13 @@ $(document).ready(function() {
       <td colspan="2">{{ form.photo3.errors }}</td>
     </tr>
     <tr>
-      <td><form class="files_form" id="photo1_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
-          1. <span class="file_wrapper">{{ form.photo1 }}<span class="upload_button">Choose file</span></span>
+      <td>
+        <form class="files_form" id="photo1_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
+          1.
+          <span class="file_wrapper">
+            <span class="default-file-input">{{ form.photo1 }}</span>
+            <span class="upload_button">Choose file</span>
+          </span>
           <input id="photo1_submit" type="submit" value="Submit files" style="display:none;">
         </form>
       </td>
@@ -148,7 +153,11 @@ $(document).ready(function() {
         <span id="photo1_uploaded">{{ file_urls.photo1 }}</span>
       </td>
       <td><form class="files_form" id="photo3_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
-          3. <span class="file_wrapper">{{ form.photo3 }}<span class="upload_button">Choose file</span></span>
+          3. 
+          <span class="file_wrapper">
+            <span class="default-file-input">{{ form.photo3 }}</span>
+            <span class="upload_button">Choose file</span>
+          </span>
           <input id="photo3_submit" type="submit" value="Submit files" style="display:none;">
         </form>
       </td>
@@ -163,7 +172,10 @@ $(document).ready(function() {
     <tr>
       <td><form class="files_form" id="photo2_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
           2.
-          <span class="file_wrapper">{{ form.photo2 }}<span class="upload_button">Choose file</span></span>
+          <span class="file_wrapper">
+            <span class="default-file-input">{{ form.photo2 }}</span>
+            <span class="upload_button">Choose file</span>
+          </span>
           <input id="photo2_submit" type="submit" value="Submit files" style="display:none;">
         </form>
       </td>
@@ -171,7 +183,11 @@ $(document).ready(function() {
         <span id="photo2_uploaded">{{ file_urls.photo2 }}</span>
       </td>
       <td><form class="files_form" id="photo4_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
-          4. <span class="file_wrapper">{{ form.photo4 }}<span class="upload_button">Choose file</span></span>
+          4.
+          <span class="file_wrapper">
+            <span class="default-file-input">{{ form.photo4 }}</span>
+            <span class="upload_button">Choose file</span>
+          </span>
           <input id="photo4_submit" type="submit" value="Submit files" style="display:none;">
         </form>
       </td>
@@ -190,7 +206,7 @@ $(document).ready(function() {
           <form class="files_form" id="photo_release_form" action="" target="upload_frame"
             method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
           <span class="file_wrapper">
-            {{ form.photo_release }}
+            <span class="default-file-input">{{ form.photo_release }}</span>
             <span class="upload_button">Choose file</span>
           </span>
           <input id="photo_release_submit" type="submit" value="Submit files" style="display:none;">

@@ -466,7 +466,11 @@ def year_end_report(request, organization, award_id):
     if form.is_valid():
       logger.info('Valid YER')
       yer = form.save()
-      return redirect('report/submitted')
+      draft.delete()
+
+      # TODO email
+
+      return redirect('/report/submitted')
 
   else: # GET
     if cr:
@@ -676,24 +680,21 @@ def view_yer(request, report_id):
   logger.info('view_yer')
 
   report = get_object_or_404(models.YearEndReport.objects.select_related(), pk=report_id)
-  logger.info(report)
 
+  award = report.award
+  projectapp = award.projectapp
   if not request.user.is_authenticated():
     perm = 0
   else:
-    perm = view_permission(request.user, report)
-  logger.info(perm)
+    perm = view_permission(request.user, projectapp.application)
 
   form = YearEndReportForm(instance = report)
-  logger.info(form)
-  award = report.award
-  projectapp = award.projectapp
 
   file_urls = GetFileURLs(request, report, printing=False)
 
   return render(request, 'grants/yer_display.html', {
-    'report': report, 'form': form, 'award': award, 'projectapp': projectapp, 'file_urls': file_urls
-  })
+    'report': report, 'form': form, 'award': award, 'projectapp': projectapp, 
+    'file_urls': file_urls, 'perm': perm})
 
 
 # ADMIN

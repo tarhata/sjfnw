@@ -26,69 +26,78 @@
 
 {% block body %}
 <div id="main_content">
-<div class="center">
-  <h2>Year End Report - {{ projectapp.application.organization }}</h2>
-</div>
-<div class="display">
-<div class="info-box">
-  <p><label>Grant program:</label> {{ projectapp.giving_project}} Grant</p>
-  <p><label>Amount:</label> ${{ award.amount }}</p>
-  <p><label>Proposal ID:</label> {{ projectapp.application.pk }}</p>
-  <p><label>Year end report submitted:</label> {{ report.submitted }}</p>
+  <div class="center">
+    <h2>Year End Report - {{ projectapp.application.organization }}</h2>
   </div>
-<p>
-<p>{{ form.contact_person.label_tag }} {{ report.contact_person }}</p>
-<p>{{ form.email.label_tag }} {{ report.email }}</p>
-<p>{{ form.phone.label_tag }} {{ report.phone }}</p>
-<p>{{ form.website.label_tag }} {{ report.website }}</p>
+  <div class="display">
+    <div class="info-box">
+      <p><label>Grant program:</label> {{ projectapp.giving_project}} Grant</p>
+      <p><label>Amount:</label> ${{ award.amount }}</p>
+      <p><label>Proposal ID:</label> {{ projectapp.application.pk }}</p>
+      <p><label>Year end report submitted:</label> {{ report.submitted }}</p>
+    </div>
+    <p>
+    <p>{{ form.contact_person.label_tag }} {{ report.contact_person }}</p>
+    <p>{{ form.email.label_tag }} {{ report.email }}</p>
+    <p>{{ form.phone.label_tag }} {{ report.phone }}</p>
+    <p>{{ form.website.label_tag }} {{ report.website }}</p>
 
-<p>{{ form.summarize_last_year.label_tag }}</p>
-<p>{{ report.summarize_last_year }}</p>
-<p>{{ form.goal_progress.label_tag }}</p>
-<p>{{ report.goal_progress }}</p>
-<p>{{ form.quantitative_measures.label_tag }}</p>
-<p>{{ report.quantitative_measures }}</p>
+    <p>{{ form.summarize_last_year.label_tag }}</p>
+    <p>{{ report.summarize_last_year }}</p>
 
-<p>{{ form.evaluation.label_tag }}</p>
-<p>{{ report.evaluation }}</p>
+    <p>{{ form.goal_progress.label_tag }}</p>
+    <p>{{ report.goal_progress }}</p>
 
-<p>{{ form.achieved.label_tag }}</p>
-<p>{{ report.achieved }}</p>
+    <p>{{ form.quantitative_measures.label_tag }}</p>
+    <p>{{ report.quantitative_measures|default:"N/A" }}</p>
 
-<p>{{ form.collaboration.label_tag }}</p>
-<p>{{ report.collaboration }}</p>
+    <p>{{ form.evaluation.label_tag }}</p>
+    <p>{{ report.evaluation }}</p>
 
-<p>{{ form.new_funding.label_tag }}</p>
-<p>{{ report.new_funding }}</p>
+    <p>{{ form.achieved.label_tag }}</p>
+    <p>{{ report.achieved }}</p>
 
-<p>{{ form.major_changes.label_tag }}</p>
-<p>{{ report.major_changes }}</p>
+    <p>{{ form.collaboration.label_tag }}</p>
+    <p>{{ report.collaboration }}</p>
 
-<p>{{ form.total_size.label_tag }}</p>
-<p>{{ report.total_size }}</p>
+    <p>{{ form.new_funding.label_tag }}</p>
+    <p>{{ report.new_funding|default:"N/A" }}</p>
 
-<p>{{ form.donations_count.label_tag }}</p>
-<p>{{ report.donations_count }}</p>
+    <p>{{ form.major_changes.label_tag }}</p>
+    <p>{{ report.major_changes|default:"N/A" }}</p>
 
-<p>{{ form.stay_informed.label_tag }}</p>
-<p>{{ report.stay_informed }}</p>
+    <p>{{ form.total_size.label_tag }}</p>
+    <p>{{ report.total_size }}</p>
 
-<p>{{ form.other_comments.label_tag }}</p>
-<p>{{ report.other_comments }}</p>
+    <p>{{ form.donations_count.label_tag }}</p>
+    <p>{{ report.donations_count }}</p>
 
-<p><label>Photos</label></p>
-<a href="{{ file_urls.photo1 }}"><img class="yer-photo" src={{ file_urls.photo1 }}></a>
-  <a href="{{ file_urls.photo2 }}"><img class="yer-photo" src={{ file_urls.photo2 }}></a>
-{% if app.photo3 %}
-<a href="{{ file_urls.photo3 }}"><img class="yer-photo" src={{ file_urls.photo3 }}></a>
-{% endif %}
-{% if app.photo4 %}
-<a href="{{ file_urls.photo4 }}"><img class="yer-photo" src={{ file_urls.photo4 }}></a>
-{% endif %}
-<!-- PHOTOS -->
+    <p>{{ form.stay_informed.label_tag }}</p>
+    <p>{{ report.stay_informed_display }}</p>
 
-</div>
-</div>
+    <p>{{ form.other_comments.label_tag }}</p>
+    <p>{{ report.other_comments|default:"N/A" }}</p>
+
+    <p><label>Photos</label></p>
+
+    <a href="{{ file_urls.photo1 }}"><img class="yer-photo" src={{ file_urls.photo1 }}></a>
+
+    <a href="{{ file_urls.photo2 }}"><img class="yer-photo" src={{ file_urls.photo2 }}></a>
+
+    {% if app.photo3 %}
+    <a href="{{ file_urls.photo3 }}"><img class="yer-photo" src={{ file_urls.photo3 }}></a>
+    {% endif %}
+
+    {% if app.photo4 %}
+    <a href="{{ file_urls.photo4 }}"><img class="yer-photo" src={{ file_urls.photo4 }}></a>
+    {% endif %}
+
+    {% if perm > 1 %}
+    <label>Photo release:</label> <a href="{{ file_urls.photo_release }}">View</a>
+    {% endif %}
+
+  </div>{# .display #}
+</div>{# #main_content #}
 
 {% endblock body %}
 
