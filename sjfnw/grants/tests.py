@@ -1196,6 +1196,19 @@ class YearEndReportForm(BaseGrantTestCase):
     award = models.GivingProjectGrant.objects.get(projectapp_id=1)
     self.assertContains(response, '<a href="/report/%d">' % award.pk)
 
+  def test_home_link_early(self):
+    """ Verify link to report isn't shown if agreement hasn't been mailed """
+
+    award = models.GivingProjectGrant.objects.get(projectapp_id=1)
+    award.agreement_mailed = None
+    award.save()
+
+    response = self.client.get('/apply/')
+
+    self.assertTemplateUsed('grants/org_home.html')
+    award = models.GivingProjectGrant.objects.get(projectapp_id=1)
+    self.assertNotContains(response, '<a href="/report/%d">' % award.pk)
+
   def test_start_report(self):
     """ Load report for first time """
 
@@ -1268,11 +1281,13 @@ class YearEndReportForm(BaseGrantTestCase):
     # confirm draft updated
     draft = models.YERDraft.objects.get(award_id = self.award_id)
     self.assertEqual(json.loads(draft.contents), post_data)
+    # add files to draft
     draft.photo1 = 'cats.jpg'
     draft.photo2 = 'fiscal.png'
     draft.photo_release = 'budget1.docx'
     draft.save()
 
+    # post
     response = self.client.post('report/%d' % self.award_id)
 
     self.assertTemplateUsed('grants/yer_submitted.html')
