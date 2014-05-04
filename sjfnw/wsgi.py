@@ -9,7 +9,9 @@ if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
   fr = logging.Formatter(fmt='[%(filename)s:%(lineno)d %(funcName)s]: %(message)s', datefmt=datefmt)
 else:
   fr = logging.Formatter(fmt='%(levelname)-8s %(asctime)s %(filename)s:%(lineno)d %(funcName)s]: %(message)s', datefmt=datefmt)
-logging.getLogger().handlers[0].setFormatter(fr)
+handlers = logging.getLogger().handlers
+if handlers:
+  handlers[0].setFormatter(fr)
 
 # path & env vars
 sys.path.append(os.path.dirname(__file__))
