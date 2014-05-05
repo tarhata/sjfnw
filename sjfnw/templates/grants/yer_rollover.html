@@ -1,0 +1,12 @@
+{% extends 'grants/base.html' %}
+{% block title %}Rollover Year-End Report{% endblock %}
+
+{% block content %}
+
+{% if error_msg %}
+<p>{{ error_msg }}</p>
+{% else %}
+{{ form }}
+
+{% endblock content %}
+

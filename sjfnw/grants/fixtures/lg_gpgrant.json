@@ -560,20 +560,6 @@
   }
 },
 {
-  "pk": 43, 
-  "model": "grants.givingprojectgrant", 
-  "fields": {
-    "agreement_mailed": "2013-10-08", 
-    "agreement_returned": "2013-12-05", 
-    "created": "2013-10-07T18:15:43Z", 
-    "projectapp": 2, 
-    "amount": "10000.00", 
-    "check_mailed": "2013-12-20", 
-    "check_number": null, 
-    "approved": "2013-12-06"
-  }
-},
-{
   "pk": 44, 
   "model": "grants.givingprojectgrant", 
   "fields": {

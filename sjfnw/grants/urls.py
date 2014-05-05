@@ -39,6 +39,7 @@ report_urls = patterns('sjfnw.grants.views',
   (r'^(?P<award_id>\d+)/?$', 'year_end_report'),
   (r'^(?P<award_id>\d+)/autosave/?$', 'autosave_yer'),
   (r'^view/(?P<report_id>\d+)/?$', 'view_yer'),
+  (r'^rollover/?$', 'rollover_yer'),
 )
 
 report_urls += patterns('',

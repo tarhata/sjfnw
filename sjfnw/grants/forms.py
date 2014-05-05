@@ -125,8 +125,25 @@ class AdminRolloverForm(forms.Form):
     cycles = GrantCycle.objects.filter(close__gt = cutoff).exclude(id__in=exclude_cycles)
 
     #create field
-    self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, unicode(c)) for c in cycles])
+    self.fields['cycle'] = forms.ChoiceField(choices =
+        [('', '--- Grant cycles ---')] + [(c.id, unicode(c)) for c in cycles])
 
+
+class RolloverYERForm(forms.Form):
+  """ Used to copy a year-end report for use with another gp grant
+  Fields (created on init):
+    report - submitted YearEndReport
+    award - GPGrant to copy it to
+  """
+
+  def __init__(self, reports, awards, *args, **kwargs):
+    super(RolloverYERForm, self).__init__(organization, *args, **kwargs)
+    self.fields['reports'] = forms.ChoiceField(choices=
+        [('', '--- Year-end reports ---')] + [(r.id, unicode(r)) for r in reports])
+    self.fields['awards'] = forms.ChoiceField(choices=
+        [('', '--- Grants ---')] + [(a.id, unicode(a)) for a in awards])
+
+  
 class BaseOrgAppReport(forms.Form):
   """ Abstract form for fields shared between report types """
 

@@ -603,6 +603,43 @@ def DiscardDraft(request, organization, draft_id):
     logger.error(str(request.user) + ' discard nonexistent draft')
     raise Http404
 
+
+@login_required(login_url=LOGIN_URL)
+@registered_org()
+def rollover_yer(request, organization):
+
+  error_msg = ''
+
+  if request.method == 'POST':
+    # handle it
+    pass
+
+  else:
+    # get yer
+    reports = YearEndReport.objects.select_related().filter(
+        award__projectapp__application__organization_id=organization.pk)
+    if reports:
+      drafts = YERDraft.objects.objects.select_related().filter(
+          award__projectapp__application__organization_id=organization.pk)
+      exclude_awards = [r.award_id for r in reports] + [d.award_id for d in drafts]
+      awards = GivingProjectGrant.objects.select_related('award').exclude(
+          id__in=exlude_awards)
+      if awards: # reqs met -- show form
+        form = RolloverYERForm(reports, awards)
+
+        return render(request, 'grants/yer_rollover.html', {'form': form})
+
+      else:
+        if exclude_awards:
+          error_msg = 'You have a submitted or draft year-end report for all remaining grants.'
+        else:
+          error_msg = 'You don\'t have any other grants that require a year-end report.'
+    else:
+      error_msg = 'You don\'t have any submitted reports to copy.'
+
+    return render(request, 'grants/yer_rollover.html', {'error_msg': error_msg})
+
+
 # VIEW APPS/FILES
 
 def view_permission(user, application):
