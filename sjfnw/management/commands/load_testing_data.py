@@ -53,5 +53,3 @@ class Command(BaseCommand):
     self.stdout.write('Loading steps..')
     call_command('loaddata', 'sjfnw/fund/fixtures/live_step_dump.json')
 
-    call_command('set_next_steps')
-
