@@ -139,6 +139,33 @@ class Membership(models.Model): #relationship b/n member and gp
   def asked(self): #remove
     return self.donor_set.filter(asked=True).count()
 
+  def get_progress(self):
+    """ Aggregate donors to return progress metrics
+        (estimated, promised, received by year)
+    """
+    progress = {
+      'estimated': 0,
+      'promised': 0,
+      'received_this': 0,
+      'received_next': 0,
+      'received_afternext': 0
+    }
+    donors = self.donor_set.all()
+
+    for donor in donors:
+      progress['estimated'] += donor.estimated()
+      if donor.promised:
+        progress['promised'] += donor.promised
+      progress['received_this'] = donor.received_this
+      progress['received_next'] = donor.received_next
+      progress['received_afternext'] = donor.received_afternext
+
+    progress['received_total'] = (progress['received_this'] +
+                                 progress['received_next'] +
+                                 progress['received_afternext'])
+
+    return progress
+
   def promised(self): #remove
     donors = self.donor_set.all()
     amt = 0

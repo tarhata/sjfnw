@@ -29,11 +29,14 @@ gp_year.allow_tags = True
 
 
 def ship_progress(obj):
-  return ('<table><tr><td style="width:33%;padding:1px;">$' +
-          str(obj.estimated()) + '</td><td style="width:33%;padding:1px;">$' +
-          str(obj.promised()) + '</td><td style="width:33%;padding:1px;">$' +
-          str(obj.received()) + '</td></tr></table>')
-ship_progress.short_description = 'Estimated, promised, received'
+  p = obj.get_progress()
+  return ('<table><tr><td style="width:25%;padding:1px;">$' +
+          str(p['estimated']) + '</td><td style="width:25%;padding:1px;">$' +
+          str(p['promised']) + '</td><td style="width:25%;padding:1px;">$' +
+          str(p['received_total']) + '</td><td style="width:25%;padding:1px">' +
+          str(p['received_this']) + ', ' + str(p['received_next']) +
+          ', ' + str(p['received_afternext']) + '</td></tr></table>')
+ship_progress.short_description = 'Estimated, promised, received, rec. by year'
 ship_progress.allow_tags = True
 
 
