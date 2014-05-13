@@ -56,6 +56,8 @@ def get_block_content(membership, get_steps=True):
   p_apps = ProjectApp.objects.filter(giving_project=membership.giving_project)
   p_apps = p_apps.select_related('giving_project', 'application',
       'application__organization')
+  # never show screened out by sub-committee
+  p_apps = p_apps.exclude(screening_status = 45)
   if membership.giving_project.site_visits == 1:
     logger.info('Filtering grants for site visits')
     p_apps = p_apps.filter(screening_status__gte=70)
