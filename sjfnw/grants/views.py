@@ -1252,8 +1252,9 @@ def DraftWarning(request):
 
 def yer_reminder_email(request):
   """ Remind orgs of upcoming year end reports that are due
-  Depends on running once a day
-  Sends reminder emails at 1 month and 1 week """
+    Depends on running once a day
+    Sends reminder emails at 1 month and 1 week
+  """
 
   due_today = timezone.now().date().replace(year = timezone.now().year - 1)
   award_dates = [due_today + datetime.timedelta(days = 30), due_today + datetime.timedelta(days = 7)]

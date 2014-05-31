@@ -1293,8 +1293,23 @@ class YearEndReportForm(BaseGrantTestCase):
     self.assertTemplateUsed('grants/yer_submitted.html')
 
 
+@override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
+class YearEndReportReminders(BaseGrantTestCase):
+  """ Test reminder email functionality """
 
+  projectapp_id = 1
 
+  def setUp(self):
+    super(YearEndReportReminders, self).setUp(login='testy')
 
+  def test_two_months_prior(self):
+    """ Verify reminder is not sent 2 months before report is due """
+    today = timezone.now()
+    # create award from (1 year - 60 days) ago
+    mailed = today.date().replace(year = today.year() - 1) - datetime.timedelta(days = 60)
+    award = models.GivingProjectGrant(projectapp_id = 1, amount = 5000,
+        agreement_mailed = mailed, agreement_returned = mailed + datetime.timedelta(days = 3))
+    award.save()
 
+    self.assertEqual(award.yearend_due(), today + datetime.timedelta(days = 60))
 
