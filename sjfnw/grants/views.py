@@ -610,34 +610,56 @@ def rollover_yer(request, organization):
 
   error_msg = ''
 
-  if request.method == 'POST':
-    # handle it
-    pass
-
-  else:
-    # get yer
-    reports = YearEndReport.objects.select_related().filter(
+  # get grants and yer related to current org
+  reports = models.YearEndReport.objects.select_related().filter(
+      award__projectapp__application__organization_id=organization.pk)
+  if reports:
+    drafts = models.YERDraft.objects.objects.select_related().filter(
         award__projectapp__application__organization_id=organization.pk)
-    if reports:
-      drafts = YERDraft.objects.objects.select_related().filter(
-          award__projectapp__application__organization_id=organization.pk)
-      exclude_awards = [r.award_id for r in reports] + [d.award_id for d in drafts]
-      awards = GivingProjectGrant.objects.select_related('award').exclude(
-          id__in=exlude_awards)
-      if awards: # reqs met -- show form
-        form = RolloverYERForm(reports, awards)
-
-        return render(request, 'grants/yer_rollover.html', {'form': form})
-
+    exclude_awards = [r.award_id for r in reports] + [d.award_id for d in drafts]
+    awards = models.GivingProjectGrant.objects.select_related('award').exclude(
+        id__in=exlude_awards)
+    if not awards:
+      if exclude_awards:
+        error_msg = 'You have a submitted or draft year-end report for all remaining grants.'
       else:
-        if exclude_awards:
-          error_msg = 'You have a submitted or draft year-end report for all remaining grants.'
-        else:
-          error_msg = 'You don\'t have any other grants that require a year-end report.'
-    else:
-      error_msg = 'You don\'t have any submitted reports to copy.'
+        error_msg = 'You don\'t have any other grants that require a year-end report.'
+  else:
+    error_msg = 'You don\'t have any submitted reports to copy.'
 
+  if error_msg != '':
     return render(request, 'grants/yer_rollover.html', {'error_msg': error_msg})
+
+  if request.method == 'POST':
+    form = RolloverYERForm(reports, awards, request.POST)
+    if form.is_valid():
+      report_id = form.cleaned_data.get('report')
+      award_id = form.cleaned_data.get('award')
+
+      award = get_object_or_404(models.GivingProjectGrant, pk=award_id)
+      report = get_object_or_404(models.GivingProjectGrant, pk=report_id)
+
+      # make sure combo doesn't already exist
+      if ('yearendreport' in award) or models.YERDraft.objects.filter(award_id=award_id):
+        logger.error('Valid YER rollover but award has draft/YER already')
+        error_msg = 'Sorry, that grant already has a draft or submitted year-end report.'
+        return render(request, 'grants/yer_rollover.html', {'error_msg': error_msg})
+        
+      contents = model_to_dict(report, exclude=[
+        'modified', 'photo1', 'photo2', 'photo3', 'photo4', 'photo_release'])
+      new_draft = models.YERDraft(award=award, contents = contents)
+      new_draft.photo1 = report.photo1
+      new_draft.photo2 = report.photo2
+      new_draft.photo3 = report.photo3
+      new_draft.photo4 = report.photo4
+      new_draft.photo_release = report.photo_release
+      new_draft.save()
+      return redirect(reverse('sjfnw.grants.views.year_end_report', kwargs={award_id: award_id}))
+
+  else: # GET
+    form = RolloverYERForm(reports, awards)
+    return render(request, 'grants/yer_rollover.html', {'form': form})
+
 
 
 # VIEW APPS/FILES

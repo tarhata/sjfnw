@@ -2,7 +2,6 @@ from django.conf.urls import patterns, include
 from django.views.generic.base import TemplateView
 from sjfnw import constants
 
-# apply urls will all be prefixed with 'apply/' in mail url file
 
 apply_urls = patterns('',
   (r'^nr', TemplateView.as_view(template_name ='grants/not_grantee.html')),

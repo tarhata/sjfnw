@@ -4,9 +4,10 @@
 {% block content %}
 
 {% if error_msg %}
-<p>{{ error_msg }}</p>
+  <p>{{ error_msg }}</p>
 {% else %}
-{{ form }}
+  {{ form }}
+{% endif %}
 
 {% endblock content %}
 
