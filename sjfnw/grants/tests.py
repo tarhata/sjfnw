@@ -15,7 +15,8 @@ from sjfnw.fund.models import GivingProject
 from sjfnw.grants.forms import AppReportForm, OrgReportForm, AwardReportForm
 from sjfnw.grants import models
 
-import datetime, json, unittest, logging
+from datetime import timedelta
+import json, unittest, logging
 logger = logging.getLogger('sjfnw')
 
 
@@ -78,13 +79,13 @@ def set_cycle_dates():
       open, open, closed, upcoming, open """
 
   now = timezone.now()
-  ten_days = datetime.timedelta(days=10)
+  ten_days = timedelta(days=10)
 
   cycle = models.GrantCycle.objects.get(pk=1)
   cycle.open = now - ten_days
   cycle.close = now + ten_days
   cycle.save()
-  twenty_days = datetime.timedelta(days=20)
+  twenty_days = timedelta(days=20)
   cycle = models.GrantCycle.objects.get(pk=2)
   cycle.open = now - ten_days
   cycle.close = now + ten_days
@@ -486,10 +487,10 @@ class DraftWarning(BaseGrantTestCase):
 
     now = timezone.now()
     draft = models.DraftGrantApplication.objects.get(pk=2)
-    draft.created = now - datetime.timedelta(days=12)
+    draft.created = now - timedelta(days=12)
     draft.save()
     cycle = models.GrantCycle.objects.get(pk=2)
-    cycle.close = now + datetime.timedelta(days=7, hours=12)
+    cycle.close = now + timedelta(days=7, hours=12)
     cycle.save()
 
     self.client.get('/mail/drafts/')
@@ -506,7 +507,7 @@ class DraftWarning(BaseGrantTestCase):
     draft.created = now
     draft.save()
     cycle = models.GrantCycle.objects.get(pk=2)
-    cycle.close = now + datetime.timedelta(days=7, hours=12)
+    cycle.close = now + timedelta(days=7, hours=12)
     cycle.save()
 
     self.client.get('/mail/drafts/')
@@ -522,7 +523,7 @@ class DraftWarning(BaseGrantTestCase):
     draft.created = now
     draft.save()
     cycle = models.GrantCycle.objects.get(pk=2)
-    cycle.close = now + datetime.timedelta(days=2, hours=12)
+    cycle.close = now + timedelta(days=2, hours=12)
     cycle.save()
 
     self.client.get('/mail/drafts/')
@@ -534,10 +535,10 @@ class DraftWarning(BaseGrantTestCase):
 
     now = timezone.now()
     draft = models.DraftGrantApplication.objects.get(pk=2)
-    draft.created = now - datetime.timedelta(days=12)
+    draft.created = now - timedelta(days=12)
     draft.save()
     cycle = models.GrantCycle.objects.get(pk=2)
-    cycle.close = now + datetime.timedelta(days=2, hours=12)
+    cycle.close = now + timedelta(days=2, hours=12)
     cycle.save()
 
     self.client.get('/mail/drafts/')
@@ -798,7 +799,7 @@ class OrgHomeAwards(BaseGrantTestCase):
   def test_sent(self):
     """ org has award, agreement mailed. verify shown """
     award = models.GivingProjectGrant(projectapp_id = 1, amount = 9000,
-        agreement_mailed = timezone.now()-datetime.timedelta(days=1))
+        agreement_mailed = timezone.now()-timedelta(days=1))
     award.save()
 
     response = self.client.get(self.url)
@@ -1298,18 +1299,117 @@ class YearEndReportReminders(BaseGrantTestCase):
   """ Test reminder email functionality """
 
   projectapp_id = 1
+  url = reverse('sjfnw.grants.views.yer_reminder_email')
 
   def setUp(self):
-    super(YearEndReportReminders, self).setUp(login='testy')
+    super(YearEndReportReminders, self).setUp(login='admin')
 
   def test_two_months_prior(self):
     """ Verify reminder is not sent 2 months before report is due """
+
+    # create award where yer should be due in 60 days
     today = timezone.now()
-    # create award from (1 year - 60 days) ago
-    mailed = today.date().replace(year = today.year() - 1) - datetime.timedelta(days = 60)
-    award = models.GivingProjectGrant(projectapp_id = 1, amount = 5000,
-        agreement_mailed = mailed, agreement_returned = mailed + datetime.timedelta(days = 3))
+    returned = today.date().replace(year = today.year - 1) + timedelta(days = 60)
+    award = models.GivingProjectGrant(
+        projectapp_id = 1, amount = 5000,
+        agreement_mailed = returned - timedelta(days = 3),
+        agreement_returned = returned
+    )
+    award.save()
+    print(models.GivingProjectGrant.objects.all())
+
+    # verify that yer is due in 60 days
+    self.assertEqual(award.yearend_due(), today.date() + timedelta(days = 60))
+    
+    # verify that email is not sent
+    self.assertEqual(len(mail.outbox), 0)
+    response = self.client.get(self.url)
+    print(mail.outbox)
+    self.assertEqual(len(mail.outbox), 0)
+
+  def test_first_email(self):
+    """ Verify that reminder email gets sent 30 days prior to due date """
+
+    # create award where yer should be due in 30 days
+    today = timezone.now()
+    returned = today.date().replace(year = today.year - 1) + timedelta(days = 30)
+    award = models.GivingProjectGrant(
+        projectapp_id = 1, amount = 5000,
+        agreement_mailed = returned - timedelta(days = 3),
+        agreement_returned = returned
+    )
     award.save()
 
-    self.assertEqual(award.yearend_due(), today + datetime.timedelta(days = 60))
+    # verify that yer is due in 30 days
+    self.assertEqual(award.yearend_due(), today.date() + timedelta(days = 30))
+    
+    # verify that email is not sent
+    self.assertEqual(len(mail.outbox), 0)
+    response = self.client.get(self.url)
+    self.assertEqual(len(mail.outbox), 1)
 
+  def test_15_days_prior(self):
+    """ Verify that no email is sent 15 days prior to due date """
+
+    # create award where yer should be due in 15 days
+    today = timezone.now()
+    returned = today.date().replace(year = today.year - 1) + timedelta(days = 15)
+    award = models.GivingProjectGrant(
+        projectapp_id = 1, amount = 5000,
+        agreement_mailed = returned - timedelta(days = 3),
+        agreement_returned = returned
+    )
+    award.save()
+    print(models.GivingProjectGrant.objects.all())
+
+    # verify that yer is due in 15 days
+    self.assertEqual(award.yearend_due(), today.date() + timedelta(days = 15))
+    
+    # verify that email is not sent
+    self.assertEqual(len(mail.outbox), 0)
+    response = self.client.get(self.url)
+    self.assertEqual(len(mail.outbox), 0)
+
+  def test_second_email(self):
+    """ Verify that a reminder email goes out 7 days prior to due date """
+
+    # create award where yer should be due in 7 days
+    today = timezone.now()
+    returned = today.date().replace(year = today.year - 1) + timedelta(days = 7)
+    award = models.GivingProjectGrant(
+        projectapp_id = 1, amount = 5000,
+        agreement_mailed = returned - timedelta(days = 3),
+        agreement_returned = returned
+    )
+    award.save()
+
+    # verify that yer is due in 7 days
+    self.assertEqual(award.yearend_due(), today.date() + timedelta(days = 7))
+    
+    # verify that email is sent
+    self.assertEqual(len(mail.outbox), 0)
+    response = self.client.get(self.url)
+    self.assertEqual(len(mail.outbox), 1)
+
+  def test_yer_complete(self):
+    """ Verify that an email is not sent if a year-end report has been completed """
+
+    # create award where yer should be due in 7 days
+    today = timezone.now()
+    returned = today.date().replace(year = today.year - 1) + timedelta(days = 7)
+    award = models.GivingProjectGrant(
+        projectapp_id = 1, amount = 5000,
+        agreement_mailed = returned - timedelta(days = 3),
+        agreement_returned = returned
+    )
+    award.save()
+    yer = models.YearEndReport(award = award, total_size=10, donations_count=50)
+    yer.save()
+
+    # verify that yer is due in 7 days
+    self.assertEqual(award.yearend_due(), today.date() + timedelta(days = 7))
+    
+    # verify that email is not sent
+    self.assertEqual(len(mail.outbox), 0)
+    response = self.client.get(self.url)
+    self.assertEqual(len(mail.outbox), 0)

@@ -1256,12 +1256,14 @@ def yer_reminder_email(request):
     Sends reminder emails at 1 month and 1 week
   """
 
-  due_today = timezone.now().date().replace(year = timezone.now().year - 1)
-  award_dates = [due_today + datetime.timedelta(days = 30), due_today + datetime.timedelta(days = 7)]
-  awards = (models.GivingProjectGrant.objects.select_related().prefetch_related('yearendreport')
-                                             .exclude(agreement_returned__isnull=True)[:5])
+  # get awards due in 7 or 30 days by agreement_returned date
+  year_ago = timezone.now().date().replace(year = timezone.now().year - 1)
+  award_dates = [year_ago + datetime.timedelta(days = 30), year_ago + datetime.timedelta(days = 7)]
   #awards = (models.GivingProjectGrant.objects.select_related().prefetch_related('yearendreport')
-  #                                             .filter(agreement_returned__in=award_dates))
+  #                                      .exclude(agreement_returned__isnull=True)[:5])
+  awards = (models.GivingProjectGrant.objects.select_related()
+                                             .prefetch_related('yearendreport')
+                                             .filter(agreement_returned__in=award_dates))
 
 
   for award in awards:
@@ -1271,7 +1273,7 @@ def yer_reminder_email(request):
       subject = 'Year end report'
       from_email =  constants.GRANT_EMAIL
       to = app.organization.email
-      html_content = render_to_string('grants/email_yer_submitted.html',
+      html_content = render_to_string('grants/email_yer_due.html',
         {'award': award, 'app': app, 'gp': award.projectapp.giving_project})
       text_content = strip_tags(html_content)
 
@@ -1280,7 +1282,7 @@ def yer_reminder_email(request):
       msg.send()
       logger.info('YER reminder email sent to ' + to + ' for award ' + str(award.pk))
 
-  return HttpResponse(html_content)
+  return HttpResponse("success")
 
 
 # UTILS
