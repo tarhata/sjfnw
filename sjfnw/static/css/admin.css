@@ -1,11 +1,50 @@
-﻿.change-list .filtered .results, .change-list .filtered .paginator, .filtered #toolbar, .filtered div.xfull {
-    margin-right: 200px !important;
-    width: auto !important;
+﻿/** CUSTOM ADMIN STYLE OVERRIDES **/
+
+/* Adjust the top display to fit in extra action (top right) and extra
+ * help text (below title). Move "Add ___" button to make room. */
+h1 {
+  display: inline-block;
 }
 
-div#changelist-filter { /*redundantly specific to override admin rule */
+.extra-action {
+  display: inline-block;
+  float: right;
+  z-index: 1;
+}
+
+/* Toggle-able filter sidebar -- don't shrink results around it */
+.change-list .filtered .results, .change-list .filtered .paginator, .filtered #toolbar, .filtered div.xfull {
+    margin-right: 0 !important;
+}
+
+#changelist {
+  background: none !important;
+}
+
+#changelist-wrapper {
   width: 200px;
+  float: right;
+  position: absolute;
+  right: 0;
+  background-color: #eeeeee;
+  border: 1px solid #aaaaaa;
+}
+
+#changelist-filter {
   height: 100%;
+  position: relative;
+  width: 100%;
+  display: none;
+}
+
+#filter-header {
+  padding: 7px 2px;
+  font-size: 12px;
+}
+
+#filter-toggle {
+  color: #fff;
+  float: right;
 }
 
 div#top_help_text {

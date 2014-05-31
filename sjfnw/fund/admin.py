@@ -28,6 +28,17 @@ gp_year.short_description = 'Year'
 gp_year.allow_tags = True
 
 
+def ship_progress(obj):
+  p = obj.get_progress()
+  return ('<table><tr><td style="width:25%;padding:1px;">$' +
+          str(p['estimated']) + '</td><td style="width:25%;padding:1px;">$' +
+          str(p['promised']) + '</td><td style="width:25%;padding:1px;">$' +
+          str(p['received_total']) + '</td><td style="width:25%;padding:1px">' +
+          str(p['received_this']) + ', ' + str(p['received_next']) +
+          ', ' + str(p['received_afternext']) + '</td></tr></table>')
+ship_progress.short_description = 'Estimated, promised, received, rec. by year'
+ship_progress.allow_tags = True
+
 
 # Filters
 class PromisedBooleanFilter(SimpleListFilter): #donors & steps
@@ -222,24 +233,6 @@ class MembershipA(admin.ModelAdmin):
         utils.NotifyApproval(memship)
     queryset.update(approved=True)
     logger.info('Approval queryset updated')
-
-  def ship_progress(self, obj):
-    estimated = 0
-    promised = 0
-    received = 0
-    donors = obj.donor_set.all()
-    for donor in donors:
-      estimated += donor.estimated()
-      received += donor.received()
-      if donor.promised:
-        promised += donor.promised   
-
-    return ('<table><tr><td style="width:33%;padding:1px;">$' +
-            str(estimated) + '</td><td style="width:33%;padding:1px;">$' +
-            str(promised) + '</td><td style="width:33%;padding:1px;">$' +
-            str(received) + '</td></tr></table>')
-  ship_progress.short_description = 'Estimated, promised, received'
-  ship_progress.allow_tags = True
 
 
 class DonorA(admin.ModelAdmin):

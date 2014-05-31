@@ -1,6 +1,6 @@
 {% extends "admin/change_list.html" %}
 
-{% block extra_content %}
+{% block help_text %}
 NOTE: The User object contains the login info (email and password) for all users - both Members and Organizations.<br>
 An admin can have just a User object if they only need to access the admin site.  Otherwise, User objects should never be created here; the user should register with the appropriate app instead.
 {% endblock %}

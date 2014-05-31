@@ -56,6 +56,8 @@ def get_block_content(membership, get_steps=True):
   p_apps = ProjectApp.objects.filter(giving_project=membership.giving_project)
   p_apps = p_apps.select_related('giving_project', 'application',
       'application__organization')
+  # never show screened out by sub-committee
+  p_apps = p_apps.exclude(application__pre_screening_status=45)
   if membership.giving_project.site_visits == 1:
     logger.info('Filtering grants for site visits')
     p_apps = p_apps.filter(screening_status__gte=70)
@@ -967,8 +969,11 @@ def done_step(request, donor_id, step_id):
       logger.info('Invalid step completion: ' + str(form.errors))
 
   else: #GET - fill form with initial data
-    initial = {'asked': donor.asked, 'notes': donor.notes,'last_name': donor.lastname,
-               'phone': donor.phone, 'email': donor.email}
+    initial = {
+        'asked': donor.asked, 'notes': donor.notes,'last_name': donor.lastname,
+        'phone': donor.phone, 'email': donor.email,
+        'promise_reason': json.loads(donor.promise_reason),
+        'likely_to_join': donor.likely_to_join}
     if donor.promised:
       if donor.promised == 0:
         initial['response'] = 3
