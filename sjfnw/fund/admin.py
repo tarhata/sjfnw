@@ -212,18 +212,18 @@ class MembershipA(admin.ModelAdmin):
 
   #list_select_related = True
   actions = ['approve']
-  list_display = ('member', 'giving_project', 'ship_progress', 'overdue_steps',
+  list_display = ('member', 'giving_project', ship_progress, 'overdue_steps',
                   'last_activity', 'approved', 'leader')
   list_filter = ('approved', 'leader', 'giving_project') #add overdue steps
   search_fields = ['member__first_name', 'member__last_name']
-  readonly_list = ('ship_progress', 'overdue_steps',)
+  readonly_list = (ship_progress, 'overdue_steps',)
 
   fields = (('member', 'giving_project', 'approved'),
       ('leader', 'last_activity', 'emailed'),
-      ('ship_progress'),
+      (ship_progress),
       'notifications'
   )
-  readonly_fields = ('last_activity', 'emailed', 'ship_progress')
+  readonly_fields = ('last_activity', 'emailed', ship_progress)
   inlines = [DonorInline]
 
   def approve(self, request, queryset): #Membership action
