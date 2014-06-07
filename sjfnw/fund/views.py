@@ -173,8 +173,9 @@ def home(request):
     prog['contactsremaining'] = 0
 
   notif = membership.notifications #TODO replace with messages
-  if notif and not settings.DEBUG: #on live, only show a notification once
-    logger.info('Displaying notification to ' + str(membership) + ': ' + notif)
+  #on live, only show a notification once
+  if notif and not settings.DEBUG:
+    logger.info('Displaying notification to ' + unicode(membership) + ': ' + notif)
     membership.notifications = ''
     membership.save(skip=True)
 
@@ -326,7 +327,7 @@ def fund_register(request):
           membership.save()
           member.current = membership.pk
           member.save()
-          logger.info('Registration - membership in ' + str(giv) + 'created, welcome message set')
+          logger.info('Registration - membership in ' + unicode(giv) + 'created, welcome message set')
         #try to log in
         user = authenticate(username=username_email, password=password)
         if user:
@@ -373,7 +374,7 @@ def registered(request):
   proj = ship.giving_project
   if proj.pre_approved:
     app_list = [email.strip().lower() for email in proj.pre_approved.split(',')]
-    logger.info('Checking pre-approval for ' + request.user.username + ' in ' + str(proj) + ', list: ' + proj.pre_approved)
+    logger.info('Checking pre-approval for ' + request.user.username + ' in ' + unicode(proj) + ', list: ' + proj.pre_approved)
     if ship.member.email in app_list:
       ship.approved = True
       ship.save(skip=True)
@@ -695,7 +696,7 @@ def edit_donor(request, donor_id):
     donor = models.Donor.objects.get(pk=donor_id, membership=request.membership)
   except models.Donor.DoesNotExist:
     logger.error('Tried to edit a nonexist donor. User: ' +
-                  str(request.membership) + ', id given: ' + str(donor_id))
+                  unicode(request.membership) + ', id given: ' + str(donor_id))
     raise Http404
 
   #check whether to require estimates
@@ -756,7 +757,7 @@ def add_step(request, donor_id):
   membership = request.membership
   suggested = membership.giving_project.suggested_steps.splitlines()
 
-  logger.info('Single step - start of view. ' + str(membership.member) +
+  logger.info('Single step - start of view. ' + unicode(membership.member) +
                ', donor id: ' + str(donor_id))
 
   try:

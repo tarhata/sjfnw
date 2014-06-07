@@ -1139,7 +1139,7 @@ class AdminInlines(BaseGrantTestCase):
 
     response = self.client.get('/admin/fund/givingproject/19/')
 
-    self.assertContains(response, 'selected="selected">' + str(apps[0].application))
+    self.assertContains(response, 'selected="selected">' + unicode(apps[0].application))
 
   def test_application(self):
     """ Verify that gp assignment and awards are shown on application page

@@ -86,8 +86,12 @@ class RolloverForm(forms.Form): #used by org
     cycles = GrantCycle.objects.filter(open__lt = timezone.now(), close__gt = timezone.now()).exclude(id__in=exclude_cycles)
 
     #create fields
-    self.fields['application'] = forms.ChoiceField(choices = [('', '--- Submitted applications ---')] + [(a.id, str(a.grant_cycle) + ' - submitted ' + datetime.datetime.strftime(a.submission_time, '%m/%d/%y')) for a in submitted], required=False, initial = 0)
-    self.fields['draft'] = forms.ChoiceField(choices = [('', '--- Saved drafts ---')] + [(d.id, unicode(d.grant_cycle) + ' - modified ' + datetime.datetime.strftime(d.modified, '%m/%d/%y')) for d in drafts], required=False, initial = 0)
+    self.fields['application'] = forms.ChoiceField(required=False, initial = 0,
+        choices = [('', '--- Submitted applications ---')] +
+                  [(a.id, unicode(a.grant_cycle) + ' - submitted ' + datetime.datetime.strftime(a.submission_time, '%m/%d/%y')) for a in submitted])
+    self.fields['draft'] = forms.ChoiceField(required=False, initial = 0,
+        choices = [('', '--- Saved drafts ---')] +
+                  [(d.id, unicode(d.grant_cycle) + ' - modified ' + datetime.datetime.strftime(d.modified, '%m/%d/%y')) for d in drafts])
     self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Open cycles ---')] + [(c.id, unicode(c)) for c in cycles])
 
   def clean(self):

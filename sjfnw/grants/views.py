@@ -504,7 +504,7 @@ def DiscardDraft(request, organization, draft_id):
       logger.info('Draft ' + str(draft_id) + ' discarded')
     else: #trying to delete another person's draft!?
       logger.warning('Failed attempt to discard draft ' + str(draft_id) +
-                      ' by ' + str(organization))
+                      ' by ' + unicode(organization))
     return redirect(org_home)
   except models.DraftGrantApplication.DoesNotExist:
     logger.error(str(request.user) + ' discard nonexistent draft')

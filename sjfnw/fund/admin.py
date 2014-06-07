@@ -316,8 +316,8 @@ class SurveyResponseA(admin.ModelAdmin):
       resp_list = json.loads(obj.responses)
       disp = '<table><tr><th>Question</th><th>Answer</th></tr>'
       for i in range(0, len(resp_list), 2):
-        disp += ('<tr><td>' + str(resp_list[i]) + '</td><td>' +
-                 str(resp_list[i+1]) + '</td></tr>')
+        disp += ('<tr><td>' + unicode(resp_list[i]) + '</td><td>' +
+                 unicode(resp_list[i+1]) + '</td></tr>')
       disp += '</table>'
       return mark_safe(disp)
   display_responses.short_description = 'Responses'

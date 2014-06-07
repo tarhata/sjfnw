@@ -586,7 +586,7 @@ class Grants(BaseFundTestCase):
         'application', 'application__organization')
     self.assertNotEqual(papps.count(), 0)
     for papp in papps:
-      self.assertContains(response, str(papp.application.organization))
+      self.assertContains(response, unicode(papp.application.organization))
 
 
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE,
