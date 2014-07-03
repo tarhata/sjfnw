@@ -32,7 +32,7 @@ class RegisterForm(forms.Form):
       if Organization.objects.filter(email = email):
         logger.warning(org + 'tried to re-register with ' + email)
         raise ValidationError('That email is already registered. Log in instead.')
-      name_match = Organization.objects.filter(name = org)
+      name_match = Organization.objects.filter(name__iexact=org)
       if name_match:
         if name_match[0].email:
           logger.warning('Name match on registration, emails diff: ' + org)
