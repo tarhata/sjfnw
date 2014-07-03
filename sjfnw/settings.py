@@ -29,6 +29,12 @@ if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.geten
     }
   }
   DEBUG = False
+elif 'test' in sys.argv:
+  DATABASES = {
+    'default': {
+      'ENGINE': 'django.db.backends.sqlite3'
+    }
+  }
 else:
   DATABASES = {
     'default': {
