@@ -18,9 +18,9 @@ import unicodecsv
 from sjfnw import constants
 from sjfnw.fund.models import Member
 from sjfnw.grants.decorators import registered_org
-from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm
+from sjfnw.grants.forms import LoginForm, RegisterForm, RolloverForm, AdminRolloverForm, AppReportForm, OrgReportForm, AwardReportForm, LoginAsOrgForm, RolloverYERForm
 from sjfnw.grants.modelforms import GrantApplicationModelForm, OrgProfile, YearEndReportForm
-from sjfnw.grants.utils import local_date_str, FindBlobKey, FindBlob, ServeBlob, DeleteBlob
+from sjfnw.grants.utils import local_date_str, ServeBlob, DeleteBlob
 from sjfnw.grants import models
 
 import urllib2
@@ -56,17 +56,38 @@ def org_login(request):
       {'form':form, 'register':register, 'login_error':login_error})
 
 def org_register(request):
+  """ Register an organization.
+
+  RegisterForm.is_valid returns false if:
+    - Organization with given email already exists
+    - Organization with given name and non-blank email exists
+    - User with given email already exists
+    - Passwords do not match
+
+  View handles further POST logic:
+    - Register the new User
+    - If an Org with name exists, it must have blank email, so:
+       - Set email
+       - Set User to inactive and tell user to contact admin (needs manual approval)
+    - Otherwise, create Organization
+    - Try to log in
+  """
+
   if request.method == 'POST':
     register = RegisterForm(request.POST)
+
     if register.is_valid():
       username_email = request.POST['email'].lower()
       password = request.POST['password']
       org = request.POST['organization']
-      #create User and Organization
+
+      #create User
       created = User.objects.create_user(username_email, username_email, password)
       created.first_name = org
       created.last_name = '(organization)'
-      try: # see if matching org with no email exists
+
+      # create or update org
+      try: # if matching org with no email exists
         org = models.Organization.objects.get(name = org)
         org.email = username_email
         logger.info("matching org name found. setting email")
@@ -77,6 +98,7 @@ def org_register(request):
         new_org = models.Organization(name=org, email=username_email)
         new_org.save()
       created.save()
+
       #try to log in
       user = authenticate(username=username_email, password=password)
       if user:
@@ -93,9 +115,11 @@ def org_register(request):
         messages.error(request, 'There was a problem with your registration. '
             'Please <a href=""/apply/support#contact">contact a site admin</a> for assistance.')
         logger.error('Password not working at registration, account:  ' + username_email)
+
   else: #GET
     register = RegisterForm()
   form = LoginForm()
+
   return render(request, 'grants/org_login_register.html', {'form':form, 'register':register})
 
 def org_support(request):
@@ -142,8 +166,6 @@ def org_home(request, organization):
   cycles = models.GrantCycle.objects.filter(close__gt=timezone.now()-datetime.timedelta(days=180)).order_by('open')
   submitted_cycles = submitted.values_list('grant_cycle', flat=True)
   yer_drafts = models.YERDraft.objects.select_related().filter(award__projectapp__application__organization_id = organization.pk)
-  logging.info(yer_drafts)
-  #TODO could this be changed so the template is less messy when finding awards
 
   closed, open, applied, upcoming = [], [], [], []
   for cycle in cycles:
@@ -610,18 +632,19 @@ def rollover_yer(request, organization):
 
   error_msg = ''
 
-  # get grants and yer related to current org
+  # get reports and grants related to current org
   reports = models.YearEndReport.objects.select_related().filter(
       award__projectapp__application__organization_id=organization.pk)
   if reports:
-    drafts = models.YERDraft.objects.objects.select_related().filter(
+    drafts = models.YERDraft.objects.select_related().filter(
         award__projectapp__application__organization_id=organization.pk)
     exclude_awards = [r.award_id for r in reports] + [d.award_id for d in drafts]
-    awards = models.GivingProjectGrant.objects.select_related('award').exclude(
-        id__in=exlude_awards)
+    awards = (models.GivingProjectGrant.objects.select_related('award')
+        .filter(projectapp__application__organization_id=organization.pk)
+        .exclude(id__in=exclude_awards))
     if not awards:
       if exclude_awards:
-        error_msg = 'You have a submitted or draft year-end report for all remaining grants.'
+        error_msg = 'You have a submitted or draft year-end report for all of your grants. <a href="/apply">Go back</a>'
       else:
         error_msg = 'You don\'t have any other grants that require a year-end report.'
   else:
@@ -644,10 +667,10 @@ def rollover_yer(request, organization):
         logger.error('Valid YER rollover but award has draft/YER already')
         error_msg = 'Sorry, that grant already has a draft or submitted year-end report.'
         return render(request, 'grants/yer_rollover.html', {'error_msg': error_msg})
-        
+
       contents = model_to_dict(report, exclude=[
         'modified', 'photo1', 'photo2', 'photo3', 'photo4', 'photo_release'])
-      new_draft = models.YERDraft(award=award, contents = contents)
+      new_draft = models.YERDraft(award=award, contents=contents)
       new_draft.photo1 = report.photo1
       new_draft.photo2 = report.photo2
       new_draft.photo3 = report.photo3
@@ -755,7 +778,7 @@ def view_yer(request, report_id):
   file_urls = GetFileURLs(request, report, printing=False)
 
   return render(request, 'grants/yer_display.html', {
-    'report': report, 'form': form, 'award': award, 'projectapp': projectapp, 
+    'report': report, 'form': form, 'award': award, 'projectapp': projectapp,
     'file_urls': file_urls, 'perm': perm})
 
 

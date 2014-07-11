@@ -29,7 +29,7 @@ class RegisterForm(forms.Form):
     org = cleaned_data.get('organization')
     email = cleaned_data.get('email')
     if org and email:
-      if Organization.objects.filter(email = email):
+      if Organization.objects.filter(email=email):
         logger.warning(org + 'tried to re-register with ' + email)
         raise ValidationError('That email is already registered. Log in instead.')
       name_match = Organization.objects.filter(name__iexact=org)
@@ -137,7 +137,7 @@ class RolloverYERForm(forms.Form):
   """
 
   def __init__(self, reports, awards, *args, **kwargs):
-    super(RolloverYERForm, self).__init__(organization, *args, **kwargs)
+    super(RolloverYERForm, self).__init__(*args, **kwargs)
     self.fields['reports'] = forms.ChoiceField(choices=
         [('', '--- Year-end reports ---')] + [(r.id, unicode(r)) for r in reports])
     self.fields['awards'] = forms.ChoiceField(choices=
