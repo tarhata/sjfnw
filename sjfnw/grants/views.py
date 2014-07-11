@@ -137,10 +137,10 @@ def cycle_info(request, cycle_id):
     raise Http404
   try:
     info_page = urllib2.urlopen(cycle.info_page)
-  except urllib2.URLError as e:
-    logger.error('Error fetching cycle info page; URLError: ' + str(e.reason))
   except urllib2.HTTPError as e:
     logger.error('Error fetching cycle info page; HTTPError: %s %s' % (e.code, e.reason))
+  except urllib2.URLError as e:
+    logger.error('Error fetching cycle info page; URLError: ' + str(e.reason))
   except IOError as e:
     logger.error('Unknown error fetching cycle info page: %s' % e)
   else:
@@ -487,12 +487,25 @@ def year_end_report(request, organization, award_id):
 
     if form.is_valid():
       logger.info('Valid YER')
+      # save YER and delete draft
       yer = form.save()
       draft.delete()
 
-      # TODO email
+      # send confirmation email
+      html_content = render_to_string('grants/email_yer_submitted.html')
+      text_content = strip_tags(html_content)
+      msg = EmailMultiAlternatives('Year-end report submitted', #subject
+                                    text_content,
+                                    constants.GRANT_EMAIL, #from 
+                                    [organization.email], #to
+                                    [constants.SUPPORT_EMAIL]) #bcc
+      msg.attach_alternative(html_content, "text/html")
+      msg.send()
+      logger.info('Message sent!?')
 
       return redirect('/report/submitted')
+    else:
+      logger.info(form.errors)
 
   else: # GET
     if cr:
