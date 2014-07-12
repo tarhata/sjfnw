@@ -238,7 +238,7 @@ class ContactPersonWidget(forms.widgets.MultiWidget):
 
   def format_output(self, rendered_widgets):
     """ format widgets for display - add any additional labels, html, etc """
-    return (rendered_widgets[0] + '<label>Title</label>' + rendered_widgets[1])
+    return (rendered_widgets[0] + '<label for="contact_person_1" style="margin-left:5px">Title</label>' + rendered_widgets[1])
 
   def value_from_datadict(self, data, files, name):
     """ Consolidate widget data into single value for db storage """
