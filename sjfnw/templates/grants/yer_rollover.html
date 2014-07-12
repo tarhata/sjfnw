@@ -6,8 +6,10 @@
 {% if error_msg %}
   <p>{{ error_msg|safe }}</p>
 {% else %}
+  <p>This form lets you copy a year-end report for use on another grant.
+    You will be able to edit it to your liking before submitting.</p>
   {{ form }}
-<button type="submit">Submit</button>
+  <button type="submit">Submit</button>
 {% endif %}
 
 {% endblock content %}
