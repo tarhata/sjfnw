@@ -285,9 +285,9 @@ class YearEndReportForm(ModelForm):
       val = self.cleaned_data.get(field_name, None)
       if val:
         stay_informed[field_name] = val
+    logger.info(stay_informed)
     if stay_informed:
       self.cleaned_data['stay_informed'] = json.dumps(stay_informed)
-      del self._errors['stay_informed']
     else:
       self._errors['stay_informed'] = mark_safe(
           '<ul class="errorlist"><li>Please fill out at least one of the options below.</li></ul>')

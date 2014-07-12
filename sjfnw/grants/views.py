@@ -510,7 +510,7 @@ def year_end_report(request, organization, award_id):
 
   else: # GET
     if cr:
-      initial_data = {'website': app.website, 'award': award,
+      initial_data = {'website': app.website, 'sit_website': app.website, 'award': award,
                       'contact_person': app.contact_person + ', ' + app.contact_person_title,
                       'phone': app.telephone_number, 'email': app.email_address}
       logger.info('Created new YER draft')
