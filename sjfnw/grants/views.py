@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
+from django.core.urlresolvers import reverse
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, render_to_response, get_object_or_404, redirect
@@ -606,6 +607,7 @@ def CopyApp(request, organization):
     else: #INVALID FORM
       logger.warning('form invalid')
       logger.info(form.errors)
+      #TODO
       cycle_count = str(form['cycle']).count('<option value') - 1
       apps_count = (str(form['application']).count('<option value') +
                     str(form['draft']).count('<option value') - 2)
@@ -663,7 +665,7 @@ def rollover_yer(request, organization):
   else:
     error_msg = 'You don\'t have any submitted reports to copy.'
 
-  if error_msg != '':
+  if error_msg != '': # show error page whether it's get or post
     return render(request, 'grants/yer_rollover.html', {'error_msg': error_msg})
 
   if request.method == 'POST':
@@ -673,24 +675,31 @@ def rollover_yer(request, organization):
       award_id = form.cleaned_data.get('award')
 
       award = get_object_or_404(models.GivingProjectGrant, pk=award_id)
-      report = get_object_or_404(models.GivingProjectGrant, pk=report_id)
+      report = get_object_or_404(models.YearEndReport, pk=report_id)
 
       # make sure combo doesn't already exist
-      if ('yearendreport' in award) or models.YERDraft.objects.filter(award_id=award_id):
+      if hasattr(award, 'yearendreport') or models.YERDraft.objects.filter(award_id=award_id):
         logger.error('Valid YER rollover but award has draft/YER already')
         error_msg = 'Sorry, that grant already has a draft or submitted year-end report.'
         return render(request, 'grants/yer_rollover.html', {'error_msg': error_msg})
 
       contents = model_to_dict(report, exclude=[
-        'modified', 'photo1', 'photo2', 'photo3', 'photo4', 'photo_release'])
-      new_draft = models.YERDraft(award=award, contents=contents)
+        'modified', 'submitted', 'photo1', 'photo2', 'photo3', 'photo4', 'photo_release'])
+      contact = contents['contact_person'].split(', ', 1)
+      contents['contact_person_0'] = contact[0]
+      contents['contact_person_1'] = contact[1]
+      logger.info(contents)
+      new_draft = models.YERDraft(award=award, contents=json.dumps(contents))
       new_draft.photo1 = report.photo1
       new_draft.photo2 = report.photo2
       new_draft.photo3 = report.photo3
       new_draft.photo4 = report.photo4
       new_draft.photo_release = report.photo_release
       new_draft.save()
-      return redirect(reverse('sjfnw.grants.views.year_end_report', kwargs={award_id: award_id}))
+      return redirect(reverse('sjfnw.grants.views.year_end_report', kwargs={'award_id': award_id}))
+    else: # INVALID FORM
+      logger.error('Invalid YER rollover. %s' % form.errors)
+      return render(request, 'grants/yer_rollover.html', {'error_msg': 'Invalid selection. Retry or contact an admin for assistance.'})
 
   else: # GET
     form = RolloverYERForm(reports, awards)

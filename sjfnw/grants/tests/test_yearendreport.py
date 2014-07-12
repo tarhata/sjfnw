@@ -288,11 +288,17 @@ class RolloverYER(BaseGrantTestCase):
   """ Test display and function of the rollover feature for YER """
 
   url = reverse('sjfnw.grants.views.rollover_yer')
-  template_success = 'NAME'
-  template_error = 'grants/yer_rollover.html'
 
   def setUp(self):
     super(RolloverYER, self).setUp(login='testy')
+
+  def create_yer(self, award_id):
+    yer = models.YearEndReport(
+        award_id = award_id,
+        total_size=10,
+        donations_count=50,
+        contact_person='Mr. Spier, Exec. Dir.')
+    yer.save()
 
   def test_rollover_link(self):
     """ Verify that link shows on home page """
@@ -322,8 +328,7 @@ class RolloverYER(BaseGrantTestCase):
     """ Verify error msg, no form if org has reports for all grants """
     award = models.GivingProjectGrant(projectapp_id = 1, amount = 5000)
     award.save()
-    yer = models.YearEndReport(award = award, total_size=10, donations_count=50)
-    yer.save()
+    self.create_yer(award.pk)
 
     response = self.client.get(self.url, follow=True)
     self.assertEqual(response.context['error_msg'], 'You have a submitted or draft year-end report for all of your grants. <a href="/apply">Go back</a>')
@@ -335,8 +340,7 @@ class RolloverYER(BaseGrantTestCase):
     # create award and YER
     award = models.GivingProjectGrant(projectapp_id = 1, amount = 5000)
     award.save()
-    yer = models.YearEndReport(award = award, total_size=10, donations_count=50)
-    yer.save()
+    self.create_yer(award.pk)
 
     # create 2nd award without YER
     papp = models.ProjectApp(application_id=2, giving_project_id=3)
@@ -350,10 +354,8 @@ class RolloverYER(BaseGrantTestCase):
     award.save()
 
     response = self.client.get(self.url, follow=True)
-    print(response.context)
-    self.assertNotIn('error_msg', response.context)
+    self.assertContains(response, 'option value', count=4)
 
-  @unittest.skip('Incomplete')
   def test_submit(self):
     """ Verify that rollover submit works:
       New draft is created for the selected award
@@ -362,10 +364,21 @@ class RolloverYER(BaseGrantTestCase):
     # set up existing report + award without report
     self.test_display_form()
 
+    award = models.GivingProjectGrant.objects.get(projectapp_id=1)
+    award2 = models.GivingProjectGrant.objects.get(projectapp_id=2)
+    report = models.YearEndReport.objects.get(award=award)
+    self.assertEqual(0, models.YERDraft.objects.filter(award=award2).count())
+
     post_data = {
-      'report': '',
-      'award': ''
+      'report': report.pk,
+      'award': award2.pk
     }
+
+    response = self.client.post(self.url, post_data, follow=True)
+  
+    self.assertTemplateUsed(response, 'grants/yer_form.html')
+    self.assertEqual(1, models.YERDraft.objects.filter(award=award2).count())
+    
     
 
 
