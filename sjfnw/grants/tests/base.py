@@ -5,6 +5,7 @@ from sjfnw.grants import models
 from sjfnw.tests import BaseTestCase
 
 from datetime import timedelta
+import json
 
 
 """ NOTE: some tests depend on having these files in sjfnw/media
@@ -78,3 +79,23 @@ class BaseGrantTestCase(BaseTestCase):
 
   class Meta:
     abstract = True
+
+
+def assert_app_matches_draft(self, draft, app, exclude_cycle): #only checks fields in draft
+  """ Timeline formats:
+        submitted: json'd list, in order, no file names
+        draft: mixed in with other contents by widget name: timeline_0 - timeline_14 """
+  draft_contents = json.loads(draft.contents)
+  app_timeline = json.loads(app.timeline)
+  for field, value in draft_contents.iteritems():
+    if 'timeline' in field:
+      i = int(field.split('_')[-1])
+      self.assertEqual(value, app_timeline[i])
+    else:
+      self.assertEqual(value, getattr(app, field))
+  for field in models.GrantApplication.file_fields():
+    if hasattr(draft, field):
+      self.assertEqual(getattr(draft, field), getattr(app, field))
+  if exclude_cycle:
+    self.assertNotIn('cycle_question', draft_contents)
+

@@ -3,7 +3,7 @@ from django.test.utils import override_settings
 from django.utils import timezone
 
 from sjfnw.constants import TEST_MIDDLEWARE
-from sjfnw.grants.tests.base import BaseGrantTestCase
+from sjfnw.grants.tests.base import BaseGrantTestCase, assert_app_matches_draft
 from sjfnw.grants import models
 
 from datetime import timedelta
