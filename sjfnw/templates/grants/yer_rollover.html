@@ -8,8 +8,10 @@
 {% else %}
   <p>This form lets you copy a year-end report for use on another grant.
     You will be able to edit it to your liking before submitting.</p>
-  {{ form }}
-  <button type="submit">Submit</button>
+  <form method="POST" id="yer-rollover">
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+  </form>
 {% endif %}
 
 {% endblock content %}

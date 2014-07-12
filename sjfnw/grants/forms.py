@@ -140,7 +140,7 @@ class RolloverYERForm(forms.Form):
     super(RolloverYERForm, self).__init__(*args, **kwargs)
     self.fields['report'] = forms.ChoiceField(choices=
         [('', '--- Year-end reports ---')] + [(r.id, unicode(r)) for r in reports])
-    self.fields['award'] = forms.ChoiceField(choices=
+    self.fields['award'] = forms.ChoiceField(label='Grant', choices=
         [('', '--- Grants ---')] + [(a.id, unicode(a)) for a in awards])
 
   
