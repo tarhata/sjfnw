@@ -1317,11 +1317,9 @@ def yer_reminder_email(request):
   # get awards due in 7 or 30 days by agreement_returned date
   year_ago = timezone.now().date().replace(year = timezone.now().year - 1)
   award_dates = [year_ago + datetime.timedelta(days = 30), year_ago + datetime.timedelta(days = 7)]
-  #awards = (models.GivingProjectGrant.objects.select_related().prefetch_related('yearendreport')
-  #                                      .exclude(agreement_returned__isnull=True)[:5])
   awards = (models.GivingProjectGrant.objects.select_related()
                                              .prefetch_related('yearendreport')
-                                             .filter(agreement_returned__in=award_dates))
+                                             .filter(agreement_mailed__in=award_dates))
 
 
   for award in awards:
