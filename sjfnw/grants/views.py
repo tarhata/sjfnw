@@ -532,7 +532,7 @@ def year_end_report(request, organization, award_id):
       file_urls[field] = '<i>no file uploaded</i>'
 
   return render(request, 'grants/yer_form.html',
-      {'form': form, 'org': organization, 'draft': draft, 'award_id': award.pk,
+      {'form': form, 'org': organization, 'draft': draft, 'award': award,
        'file_urls': file_urls})
 
 
