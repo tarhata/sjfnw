@@ -747,3 +747,5 @@ class YERDraft(models.Model):
 
   photo_release = models.FileField(upload_to='/')
 
+  def __unicode(self):
+    return 'Year-end report for ' + self.award
