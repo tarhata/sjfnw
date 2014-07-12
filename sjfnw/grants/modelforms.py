@@ -232,7 +232,7 @@ class ContactPersonWidget(forms.widgets.MultiWidget):
     """ break single db value up for display
     returns list of values to be displayed in widgets """
     if value:
-      return [val for val in value.split(', ')]
+      return [val for val in value.split(', ', 1)]
     else:
       return [None, None]
 
