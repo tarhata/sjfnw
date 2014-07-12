@@ -724,6 +724,9 @@ class YearEndReport(models.Model):
       ('Check this to make the YER visible to members of the GP that made the grant. (When '
        'unchecked, YER is only visible to staff and the org that submitted it.)'))
 
+  def __unicode__(self):
+    return 'Year-end report for ' + unicode(self.award)
+
   def stay_informed_display(self):
     display = []
     inf = json.loads(self.stay_informed)
@@ -731,7 +734,6 @@ class YearEndReport(models.Model):
       v = inf[k]
       if v:
         display.append(k + ': ' + v)
-    logger.info(display)
     return ', '.join(display)
 
 class YERDraft(models.Model):
@@ -747,5 +749,5 @@ class YERDraft(models.Model):
 
   photo_release = models.FileField(upload_to='/')
 
-  def __unicode(self):
-    return 'Year-end report for ' + self.award
+  def __unicode__(self):
+    return 'DRAFT year-end report for ' + unicode(self.award)
