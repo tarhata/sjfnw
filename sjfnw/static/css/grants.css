@@ -149,7 +149,7 @@ div.form_error {
 /** specific field/input types **/
 
 textarea {
-  font-family:Arial;
+  font-family:Arial, sans-serif;
   width:99%;
   resize:vertical;
   font-size:inherit;

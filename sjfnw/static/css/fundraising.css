@@ -303,7 +303,7 @@ table.padded td{
 }
 
 .calendar-container {
-  font-family:Verdana;
+  font-family:Verdana, sans-serif;
 }
 
 /** error pages **/

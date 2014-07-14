@@ -4,7 +4,7 @@ html, body {
 }
 
 body {
-  font-family: Verdana, Sans;
+  font-family: Verdana, sans-serif;
   font-size:.75em;
 }
 
@@ -17,7 +17,7 @@ table {
 }
 
 button, input[type="submit"] {
-	font-family: Verdana;
+	font-family: Verdana, sans-serif;
 }
 
 h1 {
