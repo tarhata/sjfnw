@@ -244,34 +244,6 @@
     }
   }
 
-  //log errors
-  function logError(msg, url, line) {
-    var dict = {msg: msg, script: url, line: line, url: window.location};
-    if ('{{ request.membership }}') {
-      dict['membership'] = '{{ request.membership }}'
-    } else {
-      dict['membership'] = 'no membership'
-    }
-		console.log(dict);
-		try {
-			dict = $.param(dict, true);
-		} catch (e) {
-			console.log(e);
-		}
-		console.log(dict);
-    $.ajax({
-      url: "/dev/jslog/",
-      type: "POST",
-      data: dict,
-      success:function(data, textStatus, jqXHR){
-        console.log('success');
-      },
-      error:function(jqXHR, textStatus, errorThrown){
-        console.log(errorThrown);
-      }
-    });
-  }
-
   //on load
   $(document).ready(function() {
     var load = '{{ load }}';
@@ -281,9 +253,6 @@
     }
     if (text_progress) {
       textProgress();
-    }
-    window.onerror = function(msg, url, line) {
-      logError(msg, url, line);
     }
   });
 </script>
