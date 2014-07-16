@@ -1,0 +1,234 @@
+{% extends 'grants/base.html' %}
+
+{% block title %}Year-end report form | {{ block.super }}{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="/static/js/forms.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+  formUtils.init('report', {{ draft.pk }}, {{ award.pk }});
+});
+
+</script>
+{% endblock script %}
+
+{% block content %}
+
+<div class="formwrapper">
+  <div class="center">
+    <h1>Year-end Report</h1>
+    <h2>{{ award }}</h2>
+    <span class="last_saved" title="The form is automatically saved every 30 seconds">
+      Last saved: <span class="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span>
+    </span>
+  </div>
+  {% if form.errors %}
+  <div style="border:2px groove red;padding:0 10px;margin:10px 0;text-align:center;"><!-- TODO css-->
+    <p>Please resolve the errors below and try submitting again.</p>
+  </div>
+  {% endif %}
+
+  <form id="yer-form" action="" method="POST" accept-charset="UTF-8">
+
+    {{ form.award }}
+    <div style="margin-top:2em;">
+      {{ form.contact_person.label_tag }}{{ form.contact_person }}<br><br>
+      <table>
+        <tr>
+          <td>{{ form.email.errors }}</td>
+          <td>{{ form.phone.errors }}</td>
+          <td>{{ form.website.errors }}</td>
+        </tr>
+        <tr>
+          <td>{{ form.email.label_tag }}{{ form.email }}</td>
+          <td>{{ form.phone.label_tag }}{{ form.phone }}</td>
+         <td>{{ form.website.label_tag }}{{ form.website }}</td>
+       </tr>
+     </table>
+    </div>
+
+    <div class="narrative_q">
+      {{ form.summarize_last_year.label_tag }}
+      {{ form.summarize_last_year.errors }}
+      {{ form.summarize_last_year }}
+    </div>
+    <div class="narrative_q">
+      {{ form.goal_progress.label_tag }}
+      {{ form.goal_progress.errors}}
+      {{ form.goal_progress }}
+    </div>
+    <div class="narrative_q">
+      {{ form.quantitative_measures.label_tag }}
+      {{ form.quantitative_measures.errors}}
+      {{ form.quantitative_measures }}
+    </div>
+    <div class="narrative_q">
+      {{ form.evaluation.label_tag }}
+      {{ form.evaluation.errors}}
+      {{ form.evaluation }}
+    </div>
+    <div class="narrative_q">
+      {{ form.achieved.label_tag }}
+      {{ form.achieved.errors}}
+      {{ form.achieved }}
+    </div>
+    <div class="narrative_q">
+      {{ form.collaboration.label_tag }}
+      {{ form.collaboration.errors}}
+      {{ form.collaboration }}
+    </div>
+    <div class="narrative_q">
+      {{ form.new_funding.label_tag }}
+      {{ form.new_funding.errors}}
+      {{ form.new_funding }}
+    </div>
+    <div class="narrative_q">
+      {{ form.major_changes.label_tag }}
+      {{ form.major_changes.errors}}
+      {{ form.major_changes }}
+    </div>
+    <div class="narrative_q">
+      {{ form.total_size.label_tag }}
+      {{ form.total_size.errors}}<br>
+      {{ form.total_size }}
+    </div>
+    <div class="narrative_q">
+      {{ form.donations_count.label_tag }}
+      {{ form.donations_count.errors}}<br>
+      {{ form.donations_count }}
+    </div>
+    <div class="narrative_q">
+      {{ form.stay_informed.label_tag }}
+      {{ form.stay_informed.errors}}
+      {{ form.stay_informed }}
+      <table>
+        <tr>
+          <td>{{ form.listserve.label }}: {{ form.listserve }}</td>
+          <td>{{ form.sit_website.label }}: {{ form.sit_website }}</td>
+          <td>{{ form.newsletter.label }}: {{ form.newsletter }}</td>
+        </tr>
+        <tr>
+          <td>{{ form.facebook.label }}: {{ form.facebook }}</td>
+          <td>{{ form.twitter.label }}: {{ form.twitter }}</td>
+          <td>{{ form.other.label }}: {{ form.other }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="narrative_q">
+      {{ form.other_comments.label_tag }}
+      {{ form.other_comments.errors}}
+      {{ form.other_comments }}
+    </div>
+
+    <input id="hidden_submit_app" type="submit" value="Submit EVERYTHING" style="display:none;"/>
+
+  </form> <!-- end non-file form -->
+
+  <iframe class="upload" id="id_upload_frame" name="upload_frame" onload="fileUploads.iframeUpdated(this); console.log('iframe onload');"></iframe>
+
+  {% autoescape off %}
+
+  <table class="file-uploads">
+    <tr>
+      <td colspan="4">
+        <p>13. {{ form.photo1.help_text }}</p>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">{{ form.photo1.errors }}</td>
+      <td colspan="2">{{ form.photo3.errors }}</td>
+    </tr>
+    <tr>
+      <td>
+        <form class="files_form" id="photo1_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
+          1.
+          <span class="file_wrapper">
+            <span class="default-file-input">{{ form.photo1 }}</span>
+            <span class="upload_button">Choose file</span>
+          </span>
+          <input id="photo1_submit" type="submit" value="Submit files" style="display:none;">
+        </form>
+      </td>
+      <td>
+        <span id="photo1_uploaded">{{ file_urls.photo1 }}</span>
+      </td>
+      <td><form class="files_form" id="photo3_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
+          3. 
+          <span class="file_wrapper">
+            <span class="default-file-input">{{ form.photo3 }}</span>
+            <span class="upload_button">Choose file</span>
+          </span>
+          <input id="photo3_submit" type="submit" value="Submit files" style="display:none;">
+        </form>
+      </td>
+      <td>
+        <span id="photo3_uploaded">{{ file_urls.photo3 }}</span>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">{{ form.photo2.errors }}</td>
+      <td colspan="2">{{ form.photo4.errors }}</td>
+    </tr>
+    <tr>
+      <td><form class="files_form" id="photo2_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
+          2.
+          <span class="file_wrapper">
+            <span class="default-file-input">{{ form.photo2 }}</span>
+            <span class="upload_button">Choose file</span>
+          </span>
+          <input id="photo2_submit" type="submit" value="Submit files" style="display:none;">
+        </form>
+      </td>
+      <td>
+        <span id="photo2_uploaded">{{ file_urls.photo2 }}</span>
+      </td>
+      <td><form class="files_form" id="photo4_form" action="" target="upload_frame" method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
+          4.
+          <span class="file_wrapper">
+            <span class="default-file-input">{{ form.photo4 }}</span>
+            <span class="upload_button">Choose file</span>
+          </span>
+          <input id="photo4_submit" type="submit" value="Submit files" style="display:none;">
+        </form>
+      </td>
+      <td>
+        <span id="photo4_uploaded">{{ file_urls.photo4 }}</span>
+      </td>
+    </tr>
+    <tr>
+      <td  class="photo-release" colspan="4"><p>{{ form.photo_release.label_tag }}<br>
+        (Download blank photo release: <a href="/static/files/photo-release-english.docx">english</a>,
+        <a href="/static/files/photo-release-spanish.docx">español</a>)</p>
+        {{ form.photo_release.errors }}</td>
+    </tr>
+    <tr>
+      <td>
+          <form class="files_form" id="photo_release_form" action="" target="upload_frame"
+            method="POST" enctype="multipart/form-data" accept-charset="UTF-8">
+          <span class="file_wrapper">
+            <span class="default-file-input">{{ form.photo_release }}</span>
+            <span class="upload_button">Choose file</span>
+          </span>
+          <input id="photo_release_submit" type="submit" value="Submit files" style="display:none;">
+        </form>
+      </td>
+      <td colspan="3">
+        <span id="photo_release_uploaded">{{ file_urls.photo_release }}</span>
+      </td>
+    </tr>
+  </table>
+  {% endautoescape %}
+
+
+  <!--- submit button -->
+	<div align="center">
+		<img id="ajax_loading" src="/static/images/ajaxloader.gif" style="display:none;"><br>
+		<button class="submit" onclick="autoSave.save(true);">Submit</button>
+    <br><br>
+    <span class="last_saved" title="The form is automatically saved every 30 seconds">
+      Draft auto-saved: <span class="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span>
+    </span>
+	</div>
+</div>
+{% endblock content %}

@@ -45,12 +45,12 @@ class Command(BaseCommand):
 
     self.stdout.write('Check if awards have been updated..')
     awards = GrantAward.objects.all().select_related(
-      'application', 'project_app', 'project_app__appliation')
+      'application', 'projectapp', 'projectapp__appliation')
     wrong = 0
     for award in awards:
-      if not award.project_app:
+      if not award.projectapp:
         self.print_fail('Award without projectapp #' + str(award.pk))
-      elif award.application != award.project_app.application:
+      elif award.application != award.projectapp.application:
         wrong += 1
     if wrong == 0:
       self.print_success()

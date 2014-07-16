@@ -12,6 +12,7 @@ SUPPORT_FORM_URL = 'https://docs.google.com/spreadsheet/viewform?formkey=dHZ2cll
 TEST_MIDDLEWARE = ('django.middleware.common.CommonMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'sjfnw.fund.middleware.MembershipMiddleware',)
 
 ALLOWED_FILE_TYPES = ('jpeg', 'jpg', 'png', 'gif', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'txt')
+PHOTO_FILE_TYPES = ['jpeg', 'jpg', 'png', 'gif', 'bmp']
 VIEWER_FORMATS = ('doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'mpeg4', 'mov', 'avi', 'wmv')
 
 TIMELINE_FIELDS = ['timeline_0', 'timeline_1', 'timeline_2', 'timeline_3', 'timeline_4', 'timeline_5', 'timeline_6', 'timeline_7', 'timeline_8', 'timeline_9', 'timeline_10', 'timeline_11', 'timeline_12', 'timeline_13', 'timeline_14'] #len 15

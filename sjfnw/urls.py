@@ -1,15 +1,24 @@
-﻿from django.conf.urls import patterns, include
+﻿from django.conf import settings
+from django.conf.urls import patterns, include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic.base import TemplateView
 
 from sjfnw.admin import advanced_admin
-from sjfnw.grants.urls import apply_urls, grants_urls
+from sjfnw.grants.urls import apply_urls, report_urls, grants_urls, root_urls
 
 handler404 = 'sjfnw.views.page_not_found'
 handler500 = 'sjfnw.views.server_error'
 
 admin.autodiscover() # load admin.py from all apps
+
+"""
+if settings.DEBUG:
+  import debug_toolbar
+  urlpatterns += patterns('',
+    url(r'^__debug__/', include(debug_toolbar.urls)),
+  )
+"""
 
 urlpatterns = patterns('',
   (r'^/?$', TemplateView.as_view(template_name='home.html')),
@@ -22,9 +31,11 @@ urlpatterns = patterns('',
   # grants
   (r'^apply/?', include(apply_urls)),
   (r'^grants/?', include(grants_urls)),
+  (r'^report/', include(report_urls)),
+  (r'^', include(root_urls)),
   (r'^org/?$', 'sjfnw.grants.views.RedirToApply'),
   (r'^logout/?$', 'django.contrib.auth.views.logout', {'next_page': '/apply'}),
-  (r'^get-upload-url/(?P<draft_id>\d+)/?$','sjfnw.grants.views.RefreshUploadUrl'), #TODO put this under /apply
+  (r'^get-upload-url/?','sjfnw.grants.views.RefreshUploadUrl'), #TODO put this under /apply
 
   # admin
   (r'^admin/', include(admin.site.urls)),
@@ -46,6 +57,7 @@ urlpatterns = patterns('',
   (r'^mail/new-accounts', 'sjfnw.fund.views.new_accounts'),
   (r'^mail/gifts', 'sjfnw.fund.views.gift_notify'),
   (r'^mail/drafts/?', 'sjfnw.grants.views.DraftWarning'),
+  (r'^mail/yer/?', 'sjfnw.grants.views.yer_reminder_email'),
 
   # dev
   (r'^dev/jslog/?', 'sjfnw.views.log_javascript'),

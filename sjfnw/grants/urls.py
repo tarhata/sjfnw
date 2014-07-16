@@ -2,7 +2,6 @@ from django.conf.urls import patterns, include
 from django.views.generic.base import TemplateView
 from sjfnw import constants
 
-# apply urls will all be prefixed with 'apply/' in mail url file
 
 apply_urls = patterns('',
   (r'^nr', TemplateView.as_view(template_name ='grants/not_grantee.html')),
@@ -26,9 +25,24 @@ apply_urls += patterns('sjfnw.grants.views',
   (r'^info/(?P<cycle_id>\d+)/?$','cycle_info'),
 
   #application ajax
-  (r'^(?P<draft_id>\d+)/add-file/?$', 'AddFile'),
-  (r'^(?P<draft_id>\d+)/remove/(?P<file_field>.*)/?$', 'RemoveFile'),
-  (r'^(?P<cycle_id>\d+)/autosave/?$','autosave_app'),
+  (r'^(?P<cycle_id>\d+)/autosave/?$','autosave_app')
+)
+
+root_urls = patterns('sjfnw.grants.views',
+  (r'^(?P<draft_type>.*)/(?P<draft_id>\d+)/add-file/?$', 'add_file'),
+  (r'^(?P<draft_type>.*)/(?P<draft_id>\d+)/remove/(?P<file_field>.*)/?$', 'remove_file')
+)
+
+report_urls = patterns('sjfnw.grants.views',
+  # year-end report
+  (r'^(?P<award_id>\d+)/?$', 'year_end_report'),
+  (r'^(?P<award_id>\d+)/autosave/?$', 'autosave_yer'),
+  (r'^view/(?P<report_id>\d+)/?$', 'view_yer'),
+  (r'^rollover/?$', 'rollover_yer'),
+)
+
+report_urls += patterns('',
+  (r'^submitted/?', TemplateView.as_view(template_name='grants/yer_submitted.html')),
 )
 
 apply_urls += patterns('',
@@ -43,8 +57,7 @@ apply_urls += patterns('',
 
 grants_urls = patterns('sjfnw.grants.views',
   #reading
-  (r'^view/(?P<app_id>\d+)/?$', 'ReadApplication'),
-  (r'^view-file/(?P<app_id>\d+)-(?P<file_type>.*)\.', 'ViewFile'),
-  (r'^draft-file/(?P<draft_id>\d+)-(?P<file_type>.*)\.', 'ViewDraftFile'),
+  (r'^view/(?P<app_id>\d+)/?$', 'view_application'),
+  (r'^(?P<obj_type>.*)-file/(?P<obj_id>\d+)-(?P<field_name>.*)\.', 'view_file'),
 )
 

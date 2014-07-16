@@ -177,7 +177,7 @@ class ProjectAppInline(admin.TabularInline):
         award = obj.givingprojectgrant
       except GivingProjectGrant.DoesNotExist:
         output = mark_safe(
-            '<a href="/admin/grants/givingprojectgrant/add/?project_app=' +
+            '<a href="/admin/grants/givingprojectgrant/add/?projectapp=' +
             str(obj.pk) + '" target="_blank">Enter an award</a>')
       else:
         logger.info('grant does exist')
@@ -210,6 +210,7 @@ class MemberAdvanced(admin.ModelAdmin): #advanced only
 
 class MembershipA(admin.ModelAdmin):
 
+  #list_select_related = True
   actions = ['approve']
   list_display = ('member', 'giving_project', ship_progress, 'overdue_steps',
                   'last_activity', 'approved', 'leader')
@@ -219,10 +220,10 @@ class MembershipA(admin.ModelAdmin):
 
   fields = (('member', 'giving_project', 'approved'),
       ('leader', 'last_activity', 'emailed'),
-      ('estimated', 'asked', 'promised', 'received'),
+      (ship_progress),
       'notifications'
   )
-  readonly_fields = ('last_activity', 'emailed', 'estimated', 'asked', 'promised', 'received')
+  readonly_fields = ('last_activity', 'emailed', ship_progress)
   inlines = [DonorInline]
 
   def approve(self, request, queryset): #Membership action

@@ -1,0 +1,2902 @@
+[
+{
+  "pk": 1, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 1, 
+    "first_name": "SJF", 
+    "last_name": "Account", 
+    "email": "sjfnwads@gmail.com"
+  }
+},
+{
+  "pk": 2, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 266, 
+    "first_name": "Kylie", 
+    "last_name": "Gursky", 
+    "email": "kylie@socialjusticefund.org"
+  }
+},
+{
+  "pk": 3, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 224, 
+    "first_name": "Kyla", 
+    "last_name": "Lackie", 
+    "email": "kylackie@gmail.com "
+  }
+},
+{
+  "pk": 4, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 4, 
+    "first_name": "Joann", 
+    "last_name": "Ware", 
+    "email": "echin.lee@gmail.com"
+  }
+},
+{
+  "pk": 5, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 208, 
+    "first_name": "Susana ", 
+    "last_name": "Mercado", 
+    "email": "smercadoalv@gmail.com"
+  }
+},
+{
+  "pk": 6, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 54, 
+    "first_name": "Elsa", 
+    "last_name": "Batres-Boni", 
+    "email": "elsa@socialjusticefund.org"
+  }
+},
+{
+  "pk": 7, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 7, 
+    "first_name": "Russ", 
+    "last_name": "Finkelstein", 
+    "email": "Russ_F@yahoo.com"
+  }
+},
+{
+  "pk": 8, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 221, 
+    "first_name": "Estevan", 
+    "last_name": "Munoz-Howard", 
+    "email": "estevan@socialjusticefund.org"
+  }
+},
+{
+  "pk": 9, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 10, 
+    "first_name": "Zeke", 
+    "last_name": "Spier", 
+    "email": "zeke@socialjusticefund.org"
+  }
+},
+{
+  "pk": 10, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 280, 
+    "first_name": "Jessan", 
+    "last_name": "Hutchison-Quillian", 
+    "email": "jessan@gmail.com"
+  }
+},
+{
+  "pk": 11, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 286, 
+    "first_name": "Mijo", 
+    "last_name": "Lee", 
+    "email": "mijo@socialjusticefund.org"
+  }
+},
+{
+  "pk": 12, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 282, 
+    "first_name": "keegan", 
+    "last_name": "flaherty", 
+    "email": "keegan.flaherty@gmail.com"
+  }
+},
+{
+  "pk": 13, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 245, 
+    "first_name": "joaquin", 
+    "last_name": "uy", 
+    "email": "joaquiniuy@gmail.com"
+  }
+},
+{
+  "pk": 17, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 62, 
+    "first_name": "Lynne", 
+    "last_name": "Nguyen", 
+    "email": "lynne@socialjusticefund.org"
+  }
+},
+{
+  "pk": 18, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 21, 
+    "first_name": "Rich", 
+    "last_name": "Stolz", 
+    "email": "rstolzster@gmail.com"
+  }
+},
+{
+  "pk": 19, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 226, 
+    "first_name": "Ellie", 
+    "last_name": "Poley", 
+    "email": "stellanor@gmail.com"
+  }
+},
+{
+  "pk": 20, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 363, 
+    "first_name": "Ryan", 
+    "last_name": "Seago", 
+    "email": "fafeago@gmail.com"
+  }
+},
+{
+  "pk": 22, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 33, 
+    "first_name": "Seth", 
+    "last_name": "Otto", 
+    "email": "sethaotto@gmail.com"
+  }
+},
+{
+  "pk": 23, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 34, 
+    "first_name": "Ali", 
+    "last_name": "Blum", 
+    "email": "ali.leigh.b@gmail.com"
+  }
+},
+{
+  "pk": 24, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 35, 
+    "first_name": "Gia", 
+    "last_name": "Gillis Ledesma", 
+    "email": "giagillis@gmail.com"
+  }
+},
+{
+  "pk": 25, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 36, 
+    "first_name": "Elizabeth", 
+    "last_name": "Hawkins", 
+    "email": "hawkinme@gmail.com"
+  }
+},
+{
+  "pk": 26, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 37, 
+    "first_name": "Gabriel", 
+    "last_name": "Reyes-Gomez", 
+    "email": "gabedkit@gmail.com"
+  }
+},
+{
+  "pk": 27, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 38, 
+    "first_name": "Ubax", 
+    "last_name": "Gardheere", 
+    "email": "ubaxga@gmail.com"
+  }
+},
+{
+  "pk": 28, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 39, 
+    "first_name": "Kendra", 
+    "last_name": "Anderson", 
+    "email": "kroseingenuity@gmail.com"
+  }
+},
+{
+  "pk": 29, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 40, 
+    "first_name": "Lan", 
+    "last_name": "Nguyen", 
+    "email": "tuyetlan.nguyen@gmail.com"
+  }
+},
+{
+  "pk": 31, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 42, 
+    "first_name": "Esteban", 
+    "last_name": "Ginocchio", 
+    "email": "esteban.wacan@gmail.com"
+  }
+},
+{
+  "pk": 33, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 44, 
+    "first_name": "Seth", 
+    "last_name": "Otto", 
+    "email": "ssotto@me.com"
+  }
+},
+{
+  "pk": 34, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 45, 
+    "first_name": "Lilly", 
+    "last_name": "Hankins", 
+    "email": "lilly.hankins@gmail.com"
+  }
+},
+{
+  "pk": 35, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 46, 
+    "first_name": "Carole ", 
+    "last_name": "Folsom-Hill", 
+    "email": "carole@lacasahogar.org"
+  }
+},
+{
+  "pk": 36, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 47, 
+    "first_name": "shamso", 
+    "last_name": "issak", 
+    "email": "issak@comcast.net"
+  }
+},
+{
+  "pk": 37, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 48, 
+    "first_name": "emma", 
+    "last_name": "moreno", 
+    "email": "morenoemma2000@yahoo.com"
+  }
+},
+{
+  "pk": 38, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 49, 
+    "first_name": "Susan", 
+    "last_name": "Koppelman", 
+    "email": "susankop@gmail.com"
+  }
+},
+{
+  "pk": 39, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 50, 
+    "first_name": "Doree", 
+    "last_name": "Desberg", 
+    "email": "doree.desberg@gmail.com"
+  }
+},
+{
+  "pk": 40, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 51, 
+    "first_name": "Long", 
+    "last_name": "Email", 
+    "email": "reallylongemailaddress@longdomain.com"
+  }
+},
+{
+  "pk": 41, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 52, 
+    "first_name": "ayan", 
+    "last_name": "musse", 
+    "email": "aamusse@gmail.com"
+  }
+},
+{
+  "pk": 42, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 265, 
+    "first_name": "Karen", 
+    "last_name": "Toering", 
+    "email": "karen@socialjusticefund.org"
+  }
+},
+{
+  "pk": 43, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 264, 
+    "first_name": "Dianne", 
+    "last_name": "Riley", 
+    "email": "dianne@socialjusticefund.org"
+  }
+},
+{
+  "pk": 44, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 64, 
+    "first_name": "LeAnne", 
+    "last_name": "Moss", 
+    "email": "leannebmoss@gmail.com"
+  }
+},
+{
+  "pk": 45, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 65, 
+    "first_name": "elsa", 
+    "last_name": "batres", 
+    "email": "elsabatresbonita@hotmail.com"
+  }
+},
+{
+  "pk": 46, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 66, 
+    "first_name": "elsa", 
+    "last_name": "batres", 
+    "email": "ebatresboni@gmail.com"
+  }
+},
+{
+  "pk": 47, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 68, 
+    "first_name": "Lauren", 
+    "last_name": "Spokane", 
+    "email": "laurenspokane@gmail.com"
+  }
+},
+{
+  "pk": 48, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 69, 
+    "first_name": "burke", 
+    "last_name": "Stansbury", 
+    "email": "burke@estansbury.com"
+  }
+},
+{
+  "pk": 49, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 70, 
+    "first_name": "Juliana", 
+    "last_name": "de Groot", 
+    "email": "jmaydegroot@gmail.com"
+  }
+},
+{
+  "pk": 50, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 71, 
+    "first_name": "Rozanna", 
+    "last_name": "Fang", 
+    "email": "rozannaf@gmail.com"
+  }
+},
+{
+  "pk": 51, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 72, 
+    "first_name": "Amy ", 
+    "last_name": "Hirtzel", 
+    "email": "amyhirtzel@gmail.com"
+  }
+},
+{
+  "pk": 52, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 73, 
+    "first_name": "Raphaela", 
+    "last_name": "Weissman", 
+    "email": "raphsherry@gmail.com"
+  }
+},
+{
+  "pk": 53, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 74, 
+    "first_name": "Ariana", 
+    "last_name": "Ghasedi", 
+    "email": "ariana.ghasedi@gmail.com"
+  }
+},
+{
+  "pk": 54, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 75, 
+    "first_name": "Rachel", 
+    "last_name": "Christofferson", 
+    "email": "rachel_72@hotmail.com"
+  }
+},
+{
+  "pk": 55, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 76, 
+    "first_name": "Luis", 
+    "last_name": "Arellano ", 
+    "email": "arelll@uw.edu"
+  }
+},
+{
+  "pk": 56, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 77, 
+    "first_name": "yasmin", 
+    "last_name": "christopher", 
+    "email": "christopheryasmin@gmail.com"
+  }
+},
+{
+  "pk": 57, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 78, 
+    "first_name": "Aimee", 
+    "last_name": "Kanemori", 
+    "email": "aimeekanemori@gmail.com"
+  }
+},
+{
+  "pk": 58, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 79, 
+    "first_name": "cara", 
+    "last_name": "romanik", 
+    "email": "cararomanik@gmail.com"
+  }
+},
+{
+  "pk": 59, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 80, 
+    "first_name": "Lupita", 
+    "last_name": "Ayon", 
+    "email": "lupita.lct@gmail.com"
+  }
+},
+{
+  "pk": 60, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 81, 
+    "first_name": "Lilian", 
+    "last_name": "Hewko", 
+    "email": "lillian.hewko@gmail.com"
+  }
+},
+{
+  "pk": 61, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 82, 
+    "first_name": "Anthony", 
+    "last_name": "Ricardi", 
+    "email": "antric1928@yahoo.com"
+  }
+},
+{
+  "pk": 62, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 83, 
+    "first_name": "Virginia", 
+    "last_name": "Weihs", 
+    "email": "virginia.weihs@gmail.com"
+  }
+},
+{
+  "pk": 63, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 84, 
+    "first_name": "Matthew", 
+    "last_name": "Sackman", 
+    "email": "matts@collinsgroup.com"
+  }
+},
+{
+  "pk": 64, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 85, 
+    "first_name": "Aydin", 
+    "last_name": "Firuz", 
+    "email": "apfiruz@gmail.com"
+  }
+},
+{
+  "pk": 65, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 86, 
+    "first_name": "Saxon", 
+    "last_name": "Rawlings", 
+    "email": "saxonrawlings@yahoo.com"
+  }
+},
+{
+  "pk": 66, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 87, 
+    "first_name": "Sofia", 
+    "last_name": "Olson", 
+    "email": "sofia@riseup.net"
+  }
+},
+{
+  "pk": 67, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 88, 
+    "first_name": "Kari", 
+    "last_name": "Lombard", 
+    "email": "krlombard@gmail.com"
+  }
+},
+{
+  "pk": 68, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 89, 
+    "first_name": "Alexis", 
+    "last_name": "Lair", 
+    "email": "alexis.lair@gmail.com"
+  }
+},
+{
+  "pk": 69, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 90, 
+    "first_name": "Andew Cookie", 
+    "last_name": "Wheeler", 
+    "email": "ajkwheeler@gmail.com"
+  }
+},
+{
+  "pk": 70, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 91, 
+    "first_name": "Ragnar", 
+    "last_name": "Thorisson", 
+    "email": "ragnarthorisson@yahoo.com"
+  }
+},
+{
+  "pk": 71, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 382, 
+    "first_name": "Maxx", 
+    "last_name": "Tomlinson", 
+    "email": "maxx.platinum@gmail.com"
+  }
+},
+{
+  "pk": 72, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 93, 
+    "first_name": "Austin", 
+    "last_name": "Edge", 
+    "email": "adedge@uw.edu"
+  }
+},
+{
+  "pk": 73, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 94, 
+    "first_name": "Wendy", 
+    "last_name": "Guo", 
+    "email": "wendybird@gmail.com"
+  }
+},
+{
+  "pk": 74, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 95, 
+    "first_name": "Kim", 
+    "last_name": "Berardi", 
+    "email": "kim.berardi@gmail.com"
+  }
+},
+{
+  "pk": 75, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 96, 
+    "first_name": "Yolanda", 
+    "last_name": "Ho", 
+    "email": "yolandakho@gmail.com"
+  }
+},
+{
+  "pk": 76, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 97, 
+    "first_name": "Genevieve", 
+    "last_name": "Stokes", 
+    "email": "genevieve.g.stokes@gmail.com"
+  }
+},
+{
+  "pk": 77, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 98, 
+    "first_name": "Joyce", 
+    "last_name": "Tseng", 
+    "email": "tseng_joyce@hotmail.com"
+  }
+},
+{
+  "pk": 78, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 99, 
+    "first_name": "rosa", 
+    "last_name": "Goldberg", 
+    "email": "rosawgoldberg@gmail.com"
+  }
+},
+{
+  "pk": 79, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 100, 
+    "first_name": "David", 
+    "last_name": "Wieland", 
+    "email": "david.aaron.wieland@gmail.com"
+  }
+},
+{
+  "pk": 80, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 101, 
+    "first_name": "Stacie", 
+    "last_name": "Ford-Bonnelle", 
+    "email": "hayden3rd@gmail.com"
+  }
+},
+{
+  "pk": 81, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 102, 
+    "first_name": "Holly", 
+    "last_name": "Smith", 
+    "email": "hollyelizabethsmith@gmail.com"
+  }
+},
+{
+  "pk": 82, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 103, 
+    "first_name": "Jessica", 
+    "last_name": "Roundy", 
+    "email": "jessica.s.roundy@gmail.com"
+  }
+},
+{
+  "pk": 83, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 104, 
+    "first_name": "Katie", 
+    "last_name": "Kemezis", 
+    "email": "kkemezis@gmail.com"
+  }
+},
+{
+  "pk": 84, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 105, 
+    "first_name": "Kathlyn", 
+    "last_name": "Paananen", 
+    "email": "kathlynk@gmail.com"
+  }
+},
+{
+  "pk": 85, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 107, 
+    "first_name": "Avery", 
+    "last_name": "Kirsten", 
+    "email": "avery.kirsten@gmail.com"
+  }
+},
+{
+  "pk": 86, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 108, 
+    "first_name": "Betty", 
+    "last_name": "Wang", 
+    "email": "bets1983@yahoo.com"
+  }
+},
+{
+  "pk": 87, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 109, 
+    "first_name": "acca", 
+    "last_name": "warren", 
+    "email": "acca.fabulous@gmail.com"
+  }
+},
+{
+  "pk": 88, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 110, 
+    "first_name": "Fredy", 
+    "last_name": "Zarate Gutierrez", 
+    "email": "fredyzate@gmail.com"
+  }
+},
+{
+  "pk": 89, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 111, 
+    "first_name": "Ali ", 
+    "last_name": "Javed", 
+    "email": "ali9014@gmail.com"
+  }
+},
+{
+  "pk": 90, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 299, 
+    "first_name": "michael", 
+    "last_name": "stansbury", 
+    "email": "michael@estansbury.com"
+  }
+},
+{
+  "pk": 91, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 115, 
+    "first_name": "Yemane", 
+    "last_name": "Gebremicael", 
+    "email": "yemanegm2@gmail.com"
+  }
+},
+{
+  "pk": 92, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 328, 
+    "first_name": "Rebecca", 
+    "last_name": "Chan", 
+    "email": "beccayc@gmail.com"
+  }
+},
+{
+  "pk": 93, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 119, 
+    "first_name": "Sam", 
+    "last_name": "Parker", 
+    "email": "sam.kazuo.parker@gmail.com"
+  }
+},
+{
+  "pk": 94, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 120, 
+    "first_name": "Madalyn", 
+    "last_name": "Alexander", 
+    "email": "madalyn.alexander@gmail.com"
+  }
+},
+{
+  "pk": 95, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 121, 
+    "first_name": "Chris", 
+    "last_name": "Stearns", 
+    "email": "cstearns@hobbsstraus.com"
+  }
+},
+{
+  "pk": 96, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 122, 
+    "first_name": "Stephen", 
+    "last_name": "Adams", 
+    "email": "rakudrama@gmail.com"
+  }
+},
+{
+  "pk": 97, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 123, 
+    "first_name": "Carol", 
+    "last_name": "Estes", 
+    "email": "allegria88ce@gmail.com"
+  }
+},
+{
+  "pk": 98, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 129, 
+    "first_name": "Anastacia", 
+    "last_name": "tolbert", 
+    "email": "writenow2day@hotmail.com"
+  }
+},
+{
+  "pk": 99, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 124, 
+    "first_name": "Ansel", 
+    "last_name": "Herz", 
+    "email": "ansel.herz@gmail.com"
+  }
+},
+{
+  "pk": 100, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 126, 
+    "first_name": "Lola", 
+    "last_name": "Peters", 
+    "email": "uualpeters@aol.com"
+  }
+},
+{
+  "pk": 101, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 125, 
+    "first_name": "Jay", 
+    "last_name": "Doran", 
+    "email": "jay.doran8@gmail.com"
+  }
+},
+{
+  "pk": 102, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 127, 
+    "first_name": "Laurie", 
+    "last_name": "Carlsson", 
+    "email": "lkcdilla@gmail.com"
+  }
+},
+{
+  "pk": 103, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 128, 
+    "first_name": "Jude", 
+    "last_name": "Watson", 
+    "email": "jude.a.watson@gmail.com"
+  }
+},
+{
+  "pk": 104, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 130, 
+    "first_name": "Jessica", 
+    "last_name": "Tracey", 
+    "email": "jessicatracey@gmail.com"
+  }
+},
+{
+  "pk": 105, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 131, 
+    "first_name": "magan", 
+    "last_name": "do", 
+    "email": "magando@gmail.com"
+  }
+},
+{
+  "pk": 106, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 132, 
+    "first_name": "Aaron", 
+    "last_name": "Robertson", 
+    "email": "robertsonaaronb@gmail.com"
+  }
+},
+{
+  "pk": 107, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 133, 
+    "first_name": "Quincy", 
+    "last_name": "Kendrix", 
+    "email": "qhkendrix@yahoo.com"
+  }
+},
+{
+  "pk": 108, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 134, 
+    "first_name": "Amber Rose", 
+    "last_name": "Jimenez", 
+    "email": "amberwabus@gmail.com"
+  }
+},
+{
+  "pk": 109, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 135, 
+    "first_name": "Pamela", 
+    "last_name": "Masterman-Stearns", 
+    "email": "therose68@hotmail.com"
+  }
+},
+{
+  "pk": 110, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 136, 
+    "first_name": "lupe", 
+    "last_name": "wilson", 
+    "email": "lupe.wilson@gmail.com"
+  }
+},
+{
+  "pk": 111, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 137, 
+    "first_name": "Dawn", 
+    "last_name": "Bell", 
+    "email": "runlolatrinity@yahoo.com"
+  }
+},
+{
+  "pk": 112, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 138, 
+    "first_name": "Kizha", 
+    "last_name": "Davidson", 
+    "email": "kydavidson@gmail.com"
+  }
+},
+{
+  "pk": 113, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 139, 
+    "first_name": "David", 
+    "last_name": "Reyes", 
+    "email": "reyesmdavid@gmail.com"
+  }
+},
+{
+  "pk": 114, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 140, 
+    "first_name": "Benson", 
+    "last_name": "Dastrup", 
+    "email": "bdastrup@gmail.com"
+  }
+},
+{
+  "pk": 115, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 209, 
+    "first_name": "Yasmin", 
+    "last_name": "Shah", 
+    "email": "yshah1118@yahoo.com"
+  }
+},
+{
+  "pk": 116, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 142, 
+    "first_name": "Lauren", 
+    "last_name": "Davis", 
+    "email": "talk2lauren@gmail.com"
+  }
+},
+{
+  "pk": 117, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 143, 
+    "first_name": "Gabe", 
+    "last_name": "Nishimura", 
+    "email": "gabe.ginobili@gmail.com"
+  }
+},
+{
+  "pk": 118, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 144, 
+    "first_name": "Elayne", 
+    "last_name": "Wylie", 
+    "email": "ilovefilm@gmail.com"
+  }
+},
+{
+  "pk": 119, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 145, 
+    "first_name": "Nicole", 
+    "last_name": "Glasgow", 
+    "email": "nicoled.glasgow@gmail.com"
+  }
+},
+{
+  "pk": 120, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 146, 
+    "first_name": "Fleur", 
+    "last_name": "Larsen", 
+    "email": "fleurlarsen@gmail.com"
+  }
+},
+{
+  "pk": 121, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 147, 
+    "first_name": "Amanda", 
+    "last_name": "Stoddard", 
+    "email": "absurdamandagale@gmail.com"
+  }
+},
+{
+  "pk": 122, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 148, 
+    "first_name": "Gloria", 
+    "last_name": "Mayne", 
+    "email": "glo.mayne@gmail.com"
+  }
+},
+{
+  "pk": 123, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 149, 
+    "first_name": "Rachel", 
+    "last_name": "Voelkle", 
+    "email": "rachel.voelkle@gmail.com"
+  }
+},
+{
+  "pk": 124, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 150, 
+    "first_name": "Naomi", 
+    "last_name": "Goldenson", 
+    "email": "naomi@naomig.com"
+  }
+},
+{
+  "pk": 125, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 151, 
+    "first_name": "Ericka", 
+    "last_name": "Ward", 
+    "email": "ericka.ward@gmail.com"
+  }
+},
+{
+  "pk": 126, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 152, 
+    "first_name": "Mary", 
+    "last_name": "Cadera", 
+    "email": "m_e_cadera@hotmail.com"
+  }
+},
+{
+  "pk": 127, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 153, 
+    "first_name": "Maya", 
+    "last_name": "Berkowitz", 
+    "email": "maya.berkowitz@gmail.com"
+  }
+},
+{
+  "pk": 128, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 329, 
+    "first_name": "Lea", 
+    "last_name": "Aromin", 
+    "email": "lea.aromin@gmail.com"
+  }
+},
+{
+  "pk": 129, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 155, 
+    "first_name": "jaclyn", 
+    "last_name": "mena", 
+    "email": "jaclyn.mena@gmail.com"
+  }
+},
+{
+  "pk": 130, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 156, 
+    "first_name": "Addisalem", 
+    "last_name": "Gebremedhin", 
+    "email": "addis.gebremedhin89@gmail.com"
+  }
+},
+{
+  "pk": 131, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 157, 
+    "first_name": "Erika", 
+    "last_name": "Merz", 
+    "email": "eekmerz@gmail.com"
+  }
+},
+{
+  "pk": 132, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 158, 
+    "first_name": "Amanda", 
+    "last_name": "Stoddard", 
+    "email": "amanda@absurdreality.com"
+  }
+},
+{
+  "pk": 133, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 159, 
+    "first_name": "Selemun", 
+    "last_name": "Welderfael", 
+    "email": "selay206@gmail.com"
+  }
+},
+{
+  "pk": 134, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 160, 
+    "first_name": "Katie", 
+    "last_name": "McAteer", 
+    "email": "ka.mcateer@gmail.com"
+  }
+},
+{
+  "pk": 135, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 161, 
+    "first_name": "Gabe", 
+    "last_name": "Nishimura", 
+    "email": "gabe.nishimura@gmail.com"
+  }
+},
+{
+  "pk": 136, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 162, 
+    "first_name": "Vanna", 
+    "last_name": "Waldron", 
+    "email": "vanna.waldron@gmail.com"
+  }
+},
+{
+  "pk": 137, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 163, 
+    "first_name": "Jessica", 
+    "last_name": "Hatlo", 
+    "email": "hatlo@qtet.org"
+  }
+},
+{
+  "pk": 138, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 164, 
+    "first_name": "Hannah", 
+    "last_name": "Back", 
+    "email": "hannah.e.back@gmail.com"
+  }
+},
+{
+  "pk": 139, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 165, 
+    "first_name": "Julia", 
+    "last_name": "Ismael", 
+    "email": "julia.a.ismael@gmail.com"
+  }
+},
+{
+  "pk": 140, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 166, 
+    "first_name": "Krista", 
+    "last_name": "Hanson", 
+    "email": "kristaleehanson@gmail.com"
+  }
+},
+{
+  "pk": 141, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 167, 
+    "first_name": "Sonya", 
+    "last_name": "Oh", 
+    "email": "yoonjaw@gmail.com"
+  }
+},
+{
+  "pk": 142, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 168, 
+    "first_name": "bean", 
+    "last_name": "yogi", 
+    "email": "bridgepoem@gmail.com"
+  }
+},
+{
+  "pk": 143, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 0, 
+    "first_name": "Danielle", 
+    "last_name": "Askini", 
+    "email": "danielle@genderjusticeleague.org"
+  }
+},
+{
+  "pk": 144, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 172, 
+    "first_name": "Seth", 
+    "last_name": "Kirby", 
+    "email": "skirby@piercecountyaids.org"
+  }
+},
+{
+  "pk": 145, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 175, 
+    "first_name": "Walter", 
+    "last_name": "Robinson", 
+    "email": "wrobinson@metgroup.com"
+  }
+},
+{
+  "pk": 146, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 176, 
+    "first_name": "Jack", 
+    "last_name": "MacNichol", 
+    "email": "jackmacnichol@gmail.com"
+  }
+},
+{
+  "pk": 147, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 177, 
+    "first_name": "Sabrina", 
+    "last_name": "Gogol", 
+    "email": "sabrina.sunflower@gmail.com"
+  }
+},
+{
+  "pk": 148, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 178, 
+    "first_name": "Laura", 
+    "last_name": "Erceg", 
+    "email": "laura.erceg@gmail.com"
+  }
+},
+{
+  "pk": 149, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 179, 
+    "first_name": "Mireaya", 
+    "last_name": "Medina", 
+    "email": "mmedina@afsc.org"
+  }
+},
+{
+  "pk": 150, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 389, 
+    "first_name": "Mickey", 
+    "last_name": "Lee", 
+    "email": "mickey.lee@carbonconcierge.com"
+  }
+},
+{
+  "pk": 151, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 180, 
+    "first_name": "Erika", 
+    "last_name": "Mosqueda Franco", 
+    "email": "erikamosqueda89@gmail.com"
+  }
+},
+{
+  "pk": 152, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 181, 
+    "first_name": "Stephanie", 
+    "last_name": "Green", 
+    "email": "greenannsteph@gmail.com"
+  }
+},
+{
+  "pk": 153, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 182, 
+    "first_name": "Margarita", 
+    "last_name": "Gutierrez", 
+    "email": "margaritalgutierrez@gmail.com"
+  }
+},
+{
+  "pk": 154, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 183, 
+    "first_name": "Andrea", 
+    "last_name": "Valderrama", 
+    "email": "drea.valderrama@gmail.com"
+  }
+},
+{
+  "pk": 155, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 184, 
+    "first_name": "Cesia", 
+    "last_name": "Kearns", 
+    "email": "cesia.kearns@sierraclub.org"
+  }
+},
+{
+  "pk": 156, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 185, 
+    "first_name": "Mychal", 
+    "last_name": "Tetteh", 
+    "email": "mychal.tetteh@gmail.com"
+  }
+},
+{
+  "pk": 157, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 187, 
+    "first_name": "Cameron", 
+    "last_name": "Whitten", 
+    "email": "certifiedoregonic@riseup.net"
+  }
+},
+{
+  "pk": 159, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 189, 
+    "first_name": "Shoshanna", 
+    "last_name": "Holman", 
+    "email": "shoshanna.leah@gmail.com"
+  }
+},
+{
+  "pk": 160, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 190, 
+    "first_name": "Rachael", 
+    "last_name": "Mayer", 
+    "email": "rnwmayer@gmail.com"
+  }
+},
+{
+  "pk": 161, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 191, 
+    "first_name": "Daniel", 
+    "last_name": "Otto", 
+    "email": "u2canword@hotmail.com"
+  }
+},
+{
+  "pk": 162, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 192, 
+    "first_name": "Kelli", 
+    "last_name": "Horvath", 
+    "email": "kelli.horvath@gmail.com"
+  }
+},
+{
+  "pk": 163, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 361, 
+    "first_name": "Emiko", 
+    "last_name": "Badillo", 
+    "email": "emiko.badillo@gmail.com"
+  }
+},
+{
+  "pk": 164, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 323, 
+    "first_name": "Robin", 
+    "last_name": "Davis", 
+    "email": "derailmented@gmail.com"
+  }
+},
+{
+  "pk": 165, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 326, 
+    "first_name": "Jessica", 
+    "last_name": "Giannettino", 
+    "email": "jessica.giann@gmail.com"
+  }
+},
+{
+  "pk": 166, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 197, 
+    "first_name": "Baher", 
+    "last_name": "Butti", 
+    "email": "baherbutti@yahoo.com"
+  }
+},
+{
+  "pk": 167, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 198, 
+    "first_name": "Dorry", 
+    "last_name": "Garcia", 
+    "email": "dregarcia62@gmail.com"
+  }
+},
+{
+  "pk": 168, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 218, 
+    "first_name": "Cesia", 
+    "last_name": "Kearns", 
+    "email": "cesia.kearns@gmail.com"
+  }
+},
+{
+  "pk": 169, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 219, 
+    "first_name": "nancy", 
+    "last_name": "romalov", 
+    "email": "nancyomalov@gmail.com"
+  }
+},
+{
+  "pk": 170, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 249, 
+    "first_name": "Martha", 
+    "last_name": "Reyes", 
+    "email": "martha@socialjusticefund.org"
+  }
+},
+{
+  "pk": 171, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 223, 
+    "first_name": "Brittany", 
+    "last_name": "Alsot", 
+    "email": "anairofverb@gmail.com"
+  }
+},
+{
+  "pk": 172, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 225, 
+    "first_name": "Marilynn", 
+    "last_name": "Moch", 
+    "email": "mochcihri@gmail.com"
+  }
+},
+{
+  "pk": 173, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 227, 
+    "first_name": "Cori", 
+    "last_name": "Jaeger", 
+    "email": "wadingavocet@gmail.com"
+  }
+},
+{
+  "pk": 174, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 229, 
+    "first_name": "eca -etabo", 
+    "last_name": "wasongolo", 
+    "email": "ewasongolo@janusyouth.org"
+  }
+},
+{
+  "pk": 175, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 317, 
+    "first_name": "Ashley", 
+    "last_name": "Palar", 
+    "email": "ashleypalar@gmail.com"
+  }
+},
+{
+  "pk": 176, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 235, 
+    "first_name": "Allison", 
+    "last_name": "Durazzi", 
+    "email": "adurazzi@gmail.com"
+  }
+},
+{
+  "pk": 177, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 236, 
+    "first_name": "Julianna", 
+    "last_name": "Tesfu", 
+    "email": "juliannatesfu@yahoo.com"
+  }
+},
+{
+  "pk": 178, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 237, 
+    "first_name": "Melissa", 
+    "last_name": "Stuart", 
+    "email": "melissamstuart@gmail.com"
+  }
+},
+{
+  "pk": 179, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 238, 
+    "first_name": "Natalie", 
+    "last_name": "Lamberjack", 
+    "email": "natalie.lamberjack@gmail.com"
+  }
+},
+{
+  "pk": 180, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 239, 
+    "first_name": "Laura", 
+    "last_name": "Gomez", 
+    "email": "lauragomez226@gmail.com"
+  }
+},
+{
+  "pk": 181, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 240, 
+    "first_name": "Paulina", 
+    "last_name": "Bustos Arellano", 
+    "email": "paulina500@hotmail.com"
+  }
+},
+{
+  "pk": 182, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 241, 
+    "first_name": "Christina", 
+    "last_name": "Shimizu", 
+    "email": "shimizucsr@gmail.com"
+  }
+},
+{
+  "pk": 183, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 242, 
+    "first_name": "Mana", 
+    "last_name": "Borenstine", 
+    "email": "mana.borenstine@gmail.com"
+  }
+},
+{
+  "pk": 184, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 243, 
+    "first_name": "Kayla", 
+    "last_name": "Huddleston", 
+    "email": "khuddleup@gmail.com"
+  }
+},
+{
+  "pk": 185, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 244, 
+    "first_name": "Nick", 
+    "last_name": "Federici", 
+    "email": "nickfederici@gmail.com"
+  }
+},
+{
+  "pk": 186, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 246, 
+    "first_name": "Rachel", 
+    "last_name": "Dreeben", 
+    "email": "redreeben@gmail.com"
+  }
+},
+{
+  "pk": 187, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 247, 
+    "first_name": "Cecelia", 
+    "last_name": "Black", 
+    "email": "cecerblack@gmail.com"
+  }
+},
+{
+  "pk": 188, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 248, 
+    "first_name": "Stina", 
+    "last_name": "Janssen", 
+    "email": "stinajanssen@gmail.com"
+  }
+},
+{
+  "pk": 189, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 251, 
+    "first_name": "isaura", 
+    "last_name": "jimenez", 
+    "email": "j.isaura@gmail.com"
+  }
+},
+{
+  "pk": 190, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 338, 
+    "first_name": "Krystal", 
+    "last_name": "Two Bulls", 
+    "email": "krystal.twobulls@gmail.com"
+  }
+},
+{
+  "pk": 191, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 253, 
+    "first_name": "Morgan", 
+    "last_name": "Bennett", 
+    "email": "mb132714@gmail.com"
+  }
+},
+{
+  "pk": 192, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 254, 
+    "first_name": "Aimee", 
+    "last_name": "Fausser", 
+    "email": "afausser@gmail.com"
+  }
+},
+{
+  "pk": 193, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 255, 
+    "first_name": "Caroline", 
+    "last_name": "Tillier", 
+    "email": "ctillier@gmail.com"
+  }
+},
+{
+  "pk": 194, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 256, 
+    "first_name": "Savannah", 
+    "last_name": "Sinquah", 
+    "email": "savannah.sinquah@gmail.com"
+  }
+},
+{
+  "pk": 195, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 257, 
+    "first_name": "Jake", 
+    "last_name": "Flaherty", 
+    "email": "jakeflaherty1950@gmail.com"
+  }
+},
+{
+  "pk": 196, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 258, 
+    "first_name": "Katherine", 
+    "last_name": "Crevi", 
+    "email": "kacrevi@gmail.com"
+  }
+},
+{
+  "pk": 197, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 259, 
+    "first_name": "Christine", 
+    "last_name": "Armstrong", 
+    "email": "carmstronga227@gmail.com"
+  }
+},
+{
+  "pk": 198, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 260, 
+    "first_name": "Melody", 
+    "last_name": "Wilkes", 
+    "email": "greatstridesmt@gmail.com"
+  }
+},
+{
+  "pk": 199, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 261, 
+    "first_name": "Jeremy", 
+    "last_name": "Red Eagle", 
+    "email": "jeremyredeagle@yahoo.com"
+  }
+},
+{
+  "pk": 200, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 262, 
+    "first_name": "Lily", 
+    "last_name": "Gladstone", 
+    "email": "lilygladstone@me.com"
+  }
+},
+{
+  "pk": 201, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 0, 
+    "first_name": "Tucker", 
+    "last_name": "Bush", 
+    "email": "bush.tucker.a@gmail.com"
+  }
+},
+{
+  "pk": 202, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 0, 
+    "first_name": "Tina", 
+    "last_name": "Waggener", 
+    "email": "tina.waggener@gmail.com"
+  }
+},
+{
+  "pk": 203, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 270, 
+    "first_name": "Julio", 
+    "last_name": "Sanchez", 
+    "email": "julio@socialjusticefund.org"
+  }
+},
+{
+  "pk": 204, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 271, 
+    "first_name": "Wes", 
+    "last_name": "Graham", 
+    "email": "wesgraham@americanfinanceandlending.com"
+  }
+},
+{
+  "pk": 205, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 295, 
+    "first_name": "Sunny", 
+    "last_name": "Kim", 
+    "email": "sunnykins@gmail.com"
+  }
+},
+{
+  "pk": 206, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 319, 
+    "first_name": "Sashya", 
+    "last_name": "Clark", 
+    "email": "sashya@gmail.com"
+  }
+},
+{
+  "pk": 207, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 285, 
+    "first_name": "Molly", 
+    "last_name": "Chidsey", 
+    "email": "mollychidsey@gmail.com"
+  }
+},
+{
+  "pk": 208, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 289, 
+    "first_name": "Jess", 
+    "last_name": "Kindred", 
+    "email": "jess_kindred@yahoo.com"
+  }
+},
+{
+  "pk": 209, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 290, 
+    "first_name": "Adriane", 
+    "last_name": "Donald", 
+    "email": "adonald@mso.umt.edu"
+  }
+},
+{
+  "pk": 210, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 291, 
+    "first_name": "Robert", 
+    "last_name": "Howe", 
+    "email": "robert.howe@umontana.edu"
+  }
+},
+{
+  "pk": 211, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 292, 
+    "first_name": "Suzanne", 
+    "last_name": "Tarpey", 
+    "email": "suzy_tarpy@yahoo.com"
+  }
+},
+{
+  "pk": 212, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 293, 
+    "first_name": "Luke", 
+    "last_name": "Laughlin", 
+    "email": "lukejlaughlin@gmail.com"
+  }
+},
+{
+  "pk": 213, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 294, 
+    "first_name": "Jakob", 
+    "last_name": "Shank", 
+    "email": "jakobshank@gmail.com"
+  }
+},
+{
+  "pk": 214, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 297, 
+    "first_name": "Matty", 
+    "last_name": "Whyte", 
+    "email": "matty@riseup.net"
+  }
+},
+{
+  "pk": 215, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 298, 
+    "first_name": "Maia", 
+    "last_name": "Williams", 
+    "email": "maiandwilliams@gmail.com"
+  }
+},
+{
+  "pk": 216, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 300, 
+    "first_name": "Sarah", 
+    "last_name": "Tapp", 
+    "email": "tapp.sarah@gmail.com"
+  }
+},
+{
+  "pk": 217, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 301, 
+    "first_name": "Karter", 
+    "last_name": "Booher", 
+    "email": "karter@washingtonbus.org"
+  }
+},
+{
+  "pk": 218, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 302, 
+    "first_name": "Abigail", 
+    "last_name": "Doerr", 
+    "email": "abigail.doerr@gmail.com"
+  }
+},
+{
+  "pk": 219, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 303, 
+    "first_name": "Coco", 
+    "last_name": "Chandi ", 
+    "email": "cocochandi@gmail.com"
+  }
+},
+{
+  "pk": 220, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 304, 
+    "first_name": "Rafael ", 
+    "last_name": "Gallardo", 
+    "email": "rafael.gallardo2011@gmail.com"
+  }
+},
+{
+  "pk": 221, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 305, 
+    "first_name": "George", 
+    "last_name": "Wright", 
+    "email": "gewseattle@gmail.com"
+  }
+},
+{
+  "pk": 222, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 306, 
+    "first_name": "Nyema", 
+    "last_name": "Clark", 
+    "email": "nyema8clark@gmail.com"
+  }
+},
+{
+  "pk": 223, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 307, 
+    "first_name": "Mollie", 
+    "last_name": "Caka", 
+    "email": "mscaka@gmail.com"
+  }
+},
+{
+  "pk": 224, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 308, 
+    "first_name": "Melani", 
+    "last_name": "Baker", 
+    "email": "melani.baker@gmail.com"
+  }
+},
+{
+  "pk": 225, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 309, 
+    "first_name": "miguel", 
+    "last_name": "rodriguez", 
+    "email": "rodrigum@evergreen.edu"
+  }
+},
+{
+  "pk": 226, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 310, 
+    "first_name": "Marcenia", 
+    "last_name": "Milligan", 
+    "email": "marcenia323@gmail.com"
+  }
+},
+{
+  "pk": 227, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 311, 
+    "first_name": "Dana ", 
+    "last_name": "Barnett", 
+    "email": "danabarnett78@gmail.com"
+  }
+},
+{
+  "pk": 228, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 312, 
+    "first_name": "Steve", 
+    "last_name": "Cape", 
+    "email": "scape@mtsafetyandjustice.org"
+  }
+},
+{
+  "pk": 229, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 314, 
+    "first_name": "Chrysta", 
+    "last_name": "Storm", 
+    "email": "chrysta.storm@gmail.com"
+  }
+},
+{
+  "pk": 230, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 315, 
+    "first_name": "Annie", 
+    "last_name": "Riepe", 
+    "email": "annie.riepe@gmail.com"
+  }
+},
+{
+  "pk": 231, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 316, 
+    "first_name": "Nimco", 
+    "last_name": "Bulale", 
+    "email": "nimcobulale@gmail.com"
+  }
+},
+{
+  "pk": 232, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 318, 
+    "first_name": "Justine", 
+    "last_name": "Miley", 
+    "email": "justinemiley22@hotmail.com"
+  }
+},
+{
+  "pk": 233, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 325, 
+    "first_name": "Dina", 
+    "last_name": "Flores-Brewer", 
+    "email": "dmtaafb@msn.com"
+  }
+},
+{
+  "pk": 234, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 330, 
+    "first_name": "Yvonne", 
+    "last_name": "Sorovacu", 
+    "email": "ratsoup@hotmail.com"
+  }
+},
+{
+  "pk": 235, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 331, 
+    "first_name": "James", 
+    "last_name": "Ellis", 
+    "email": "jellis88@icloud.com"
+  }
+},
+{
+  "pk": 236, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 332, 
+    "first_name": "Layna", 
+    "last_name": "George", 
+    "email": "laynag@gmail.com"
+  }
+},
+{
+  "pk": 237, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 333, 
+    "first_name": "John", 
+    "last_name": "Sheehan", 
+    "email": "johne.sheehan@gmail.com"
+  }
+},
+{
+  "pk": 238, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 335, 
+    "first_name": "Susie", 
+    "last_name": "Rodriguez", 
+    "email": "susienluis@yahoo.com"
+  }
+},
+{
+  "pk": 239, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 334, 
+    "first_name": "keilah", 
+    "last_name": "pomeroy", 
+    "email": "yoremop.haliek@gmail.com"
+  }
+},
+{
+  "pk": 240, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 336, 
+    "first_name": "Jennifer", 
+    "last_name": "Hill-Hart", 
+    "email": "jenniferhillhart@gmail.com"
+  }
+},
+{
+  "pk": 241, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 339, 
+    "first_name": "Sarah", 
+    "last_name": "Taylor", 
+    "email": "sarahkate486@gmail.com"
+  }
+},
+{
+  "pk": 242, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 340, 
+    "first_name": "Rosa", 
+    "last_name": "Navarro", 
+    "email": "rosa@rop.org"
+  }
+},
+{
+  "pk": 243, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 341, 
+    "first_name": "Samantha", 
+    "last_name": "Hamlin", 
+    "email": "samhamlin885@gmail.com"
+  }
+},
+{
+  "pk": 244, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 342, 
+    "first_name": "Jessica", 
+    "last_name": "Campbell", 
+    "email": "oublei@gmail.com"
+  }
+},
+{
+  "pk": 245, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 343, 
+    "first_name": "Yvonne", 
+    "last_name": "Garcia", 
+    "email": "yvonnegarcia@comcast.net"
+  }
+},
+{
+  "pk": 246, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 344, 
+    "first_name": "Allison", 
+    "last_name": "Brinkhorst", 
+    "email": "allison.brinkhorst@gmail.com"
+  }
+},
+{
+  "pk": 247, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 345, 
+    "first_name": "Jon", 
+    "last_name": "Coon", 
+    "email": "jon@joncoon.com"
+  }
+},
+{
+  "pk": 248, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 346, 
+    "first_name": "Grant", 
+    "last_name": "Kruger", 
+    "email": "grantkruger@gmail.com"
+  }
+},
+{
+  "pk": 249, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 347, 
+    "first_name": "JoAnne", 
+    "last_name": "Flaherty", 
+    "email": "joanne@carnacia.com"
+  }
+},
+{
+  "pk": 250, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 394, 
+    "first_name": "Debra", 
+    "last_name": "Clayton", 
+    "email": "debra@together2.org"
+  }
+},
+{
+  "pk": 251, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 349, 
+    "first_name": "JoAnne", 
+    "last_name": "Flaherty", 
+    "email": "joannelflaherty@gmail.com"
+  }
+},
+{
+  "pk": 252, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 350, 
+    "first_name": "Emelda", 
+    "last_name": "Ortiz", 
+    "email": "veganemelda@gmail.com"
+  }
+},
+{
+  "pk": 253, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 351, 
+    "first_name": "Alex-jon", 
+    "last_name": "Earl", 
+    "email": "alexjon@gmail.com"
+  }
+},
+{
+  "pk": 254, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 352, 
+    "first_name": "Val Rie", 
+    "last_name": "Smith", 
+    "email": "valrie1@gmail.com"
+  }
+},
+{
+  "pk": 255, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 353, 
+    "first_name": "Roberta", 
+    "last_name": "Ortiz", 
+    "email": "n8tivedoulamama@gmail.com"
+  }
+},
+{
+  "pk": 256, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 354, 
+    "first_name": "Dionna", 
+    "last_name": "Anderson", 
+    "email": "dionna.anderson@edcc.edu"
+  }
+},
+{
+  "pk": 257, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 355, 
+    "first_name": "alissa", 
+    "last_name": "wehrman", 
+    "email": "alissa@sunbirth.org"
+  }
+},
+{
+  "pk": 258, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 356, 
+    "first_name": "Diana", 
+    "last_name": "Pearce", 
+    "email": "pearcesss@gmail.com"
+  }
+},
+{
+  "pk": 259, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 357, 
+    "first_name": "Charu", 
+    "last_name": "Wahi", 
+    "email": "charu.wahi@gmail.com"
+  }
+},
+{
+  "pk": 260, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 358, 
+    "first_name": "Kaden", 
+    "last_name": "Walksnice", 
+    "email": "kadenwn@gmail.com"
+  }
+},
+{
+  "pk": 261, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 360, 
+    "first_name": "Joyful", 
+    "last_name": "Freeman", 
+    "email": "joyfulfreeman@gmail.com"
+  }
+},
+{
+  "pk": 262, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 362, 
+    "first_name": "Michelle", 
+    "last_name": "Daugherty", 
+    "email": "michelleelaine77@gmail.com"
+  }
+},
+{
+  "pk": 263, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 364, 
+    "first_name": "Sabra", 
+    "last_name": "Pratt", 
+    "email": "sabra.pratt@gmail.com"
+  }
+},
+{
+  "pk": 264, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 365, 
+    "first_name": "Mollie", 
+    "last_name": "Wolf", 
+    "email": "molliewolf@gmail.com"
+  }
+},
+{
+  "pk": 265, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 366, 
+    "first_name": "Lauren", 
+    "last_name": "Collins", 
+    "email": "lkncollins@gmail.com"
+  }
+},
+{
+  "pk": 266, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 367, 
+    "first_name": "Maggie", 
+    "last_name": "Capwell", 
+    "email": "mecapwell@gmail.com"
+  }
+},
+{
+  "pk": 267, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 368, 
+    "first_name": "Jaye", 
+    "last_name": "Sablan", 
+    "email": "jaye.sablan@gmail.com"
+  }
+},
+{
+  "pk": 268, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 369, 
+    "first_name": "Lils", 
+    "last_name": "Fujikawa", 
+    "email": "dustin.fujikawa@gmail.com"
+  }
+},
+{
+  "pk": 269, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 370, 
+    "first_name": "Nancy", 
+    "last_name": "Namkung", 
+    "email": "nancy.namkung@gmail.com"
+  }
+},
+{
+  "pk": 270, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 371, 
+    "first_name": "Rachel", 
+    "last_name": "Doelling", 
+    "email": "rachel.doelling@gmail.com"
+  }
+},
+{
+  "pk": 271, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 372, 
+    "first_name": "Eva", 
+    "last_name": "Fury", 
+    "email": "lawtonfury@gmail.com"
+  }
+},
+{
+  "pk": 272, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 374, 
+    "first_name": "Precious", 
+    "last_name": "Butiu", 
+    "email": "precious.butiu@gmail.com"
+  }
+},
+{
+  "pk": 273, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 375, 
+    "first_name": "Mariela", 
+    "last_name": "Ventura", 
+    "email": "mara.mventura@gmail.com"
+  }
+},
+{
+  "pk": 274, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 401, 
+    "first_name": "Mohamed", 
+    "last_name": "Mohamud", 
+    "email": "afrsom2@gmail.com"
+  }
+},
+{
+  "pk": 275, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 377, 
+    "first_name": "SHANTAE", 
+    "last_name": "Johnson", 
+    "email": "cornbread2121@yahoo.com"
+  }
+},
+{
+  "pk": 276, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 378, 
+    "first_name": "Eden", 
+    "last_name": "Lord", 
+    "email": "ourrainyparade@gmail.com"
+  }
+},
+{
+  "pk": 277, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 379, 
+    "first_name": "Andrew", 
+    "last_name": "Johnston", 
+    "email": "ajstheman@gmail.com"
+  }
+},
+{
+  "pk": 278, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 380, 
+    "first_name": "Christine", 
+    "last_name": "Angtuaco", 
+    "email": "christine.angtuaco@gmail.com"
+  }
+},
+{
+  "pk": 279, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 381, 
+    "first_name": "Robin", 
+    "last_name": "Wright", 
+    "email": "robinleslie.wright@gmail.com"
+  }
+},
+{
+  "pk": 280, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 383, 
+    "first_name": "Alex", 
+    "last_name": "Landeen", 
+    "email": "alexlandeen@gmail.com"
+  }
+},
+{
+  "pk": 281, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 384, 
+    "first_name": "Saskia", 
+    "last_name": "de Jonge", 
+    "email": "dejonge.saskiam@gmail.com"
+  }
+},
+{
+  "pk": 282, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 385, 
+    "first_name": "Edward", 
+    "last_name": "Wolcher", 
+    "email": "edwardwolcher@gmail.com"
+  }
+},
+{
+  "pk": 283, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 386, 
+    "first_name": "Kristin", 
+    "last_name": "Heller", 
+    "email": "kwheller5@gmail.com"
+  }
+},
+{
+  "pk": 284, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 387, 
+    "first_name": "Andrew", 
+    "last_name": "Jones", 
+    "email": "drew.jones@bgi.edu"
+  }
+},
+{
+  "pk": 285, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 388, 
+    "first_name": "Katie", 
+    "last_name": "Tiehen", 
+    "email": "katelarue@gmail.com"
+  }
+},
+{
+  "pk": 286, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 390, 
+    "first_name": "Amelia", 
+    "last_name": "Righi", 
+    "email": "ameliarighi@gmail.com"
+  }
+},
+{
+  "pk": 287, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 391, 
+    "first_name": "Christina", 
+    "last_name": "Billingsley", 
+    "email": "christinabillingsley@gmail.com"
+  }
+},
+{
+  "pk": 288, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 392, 
+    "first_name": "mihae", 
+    "last_name": "jung", 
+    "email": "jung.mihae@gmail.com"
+  }
+},
+{
+  "pk": 289, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 393, 
+    "first_name": "Valentina", 
+    "last_name": "Gonz\u00e1lez", 
+    "email": "valgonzalezcastro@gmail.com"
+  }
+},
+{
+  "pk": 290, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 395, 
+    "first_name": "Abel", 
+    "last_name": "Valladares", 
+    "email": "abelvalladares@gmail.com"
+  }
+},
+{
+  "pk": 291, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 396, 
+    "first_name": "test", 
+    "last_name": "test", 
+    "email": "saychazz@yahoo.com"
+  }
+},
+{
+  "pk": 292, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 397, 
+    "first_name": "Cynthia", 
+    "last_name": "Chiu", 
+    "email": "cychiu4@gmail.com"
+  }
+},
+{
+  "pk": 293, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 398, 
+    "first_name": "Scott", 
+    "last_name": "Raub", 
+    "email": "scottraub@hotmail.com"
+  }
+},
+{
+  "pk": 294, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 402, 
+    "first_name": "Erica", 
+    "last_name": "Lee-Johnson", 
+    "email": "leejohnson.erica@gmail.com"
+  }
+},
+{
+  "pk": 295, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 403, 
+    "first_name": "Amanda", 
+    "last_name": "De La Mater", 
+    "email": "amanda.delamater@gmail.com"
+  }
+},
+{
+  "pk": 296, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 404, 
+    "first_name": "James", 
+    "last_name": "Williams", 
+    "email": "jamesatdu@hotmail.com"
+  }
+},
+{
+  "pk": 297, 
+  "model": "fund.member", 
+  "fields": {
+    "current": 405, 
+    "first_name": "Cheryl", 
+    "last_name": "Jenrow", 
+    "email": "cljenrow@avvanta.com"
+  }
+}
+]

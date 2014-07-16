@@ -31,11 +31,13 @@ function showAttachment(){
 
 {% block sidebar %}
 <div class="reading_sidebar"><!-- sidebar -->
+
 	<div class="title">
 		<div class="heading_sm_margin">{{app.organization}}</div>
 		<div class="heading_sm_margin">{{app.grant_cycle}}</div>
 		{{app.submission_time|date:"F j, Y"}}
 	</div>
+
 	<div class="contents">
 		<a onclick="showMain()">Application form</a><a href="?form=1" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a><br><br>
 		Uploaded files:
@@ -72,7 +74,7 @@ function showAttachment(){
         <a href="{{print_urls.project_budget_file}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a>
       </li>
       {% endif %}
-      {% endif %}
+      {% endif %}{# fiscal_letter and perm > 1 #}
       <li>
         <a href="{{file_urls.funding_sources}}" target="reading_frame">Funding sources</a>
         <a href="{{print_urls.funding_sources}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a>
@@ -82,11 +84,24 @@ function showAttachment(){
         <a href="{{print_urls.demographics}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a>
       </li>
 		</ol>
+  </div> 
     {% if app.site_visit_report %}{% if perm == 1 or perm == 2 %}
     <a href="{{app.site_visit_report}}" target="reading_frame">Site visit report</a>
     <a href="{{app.site_visit_report}}" target="_blank"><img class="print" title="Open in new tab for printing" src="/static/images/print.png"></a>
     {% endif %}{% endif %}
-	</div>
+    
+    {% if awards %}
+    <p><b>Awards:</b></p>
+      {% for gp, award in awards.iteritems %}
+      <br>
+      {{ gp }} - ${{ award.amount }}
+      {% if award.yearendreport %}{% if award.yearendreport.visible or perm > 1 %}
+      (<a href="{% url 'grants.views.view_yer' report_id=award.yearendreport.pk %}?embedded=true"
+          target="reading_frame">year end report</a>)
+        {% endif %}{% endif %}
+      <br>
+    {% endfor %}
+    {% endif %}
 </div>
 {% endblock %}
 

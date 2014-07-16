@@ -1,0 +1,58 @@
+<p>
+  Grant Program: {{ gp.title }}<br>
+  Amount: ${{ award.amount }}<br>
+  Proposal ID Number: {{ app.pk }}
+</p>
+
+<p>
+  {{ app.organization }},
+</p>
+
+<p>
+  Congratulations on a year of community organizing and movement building for social change.
+  We at Social Justice Fund NW are proud to support you and are continually inspired by the 
+  important work you do.
+</p>
+<p>
+  This is a reminder that <b>{{ award.yearend_due }} is the deadline to send in your Year-End Report</b>
+  for the {{ gp.title }} grant your organization received in {{ award.check_mailed|date:"Y" }}.
+</p>
+
+<div align="center">
+<p><b><a href="{% url 'sjfnw.grants.views.year_end_report' award_id=award.pk %}">
+    Click here to fill out your Year-End Report</a></b></p>
+</div>
+
+{% load static %}
+<p>Along with text responses, the Year-End Report includes:<ul>
+  <li>
+    Two photographs of your organization’s members, constituents, and/or activities 
+    (guidelines were sent to you with your grant agreement and can be downloaded on the page above
+   or <a href="{% static 'files/photo-tips.docx' %}"> directly</a>).
+  </li>
+  <li>
+    Signed photo release forms (blank forms were sent to you with your grant agreement and 
+    can be downloaded from the page above or directly:
+    <a href="{% static 'files/photo-release-english.docx' %}">english</a>,
+    <a href="{% static 'files/phote-release-spanish.docx' %}">spanish</a>).
+  </li>
+</ul>
+</p>
+
+<p>
+  Please submit your Year-End Report including photographs and release form no later than
+  {{ award.yearend_due }}. These materials help Social Justice Fund share your stories and successes,
+  evaluate our grantmaking strategy, and also contribute to our annual report.
+</p>
+
+<p>
+As always, please contact us if you have any questions. We look forward to learning more about the
+work your organization has been doing.
+</p>
+
+Thank you,
+{% if app.grant_cycle.email_signature %}
+{{ app.grant_cycle.email_signature }}
+{% else %}
+Social Justice Fund
+{% endif %}

@@ -32,6 +32,9 @@ class Command(BaseCommand):
     self.stdout.write('Loading applications..')
     call_command('loaddata', 'sjfnw/grants/fixtures/apps.json')
 
+    self.stdout.write('Loading projectapps..')
+    call_command('loaddata', 'sjfnw/grants/fixtures/project_apps.json')
+
     self.stdout.write('Loading awards..')
     call_command('loaddata', 'sjfnw/grants/fixtures/gp_grants.json')
 
@@ -49,6 +52,4 @@ class Command(BaseCommand):
 
     self.stdout.write('Loading steps..')
     call_command('loaddata', 'sjfnw/fund/fixtures/live_step_dump.json')
-
-    call_command('set_next_steps')
 

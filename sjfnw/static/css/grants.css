@@ -149,7 +149,7 @@ div.form_error {
 /** specific field/input types **/
 
 textarea {
-  font-family:Arial;
+  font-family:Arial, sans-serif;
   width:99%;
   resize:vertical;
   font-size:inherit;
@@ -203,8 +203,7 @@ div.ui-dialog {
 /** narratives **/
 
 div.narrative_q {
-  padding-top:2em;
-  padding-bottom:2em;
+  margin-top:2em;
 }
 
 table.narrative_references {
@@ -247,25 +246,33 @@ span.char_counter_over {
 
 /** file uploads **/
 
-span.file_wrapper { /* outermost element */
-  cursor: pointer;
+span.file_wrapper { // outermost element 
   overflow: hidden;
   position: relative;
   width: 100px;
-}
+  cursor: inherit;
+} 
 
-.file_wrapper input { /* large but invisible */
-  cursor: pointer;
-  height: 100%;
+.default-file-input { /* large but invisible */
+  filter: alpha(opacity=1);
+  -moz-opacity: 0.01;
+  opacity: 0.01;
   position: absolute;
   top: 0;
   right: 0;
   left:0;
-  filter: alpha(opacity=1);
-  -moz-opacity: 0.01;
-  opacity: 0.01;
+}
+
+.default-file-input input {
+  height: 20px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left:0;
+  cursor: pointer;
   font-size:2em;
   width:84px;
+
 }
 
 
@@ -315,8 +322,7 @@ div.vertical_cushion { /* mission & grant req labels */
 
 /** submit button **/
 
-#grant_submit {
-  margin-top:40px;
+.submit {
   font-size:135%;
   font-weight:bold;
 }
@@ -375,9 +381,11 @@ div.heading_sm_margin{
 }
 
 div.contents{
-  margin:20px 0 0 10px;
-  font-size:1.2em;
-  line-height:1.3em;
+  padding: 20px 0 0 10px;
+  font-size: 1.2em;
+  line-height: 1.3em;
+  border-bottom: 1px solid black;
+  margin-bottom: 2em;
 }
 
 img.print {
@@ -420,5 +428,43 @@ ol.contents{
   width:75px;
   margin: 15px auto;
   display:block;
+}
+
+/** yer form **/
+
+div.narrative_q label {
+  display: block;
+  margin-bottom:.5em;
+}
+
+.info-box {
+  border-bottom: 1px solid #333;
+}
+
+.display {
+  padding-bottom: 2em;
+}
+
+.display label {
+  font-weight: bold;
+}
+
+.yer-photo {
+  max-width: 500px;
+  margin: 1em auto;
+  display: block;
+}
+
+.file-uploads {
+  width: 100%;
+  margin: 1em 0;
+}
+
+.file-uploads td {
+  width: 25%;
+}
+
+.file-uploads label {
+  padding: 1em 0;
 }
 

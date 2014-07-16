@@ -1,0 +1,18 @@
+{% extends 'grants/base.html' %}
+{% block title %}Rollover Year-End Report{% endblock %}
+
+{% block content %}
+
+{% if error_msg %}
+  <p>{{ error_msg|safe }}</p>
+{% else %}
+  <p>This form lets you copy a year-end report for use on another grant.
+    You will be able to edit it to your liking before submitting.</p>
+  <form method="POST" id="yer-rollover">
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+  </form>
+{% endif %}
+
+{% endblock content %}
+

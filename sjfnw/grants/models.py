@@ -230,7 +230,7 @@ class DraftGrantApplication(models.Model):
     deadline = self.grant_cycle.close
     logger.debug('deadline is ' + str(self.grant_cycle.close))
     now = timezone.now()
-    if self.grant_cycle.open < now and (deadline > now or 
+    if self.grant_cycle.open < now and (deadline > now or
         (self.extended_deadline and self.extended_deadline > now)):
       return True
     else:
@@ -609,7 +609,7 @@ class GrantApplicationLog(models.Model):
 class GivingProjectGrant(models.Model):
   created = models.DateTimeField(default=timezone.now)
 
-  project_app = models.OneToOneField(ProjectApp)
+  projectapp = models.OneToOneField(ProjectApp)
 
   amount = models.DecimalField(max_digits=8, decimal_places=2)
   check_number = models.PositiveIntegerField(null=True, blank=True)
@@ -622,6 +622,9 @@ class GivingProjectGrant(models.Model):
   class Meta:
     ordering = ['-created']
 
+  def __unicode__(self):
+    return '$%d grant from %s' % (self.amount, self.projectapp.giving_project)
+
   def agreement_due(self):
     if self.agreement_mailed:
       return self.agreement_mailed + timedelta(days=30)
@@ -629,8 +632,8 @@ class GivingProjectGrant(models.Model):
       return None
 
   def yearend_due(self):
-    if self.agreement_returned:
-      return self.agreement_returned.replace(year = self.agreement_returned.year + 1)
+    if self.agreement_mailed:
+      return self.agreement_mailed.replace(year = self.agreement_mailed.year + 1)
     else:
       return None
 
@@ -650,3 +653,110 @@ class SponsoredProgramGrant(models.Model):
   class Meta:
     ordering = ['organization']
 
+
+def validate_photo_file_extension(value):
+  if not value.name.lower().split(".")[-1] in constants.PHOTO_FILE_TYPES:
+    raise ValidationError(u'That file type is not supported. Please upload an image with one of these extensions: %s' % ', '.join(constants.PHOTO_FILE_TYPES))
+
+
+class YearEndReport(models.Model):
+
+  # automatic
+  award = models.OneToOneField(GivingProjectGrant)
+  submitted = models.DateTimeField(default=timezone.now())
+
+  # user-entered
+  contact_person = models.TextField() # Name, title
+  email = models.EmailField(max_length=255)
+  phone = models.CharField(max_length=20)
+  website = models.CharField(max_length=255) #autofill based on app
+
+  summarize_last_year = models.TextField(
+      verbose_name=
+        ('1. Thinking about the Giving Project volunteers who decided to fund '
+        'you last year, including those you met on your site visit, what would '
+        'you like to tell them about what you’ve done over the last year?'))
+  goal_progress = models.TextField(verbose_name=
+        ('2. Please refer back to your application from last year. Looking at '
+         'the goals you outlined in your application, what progress have you '
+         'made on each? If you were unable to achieve those goals or changed '
+         'your direction, please explain why.'))
+  quantitative_measures = models.TextField(verbose_name=
+      ('3. Do you evaluate your work by any quantitative measures (e.g., number '
+        'of voters registered, members trained, leaders developed, etc.)? If '
+        'so, provide that information:'), blank=True) 
+  evaluation = models.TextField(verbose_name=
+      ('4. What other type of evaluations do you use internally? Please share '
+       'any outcomes that are relevant to the work funded by this grant.'))
+  achieved = models.TextField(verbose_name=
+      ('5. What specific victories, benchmarks, and/or policy changes (local, '
+       'state, regional, or national) have you achieved over the past year?'))
+  collaboration = models.TextField(verbose_name=
+      ('6. What other organizations did you work with to achieve those '
+       'accomplishments?'))
+  new_funding = models.TextField(verbose_name=
+      ('7. Did your grant from Social Justice Fund help you access any new '
+       'sources of funding? If so, please explain.'), blank=True)
+  major_changes = models.TextField(verbose_name=
+      ('8. Describe any major staff or board changes or other major '
+        'organizational changes in the past year.'), blank=True)
+  total_size = models.PositiveIntegerField(verbose_name=
+      ('9. What is the total size of your base? That is, how many people, '
+        'including paid staff, identify as part of your organization?'))
+  donations_count = models.PositiveIntegerField(verbose_name=
+      ('10. How many individuals gave a financial contribution of any size to '
+        'your organization in the last year? How many individuals made a '
+        'financial contribution the previous year?'))
+
+  stay_informed = models.TextField(verbose_name=
+      ('11. What is the best way for us to stay informed about your work? '
+       '(Enter any/all that apply)'), default='{}')
+
+  other_comments = models.TextField(verbose_name=
+      ('12. Other comments or information? Do you have any suggestions for how '
+        'SJF can improve its grantmaking programs?'), blank=True) #json dict - see modelforms
+
+
+  photo1 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', 
+      help_text = ('Please provide two or more photos that show your organization\'s members, '
+        'activities, etc. These pictures help us tell the story of our grantees and of Social '
+        'Justice Fund to the broader public.'))
+  photo2 = models.FileField(validators = [validate_photo_file_extension], upload_to='/')
+  photo3 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', help_text='(optional)', blank=True)
+  photo4 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', help_text='(optional)', blank=True)
+
+  photo_release = models.FileField(upload_to='/',
+    verbose_name = 'Please provide photo releases signed by any people who appear in these photos.')
+
+  # admin-entered
+  visible = models.BooleanField(default=False, help_text=
+      ('Check this to make the YER visible to members of the GP that made the grant. (When '
+       'unchecked, YER is only visible to staff and the org that submitted it.)'))
+
+  def __unicode__(self):
+    return 'Year-end report for ' + unicode(self.award)
+
+  def stay_informed_display(self):
+    display = []
+    inf = json.loads(self.stay_informed)
+    for k in inf:
+      v = inf[k]
+      if v:
+        display.append(k + ': ' + v)
+    return ', '.join(display)
+
+class YERDraft(models.Model):
+
+  award = models.OneToOneField(GivingProjectGrant)
+  modified = models.DateTimeField(default=timezone.now())
+  contents = models.TextField(default='{}')
+
+  photo1 = models.FileField(upload_to='/', blank=True)
+  photo2 = models.FileField(upload_to='/', blank=True)
+  photo3 = models.FileField(upload_to='/', blank=True)
+  photo4 = models.FileField(upload_to='/', blank=True)
+
+  photo_release = models.FileField(upload_to='/')
+
+  def __unicode__(self):
+    return 'DRAFT year-end report for ' + unicode(self.award)

@@ -29,10 +29,10 @@ class RegisterForm(forms.Form):
     org = cleaned_data.get('organization')
     email = cleaned_data.get('email')
     if org and email:
-      if Organization.objects.filter(email = email):
+      if Organization.objects.filter(email=email):
         logger.warning(org + 'tried to re-register with ' + email)
         raise ValidationError('That email is already registered. Log in instead.')
-      name_match = Organization.objects.filter(name = org)
+      name_match = Organization.objects.filter(name__iexact=org)
       if name_match:
         if name_match[0].email:
           logger.warning('Name match on registration, emails diff: ' + org)
@@ -129,8 +129,25 @@ class AdminRolloverForm(forms.Form):
     cycles = GrantCycle.objects.filter(close__gt = cutoff).exclude(id__in=exclude_cycles)
 
     #create field
-    self.fields['cycle'] = forms.ChoiceField(choices = [('', '--- Grant cycles ---')] + [(c.id, unicode(c)) for c in cycles])
+    self.fields['cycle'] = forms.ChoiceField(choices =
+        [('', '--- Grant cycles ---')] + [(c.id, unicode(c)) for c in cycles])
 
+
+class RolloverYERForm(forms.Form):
+  """ Used to copy a year-end report for use with another gp grant
+  Fields (created on init):
+    report - submitted YearEndReport
+    award - GPGrant to copy it to
+  """
+
+  def __init__(self, reports, awards, *args, **kwargs):
+    super(RolloverYERForm, self).__init__(*args, **kwargs)
+    self.fields['report'] = forms.ChoiceField(choices=
+        [('', '--- Year-end reports ---')] + [(r.id, unicode(r)) for r in reports])
+    self.fields['award'] = forms.ChoiceField(label='Grant', choices=
+        [('', '--- Grants ---')] + [(a.id, unicode(a)) for a in awards])
+
+  
 class BaseOrgAppReport(forms.Form):
   """ Abstract form for fields shared between report types """
 

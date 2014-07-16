@@ -6,30 +6,7 @@ ALLOWED_HOSTS  = ['.appspot.com']
 
 SECRET_KEY = '*r-$b*8hglm+959&7x043hlm6-&6-3d3vfc4((7yd0dbrakhvi'
 
-if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
-  DATABASES = {
-    'default': {
-      'ENGINE': 'google.appengine.ext.django.backends.rdbms',
-      'INSTANCE': 'sjf-northwest:sjf',
-      'NAME': 'sjfdb',
-    }
-  }
-  DEBUG = False
-else:
-  DATABASES = {
-    'default': {
-      'ENGINE': 'django.db.backends.mysql',
-      'USER': 'root',
-      'PASSWORD': 'SJFdb',
-      'HOST': 'localhost',
-      'NAME': 'sjfdb_local',
-    }
-  }
-  DEBUG = True
-
-APP_BASE_URL = 'https://sjf-nw.appspot.com/' # used by cron jobs
-
-INSTALLED_APPS = (
+INSTALLED_APPS = [
   'django.contrib.auth',
   'django.contrib.admin',
   'django.contrib.contenttypes',
@@ -41,7 +18,39 @@ INSTALLED_APPS = (
   'sjfnw.fund',
   'sjfnw.support',
   'pytz',
-)
+]
+
+if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or os.getenv('SETTINGS_MODE') == 'prod'):
+  DATABASES = {
+    'default': {
+      'ENGINE': 'google.appengine.ext.django.backends.rdbms',
+      'INSTANCE': 'sjf-northwest:sjf',
+      'NAME': 'sjfdb',
+    }
+  }
+  DEBUG = False
+elif 'test' in sys.argv:
+  DATABASES = {
+    'default': {
+      'ENGINE': 'django.db.backends.sqlite3'
+    }
+  }
+else:
+  DATABASES = {
+    'default': {
+      'ENGINE': 'django.db.backends.mysql',
+      'USER': 'root',
+      'PASSWORD': 'SJFdb',
+      'HOST': 'localhost',
+      'NAME': 'sjfdb_local',
+    }
+  }
+  DEBUG = True
+  #INSTALLED_APPS.append('django.contrib.staticfiles')
+  #INSTALLED_APPS.append('debug_toolbar')
+
+APP_BASE_URL = 'https://sjf-nw.appspot.com/' # used by cron jobs
+
 
 MIDDLEWARE_CLASSES = (
   #'google.appengine.ext.appstats.recording.AppStatsDjangoMiddleware', #must be first
