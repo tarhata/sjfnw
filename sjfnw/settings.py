@@ -49,9 +49,6 @@ else:
   #INSTALLED_APPS.append('django.contrib.staticfiles')
   #INSTALLED_APPS.append('debug_toolbar')
 
-APP_BASE_URL = 'https://sjf-nw.appspot.com/' # used by cron jobs
-
-
 MIDDLEWARE_CLASSES = (
   #'google.appengine.ext.appstats.recording.AppStatsDjangoMiddleware', #must be first
   'django.middleware.common.CommonMiddleware',

@@ -1004,9 +1004,9 @@ def email_overdue(request):
         logger.info(user.email + ' has overdue step(s), emailing.')
         to = user.email
         html_content = render_to_string('fund/email_overdue.html',
-                                        {'login_url':settings.APP_BASE_URL+'fund/login',
+                                        {'login_url':constants.APP_BASE_URL+'fund/login',
                                         'ship':ship, 'num':num, 'step':st,
-                                        'base_url':settings.APP_BASE_URL})
+                                        'base_url':constants.APP_BASE_URL})
         text_content = strip_tags(html_content)
         msg = EmailMultiAlternatives(subject, text_content, from_email, [to],
                                      [constants.SUPPORT_EMAIL])
@@ -1029,7 +1029,7 @@ def new_accounts(request):
       for leader in leaders:
         to = leader.member.email
         html_content = render_to_string('fund/email_new_accounts.html',
-                                        {'admin_url':settings.APP_BASE_URL+'admin/fund/membership/',
+                                        {'admin_url':constants.APP_BASE_URL+'admin/fund/membership/',
                                         'count':memberships,
                                         'support_email':constants.SUPPORT_EMAIL})
         text_content = strip_tags(html_content)
@@ -1072,7 +1072,7 @@ def gift_notify(request):
     ship.save(skip=True)
     logger.info('Gift notification set for ' + str(ship))
 
-  login_url = settings.APP_BASE_URL + 'fund/'
+  login_url = constants.APP_BASE_URL + 'fund/'
   subject, from_email = 'Gift or pledge received', constants.FUND_EMAIL
   for ship in memberships:
     to = ship.member.email

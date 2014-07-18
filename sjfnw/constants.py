@@ -1,4 +1,6 @@
-﻿""" App-specific settings/constants """
+﻿APP_BASE_URL = 'https://sjf-nw.appspot.com/' # used by cron jobs
+
+""" App-specific settings/constants """
 
 FUND_EMAIL = 'Project Central <projectcentral@socialjusticefund.org>'
 GRANT_EMAIL = 'Social Justice Fund Grants <grants@socialjusticefund.org>'
