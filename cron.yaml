@@ -1,24 +1,24 @@
 cron:
-  - description: year-end report due date reminders
+- description: year-end report due date reminders
   url: /mail/yer
-  schedule: every day 9:03
+  schedule: every day 09:03
 
 - description: acct approval reminder for admins
   url: /mail/new-accounts
-  schedule: every day 9:05
+  schedule: every day 09:05
 
 - description: overdue steps reminder to members
   url: /mail/overdue-step
-  schedule: every day 9:07
+  schedule: every day 09:07
 
 - description: emails & sets notifications for new gifts
   url: /mail/gifts
-  schedule: every day 9:09
+  schedule: every day 09:09
 
 - description: warns orgs with saved drafts when their grant cycle is about to close
   url: /mail/drafts
-  schedule: every day 9:11
+  schedule: every day 09:11
 
 - description: daily exception report
   url: /_ereporter?sender=sjfnwads@gmail.com&to=aisapatino@gmail.com
-  schedule: every day 9:13
+  schedule: every day 09:13

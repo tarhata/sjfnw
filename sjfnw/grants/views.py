@@ -1337,6 +1337,8 @@ def yer_reminder_email(request):
 def yer_first_email(request):
   """ One-time reminder email to go out for intitial launch """
 
+  logger.info('yer first email')
+
   # get awards due between 9 and 30 days
   year_ago = timezone.now().date().replace(year = timezone.now().year - 1)
   date_min = year_ago + datetime.timedelta(days = 9)
