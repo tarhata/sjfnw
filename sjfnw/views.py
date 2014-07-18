@@ -55,7 +55,6 @@ def admin_adv_redirect(request):
 
 def log_javascript(request):
   if request.method == 'POST':
-    logger.info('log_js')
     log = ''
     for k in request.POST:
       log = log + '\n' + k + ': ' + str(request.POST[k])
