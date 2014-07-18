@@ -1349,10 +1349,6 @@ def yer_first_email(request):
 
   return send_yer_email(awards, 'grants/yer_correction_email.html')
 
-def testing(request):
-  return HttpResponse('testing!')
-  
-
 def send_yer_email(awards, template):
 
   for award in awards:
