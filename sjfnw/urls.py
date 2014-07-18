@@ -58,6 +58,7 @@ urlpatterns = patterns('',
   (r'^mail/gifts', 'sjfnw.fund.views.gift_notify'),
   (r'^mail/drafts/?', 'sjfnw.grants.views.DraftWarning'),
   (r'^mail/yer/?', 'sjfnw.grants.views.yer_reminder_email'),
+  (r'^mail/one-time-yer', 'sjfnw.grants.views.yer_first_email'),
 
   # dev
   (r'^dev/jslog/?', 'sjfnw.views.log_javascript'),

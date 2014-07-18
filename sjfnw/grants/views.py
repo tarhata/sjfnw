@@ -1330,7 +1330,7 @@ def yer_reminder_email(request):
                                              .prefetch_related('yearendreport')
                                              .filter(agreement_mailed__in=award_dates))
 
-  return send_yer_email(awards)
+  return send_yer_email(awards, 'grants/email_yer_due.html')
 
 
 
@@ -1345,11 +1345,11 @@ def yer_first_email(request):
                                              .prefetch_related('yearendreport')
                                              .filter(agreement_mailed__range=(date_min, date_max)))
 
-  return send_yer_email(awards)
+  return send_yer_email(awards, 'grants/yer_correction_email.html')
 
   
 
-def send_yer_email(awards):
+def send_yer_email(awards, template):
 
   for award in awards:
     if not hasattr(award, 'yearendreport'):
@@ -1358,8 +1358,8 @@ def send_yer_email(awards):
       subject = 'Year end report'
       from_email =  constants.GRANT_EMAIL
       to = app.organization.email
-      html_content = render_to_string('grants/email_yer_due.html',
-        {'award': award, 'app': app, 'gp': award.projectapp.giving_project})
+      html_content = render_to_string(template, 
+          {'award': award, 'app': app, 'gp': award.projectapp.giving_project, 'base_url': constants.APP_BASE_URL})
       text_content = strip_tags(html_content)
 
       msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [constants.SUPPORT_EMAIL])
@@ -1368,7 +1368,6 @@ def send_yer_email(awards):
       logger.info('YER reminder email sent to ' + to + ' for award ' + str(award.pk))
 
   return HttpResponse("success")
-
 
 # UTILS
 # (caused import probs in utils.py)

@@ -1,0 +1,14 @@
+<p>
+  {{ app.organization }},
+</p>
+
+<p>Apologies for the broken link in the previous email. The following links should work:</p>
+<p><a href="{{ base_url }}{% url 'sjfnw.grants.views.year_end_report' award_id=award.pk %}">
+  Start on your year-end report</a></p>
+<p><a href="{{ base_url }}apply">Visit the online grants portal</a>,
+  which also links to the year-end report form.</p>
+
+<p>If you have any difficulties access the form please contact <a href="mailto:techsupport@socialjusticefund.org">
+  techsupport@socialjusticefund.org</a></p>
+
+<p>Social Justice Fund</p>

@@ -19,7 +19,7 @@
 </p>
 
 <div align="center">
-<p><b><a href="{% url 'sjfnw.grants.views.year_end_report' award_id=award.pk %}">
+  <p><b><a href="{{ base_url }}{% url 'sjfnw.grants.views.year_end_report' award_id=award.pk %}">
     Click here to fill out your Year-End Report</a></b></p>
 </div>
 
