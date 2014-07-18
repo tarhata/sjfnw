@@ -497,7 +497,7 @@ def year_end_report(request, organization, award_id):
       text_content = strip_tags(html_content)
       msg = EmailMultiAlternatives('Year-end report submitted', #subject
                                     text_content,
-                                    constants.GRANT_EMAIL, #from 
+                                    constants.GRANT_EMAIL, #from
                                     [organization.email], #to
                                     [constants.SUPPORT_EMAIL]) #bcc
       msg.attach_alternative(html_content, "text/html")
@@ -1330,6 +1330,26 @@ def yer_reminder_email(request):
                                              .prefetch_related('yearendreport')
                                              .filter(agreement_mailed__in=award_dates))
 
+  send_yer_email(awards)
+
+
+
+def yer_first_email(request):
+  """ One-time reminder email to go out for intitial launch """
+
+  # get awards due between 9 and 30 days
+  year_ago = timezone.now().date().replace(year = timezone.now().year - 1)
+  date_min = year_ago + datetime.timedelta(days = 9)
+  date_max = year_ago + datetime.timedelta(days = 30)
+  awards = (models.GivingProjectGrant.objects.select_related()
+                                             .prefetch_related('yearendreport')
+                                             .filter(agreement_mailed__range=(date_min, date_max)))
+
+  send_yer_email(awards)
+
+  
+
+def send_yer_email(awards):
 
   for award in awards:
     if not hasattr(award, 'yearendreport'):
