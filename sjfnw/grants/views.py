@@ -1330,7 +1330,7 @@ def yer_reminder_email(request):
                                              .prefetch_related('yearendreport')
                                              .filter(agreement_mailed__in=award_dates))
 
-  send_yer_email(awards)
+  return send_yer_email(awards)
 
 
 
@@ -1345,7 +1345,7 @@ def yer_first_email(request):
                                              .prefetch_related('yearendreport')
                                              .filter(agreement_mailed__range=(date_min, date_max)))
 
-  send_yer_email(awards)
+  return send_yer_email(awards)
 
   
 
