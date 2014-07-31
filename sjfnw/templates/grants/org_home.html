@@ -69,7 +69,7 @@
           <li>Year end report for award from {{ draft.award.projectapp.giving_project }}</li>
         </td>
         <td>(see below)</td>
-        <td><b><a href="/report/{{ draft.award_id }}">Edit draft</a></b></td>
+        <td><b><a href="/report/{{ draft.award_id }}{{ user_override|default:'' }}">Edit draft</a></b></td>
         <td>Modified {{ draft.modified|date:"n/j g:iA"|lower  }}</td>
         <td>Due {{ draft.award.yearend_due|date:"n/j/y"  }}</td>
         <td></td>
@@ -114,7 +114,7 @@
             </li>
             {% else %}
             <li>
-              <a href="/report/{{ award.pk }}">Year end report</a> due {{ award.yearend_due|date:"n/j/y" }}.
+              <a href="/report/{{ award.pk }}{{ user_override|default:'' }}">Year end report</a> due {{ award.yearend_due|date:"n/j/y" }}.
             </li>
             {% endif %}{# award.yearendreport #}
           {% endif %}{# agreement_mailed #}
