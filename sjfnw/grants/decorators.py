@@ -8,6 +8,15 @@ import logging
 logger = logging.getLogger('sjfnw')
 
 def registered_org(function=None):
+  """ Requires that the logged in user corresponds to an Organization and
+      passes that organization as an arg to the view
+
+    Notes:
+      - Must be used *after* @login_required
+      - If no org is found matching user email, redirects to /apply/nr
+      - Works with staff override, indicates in log
+  """
+
   def decorator(view_func):
 
     @wraps(view_func, assigned=available_attrs(view_func))
