@@ -507,7 +507,7 @@ def year_end_report(request, organization, award_id):
       msg = EmailMultiAlternatives('Year-end report submitted', #subject
                                     text_content,
                                     constants.GRANT_EMAIL, #from
-                                    [organization.email], #to
+                                    [yer.email], #to
                                     [constants.SUPPORT_EMAIL]) #bcc
       msg.attach_alternative(html_content, "text/html")
       msg.send()
