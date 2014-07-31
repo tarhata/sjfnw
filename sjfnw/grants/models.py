@@ -720,13 +720,13 @@ class YearEndReport(models.Model):
   photo1 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', 
       help_text = ('Please provide two or more photos that show your organization\'s members, '
         'activities, etc. These pictures help us tell the story of our grantees and of Social '
-        'Justice Fund to the broader public.'))
-  photo2 = models.FileField(validators = [validate_photo_file_extension], upload_to='/')
-  photo3 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', help_text='(optional)', blank=True)
-  photo4 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', help_text='(optional)', blank=True)
+        'Justice Fund to the broader public.'), max_length=255)
+  photo2 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', max_length=255)
+  photo3 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', help_text='(optional)', blank=True, max_length=255)
+  photo4 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', help_text='(optional)', blank=True, max_length=255)
 
   photo_release = models.FileField(upload_to='/',
-    verbose_name = 'Please provide photo releases signed by any people who appear in these photos.')
+    verbose_name = 'Please provide photo releases signed by any people who appear in these photos.', max_length=255)
 
   # admin-entered
   visible = models.BooleanField(default=False, help_text=
@@ -751,12 +751,12 @@ class YERDraft(models.Model):
   modified = models.DateTimeField(default=timezone.now())
   contents = models.TextField(default='{}')
 
-  photo1 = models.FileField(upload_to='/', blank=True)
-  photo2 = models.FileField(upload_to='/', blank=True)
-  photo3 = models.FileField(upload_to='/', blank=True)
-  photo4 = models.FileField(upload_to='/', blank=True)
+  photo1 = models.FileField(upload_to='/', blank=True, max_length=255)
+  photo2 = models.FileField(upload_to='/', blank=True, max_length=255)
+  photo3 = models.FileField(upload_to='/', blank=True, max_length=255)
+  photo4 = models.FileField(upload_to='/', blank=True, max_length=255)
 
-  photo_release = models.FileField(upload_to='/')
+  photo_release = models.FileField(upload_to='/', max_length=255)
 
   def __unicode__(self):
     return 'DRAFT year-end report for ' + unicode(self.award)
