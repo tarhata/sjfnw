@@ -327,8 +327,12 @@ def Apply(request, organization, cycle_id): # /apply/[cycle_id]
     else:
       file_urls[field] = '<i>no file uploaded</i>'
 
-  return render(request, 'grants/org_app.html',
-    {'form': form, 'cycle':cycle, 'limits':models.GrantApplication.NARRATIVE_CHAR_LIMITS, 'file_urls':file_urls, 'draft':draft, 'profiled':profiled, 'org':organization, 'user_override':user_override, 'flag':flag})
+  return render(request, 'grants/org_app.html', {
+      'form': form, 'cycle': cycle, 'file_urls': file_urls,
+      'limits': models.GrantApplication.NARRATIVE_CHAR_LIMITS,
+      'draft': draft, 'profiled': profiled, 'org': organization,
+      'user_override': user_override, 'flag': flag
+  })
 
 def autosave_app(request, cycle_id):  # /apply/[cycle_id]/autosave/
   """ Save non-file fields to a draft """
@@ -465,6 +469,11 @@ def autosave_yer(request, award_id):
 @registered_org()
 def year_end_report(request, organization, award_id):
 
+  #staff override
+  user_override = request.GET.get('user')
+  if user_override:
+    user_override = '?user=' + user_override
+
   # get award, make sure org matches
   award = get_object_or_404(models.GivingProjectGrant, pk=award_id)
   app = award.projectapp.application
@@ -531,9 +540,10 @@ def year_end_report(request, organization, award_id):
     else:
       file_urls[field] = '<i>no file uploaded</i>'
 
-  return render(request, 'grants/yer_form.html',
-      {'form': form, 'org': organization, 'draft': draft, 'award': award,
-       'file_urls': file_urls})
+  return render(request, 'grants/yer_form.html', {
+      'form': form, 'org': organization, 'draft': draft, 'award': award,
+      'file_urls': file_urls, 'user_override': user_override
+  })
 
 
 # ORG COPY DELETE APPS
