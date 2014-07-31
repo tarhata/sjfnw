@@ -6,9 +6,9 @@
 <script type="text/javascript" src="/static/js/forms.js"></script>
 <script type="text/javascript">
 
-$(document).ready(function() {
-  formUtils.init('report', {{ draft.pk }}, {{ award.pk }});
-});
+  $(document).ready(function() {
+      formUtils.init('report', {{ draft.pk }}, {{ award.pk }}, '', '{{ user_override }}');
+  });
 
 </script>
 {% endblock script %}
@@ -16,13 +16,16 @@ $(document).ready(function() {
 {% block content %}
 
 <div class="formwrapper">
+
   <div class="center">
     <h1>Year-end Report</h1>
     <h2>{{ award }}</h2>
+    {% if user_override %}<h2>Filling out on behalf of {{ org }}</h2>{% endif %}
     <span class="last_saved" title="The form is automatically saved every 30 seconds">
       Last saved: <span class="autosaved">{{ draft.modified|date:"F j, g:ia" }}</span>
     </span>
   </div>
+  
   {% if form.errors %}
   <div style="border:2px groove red;padding:0 10px;margin:10px 0;text-align:center;"><!-- TODO css-->
     <p>Please resolve the errors below and try submitting again.</p>
