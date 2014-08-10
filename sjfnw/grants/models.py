@@ -706,7 +706,7 @@ class YearEndReport(models.Model):
   donations_count = models.PositiveIntegerField(verbose_name=
       ('10. How many individuals gave a financial contribution of any size to '
         'your organization in the last year?'))
-  donations_count_prev = models.PositiveIntegerField(verbose_name=
+  donations_count_prev = models.PositiveIntegerField(null=True, verbose_name=
       ('How many individuals made a financial contribution the previous '
       'year?'))
 
