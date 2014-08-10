@@ -102,6 +102,11 @@
       {{ form.donations_count }}
     </div>
     <div class="narrative_q">
+      {{ form.donations_count_prev.label_tag }}
+      {{ form.donations_count_prev.errors}}<br>
+      {{ form.donations_count_prev }}
+    </div>
+    <div class="narrative_q">
       {{ form.stay_informed.label_tag }}
       {{ form.stay_informed.errors}}
       {{ form.stay_informed }}

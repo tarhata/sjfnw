@@ -705,8 +705,10 @@ class YearEndReport(models.Model):
         'including paid staff, identify as part of your organization?'))
   donations_count = models.PositiveIntegerField(verbose_name=
       ('10. How many individuals gave a financial contribution of any size to '
-        'your organization in the last year? How many individuals made a '
-        'financial contribution the previous year?'))
+        'your organization in the last year?'))
+  donations_count_prev = models.PositiveIntegerField(verbose_name=
+      ('How many individuals made a financial contribution the previous '
+      'year?'))
 
   stay_informed = models.TextField(verbose_name=
       ('11. What is the best way for us to stay informed about your work? '
