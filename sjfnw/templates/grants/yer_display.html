@@ -43,28 +43,28 @@
     <p>{{ form.website.label_tag }} {{ report.website }}</p>
 
     <p>{{ form.summarize_last_year.label_tag }}</p>
-    <p>{{ report.summarize_last_year }}</p>
+    <p>{{ report.summarize_last_year|linebreaks }}</p>
 
     <p>{{ form.goal_progress.label_tag }}</p>
-    <p>{{ report.goal_progress }}</p>
+    <p>{{ report.goal_progress|linebreaks }}</p>
 
     <p>{{ form.quantitative_measures.label_tag }}</p>
-    <p>{{ report.quantitative_measures|default:"N/A" }}</p>
+    <p>{{ report.quantitative_measures|linebreaks|default:"N/A" }}</p>
 
     <p>{{ form.evaluation.label_tag }}</p>
-    <p>{{ report.evaluation }}</p>
+    <p>{{ report.evaluation|linebreaks }}</p>
 
     <p>{{ form.achieved.label_tag }}</p>
-    <p>{{ report.achieved }}</p>
+    <p>{{ report.achieved|linebreaks }}</p>
 
     <p>{{ form.collaboration.label_tag }}</p>
-    <p>{{ report.collaboration }}</p>
+    <p>{{ report.collaboration|linebreaks }}</p>
 
     <p>{{ form.new_funding.label_tag }}</p>
-    <p>{{ report.new_funding|default:"N/A" }}</p>
+    <p>{{ report.new_funding|linebreaks|default:"N/A" }}</p>
 
     <p>{{ form.major_changes.label_tag }}</p>
-    <p>{{ report.major_changes|default:"N/A" }}</p>
+    <p>{{ report.major_changes|linebreaks|default:"N/A" }}</p>
 
     <p>{{ form.total_size.label_tag }}</p>
     <p>{{ report.total_size }}</p>
@@ -75,8 +75,10 @@
     <p>{{ form.stay_informed.label_tag }}</p>
     <p>{{ report.stay_informed_display }}</p>
 
+    {% if perm > 1 %}
     <p>{{ form.other_comments.label_tag }}</p>
     <p>{{ report.other_comments|default:"N/A" }}</p>
+    {% endif %}
 
     <p><label>Photos</label></p>
 
