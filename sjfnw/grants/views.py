@@ -1145,7 +1145,7 @@ def get_award_results(options):
     sponsored = sponsored.exclude(organization__fiscal_org='')
 
   # fields
-  fields = ['check_mailed', 'amount', 'organization', 'grant_type']
+  fields = ['check_mailed', 'amount', 'organization', 'grant_type', 'giving_project']
   if options.get('report_id'):
     fields.append('id')
   if options.get('report_check_number'):
@@ -1172,12 +1172,14 @@ def get_award_results(options):
         row.append(award.projectapp.application.organization.name)
       elif field == 'grant_type':
         row.append('Giving project')
+      elif field == 'giving_project':
+        row.append(award.projectapp.giving_project.title)
       elif field == 'year_end_report_due':
         row.append(award.yearend_due())
       elif field == 'id':
         row.append('') # only for sponsored
       else:
-        row.append(getattr(award, field))
+        row.append(getattr(award, field, ''))
     for field in org_fields:
       row.append(getattr(award.projectapp.application.organization, field))
     results.append(row)
