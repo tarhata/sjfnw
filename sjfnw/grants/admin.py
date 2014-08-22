@@ -395,7 +395,7 @@ class SponsoredProgramGrantA(admin.ModelAdmin):
   #readonly_fields = ()
 
 class YearEndReportA(admin.ModelAdmin):
-  list_display = ('award', 'submitted', 'visible', 'view_link')
+  list_display = ('org', 'award', 'submitted', 'visible', 'view_link')
   list_select_related = True
   fields = (('award', 'submitted', 'view_link'),
             'visible')
@@ -406,6 +406,9 @@ class YearEndReportA(admin.ModelAdmin):
       link =  '<a href="%s" target="_blank">View report</a>' % reverse('sjfnw.grants.views.view_yer', kwargs = {'report_id': obj.pk})
       return link
   view_link.allow_tags = True
+
+  def org(self, obj):
+    return obj.award.projectapp.application.organization.name
 
 
 # REGISTER
