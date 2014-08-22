@@ -236,7 +236,7 @@ class MembershipA(admin.ModelAdmin):
 
 
 class DonorA(admin.ModelAdmin):
-  list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked',
+  list_display = ('firstname', 'lastname', 'membership', 'amount', 'talked', 'asked',
                   'promised', 'received_this', 'received_next', 'received_afternext')
   list_filter = ('membership__giving_project', 'asked', PromisedBooleanFilter,
                  ReceivedBooleanFilter)
