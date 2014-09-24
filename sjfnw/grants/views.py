@@ -551,6 +551,8 @@ def year_end_report(request, organization, award_id):
 @registered_org()
 def CopyApp(request, organization):
 
+  user_override = '?user=' + request.GET.get('user') if request.GET.get('user') else ''
+
   if request.method == 'POST':
     form = RolloverForm(organization, request.POST)
     if form.is_valid():
@@ -612,7 +614,7 @@ def CopyApp(request, organization):
       new_draft.save()
       logger.info("CopyApp -- content and files set")
 
-      return redirect('/apply/' + new_cycle)
+      return redirect('/apply/' + new_cycle + user_override)
 
     else: #INVALID FORM
       logger.warning('form invalid')
