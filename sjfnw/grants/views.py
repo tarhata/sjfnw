@@ -164,7 +164,7 @@ def org_home(request, organization):
 
   saved = models.DraftGrantApplication.objects.filter(organization=organization).select_related('grant_cycle')
   submitted = models.GrantApplication.objects.filter(organization=organization).order_by('-submission_time').select_related('giving_projects')
-  cycles = models.GrantCycle.objects.filter(close__gt=timezone.now()-datetime.timedelta(days=180)).order_by('open')
+  cycles = models.GrantCycle.objects.exclude(private=True).filter(close__gt=timezone.now()-datetime.timedelta(days=180)).order_by('open')
   submitted_cycles = submitted.values_list('grant_cycle', flat=True)
   yer_drafts = models.YERDraft.objects.select_related().filter(award__projectapp__application__organization_id = organization.pk)
 

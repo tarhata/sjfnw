@@ -215,6 +215,7 @@ class GrantCycleA(admin.ModelAdmin):
   fields = (
     ('title', 'open', 'close'),
     ('info_page', 'email_signature'),
+    'private',
     'extra_question',
     'conflicts',
   )

@@ -171,6 +171,9 @@ class GrantCycle(models.Model):
   conflicts = models.TextField(blank=True,
       help_text='Track any conflicts of interest (automatic & personally '
       'declared) that occurred  during this cycle.')
+  private = models.BooleanField(default=False, verbose_name=
+      ('Private (will not be displayed to orgs, but can be accessed by '
+       'anyone who has the direct link)'))
 
   class Meta:
     ordering = ['-close', 'title']
