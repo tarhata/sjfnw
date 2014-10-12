@@ -5,7 +5,7 @@ import datetime
 
 class Command(BaseCommand):
 
-  help = 'Runs update story for missed days 6-13 to 6-14'
+  help = 'Runs update story for missed days 6-13 to 6-14 (edit file to change the dates)'
 
   def handle(self, *args, **options):
     self.stdout.write('Beginning.\n')

@@ -5,9 +5,9 @@ from django.conf import settings
 
 class Command(BaseCommand):
 
-  help = 'dump data from live site into fixtures'
+  help = 'Dump data from live site into fixtures. Requires settings hack to use remote DB'
 
-  def handle(self, **args, **options):
+  def handle(self, *args, **options):
     if settings.DATABASES['default']['NAME'] == 'sjfdb_local':
       self.stderr.write('Using local db.  Did you mean to load_testing_data?'
       return
