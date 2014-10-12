@@ -141,6 +141,23 @@ class ApplySuccessful(BaseGrantFilesTestCase):
     self.assertEqual(app.budget1, files[2])
     self.assertEqual(app.budget2, files[3])
 
+  def test_profile_updated(self):
+    """ Verify that org profile is updated when application is submitted
+    Just checks mission field """
+
+    draft = models.DraftGrantApplication.objects.get(organization_id = self.org_id, grant_cycle_id = self.cycle_id)
+    draft_contents = json.loads(draft.contents)
+    org = draft.organization
+
+    self.assertNotEqual(draft_contents['mission'], org.mission)
+
+    response = self.client.post('/apply/%d/' % self.cycle_id, follow=True)
+
+    org = models.Organization.objects.get(id=self.org_id)
+    self.assertTemplateUsed(response, 'grants/submitted.html')
+    self.assertEqual(draft_contents['mission'], org.mission)
+
+
 @override_settings(MIDDLEWARE_CLASSES = TEST_MIDDLEWARE)
 class ApplyBlocked(BaseGrantTestCase):
 
