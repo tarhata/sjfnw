@@ -104,7 +104,7 @@ class Organization(models.Model):
     'differentiate the two.')})
   email = models.EmailField(max_length=100, verbose_name='Login',
                             blank=True, unique=True) #django username
-  
+
   staff_contact_person = models.CharField(max_length=250, blank=True,
       verbose_name= 'Staff-entered contact person')
   staff_contact_person_title = models.CharField(max_length=100, blank=True,
@@ -218,7 +218,7 @@ class DraftGrantApplication(models.Model):
 
   extended_deadline = models.DateTimeField(blank=True, null=True,
       help_text = 'Allows this draft to be edited/submitted past the grant cycle close.')
-                                           
+
 
   class Meta:
     unique_together = ('organization', 'grant_cycle')
@@ -531,6 +531,27 @@ class GrantApplication(models.Model):
   def __unicode__(self):
     return '%s - %s' % (unicode(self.organization), unicode(self.grant_cycle))
 
+  def save(self, *args, **kwargs):
+    """ Whenever grant application is updated, update org profile if it is the
+    most recent app for the org """
+    super(GrantApplication, self).save(*args, **kwargs)
+
+    # check if there are more recent apps
+    apps = GrantApplication.objects.filter(organization_id=self.organization_id,
+      submission_time__gt=self.submission_time)
+    if len(apps) > 0:
+      logger.info('App saving - not the most recent app - regular save')
+    else:
+      logger.info('App updated, updating org profile')
+      org = self.organization
+
+      for field in Organization._meta.get_all_field_names():
+        if field != 'id' and hasattr(self, field):
+          setattr(org, field, getattr(self, field))
+      org.save()
+
+      logger.info('Org profile updated')
+
   def id_number(self):
     return self.pk + 5211 #TODO obsolete?
 
@@ -687,7 +708,7 @@ class YearEndReport(models.Model):
   quantitative_measures = models.TextField(verbose_name=
       ('3. Do you evaluate your work by any quantitative measures (e.g., number '
         'of voters registered, members trained, leaders developed, etc.)? If '
-        'so, provide that information:'), blank=True) 
+        'so, provide that information:'), blank=True)
   evaluation = models.TextField(verbose_name=
       ('4. What other type of evaluations do you use internally? Please share '
        'any outcomes that are relevant to the work funded by this grant.'))
@@ -722,7 +743,7 @@ class YearEndReport(models.Model):
         'SJF can improve its grantmaking programs?'), blank=True) #json dict - see modelforms
 
 
-  photo1 = models.FileField(validators = [validate_photo_file_extension], upload_to='/', 
+  photo1 = models.FileField(validators = [validate_photo_file_extension], upload_to='/',
       help_text = ('Please provide two or more photos that show your organization\'s members, '
         'activities, etc. These pictures help us tell the story of our grantees and of Social '
         'Justice Fund to the broader public.'), max_length=255)
