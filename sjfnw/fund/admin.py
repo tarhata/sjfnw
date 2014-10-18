@@ -144,7 +144,7 @@ class ProjectAppInline(admin.TabularInline):
     if db_field.name == 'application':
       cached_choices = getattr(request, 'cached_projectapps', None)
       if cached_choices:
-        logger.info('getting cached choices')
+        logger.info('using ' + str(len(cached_choices)) + ' cached choices')
         formfield = super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
         formfield.choices = cached_choices
         return formfield
@@ -155,8 +155,8 @@ class ProjectAppInline(admin.TabularInline):
         logger.info('could not parse gp id, not limiting gp choices')
       else:
         gp = GivingProject.objects.get(pk=gp_id)
-        year = gp.fundraising_deadline.year
-        apps = GrantApplication.objects.filter(submission_time__year=year).select_related('grant_cycle', 'organization')
+        year = gp.fundraising_deadline.year - 1
+        apps = GrantApplication.objects.filter(submission_time__year__gte=year).select_related('grant_cycle', 'organization')
         kwargs['queryset'] = apps
       finally:
         formfield = super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
