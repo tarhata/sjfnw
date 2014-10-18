@@ -17,13 +17,20 @@ formUtils.status_texts = { //for ajax error messages
 };
 
 
+/**
+ * @param {string} url_prefix - beginning of path (i.e. 'apply'). no slashes
+ * @param {number} draft_id - pk of draft object
+ * @param {number} submit_id - pk of object used in post TODO is this just cycle?
+ * @param {string.alphanum} user_id - randomly generated user id for mult edit warning
+ * @param {string} staff_user - querystring for user override (empty string if n/a)
+ */
 formUtils.init = function(url_prefix, draft_id, submit_id, user_id, staff_user) {
-  if (staff_user){
+  if (staff_user) {
     formUtils.staff_user = staff_user;
   } else {
     formUtils.staff_user = '';
   }
-  autoSave.init(url_prefix, submit_id, user_id);
+  autoSave.init(url_prefix, submit_id, user_id, staff_user);
   fileUploads.init(url_prefix, draft_id);
 };
 
@@ -47,6 +54,7 @@ formUtils.currentTimeDisplay = function(){
   }
   m = m<10?"0"+m:m;
   /* s = s<10?"0"+s:s; */
+  /* s = s<!-- <10?"0"+s:s; */
   return monthNames[d.getMonth()]+' '+d.getDate()+', '+h+':'+m+dd;
 };
 
@@ -83,15 +91,16 @@ autoSave.pause_timer = false;
 
 /* autosave flow:
 
-   page load -> init ->
-               focus -> resume() -> sets onblur, sets save_timer -30-> save()
+   page load -> --> init ->
    page blur -> pause() -> sets onfocus, sets pause_timer -30-> clears save_timer
 
 */
 
-autoSave.init = function(url_prefix, submit_id, user_id) {
+autoSave.init = function(url_prefix, submit_id, user_id, staff_user) {
   autoSave.submit_url = '/' + url_prefix + '/' + submit_id;
-  autoSave.save_url = autoSave.submit_url + '/autosave';
+  autoSave.save_url = autoSave.submit_url + '/autosave' + staff_user;
+  autoSave.submit_url += staff_user;
+  autoSave.staff_user = staff_user;
   if (user_id) {
     autoSave.user_id = user_id;
   } else {
@@ -144,9 +153,14 @@ autoSave.resume = function() {
 
 autoSave.save = function (submit, override){
   if (!override){ override = 'false'; }
+  if (autoSave.staff_user) {
+    override = '&override=' + override;
+  } else {
+    override = '?override=' + override;
+  }
   console.log(formUtils.logTime() + "autosaving");
   $.ajax({
-    url: autoSave.save_url + '?override=' + override,
+    url: autoSave.save_url + override,
     type:"POST",
     data:$('form').serialize() + '&user_id=' + autoSave.user_id,
     success:function(data, textStatus, jqXHR){

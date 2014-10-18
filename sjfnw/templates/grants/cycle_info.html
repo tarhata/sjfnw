@@ -62,7 +62,7 @@ $(document).ready(function() {
 
 {% if cycle.is_open %}
 <div align="center">
-  <button id="apply-now" onclick="location.href='/apply/{{cycle.pk}}'">Continue to application</button>
+  <button id="apply-now" onclick="location.reload()">Continue to application</button>
 </div>
 <hr>
 {% endif %}
