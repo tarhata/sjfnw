@@ -514,8 +514,9 @@ def year_end_report(request, organization, award_id):
       logger.info('Created new YER draft')
     else:
       initial_data = json.loads(draft.contents)
-      if initial_data['contact_person_0'] or initial_data['contact_person_1']:
-        initial_data['contact_person'] = initial_data['contact_person_0'] + ', ' + initial_data['contact_person_1']
+      # manually convert multi-widget TODO improve this
+      initial_data['contact_person'] = (initial_data.get('contact_person_0', '') +
+          ', ' + initial_data.get('contact_person_1', ''))
 
 
     form = YearEndReportForm(initial=initial_data)
@@ -687,9 +688,10 @@ def rollover_yer(request, organization):
       contents = model_to_dict(report, exclude=[
         'modified', 'submitted', 'photo1', 'photo2', 'photo3', 'photo4', 'photo_release'])
       contact = contents['contact_person'].split(', ', 1)
+      # manually convert db value to multiwidget values #TODO
       contents['contact_person_0'] = contact[0]
       contents['contact_person_1'] = contact[1]
-      logger.info(contents)
+      logger.debug(contents)
       new_draft = models.YERDraft(award=award, contents=json.dumps(contents))
       new_draft.photo1 = report.photo1
       new_draft.photo2 = report.photo2
