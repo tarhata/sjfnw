@@ -25,12 +25,12 @@ formUtils.status_texts = { //for ajax error messages
  * @param {string} staff_user - querystring for user override (empty string if n/a)
  */
 formUtils.init = function(url_prefix, draft_id, submit_id, user_id, staff_user) {
-  if (staff_user) {
+  if (staff_user && staff_user !== 'None') {
     formUtils.staff_user = staff_user;
   } else {
     formUtils.staff_user = '';
   }
-  autoSave.init(url_prefix, submit_id, user_id, staff_user);
+  autoSave.init(url_prefix, submit_id, user_id);
   fileUploads.init(url_prefix, draft_id);
 };
 
@@ -96,11 +96,10 @@ autoSave.pause_timer = false;
 
 */
 
-autoSave.init = function(url_prefix, submit_id, user_id, staff_user) {
+autoSave.init = function(url_prefix, submit_id, user_id) {
   autoSave.submit_url = '/' + url_prefix + '/' + submit_id;
-  autoSave.save_url = autoSave.submit_url + '/autosave' + staff_user;
-  autoSave.submit_url += staff_user;
-  autoSave.staff_user = staff_user;
+  autoSave.save_url = autoSave.submit_url + '/autosave' + formUtils.staff_user;
+  autoSave.submit_url += formUtils.staff_user;
   if (user_id) {
     autoSave.user_id = user_id;
   } else {
@@ -153,7 +152,7 @@ autoSave.resume = function() {
 
 autoSave.save = function (submit, override){
   if (!override){ override = 'false'; }
-  if (autoSave.staff_user) {
+  if (formUtils.staff_user) { //TODO use querystring function
     override = '&override=' + override;
   } else {
     override = '?override=' + override;

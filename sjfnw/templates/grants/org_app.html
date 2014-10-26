@@ -85,7 +85,7 @@ function setInfoClicks(){
 }
 
 $(document).ready(function() {
-  formUtils.init('apply', {{ draft.pk }}, {{ cycle.pk }}, setUserID(), '{{ user_override }}');
+  formUtils.init('apply', {{ draft.pk }}, {{ cycle.pk }}, setUserID(), '{{ user_override|default:"" }}');
   var counted_fields = $('[onKeyUp]');
   for(var i = 0; i < counted_fields.length; i++) {
     $(counted_fields[i]).keyup();
