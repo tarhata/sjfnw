@@ -31,6 +31,7 @@ class CycleTypeFilter(admin.SimpleListFilter):
 
   def lookups(self, request, model_admin):
     titles = GrantCycle.objects.order_by('title').values_list('title', flat=True).distinct()
+    # group cycles into "types" - criminal justice, economic justice, etc.
     types = []
     for title in titles:
       pos = title.find(' Grant Cycle')
@@ -47,7 +48,7 @@ class CycleTypeFilter(admin.SimpleListFilter):
     if not self.value():
       return queryset
     else:
-      return queryset.filter(application__grant_cycle__title__startswith=self.value())
+      return queryset.filter(projectapp__application__grant_cycle__title__startswith=self.value())
 
 
 # INLINES
