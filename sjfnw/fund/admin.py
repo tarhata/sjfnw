@@ -10,7 +10,7 @@ from sjfnw.fund.models import *
 from sjfnw.fund import forms, utils, modelforms
 from sjfnw.grants.models import ProjectApp, GrantApplication
 
-import unicodecsv, logging, json
+import datetime, unicodecsv, logging, json
 
 logger = logging.getLogger('sjfnw')
 
@@ -113,6 +113,28 @@ class MembershipInline(admin.TabularInline): #GP
   can_delete = False
   fields = ('member', 'giving_project', 'approved', 'leader',)
 
+  def formfield_for_foreignkey(self, db_field, request, **kwargs):
+
+    # cache member choices to reduce queries
+    if db_field.name == 'member':
+
+      cached_choices = getattr(request, 'cached_members', None)
+      if cached_choices:
+        logger.debug('Using cached choices for membership inline')
+        formfield = super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        formfield.choices = cached_choices
+
+      else:
+        members = Member.objects.all()
+        formfield = super(MembershipInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        formfield.choices = [(member.pk, unicode(member)) for member in members]
+        request.cached_members = formfield.choices
+
+      return formfield
+
+    else: # different field
+      return super(MembershipInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
 class ProjectResourcesInline(admin.TabularInline): #GP
   model = ProjectResource
   extra = 0
@@ -140,51 +162,38 @@ class ProjectAppInline(admin.TabularInline):
   #  return qs.select_related('application')
 
   def formfield_for_foreignkey(self, db_field, request, **kwargs):
-    # limit which grant applications are shown and cache field choices
+
+    # cache application choices to reduce queries
     if db_field.name == 'application':
+
       cached_choices = getattr(request, 'cached_projectapps', None)
       if cached_choices:
-        logger.info('using ' + str(len(cached_choices)) + ' cached choices')
+        logger.debug('Using cached choices for projectapp inline')
         formfield = super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
         formfield.choices = cached_choices
-        return formfield
 
-      try:
-        gp_id = int(request.path.split('/')[-2])
-      except:
-        logger.info('could not parse gp id, not limiting gp choices')
       else:
-        gp = GivingProject.objects.get(pk=gp_id)
-        year = gp.fundraising_deadline.year - 1
-        apps = GrantApplication.objects.filter(submission_time__year__gte=year).select_related('grant_cycle', 'organization')
-        kwargs['queryset'] = apps
-      finally:
-        formfield = super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
-        formfield.choices = list(formfield.choices)
-        request.cached_projectapps = formfield.choices
-        logger.info('set cached choices')
-        return formfield
+        apps = GrantApplication.objects.select_related('grant_cycle', 'organization')
+        try:
+          gp_id = int(request.path.split('/')[-2])
+        except:
+          logger.info('Could not parse gp id, not limiting app choices')
+        else:
+          gp = GivingProject.objects.get(pk=gp_id)
+          year = gp.fundraising_deadline - datetime.timedelta(weeks=52)
+          apps = apps.filter(submission_time__gte=year)
+        finally:
+          formfield = super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+          # create choices from queryset (doing manually results in less queries)
+          formfield.choices = [(app.pk, unicode(app)) for app in apps]
+          request.cached_projectapps = formfield.choices
+          logger.debug('Cached app choices for projectapp inline')
+
+      return formfield
+
     else: #other field
       return super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
-  """
-  def granted(self, obj):
-    # For existing projectapps, shows grant amount or link to add a grant
-    output = ''
-    if obj.pk:
-      logger.info(obj.pk)
-      try:
-        award = obj.givingprojectgrant
-      except GivingProjectGrant.DoesNotExist:
-        output = mark_safe(
-            '<a href="/admin/grants/givingprojectgrant/add/?projectapp=' +
-            str(obj.pk) + '" target="_blank">Enter an award</a>')
-      else:
-        logger.info('grant does exist')
-        output = str(award.amount)
-        logger.info(output)
-    return output
-  """
 
 class SurveyI(admin.TabularInline):
 
