@@ -8,9 +8,8 @@ if __name__ == "__main__":
 
   from django.core.management import execute_from_command_line
 
-  #test setup - hacky?
+  #test setup - add inner sjfnw dir to path. hacky?
   sys.path.append(os.path.dirname(__file__) + '/sjfnw') #for windows, use '\\sjfnw' instead
-  sys.path.append('/home/aisa/Devel/google_appengine/lib/webob-1.2.3')
   logging.basicConfig(format='%(levelname)-8s %(asctime)s %(filename)s:%(lineno)d %(funcName)s]: %(message)s', 
       datefmt = '%Y-%m-%d %H:%M:%S')
 
