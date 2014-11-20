@@ -35,7 +35,7 @@
   <form id="yer-form" action="" method="POST" accept-charset="UTF-8">
 
     <div style="margin-top:2em;">
-      {{ form.contact_person.label_tag }}{{ form.contact_person }}<br><br>
+      {{ form.contact_person.label_tag }}{{ form.contact_person }} {{ form.contact_person.errors }}<br><br>
       <table>
         <tr>
           <td>{{ form.email.errors }}</td>

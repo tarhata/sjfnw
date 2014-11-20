@@ -246,7 +246,11 @@ class ContactPersonWidget(forms.widgets.MultiWidget):
     val_list = []
     for i, widget in enumerate(self.widgets):
       val_list.append(widget.value_from_datadict(data, files, name + '_%s' % i))
-    return ', '.join(val_list)
+    val = ', '.join(val_list)
+    if val == ', ':
+      return ''
+    else:
+      return val
 
 
 def set_yer_custom_fields(field, **kwargs):
