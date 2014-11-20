@@ -482,8 +482,8 @@ def year_end_report(request, organization, award_id):
     draft_data = json.loads(draft.contents)
     files_data = model_to_dict(draft, fields = ['photo1', 'photo2', 'photo3', 'photo4', 'photo_release'])
     logger.info(files_data)
+    draft_data['award'] = award.pk
     form = YearEndReportForm(draft_data, files_data)
-
     if form.is_valid():
       logger.info('Valid YER')
       # save YER and delete draft
@@ -508,7 +508,7 @@ def year_end_report(request, organization, award_id):
 
   else: # GET
     if cr:
-      initial_data = {'website': app.website, 'sit_website': app.website, 'award': award,
+      initial_data = {'website': app.website, 'sit_website': app.website,
                       'contact_person': app.contact_person + ', ' + app.contact_person_title,
                       'phone': app.telephone_number, 'email': app.email_address}
       logger.info('Created new YER draft')
