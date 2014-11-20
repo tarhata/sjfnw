@@ -185,7 +185,7 @@ class ProjectAppInline(admin.TabularInline):
         finally:
           formfield = super(ProjectAppInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
           # create choices from queryset (doing manually results in less queries)
-          formfield.choices = [(app.pk, unicode(app)) for app in apps]
+          formfield.choices = [('', '---------')] + [(app.pk, unicode(app)) for app in apps]
           request.cached_projectapps = formfield.choices
           logger.debug('Cached app choices for projectapp inline')
 
